@@ -1,0 +1,2 @@
+#!/bin/sh
+awk -v top=$2 '{if ($0 == "#" (top+1)) exit; print $0}' $1

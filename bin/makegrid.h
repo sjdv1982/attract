@@ -1,0 +1,8 @@
+const double boxspace = 10.8;
+const double distcutoff = 50; /* cutoff for vdW interactions */
+const double distcutoffsq =distcutoff* distcutoff;
+const double gridspacing = 0.9;
+const double interior_cutoff = 7;
+const double interior_cutoffsq = interior_cutoff * interior_cutoff;
+const int shrink_interior = 23; 
+const double interior_value = 20;
