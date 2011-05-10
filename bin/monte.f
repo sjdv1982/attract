@@ -45,7 +45,7 @@ c     Local variables
       pi=3.141592654d0
       call ministate_f_monte(ministatehandle,
      1 iscore,ivmax,iori,itra,ieig,fixre,gridmode,mctemp,
-     2 scalerot,scalecenter)
+     2 scalerot,scalecenter,scalemode)
      
 c     always calculate only energies
       iab = 0
@@ -67,7 +67,6 @@ c  only trans or ori
      
       xnull=0.0d0
       dseed=seed
-      scalemode=0.0d0
       scalerot=pi*scalerot
       nfun=0
       itr=0
@@ -166,7 +165,7 @@ c        write(*,*)'new ii,c,phi,ssi,rot',i,ii,c,phi(i),ssi(i),rot(i)
 c make a move in HM direction and update x, y(1,i) and y(2,i) and dlig(j)
       call crand(dseed,ju+1,rr) 
       dseed = rr(ju+1)
-      if(ieig.eq.2) then
+      if(ieig.eq.1) then
       kk = 0
       do 1180 k=1,nlig
       do 1200 i=1,nhm(k)
