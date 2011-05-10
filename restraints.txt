@@ -1,0 +1,48 @@
+A restraints file consists of two sections. The sections are separated by an empty line.
+Lines starting with # are always skipped
+
+1. Selection section: <selection identifier> <number of atoms in selection> <n1> <n2> ... where <nX> is the atom number among all the numbers in the system.
+Example: a receptor with 3000 atoms and a ligand with 1000 atoms:
+sel 3 293 294 3008
+selection "sel" consists of atoms 293 and 294 of the receptor and atom 8 of the ligand.
+
+2. Restraints section: <selection identifier 1> <selection identifier 2> <restraint type> [parameters]
+
+restraint types:
+1: harmonic maximum distance restraint: <maximum distance> <force constant>
+    force constant increases linearly with the violation
+2: HADDOCK maximum distance restraint: <maximum distance> <force constant>
+    <max violation> <chance of random removal>
+    force constant increases linearly with the violation
+    force cannot be bigger than force at max violation:
+      i.e.: harmonic up to max violation, linear afterward    
+
+The "chance of random removal" indicates the chance that a restraint is not used at all.
+This is determined by a random number generated from a structure's seed. Therefore, the same seed with the same restraint file causes the same restraints to be enabled or disabled within every docking stage.
+Orthogonality issue: the seed number is also used in pure MC mode.
+
+************************
+Examples:
+
+(start of file)
+Ile54_CA 1 385
+Leu1001_CA 1 2356
+
+Ile54_CA Leu1001_CA 1 2.4 2
+(end of file)
+Defines a harmonic restraint between atom 385 and atom 2356. The maximum distance is 2.4 A: this distance or less gives no energy penalty/force.
+At 3.4 A, the atoms experience an attractive force of 2 kcal/mol / A, and the energy penalty is 1 kcal/mol
+At 5.4 A, the atoms experience an attractive force of 18 kcal/mol / A, and the energy penalty is 9 kcal/mol.
+
+(start of file)
+Gly31 4 31 32 34 35
+Ser281 6 1064 1065 1066 1067 1068 1069
+
+Gly31 Ser281 2 2.0 1.0 2.0 0.6
+(end of file)
+Defines a HADDOCK restraint between a selection of 4 atoms and a selection of 6 atoms. The maximum effective distance is 2.0 A: this distance or less gives no energy penalty/force. The effective distance is (sum(distances**-6))**-1/6. 
+The restraint is harmonic between 2.0 and 3.0 A and then becomes linear (the force constant doesn't increase further beyond 3.0 A).
+At 2.5 A, the atoms experience an attractive force of 1 kcal/mol / A, and the energy penalty is 0.5 kcal/mol.
+At 3.0 A, the atoms experience an attractive force of 2 kcal/mol / A, and the energy penalty is 1 kcal/mol.
+At 4.0 A, the atoms experience an attractive force of 2 kcal/mol / A, and the energy penalty is 3 kcal/mol.
+The restraint has a 60 % chance not to be in effect at all. 

@@ -89,7 +89,8 @@ struct MiniState {
   int imc;     //Monte Carlo mode: 0 = off (minfor), 1 = on (monte)
   double mctemp; //Monte Carlo temperature (in KT)
   double mcscalerot; //Monte Carlo rotation step size (in radians)
-  double mcscalecenter; //Monte Carlo translation/mode step size (in A)
+  double mcscalecenter; //Monte Carlo translation step size (in A)
+  double mcscalemode; //Monte Carlo mode step size (in mode A)
   int iscore;  //scoring mode: 0 = normal, 1 = scoring, 2 = trajectory
   int ivmax; //max steps
   int iori;  //enable orientations

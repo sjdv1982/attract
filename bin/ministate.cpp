@@ -20,6 +20,7 @@ extern "C" int ministate_new_() {
   ms.mctemp = 3.5;
   ms.mcscalerot = 0.05;
   ms.mcscalecenter = 0.1;
+  ms.mcscalemode = 3;
   ms.iscore = 0;
   ms.ivmax = 100; 
   ms.iori = 1;
@@ -60,11 +61,11 @@ extern "C" void ministate_f_minfor_(const int &handle, int &iscore, int &ivmax, 
   iscore=ms.iscore; ivmax = ms.ivmax;iori = ms.iori;itra = ms.itra;ieig = ms.ieig; fixre = ms.fixre; gridmode = ms.gridmode;
 }
 
-extern "C" void ministate_f_monte_(const int &handle, int &iscore, int &ivmax, int &iori, int &itra, int &ieig, int &fixre, int &gridmode, double &mctemp, double &mcscalerot, double &mcscalecenter) {
+extern "C" void ministate_f_monte_(const int &handle, int &iscore, int &ivmax, int &iori, int &itra, int &ieig, int &fixre, int &gridmode, double &mctemp, double &mcscalerot, double &mcscalecenter, double &mcscalemode) {
   MiniState &ms = *ministates[handle-7770];
   iscore=ms.iscore; ivmax = ms.ivmax;iori = ms.iori;itra = ms.itra;ieig = ms.ieig; 
   fixre = ms.fixre; gridmode = ms.gridmode; 
-  mctemp = ms.mctemp; mcscalerot = ms.mcscalerot; mcscalecenter = ms.mcscalecenter; 
+  mctemp = ms.mctemp; mcscalerot = ms.mcscalerot; mcscalecenter = ms.mcscalecenter; mcscalemode = ms.mcscalemode;
 }
 
 extern "C" void ministate_f_disre_(const int &handle, int &gravity, double &rstk) {

@@ -30,6 +30,11 @@ void mcscalecenter_usage() {
   exit(1);
 }
 
+void mcscalemode_usage() {
+ fprintf(stderr, "--mcscalemode option usage: --mcscalemode <step size in mode A>\n");
+  exit(1);
+}
+
 void rcut_usage() {
  fprintf(stderr, "--rcut option usage: --rcut <distance squared>\n");
   exit(1);
@@ -114,6 +119,13 @@ void parse_options(int ministatehandle, int cartstatehandle, int nlig, int argc,
       double mcscalecenter = atof(argv[n+1]);
       if (mcscalecenter < 0) mcscalecenter_usage();
       ms.mcscalecenter = mcscalecenter;
+      n += 1;
+    }    
+    else if (!strcmp(arg,"--mcscalemode")) {
+      if (argc-n < 2) mcscalemode_usage();    
+      double mcscalemode = atof(argv[n+1]);
+      if (mcscalemode < 0) mcscalemode_usage();
+      ms.mcscalemode = mcscalemode;
       n += 1;
     }    
     else if (!strcmp(arg,"--score")) {
