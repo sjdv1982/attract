@@ -226,7 +226,8 @@ See restraints.txt for more information on the file format.
 
 This is a convenience tool to generate restraints files from HADDOCK-style active and passive residues. It takes eight files, run air.py without any argument to get its precise command line syntax. The file formats are as follows:
 - residue list: a list of residues, one integer per line
-- mapping file: a list of mappings, two columns per line. The second column is the residue number (integer). The second column is the residue identifier (usually integer but not necessarily) in the PDB. Active and passive residues in the residue list are first mapped and then converted to a selection of atoms.
+- mapping file: a list of mappings, two columns per line. The first column is the residue number (integer). The second column is the residue identifier (usually integer but not necessarily) in the PDB. Active and passive residues in the residue list are first mapped and then converted to a selection of atoms.
+NOTE: a mapping file is generated and printed out by reduce.
 Example: 
 active residue list: 20
 mapping file: 20 19B
@@ -336,11 +337,11 @@ For attract, if you change the gridmode to 2, the speed will double but there wi
 
 There is the possibility to load a large portion of a grid into shared memory (shm; /dev/shm on Ubuntu). This has great memory advantages with parallellization, when four or more attract processes can load the same grid(s) and still use not much more memory than a single attract process.
 
-The shm-grid tool takes a grid and creates two shared memory segments (one for the potentials and one for the neighbours), generating a grid header file that holds a reference to these segments. A grid header file can be loaded with --grid as if it where a full grid file, but it is much much smaller. The header file will be valid only as long as the shared memory segments exist: they will be deleted at reboot or when the shm-clean tool is run.
+The shm-grid tool takes a grid and creates two shared memory segments (one for the potentials and one for the neighbours), generating a grid header file that holds a reference to these segments. A grid header file can be loaded with --grid as if it where a full grid file, but it is much much smaller. The header file will be valid only as long as the shared memory segments exist: these segments are be deleted at reboot or when the shm-clean tool is run, making the header file invalid. This will result in an error message.
 
 4. Pre-tabulation (prox)
 
-There is a final speed optimization to compute energies at medium distances. A small (2000 elements) table converts distance**2 into the nearest distance**-2. Then, for every distance**-2 and every atom type-atom type pair, a large prox table contains the neighbour energy (and gradient), i.e. the standard energy minus the standard energy at plateau distance. 
+There is a final speed optimization to compute energies at medium distances. A small (2000 elements per A**2) table converts distance**2 into the nearest distance**-2. Then, for every distance**-2 and every atom type-atom type pair, a large prox table contains the neighbour energy (and gradient), i.e. the standard energy minus the standard energy at plateau distance. 
 This pre-tabulation is only used for distances shorter than the plateaudistance and longer than some distance limit proxlim. Distances shorter than that are quite rare (< 6 A: less than 10 % in fully docked structures) and require too much memory for accurate tabulation.
 
 The prox limits can be changed with the following command line options:
