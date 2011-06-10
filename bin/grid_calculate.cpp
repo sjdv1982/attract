@@ -16,12 +16,27 @@ inline void inc(Coor *dis, int nrdis, int index, double d) {
     dis[n][index] += d;
 };
 
+int ener_max = 0;
+inline unsigned int new_energrad(Grid &g) {
+  if (g.nr_energrads == ener_max) {
+    int new_ener_max = 2 * ener_max;
+    if (ener_max == 0) new_ener_max = 100000;
+    g.energrads = (EnerGrad *) realloc(g.energrads,
+      new_ener_max*sizeof(EnerGrad));
+    memset(g.energrads+ener_max,0,(new_ener_max-ener_max)*sizeof(EnerGrad));
+    ener_max = new_ener_max;
+  }
+  g.nr_energrads++;
+  return g.nr_energrads;
+}
+
 void Grid::calculate(int cartstatehandle, int ligand, const char *interior_grid, double plateaudis, double neighbourdis, int gridextension, int nhm0, bool (&alphabet)[MAXATOMTYPES]) {  
     
   init(gridspacing, gridextension, plateaudis, neighbourdis, alphabet);
   neighbours = new Neighbour[100000000]; //max 100 million neighbours
   nr_neighbours = 0; 
   shm_neighbours = -1; 
+  energrads = NULL;
   nr_energrads = 0;
   shm_energrads = -1;
   nhm = nhm0;  
@@ -130,7 +145,7 @@ void Grid::calculate(int cartstatehandle, int ligand, const char *interior_grid,
       memcpy(disxyz, disxy, nratoms*sizeof(Coor));    
       memcpy(disjxyz, disjxy, nratoms*sizeof(Coor));    
       
-      for (int z = -gridextension; z < gridz+gridextension; z++) {         
+      for (int z = -gridextension; z < gridz+gridextension; z++) {
 	 inner_xyz = inner_xy;    
 	 if (z < 0 || z >= gridz) inner_xyz = 0;
 	 junction_xyz = junction_xy;
@@ -168,7 +183,7 @@ void Grid::calculate(int cartstatehandle, int ligand, const char *interior_grid,
 
 	   long index = xx + gridx2 * yy + gridx2*gridy2*zz;	   
 	   Potential &p = biggrid[index];
-	   if (p[MAXATOMTYPES] != NULL) printf("ERR %d %d %d\n", xx, yy, zz);
+	   if (p[MAXATOMTYPES]) printf("ERR %d %d %d\n", xx, yy, zz);
            potcount++;	   
            _calc_potential(p, disxyz, xb, nratoms, wer,charges,atomtypes,
 	    rc,ac,emin,rmin2,ipon,potshape); 	   
@@ -242,8 +257,7 @@ const Parameters &rc, const Parameters &ac, const Parameters &emin, const Parame
   memset(p, 0, sizeof(Potential));
   for (int i = 0; i <= MAXATOMTYPES; i++) {
     if (i == MAXATOMTYPES || alphabet[i]) {
-      p[i] = new EnerGrad;
-      memset(p[i],0,sizeof(EnerGrad));
+      p[i] = new_energrad(*this);
     }    
   }
   for (int n = 0; n < nrdis; n++) {
@@ -275,33 +289,35 @@ const Parameters &rc, const Parameters &ac, const Parameters &emin, const Parame
       nonbon(1,wer[n],rci,aci,emini,rmin2i,ivor,dsq,
        1/dsq, dd[0],dd[1],dd[2],potshape,
        energy, grad);
-      p[i]->energy += energy;
-      p[i]->grad[0] += grad[0];
-      p[i]->grad[1] += grad[1];
-      p[i]->grad[2] += grad[2];
+      EnerGrad &e = *(energrads + p[i] - 1);
+      e.energy += energy;
+      e.grad[0] += grad[0];
+      e.grad[1] += grad[1];
+      e.grad[2] += grad[2];
 #ifdef TORQUEGRID      
-      p[i]->torques[0] -= xb[n][0] * grad[0];
-      p[i]->torques[1] -= xb[n][0] * grad[1];
-      p[i]->torques[2] -= xb[n][0] * grad[2];
-      p[i]->torques[3] -= xb[n][1] * grad[0];
-      p[i]->torques[4] -= xb[n][1] * grad[1];
-      p[i]->torques[5] -= xb[n][1] * grad[2];
-      p[i]->torques[6] -= xb[n][2] * grad[0];
-      p[i]->torques[7] -= xb[n][2] * grad[1];
-      p[i]->torques[8] -= xb[n][2] * grad[2];
+      e.torques[0] -= xb[n][0] * grad[0];
+      e.torques[1] -= xb[n][0] * grad[1];
+      e.torques[2] -= xb[n][0] * grad[2];
+      e.torques[3] -= xb[n][1] * grad[0];
+      e.torques[4] -= xb[n][1] * grad[1];
+      e.torques[5] -= xb[n][1] * grad[2];
+      e.torques[6] -= xb[n][2] * grad[0];
+      e.torques[7] -= xb[n][2] * grad[1];
+      e.torques[8] -= xb[n][2] * grad[2];
 #endif      
     }
   }
+  EnerGrad &e = *(energrads + p[MAXATOMTYPES] - 1);
 #ifdef TORQUEGRID  
-  _calc_potential_elec(p[MAXATOMTYPES]->energy, p[MAXATOMTYPES]->grad, 
-  p[MAXATOMTYPES]->torques, dis, xb, nrdis, charges);  
+  _calc_potential_elec(e.energy, e.grad, 
+  e.torques, dis, xb, nrdis, charges);  
 #else  
-  _calc_potential_elec(p[MAXATOMTYPES]->energy, p[MAXATOMTYPES]->grad, 
+  _calc_potential_elec(e.energy, e.grad, 
   dis, xb, nrdis, charges);  
 #endif
 }
 
-inline void Grid::_calc_neighbours(Neighbour *&neighbourlist, short &neighboursize, const Coor *dis, int nrdis, int *atomtypes) {
+inline void Grid::_calc_neighbours(int &neighbourlist, short &neighboursize, const Coor *dis, int nrdis, int *atomtypes) {
   for (int n = 0; n < nrdis; n++) {
     if (atomtypes[n] == 0) continue;  
     const Coor &d = dis[n];
@@ -310,7 +326,7 @@ inline void Grid::_calc_neighbours(Neighbour *&neighbourlist, short &neighboursi
     Neighbour &nb = neighbours[nr_neighbours];
     nr_neighbours++;
     if (neighboursize == 0) {
-      neighbourlist = &nb;
+      neighbourlist = nr_neighbours;
     }
     neighboursize++;
     nb.type = 2;
