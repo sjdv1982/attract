@@ -177,9 +177,14 @@ c        write(*,*)'new ii,c,phi,ssi,rot',i,ii,c,phi(i),ssi(i),rot(i)
   190    continue
       endif
 c make a move in HM direction and update x, y(1,i) and y(2,i) and dlig(j)
+<<<<<<< TREE
 c     call crand(dseed,ju+1,rr) 
       call GGUBS(dseed,ju+1,rr) 
 c     dseed = int(10000*rr(ju+1))
+=======
+      call crand(dseed,ju+1,rr) 
+      dseed = int(10000*rr(ju+1))
+>>>>>>> MERGE-SOURCE
       if(ieig.eq.1) then
       kk = 0
       do 1180 k=1,nlig
