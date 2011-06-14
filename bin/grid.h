@@ -16,22 +16,20 @@ struct EnerGrad {
 #endif  
 };
 
-typedef EnerGrad *pEnerGrad;
-typedef pEnerGrad Potential[MAXATOMTYPES+1]; 
-/*A Potential consists of 100 pointers-to-EnerGrad:
+typedef unsigned int Potential[MAXATOMTYPES+1]; 
+/*A Potential consists of 100 indices-to-EnerGrad:
  99 for the atom types, the last one is for elec*/
 
 struct Neighbour {
   char type; /*1 = under 5 A, 2 = 5-7 A*/
-  int index; /*receptor atom index*/
+  unsigned int index; /*receptor atom index*/
 };
 
 struct Voxel {
   Potential potential;
-  Neighbour *neighbourlist;
+  int neighbourlist;
   short nr_neighbours;
 };
-
 
 struct Grid {
   double gridspacing; /* 0.9 A */
@@ -59,7 +57,7 @@ struct Grid {
   int gridx2, gridy2, gridz2;   
   /* dimensions of the big grid*/
     
-  long nr_energrads;
+  int nr_energrads;
   /*contains all EnerGrads, for both biggrid and innergrid */  
   int shm_energrads; /*shared memory segment key: -1 by default*/
   EnerGrad *energrads; 
@@ -119,7 +117,7 @@ struct Grid {
    const Parameters &rc, const Parameters &ac, 
    const Parameters &emin, const Parameters &rmin2, const iParameters &ipon, const int &potshape);
 
-  inline void _calc_neighbours(Neighbour *&neighbourlist, short &neighboursize, const Coor *dis, int nrdis, int *atomtypes);
+  inline void _calc_neighbours(int &neighbourlist, short &neighboursize, const Coor *dis, int nrdis, int *atomtypes);
   
   
   void calculate(int cartstatehandle, int ligand, const char *interior_grid, double plateaudis, double neighbourdis, int gridextension, int nhm0, bool (&alphabet)[MAXATOMTYPES]);
