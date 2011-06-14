@@ -164,7 +164,7 @@ c        write(*,*)'new ii,c,phi,ssi,rot',i,ii,c,phi(i),ssi(i),rot(i)
       endif
 c make a move in HM direction and update x, y(1,i) and y(2,i) and dlig(j)
       call crand(dseed,ju+1,rr) 
-      dseed = rr(ju+1)
+      dseed = int(10000*rr(ju+1))
       if(ieig.eq.1) then
       kk = 0
       do 1180 k=1,nlig
@@ -175,7 +175,7 @@ c make a move in HM direction and update x, y(1,i) and y(2,i) and dlig(j)
       continue 
       endif
 c make a translation of the ligand center
-      if(itra.eq.2) then
+      if(itra.eq.1) then
       do 1220 i=1+fixre,nlig
       ii=jl+3*(i-fixre-1)
       xa(i)=xaa(ii+1)+scalecenter*(0.5d0-rr(ii+1))
