@@ -1,3 +1,4 @@
+
 Basic usage:
 
 attract.inp is gone. It's all command line options now. Starting structure generation is de-coupled from the docking. To perform a standard docking protocol, first run the systsearch (or randsearch) tool to write a DOF file, run ATTRACT on that DOF file, run ATTRACT again on the output of the first ATTRACT, etc. You can even connect them with Unix pipes if you want.
