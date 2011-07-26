@@ -72,7 +72,7 @@ A  translation table consists of a text file containing two integer columns per 
 TODO: specifying a custom translation table is not yet implemented 
 
 - Residue type address space
-I propose the following: residue type 1-31 are ATTRACT protein reduced atom types, 32-74 are reserved for non-protein reduced atom types, residue 75-99 are reserved for full-atom/heavy atom types.
+I propose the following: residue type 1-31 are ATTRACT protein reduced atom types, 32-64 are reserved for non-protein reduced atom types, residue 65-89 are reserved for full-atom/heavy atom types, 90-98 are super-coarse-grained atoms.
 
 TODO: generic reduce that can also deal with RNA, full atom, ...
 
@@ -208,6 +208,8 @@ rmsca
 ********************************************************************************
 Normal modes
 ********************************************************************************
+BUG/TODO: normal modes don't seem to work beyond the first. Some debugging hack still active?
+
 --modes <modes file>
 
 There is a single modes file that describes all normal modes for all structures

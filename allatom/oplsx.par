@@ -1,0 +1,61 @@
+ evaluate ($repel_radius = 0.0)
+ NONBonded  C       0.105   3.750       0.013    3.750  {OPLS C}!
+ NONBonded  CCIS    0.105   3.750       0.013    3.750  {OPLS C}!
+! NONBonded  C       0.110   3.750       0.014    3.750  {OPLS CAJ}!
+ NONBonded  CY2     0.105   3.750       0.013    3.750  {OPLS C}
+ NONBonded  CF      0.110   3.750       0.014    3.750  {OPLS CA}
+ NONBonded  CY      0.110   3.750       0.014    3.750  {OPLS CA}
+ NONBonded  CW      0.145   3.750       0.018    3.750  {OPLS CB}
+! NONBonded  CW      0.130   3.750       0.016    3.750  {OPLS CN}
+ NONBonded  CR1E    0.110   3.750       0.014    3.750  {OPLS CD}!
+! NONBonded  CR1E    0.130   3.750       0.016    3.750  {OPLS CG}!
+ NONBonded  CR1H    0.145   3.750       0.018    3.750  {OPLS CGJ}
+ NONBonded  CR1W    0.110   3.750       0.014    3.750  {OPLS CD}!
+ NONBonded  CH1E    0.080   3.800       0.010    3.800  {OPLS CH}
+! NONBonded  CH1E    0.080   3.850       0.010    3.850  {OPLS CHJ}
+ NONBonded  CRHH    0.145   3.750       0.018    3.750  {OPLS CP}
+ NONBonded  C5W     0.145   3.750       0.018    3.750  {OPLS CS}
+ NONBonded  CH2G    0.118   3.800       0.015    3.800  {OPLS C2} 
+ NONBonded  CH2P    0.118   3.905       0.015    3.905  {OPLS C2J}
+ NONBonded  CH1P    0.118   3.905       0.015    3.905  {OPLS C2J}
+! NONBonded  CH2P    0.118   3.800       0.015    3.800  {OPLS C2} 
+ NONBonded  CH2E    0.118   3.905       0.015    3.905  {OPLS C2J}
+! NONBonded  CH3E    0.118   3.905       0.015    3.905  {OPLS C3}  
+ NONBonded  CH3E    0.160   3.910       0.020    3.910  {OPLS C3J}
+! NONBonded  CH3E    0.175   3.905       0.022    3.905  {OPLS C3K}
+! NONBonded  CH3E    0.170   3.800       0.021    3.800  {OPLS C3L}
+ NONBonded  C5      0.145   3.750       0.145    3.750  {OPLS CC}
+ NONBonded  CRH     0.145   3.750       0.145    3.750  {OPLS 43}
+
+ NONBonded  H       0.05     0.50        0.004     0.50
+ NONBonded  HA      0.05     0.50        0.004     0.50
+ NONBonded  HC      0.05     0.50        0.004     0.50
+
+ NONBonded  N       0.170    3.250       0.021    3.250
+ NONBonded  NR      0.170    3.250       0.021    3.250
+ NONBonded  NH1     0.170    3.250       0.021    3.250
+ NONBonded  NH2     0.170    3.250       0.021    3.250
+ NONBonded  NH3     0.170    3.250       0.021    3.250
+ NONBonded  NC2     0.170    3.250       0.021    3.250
+ NONBonded  NC3     0.170    3.250       0.021    3.250
+ NONBonded  NC4     0.170    3.250       0.021    3.250
+
+ NONBonded  O       0.210    2.960       0.021    2.960
+ NONBonded  OC      0.210    2.960       0.021    2.960
+ NONBonded  O1P     0.210    2.960       0.021    2.960
+ NONBonded  O3R     0.210    2.960       0.021    2.960
+ NONBonded  OH1     0.170    3.070       0.021    3.070
+ NONBonded  OHP     0.170    3.070       0.021    3.070
+ NONBonded  OUF     0.170    3.070       0.021    3.070
+ NONBonded  P       0.2000   3.738       0.085    3.738
+ NONBonded  S       0.250    3.550       0.031    3.550
+ NONBonded  SM      0.250    3.550       0.031    3.550
+ NONBonded  SH1E    0.250    3.550       0.031    3.550
+ NONBonded  SUF    0.250    3.550       0.031    3.550
+
+ NBFIX      H   H      14.013   1.67074      14.013   1.67074
+ NBFIX      H   HA    277.278   4.07473     277.278   4.07473
+ NBFIX      H   HC     14.013   1.67074      14.013   1.67074
+ NBFIX      HA  HA   1846.41    5.76501    1846.41    5.76501  
+ NBFIX      HA  HC    277.278   4.07473     277.278   4.07473
+ NBFIX      HC  HC     14.013   1.67074      14.013   1.67074
