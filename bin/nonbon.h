@@ -1,8 +1,7 @@
 #include "grid.h"
 #include <cmath>
 
-inline void nonbon(int iab, double welwel, double rc, double ac, double emin, double rmin2, int ivor, double dsq, double rr2, double dx, double dy, double dz, int potshape,
-
+inline void nonbon(int iab, double welwel, double rc, double ac, double emin, double rmin2, int ivor, double dsq, double rr2, double dx, double dy, double dz, int potshape, double fswi,
 double &energy, Coor &grad) 
 
 {
@@ -11,6 +10,7 @@ double &energy, Coor &grad)
     
   double rr23 = rr2 * rr2 * rr2;
   double rrd;
+    
   if (potshape==8) {
     rrd = rr2;
   }
@@ -21,18 +21,18 @@ double &energy, Coor &grad)
   double vlj = (rep-alen)*rr23; 
   
   if (dsq < rmin2) {
-    energy = vlj + (ivor-1) * emin;
+    energy = vlj + fswi * (ivor-1) * emin;
     if (iab) {
-      double fb=6.0*vlj+2.0*(rep*rr23);
+      double fb=fswi*6.0*vlj+2.0*(rep*rr23);
       grad[0] = fb * dx;
       grad[1] = fb * dy;
       grad[2] = fb * dz;
     }
   }
   else {
-    energy = ivor * vlj;
+    energy = fswi*ivor * vlj;
     if (iab) {
-      double fb=6.0*vlj+2.0*(rep*rr23);
+      double fb=fswi*6.0*vlj+2.0*(rep*rr23);
       grad[0] = ivor * fb * dx;
       grad[1] = ivor * fb * dy;
       grad[2] = ivor * fb * dz;

@@ -25,7 +25,7 @@ c     Parameters
       dimension nhm(maxlig)
       real*8 phi, ssi, rot, dlig, xa, ya, za
       dimension phi(maxlig), ssi(maxlig), rot(maxlig)
-      dimension dlig(maxlig, maxmode)
+      dimension dlig(maxmode, maxlig)
       dimension xa(maxlig), ya(maxlig), za(maxlig)
 
 c     Local variables      
@@ -54,9 +54,9 @@ c
       jb=3*iori*(nlig-fixre)+3*itra*(nlig-fixre)
 c  all variables including lig-hm
       nmodes = 0
-      do 5 i=fixre, nlig
+      do i=fixre, nlig
       nmodes = nmodes + nhm(i)
-5     continue
+      enddo
       ju=jb+ieig*nmodes
 c  only trans or ori
       jl=3*iori*(nlig-fixre)
@@ -71,12 +71,14 @@ c  only trans or ori
 c     set the hessian to a diagonal matrix 
       c = 1.0D0
       k=(ju*np)/2
-      do 40 i=1,k
-40    h(i)=xnull
+      do i=1,k
+       h(i)=xnull
+      enddo
       k=1
-      do 50 i=1,ju
-      h(k)=0.01d0*c
-50    k=k+np-i
+      do i=1,ju
+       h(k)=0.01d0*c
+       k=k+np-i
+      enddo
 c     set some variables for the first iteration
       dff=xnull
       if (iscore.eq.1) then
@@ -92,28 +94,28 @@ c     set some variables for the first iteration
      5 gesa,energies,delta)
        
       if (iscore.eq.1) then
-        write(*,*), 'Energy:', gesa 
-	write(*,'(6f12.3)'), 
-     1   energies(1),energies(2),energies(3),
-     2   energies(4),energies(5),energies(6)
-	j = jb
-	do 109 i=fixre,nlig-1
-	ii = 3 * (i-fixre)
+       write(*,*), 'Energy:', gesa 
+       write(*,'(6f12.3)'), 
+     1  energies(1),energies(2),energies(3),
+     2  energies(4),energies(5),energies(6)
+       j = jb
+       do i=fixre,nlig-1
+        ii = 3 * (i-fixre)
 	iii = jl + 3 * (i-fixre)
 	write(*,*),'Gradients:', delta(ii+1),delta(ii+2),delta(ii+3),
      1	 delta(iii+1),delta(iii+2),delta(iii+3)
         if ((ieig.eq.1).AND.nhm(i).gt.0) then
-	write(*,*), 'Mode gradients:'
-	do 108 n=1,nhm(i)
-        write(*,*),delta(j+1)
-108	continue
+	 write(*,*), 'Mode gradients:'
+	 do n=1,nhm(i)
+          write(*,*),delta(j+1)
+	 enddo
 	endif		
 	j = j + nhm(i)
-109     continue      
-        go to 256
+       enddo      
+       go to 256
       else if (iscore.eq.2) then
         call print_struc(seed,label,gesa,energies,nlig,phi,ssi,rot,
-     1  xa,ya,za,nhm,nlig,lablen)	
+     1  xa,ya,za,nhm,dlig,lablen)	
       endif     
       
 110   fa=gesa
@@ -121,59 +123,60 @@ c     set some variables for the first iteration
 c store forces, Euler angle, position and ligand and receptor coordinates
 c     write(*,*)'nlig,ju,jl,jb',nlig,ju,jl,jb
 c     write(*,*)'delta',(delta(i),i=1,ju)
-      do 115 i=1,ju
-      g(i)=-delta(i)
-  115 ga(i)=g(i)
+      do i=1,ju
+       g(i)=-delta(i)
+       ga(i)=g(i)
+      enddo
 c
 c phi,ssi,rot for first molecule are fixed!
       if(iori.eq.1) then 
-      do 118 i=1+fixre,nlig
-      ii=3*(i-fixre-1)
-      xaa(ii+1)=phi(i)
-      xaa(ii+2)=ssi(i)
-      xaa(ii+3)=rot(i)
-  118 continue
+       do i=1+fixre,nlig
+        ii=3*(i-fixre-1)
+        xaa(ii+1)=phi(i)
+        xaa(ii+2)=ssi(i)
+        xaa(ii+3)=rot(i)
+       enddo
       endif
       if(itra.eq.1) then
-      do 122 i=1+fixre,nlig
-      ii=jl+3*(i-fixre-1)
-      xaa(ii+1)=xa(i)
-      xaa(ii+2)=ya(i)
-      xaa(ii+3)=za(i)
-  122 continue
+       do i=1+fixre,nlig
+        ii=jl+3*(i-fixre-1)
+        xaa(ii+1)=xa(i)
+        xaa(ii+2)=ya(i)
+        xaa(ii+3)=za(i)
+       enddo
       endif
 c if ligand flex is included store deformation factor in every mode in dlig(j)
  
       if(ieig.eq.1) then
-      jj = 0
-      do 130 j=1,nlig
-      do 131 i=1,nhm(j)
-      xaa(jb+jj+i)=dlig(j,i)
-  131 continue
-      jj = jj + nhm(j)
-  130 continue
+       jj = 0
+       do j=1,nlig
+        do i=1,nhm(j)
+         xaa(jb+jj+i)=dlig(i,j)
+        enddo
+        jj = jj + nhm(j)
+       enddo
       endif
       
 c     begin the iteration by giving the required printing
 135   itr=itr+1
 c     calculate the search direction of the iteration
-      do 150 i=1,ju
-      d(i)=-ga(i)
-  150 continue 
+      do i=1,ju
+       d(i)=-ga(i)
+      enddo
       call mc11e (h,ju,d,w,ju)
-      do 151 i=1,ju
+      do i=1,ju
 c      write(*,*)'d(i)',i,d(i)
-  151 continue 
+      enddo
 
 c     calculate a lower bound on the step-length
 c     and the initial directional derivative
       c=xnull
       dga=xnull
-      do 160 i=1,ju
+      do i=1,ju
       c=max(c,abs(d(i)))
       dga=dga+ga(i)*d(i)
 c      write(*,*)'ga(i),d(i),dga,c',ga(i),d(i),dga,c
-160   continue
+      enddo
 c     test if the search direction is downhill
       if (dga.ge.xnull) go to 240
 c     set the initial step-length of the line search
@@ -189,47 +192,47 @@ c     set the initial step-length of the line search
 c     write(*,*)'dff,dga,stmin,step,c,nfun,ivmax',
 c    1           dff,dga,stmin,step,c,nfun,ivmax
 c     test whether func has been called ivmax times
-      if (nfun.ge.ivmax) go to 250
+      if (nfun.ge.ivmax) go to 220
       nfun=nfun+1
 c     calculate another function value and gradient
-      do 180 i=1,ju
+      do i=1,ju
       g(i)=-delta(i)
 c      write(*,*)'g(i)',g(i),d(i)
-180   continue
+      enddo
 c make an Euler rotation
       if(iori.eq.1) then
-         do 190 i=1+fixre,nlig
-         ii=3*(i-fixre-1)
-         phi(i)=xaa(ii+1)+c*d(ii+1)
-         ssi(i)=xaa(ii+2)+c*d(ii+2)
-         rot(i)=xaa(ii+3)+c*d(ii+3)
-c         write(*,*)'new ii,c,phi,ssi,rot',i,ii,c,phi(i),ssi(i),rot(i)
-  190    continue
+       do i=1+fixre,nlig
+        ii=3*(i-fixre-1)
+        phi(i)=xaa(ii+1)+c*d(ii+1)
+        ssi(i)=xaa(ii+2)+c*d(ii+2)
+        rot(i)=xaa(ii+3)+c*d(ii+3)
+c        write(*,*)'new ii,c,phi,ssi,rot',i,ii,c,phi(i),ssi(i),rot(i)
+       enddo
       endif
 c make a move in HM direction and update x, y(1,i) and y(2,i) and dlig(j)
       if(ieig.eq.1) then
-      kk = 0
-      do 1180 k=1,nlig
-      do 1200 i=1,nhm(k)
-      dlig(k,i)=xaa(i+jb+kk)-d(i+jb+kk)*c
- 1200 continue
- 1180 kk = kk + nhm(k)
-      continue 
+       kk = 0
+       do k=1,nlig
+        do i=1,nhm(k)
+         dlig(i,k)=xaa(i+jb+kk)-d(i+jb+kk)*c
+        enddo
+        kk = kk + nhm(k)
+       enddo
       endif
 c make a translation of the ligand center
       if(itra.eq.1) then
-      do 1220 i=1+fixre,nlig
-      ii=jl+3*(i-fixre-1)
-      xa(i)=xaa(ii+1)+c*d(ii+1)
-      ya(i)=xaa(ii+2)+c*d(ii+2)
-      za(i)=xaa(ii+3)+c*d(ii+3)
-c     write(*,*)'new ii,c,xa ya za',i,ii,c,xa(i),ya(i),za(i),d(ii+1)
- 1220 continue
+       do i=1+fixre,nlig
+        ii=jl+3*(i-fixre-1)
+        xa(i)=xaa(ii+1)+c*d(ii+1)
+        ya(i)=xaa(ii+2)+c*d(ii+2)
+        za(i)=xaa(ii+3)+c*d(ii+3)
+c       write(*,*)'new ii,c,xa ya za',i,ii,c,xa(i),ya(i),za(i),d(ii+1)
+       enddo
       endif
 
-      do 183 i=1,3
+      do i=1,3
 c      write (*,*),'lig',i,phi(i),ssi(i),rot(i),xa(i),ya(i),za(i)
-  183 continue
+      enddo
       call energy(maxdof,maxmolpair,
      1 maxlig, maxatom,totmaxatom,maxmode,maxres,
      2 cartstatehandle,ministatehandle,
@@ -237,78 +240,86 @@ c      write (*,*),'lig',i,phi(i),ssi(i),rot(i),xa(i),ya(i),za(i)
      4 phi,ssi,rot,xa,ya,za,dlig,seed,
      5 fb,energies,delta)
       dnorm=xnull
-      do 705 i=1,ju
-      dnorm=dnorm+delta(i)**2
-  705 continue
+      do i=1,ju
+       dnorm=dnorm+delta(i)**2
+      enddo
       dnorm=sqrt(dnorm)
 c      write (*,*),'Energy2', fb,dnorm
       
-      do 185 i=1,ju
-  185 gb(i)=-delta(i)
+      do i=1,ju
+      gb(i)=-delta(i)
+      enddo
+      
+c     store this function value if it is the smallest so far      
       if(iori.eq.1) then
-      do 2318 i=1+fixre,nlig
-      ii=3*(i-fixre-1)
-      xbb(ii+1)=phi(i)
-      xbb(ii+2)=ssi(i)
-      xbb(ii+3)=rot(i)
- 2318 continue
+       do i=1+fixre,nlig
+        ii=3*(i-fixre-1)
+        xbb(ii+1)=phi(i)
+        xbb(ii+2)=ssi(i)
+        xbb(ii+3)=rot(i)
+       enddo
       endif
       if(itra.eq.1) then
-      do 2322 i=1+fixre,nlig
-      ii=jl+3*(i-fixre-1)
-      xbb(ii+1)=xa(i)
-      xbb(ii+2)=ya(i)
-      xbb(ii+3)=za(i)
- 2322 continue
-      endif
- 
-      if(ieig.eq.1) then
-      jj = 0
-      do 2330 j=1,nlig
-      do 2331 i=1,nhm(j)
-      xbb(jb+jj+i)=dlig(j,i)
- 2331 continue
-      jj = jj + nhm(j)
- 2330 continue
+       do i=1+fixre,nlig
+        ii=jl+3*(i-fixre-1)
+        xbb(ii+1)=xa(i)
+        xbb(ii+2)=ya(i)
+        xbb(ii+3)=za(i)
+       enddo
       endif
 
-c     store this function value if it is the smallest so far
+      if(ieig.eq.1) then
+       jj = 0
+       do j=1,nlig
+        do i=1,nhm(j)
+         xbb(jb+jj+i)=dlig(i,j)
+        enddo
+        jj = jj + nhm(j)
+       enddo
+      endif
+
       isfv=min(2,isfv)
       if (fb.gt.gesa) go to 220
       if (fb.lt.gesa) go to 200
       gl1=xnull
       gl2=xnull
-      do 2420 i=1,ju
-      gl1=gl1+(g(i))**2
- 2420 gl2=gl2+(gb(i))**2
+      do i=1,ju
+       gl1=gl1+(g(i))**2
+       gl2=gl2+(gb(i))**2
+      enddo
       if (gl2.ge.gl1) go to 220
 200   isfv=3
       gesa=fb
       if (iscore.eq.2) then
         call print_struc(seed,label,gesa,energies,nlig,phi,ssi,rot,
-     1  xa,ya,za,nhm,nlig,lablen)	
+     1  xa,ya,za,nhm,dlig,lablen)	
       endif           
-      do 2430 i=1,ju
- 2430 g(i)=gb(i)
-      if(iori.eq.1) then
-      do 2450 i=1+fixre,nlig
-      ii=3*(i-fixre-1)
-      phi(i)=xbb(ii+1)
-      ssi(i)=xbb(ii+2)
-      rot(i)=xbb(ii+3)
- 2450 continue
+      do i=1,ju
+       g(i)=gb(i)
+      enddo
+      
+220   if(iori.eq.1) then
+       do i=1+fixre,nlig
+        ii=3*(i-fixre-1)
+        phi(i)=xbb(ii+1)
+        ssi(i)=xbb(ii+2)
+        rot(i)=xbb(ii+3)
+       enddo
       endif
       if(itra.eq.1) then
-      do 2460 i=1+fixre,nlig
-      ii=jl+3*(i-fixre-1)
-      xa(i)=xbb(ii+1)
-      ya(i)=xbb(ii+2)
-      za(i)=xbb(ii+3)
- 2460 continue
+       do i=1+fixre,nlig
+        ii=jl+3*(i-fixre-1)
+        xa(i)=xbb(ii+1)
+        ya(i)=xbb(ii+2)
+        za(i)=xbb(ii+3)
+       enddo
       endif 
-220   dgb=xnull
-      do 230 i=1,ju
-230   dgb=dgb+gb(i)*d(i)
+      if (nfun.ge.ivmax) go to 250
+      dgb=xnull
+      do i=1,ju
+       dgb=dgb+gb(i)*d(i)
+      enddo
+      
 c     branch if we have found a new lower bound on the step-length
       if (fb-fa.le.0.1d0*c*dga) go to 280
 c     finish the iteration if the current step is steplb
@@ -317,7 +328,8 @@ c     finish the iteration if the current step is steplb
 c     at this stage the whole calculation is complete
 250   if(nfun.lt.ivmax) then
       nfun=nfun+1
-
+      endif
+      
       call energy(maxdof,maxmolpair,
      1 maxlig, maxatom,totmaxatom,maxmode,maxres,
      2 cartstatehandle,ministatehandle,
@@ -326,12 +338,11 @@ c     at this stage the whole calculation is complete
      5 gesa,energies,delta)
       if (iscore.eq.2) then
         call print_struc(seed,label,gesa,energies,nlig,phi,ssi,rot,
-     1  xa,ya,za,nhm,nlig,lablen)	
+     1  xa,ya,za,nhm,dlig,lablen)	
       endif     
 
       do 255 i=1,ju
 255   g(i)=-delta(i)
-      endif
       
 256   call ministate_free_pairlist(ministatehandle)      
 
@@ -360,11 +371,12 @@ c     test for convergence of the iterations
       if (stmin+step.le.steplb) go to 240
 c     revise the second derivative matrix
       ir=-ju
-      do 290 i=1,ju
-      xaa(i)=xbb(i)
-      xbb(i)=ga(i)
-      d(i)=gb(i)-ga(i)
-290   ga(i)=gb(i)
+      do i=1,ju
+       xaa(i)=xbb(i)
+       xbb(i)=ga(i)
+       d(i)=gb(i)-ga(i)
+       ga(i)=gb(i)
+      enddo
       call mc11a(h,ju,xbb,1.0d0/dga,w,ir,1,xnull)
       ir=-ir
       call mc11a (h,ju,d,1.0d0/(stmin*(dgb-dga)),d,ir,0,xnull)

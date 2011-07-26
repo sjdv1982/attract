@@ -1,6 +1,9 @@
 import sys
-import psyco
-psyco.full()
+try:
+  import psyco
+  psyco.full()
+except:
+  pass  
 
 bodies = int(sys.argv[1])
 structures = int(sys.argv[2])

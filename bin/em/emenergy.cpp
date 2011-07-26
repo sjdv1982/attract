@@ -49,7 +49,7 @@ int deltas[26][3] = {
 #include <memory.h>
 
 #ifdef GRADCHECK
-const double d = 0.00001;
+const double d = 0.001;
 const double delta[][3] = {{d,0,0},{-d,0,0},{0,d,0},{0,-d,0},{0,0,d},{0,0,-d}};
 #endif
 
@@ -774,6 +774,7 @@ double emenergy (Map &m, int &nratoms, double *atoms, int *atomtypes, double *fo
       }
     }
   }
+  return energy;  
   if (m.clash_threshold > 0 && m.clash_weight > 0) {
     for (n=0;n<nratoms;n++) {
       double ax = (atoms[3*n] - m.situs_origx)/m.situs_width;    
@@ -846,8 +847,8 @@ extern "C" void emenergy_(double &energy, int &nratoms, double *atoms, int *atom
     double *datoms = new double[3*nratoms];
     memcpy(datoms, atoms, 3*nratoms*sizeof(double));
     double energy0;
-    //printf("tgradx %.6g tgrady %.6g tgradz %.6g\n", tgradx,tgrady,tgradz);
-    for (int i=0;i<3;i++) {
+    printf("tgradx %.6g tgrady %.6g tgradz %.6g\n", tgradx,tgrady,tgradz);
+    for (int i=0;i<6;i++) {
       memcpy(datoms, atoms, 3*nratoms*sizeof(double));
       for (int n=0;n<nratoms;n++) {
         datoms[3*n] += delta[i][0];

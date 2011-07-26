@@ -104,23 +104,9 @@ struct Grid {
   inline double get_ratio(double dissq) const {
     return _ratio[int(dissq*10000)];
   }  
-#ifdef TORQUEGRID  
-  inline void _calc_potential_elec(float &energy, Coorf &grad, float (&torques)[9],
-   const  Coor *dis, const Coor *xb, int nrdis, double *charges);
-#else
-  inline void _calc_potential_elec(float &energy, Coorf &grad,
-   const  Coor *dis, const Coor *xb, int nrdis, double *charges);
-#endif   
-
-  inline void _calc_potential(Potential &p, const Coor *dis, const Coor *xb, 
-   int nrdis, double *wer, double *charges, int *atomtypes,
-   const Parameters &rc, const Parameters &ac, 
-   const Parameters &emin, const Parameters &rmin2, const iParameters &ipon, const int &potshape);
-
-  inline void _calc_neighbours(int &neighbourlist, short &neighboursize, const Coor *dis, int nrdis, int *atomtypes);
   
   
-  void calculate(int cartstatehandle, int ligand, const char *interior_grid, double plateaudis, double neighbourdis, int gridextension, int nhm0, bool (&alphabet)[MAXATOMTYPES]);
+  void calculate(int cartstatehandle, int ligand, const char *interior_grid, double plateaudis, double neighbourdis, int gridextension, int nhm0, bool (&alphabet)[MAXATOMTYPES], bool calc_pot);
 };
 
 #endif

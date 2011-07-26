@@ -110,6 +110,9 @@ Prox *prox_init(int cartstatehandle, double plateaudissq, double proxlim, double
   }
   
   int proxcount = 0;
+  float swi_on = cartstate.swi_on;  
+  float swi_off = cartstate.swi_off;
+  int potshape =  cartstate.potshape;
   for (int i = 0; i < proxmaxtype; i++) {
     for (int j = i; j < proxmaxtype; j++) {
       //TODO: invoke nonbon.h
@@ -131,32 +134,74 @@ Prox *prox_init(int cartstatehandle, double plateaudissq, double proxlim, double
 	double rlen = rci;
 
 	double rr23 = rr2 * rr2 * rr2;
-	double rep = rlen * rr2;
+        double rrd;
+	if (potshape==8) {
+	  rrd = rr2;
+	}
+	else if (potshape==12) {
+	  rrd = rr23;
+	}	
+			
+	double rep = rlen * rrd;
 	double vlj = (rep-alen)*rr23; 
 	double fb=6.0*vlj+2.0*(rep*rr23);	
 
+	double fswi = 1;
+	if (swi_on > 0 || swi_off > 0) {
+	  if (dsq > swi_on*swi_on) {
+	    if (dsq > swi_off*swi_off) {
+	      fswi = 0;
+	    }
+	    else {
+	      double distance = sqrt(dsq) ;
+	      fswi = (distance - swi_on)/(swi_off-swi_on);
+	    }
+	  }    
+	}
+
 	double energy, grad;
 	if (dsq < rmin2i) {
-	  energy = vlj + (ivor-1) * emini;
-	  grad = fb * rr2;
+	  energy = fswi * (vlj + (ivor-1) * emini);
+	  grad = fswi * (fb * rr2);
 	}
 	else {
-	  energy = ivor * vlj;
-	  grad = ivor * fb * rr2;
+	  energy = fswi * ivor * vlj;
+	  grad = fswi * ivor * fb * rr2;
 	}
+
 	rr2 = 1.0/plateaudissq;
 	rr23 = rr2 * rr2 * rr2;
-	rep = rlen * rr2;
+	if (potshape==8) {
+	  rrd = rr2;
+	}
+	else if (potshape==12) {
+	  rrd = rr23;
+	}
+
+	rep = rlen * rrd;
 	vlj = (rep-alen)*rr23; 
 	fb=6.0*vlj+2.0*(rep*rr23);	
 
+        fswi = 1;
+	if (swi_on > 0 || swi_off > 0) {
+	  if (plateaudissq > swi_on*swi_on) {
+	    if (plateaudissq > swi_off*swi_off) {
+	      fswi = 0;
+	    }
+	    else {
+	      double distance = sqrt(plateaudissq) ;
+	      fswi = (distance - swi_on)/(swi_off-swi_on);
+	    }
+	  }    
+	}
+
 	if (plateaudissq < rmin2i) {
-	  energy -= vlj + (ivor-1) * emini;
-	  grad -= fb * rr2 * sqrt(dsq/plateaudissq);
+	  energy -= fswi * (vlj + (ivor-1) * emini);
+	  grad -= fswi * fb * rr2 * sqrt(dsq/plateaudissq);
 	}
 	else {
-	  energy -= ivor * vlj;
-	  grad -= ivor * fb * rr2 * sqrt(dsq/plateaudissq);
+	  energy -= fswi * ivor * vlj;
+	  grad -= fswi * ivor * fb * rr2 * sqrt(dsq/plateaudissq);
 	}
 	currprox[2*n] = energy;
 	currprox[2*n+1] = grad;	

@@ -48,7 +48,9 @@ struct CartState {
   Parameters rmin2;
   iParameters ipon;
   iParameters haspar;
-  int potshape;
+  int potshape; //potential shape
+  float swi_on; //start (A) of switching
+  float swi_off;  //end (A) of switching
 
   /* grid representations */
   Grid *grids[MAXLIG];

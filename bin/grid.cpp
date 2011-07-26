@@ -105,27 +105,29 @@ void Grid::read(const char *filename) {
   read = fread(&shm_energrads, sizeof(shm_energrads),1,f);  
   if (!read) error(filename);
 
-  if (shm_energrads == -1) {
-    energrads = new EnerGrad[nr_energrads];
-    read = fread(energrads, nr_energrads*sizeof(EnerGrad),1,f);  
-    if (!read) error(filename);
-  }
-  else {
-    char shm_name[100];
-    get_shm_name(shm_energrads, shm_name);  
-    int fshm1 = shm_open(shm_name, O_RDONLY, S_IREAD);
-    if (fshm1 == -1) {
-      fprintf(stderr, "Reading error in grid file %s: shared memory segment %d for potential list does not exist\n", filename, shm_energrads);
-      exit(1); 
-    }   
-    ftruncate(fshm1, nr_energrads*sizeof(EnerGrad));
-    energrads = (EnerGrad *) mmap(0,nr_energrads*sizeof(EnerGrad),
-     PROT_READ, MAP_SHARED | MAP_NORESERVE, fshm1, 0);
-    if (energrads == NULL) {
-      fprintf(stderr, "Reading error in grid file %s: Could not load shared memory segment %d\n", filename, shm_energrads);
-      exit(1);       
+  if (nr_energrads) {
+    if (shm_energrads == -1) {
+      energrads = new EnerGrad[nr_energrads];
+      read = fread(energrads, nr_energrads*sizeof(EnerGrad),1,f);  
+      if (!read) error(filename);
+    }
+    else {
+      char shm_name[100];
+      get_shm_name(shm_energrads, shm_name);  
+      int fshm1 = shm_open(shm_name, O_RDONLY, S_IREAD);
+      if (fshm1 == -1) {
+	fprintf(stderr, "Reading error in grid file %s: shared memory segment %d for potential list does not exist\n", filename, shm_energrads);
+	exit(1); 
+      }   
+      ftruncate(fshm1, nr_energrads*sizeof(EnerGrad));
+      energrads = (EnerGrad *) mmap(0,nr_energrads*sizeof(EnerGrad),
+       PROT_READ, MAP_SHARED | MAP_NORESERVE, fshm1, 0);
+      if (energrads == NULL) {
+	fprintf(stderr, "Reading error in grid file %s: Could not load shared memory segment %d\n", filename, shm_energrads);
+	exit(1);       
+      }  
     }  
-  }  
+  }
 
   read = fread(&nr_neighbours, sizeof(nr_neighbours),1,f);  
   if (!read) error(filename);
@@ -160,8 +162,10 @@ void Grid::read(const char *filename) {
   if (!read) error(filename);
   read = fread(&biggridsize, sizeof(biggridsize),1,f);
   if (!read) error(filename);
-  biggrid = new Potential[biggridsize];
-  read = fread(biggrid, biggridsize*sizeof(Potential),1,f);
+  if (biggridsize) {
+    biggrid = new Potential[biggridsize];
+    read = fread(biggrid, biggridsize*sizeof(Potential),1,f);
+  }
   if (!read) error(filename);
   fclose(f);
   for (n = 0; n < innergridsize; n++) {
@@ -209,6 +213,7 @@ void Grid::write(const char *filename) {
   long n;
   long innergridsize = gridx*gridy*gridz;
   long biggridsize = gridx2*gridy2*gridz2;    
+  if (!nr_energrads) biggridsize = 0;
  
   FILE *f = fopen(filename, "wb");
   if (f == NULL) {
@@ -218,7 +223,7 @@ void Grid::write(const char *filename) {
 
   
   EnerGrad *shmptr1 = NULL; Neighbour *shmptr2 = NULL;
-  if (shm_energrads != -1) {
+  if (nr_energrads && shm_energrads != -1) {
     char shm_name[100];
     get_shm_name(shm_energrads, shm_name);
     int fshm1 = shm_open(shm_name, (O_CREAT | O_RDWR), (S_IREAD | S_IWRITE));
@@ -270,24 +275,27 @@ void Grid::write(const char *filename) {
   if (nhm > 0) fwrite(modedofs, sizeof(double) * nhm ,1,f);
   fwrite(&pivot,sizeof(Coor),1,f);
 
-  int nr_energrads2 = 0;  
-  for (n = 0; n < innergridsize; n++) {
-    if (innergrid[n].potential[MAXATOMTYPES]) nr_energrads2+=alphabetsize+1;
-  }
-  for (n = 0; n < biggridsize; n++) {
-    if (biggrid[n][MAXATOMTYPES]) nr_energrads2+=alphabetsize+1;
-  }  
-  if (nr_energrads != nr_energrads2) {
-    fprintf(stderr, "ERR nr_energrads %d %d\n", nr_energrads, nr_energrads2);
+  if (nr_energrads) {
+    int nr_energrads2 = 0;  
+    for (n = 0; n < innergridsize; n++) {
+      if (innergrid[n].potential[MAXATOMTYPES]) nr_energrads2+=alphabetsize+1;
+    }
+    for (n = 0; n < biggridsize; n++) {
+      if (biggrid[n][MAXATOMTYPES]) nr_energrads2+=alphabetsize+1;
+    }  
+    if (nr_energrads != nr_energrads2) {
+      fprintf(stderr, "ERR nr_energrads %d %d\n", nr_energrads, nr_energrads2);
+    }
   }
   fwrite(&nr_energrads, sizeof(nr_energrads),1,f);
   fwrite(&shm_energrads, sizeof(shm_energrads),1,f);
-    
-   if (shm_energrads == -1) 
-     fwrite(energrads,nr_energrads*sizeof(EnerGrad),1,f);
-   else 
-     memcpy(shmptr1, energrads,nr_energrads*sizeof(EnerGrad));
-  
+   
+  if (nr_energrads) { 
+    if (shm_energrads == -1) 
+      fwrite(energrads,nr_energrads*sizeof(EnerGrad),1,f);
+    else 
+      memcpy(shmptr1, energrads,nr_energrads*sizeof(EnerGrad));
+  }  
   fwrite(&nr_neighbours, sizeof(nr_neighbours),1,f);
   fwrite(&shm_neighbours, sizeof(shm_neighbours),1,f);
   if (shm_neighbours == -1) 
@@ -298,7 +306,9 @@ void Grid::write(const char *filename) {
   fwrite(&innergridsize, sizeof(innergridsize),1,f);
   fwrite(innergrid, innergridsize*sizeof(Voxel),1,f);
   fwrite(&biggridsize, sizeof(biggridsize),1,f);
-  fwrite(biggrid, biggridsize*sizeof(Potential),1,f);
+  if (biggridsize) {
+    fwrite(biggrid, biggridsize*sizeof(Potential),1,f);
+  }
   fclose(f);
 }
 
@@ -447,7 +457,8 @@ inline void trilin(
   const Grid &g, bool rigid, const Coor *xr, const double *wer, const double *chair, const int *iacir,  //receptor
 
   const Parameters &rc, const Parameters &ac, const Parameters &emin, const Parameters &rmin2,
-  const iParameters &ipon, int potshape, //ATTRACT params
+  const iParameters &ipon, int potshape, float swi_on, float swi_off, 
+  //ATTRACT params
 
   int iab, int fixre, double &evdw, double &eelec, Coor &grad, //output
 
@@ -460,7 +471,7 @@ inline void trilin(
   const Grid &g, bool rigid, const Coor *xr, const double *wer, const double *chair, const int *iacir,  //receptor
 
   const Parameters &rc, const Parameters &ac, const Parameters &emin, const Parameters &rmin2,
-  const iParameters &ipon, int potshape, //ATTRACT params
+  const iParameters &ipon, int potshape, float swi_on, float swi_off,  //ATTRACT params
 
   int iab, int fixre, double &evdw, double &eelec, Coor &grad, //output
   
@@ -488,70 +499,71 @@ inline void trilin(
     (ay >= 0 && ay < g.gridy-1) &&
     (az >= 0 && az < g.gridz-1) 
   );
-
-  int gx,gy,gz;
+  int gx,gy;
   if (!inside) {
     ax = aax; ay = aay; az = aaz;
-    gx = g.gridx2; gy = g.gridy2; gz = g.gridz2;
+    gx = g.gridx2; gy = g.gridy2; 
   }
   else {
-    gx = g.gridx; gy = g.gridy; gz = g.gridz;  
+    gx = g.gridx; gy = g.gridy; 
+  }
+
+  if (g.nr_energrads) {
+    int px0 = floor(ax);  
+    int px1 = ceil(ax);
+    double wx1 = ax - px0;
+
+    int py0 = floor(ay);  
+    int py1 = ceil(ay);
+    double wy1 = ay - py0;
+
+    int pz0 = floor(az);  
+    int pz1 = ceil(az);
+    double wz1 = az - pz0;    
+    double wx0 = 1-wx1, wy0 = 1-wy1, wz0 = 1-wz1;
+
+    wx0 *= wel; wy0 *= wel; wz0 *= wel;
+    wx1 *= wel; wy1 *= wel; wz1 *= wel;
+
+    Potential *p;
+    if (inside) {
+      p = &g.innergrid[px0+gx*py0+gx*gy*pz0].potential;
+      add_potential(g.energrads, *p,iab,charge,atomtype,wx0*wy0*wz0, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
+      p = &g.innergrid[px0+gx*py0+gx*gy*pz1].potential;
+      add_potential(g.energrads, *p,iab,charge,atomtype,wx0*wy0*wz1, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
+      p = &g.innergrid[px0+gx*py1+gx*gy*pz0].potential;
+      add_potential(g.energrads, *p,iab,charge,atomtype,wx0*wy1*wz0, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
+      p = &g.innergrid[px0+gx*py1+gx*gy*pz1].potential;
+      add_potential(g.energrads, *p,iab,charge,atomtype,wx0*wy1*wz1, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
+      p = &g.innergrid[px1+gx*py0+gx*gy*pz0].potential;
+      add_potential(g.energrads, *p,iab,charge,atomtype,wx1*wy0*wz0, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
+      p = &g.innergrid[px1+gx*py0+gx*gy*pz1].potential;
+      add_potential(g.energrads, *p,iab,charge,atomtype,wx1*wy0*wz1, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
+      p = &g.innergrid[px1+gx*py1+gx*gy*pz0].potential;
+      add_potential(g.energrads, *p,iab,charge,atomtype,wx1*wy1*wz0, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
+      p = &g.innergrid[px1+gx*py1+gx*gy*pz1].potential;
+      add_potential(g.energrads, *p,iab,charge,atomtype,wx1*wy1*wz1, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
+    }
+    else {
+      p = &g.biggrid[px0+gx*py0+gx*gy*pz0];
+      add_potential2(g.energrads, *p,iab,charge,atomtype,wx0*wy0*wz0, fixre, evdw, eelec, grad ,deltar TORQUEARGS);    
+      p = &g.biggrid[px0+gx*py0+gx*gy*pz1];
+      add_potential2(g.energrads, *p,iab,charge,atomtype,wx0*wy0*wz1, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
+      p = &g.biggrid[px0+gx*py1+gx*gy*pz0];
+      add_potential2(g.energrads, *p,iab,charge,atomtype,wx0*wy1*wz0, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
+      p = &g.biggrid[px0+gx*py1+gx*gy*pz1];
+      add_potential2(g.energrads, *p,iab,charge,atomtype,wx0*wy1*wz1, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
+      p = &g.biggrid[px1+gx*py0+gx*gy*pz0];
+      add_potential2(g.energrads, *p,iab,charge,atomtype,wx1*wy0*wz0, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
+      p = &g.biggrid[px1+gx*py0+gx*gy*pz1];
+      add_potential2(g.energrads, *p,iab,charge,atomtype,wx1*wy0*wz1, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
+      p = &g.biggrid[px1+gx*py1+gx*gy*pz0];
+      add_potential2(g.energrads, *p,iab,charge,atomtype,wx1*wy1*wz0, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
+      p = &g.biggrid[px1+gx*py1+gx*gy*pz1];
+      add_potential2(g.energrads, *p,iab,charge,atomtype,wx1*wy1*wz1, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
+    }
   }
   
-  int px0 = floor(ax);  
-  int px1 = ceil(ax);
-  double wx1 = ax - px0;
-
-  int py0 = floor(ay);  
-  int py1 = ceil(ay);
-  double wy1 = ay - py0;
-
-  int pz0 = floor(az);  
-  int pz1 = ceil(az);
-  double wz1 = az - pz0;    
-  double wx0 = 1-wx1, wy0 = 1-wy1, wz0 = 1-wz1;
-
-  wx0 *= wel; wy0 *= wel; wz0 *= wel;
-  wx1 *= wel; wy1 *= wel; wz1 *= wel;
-  
-  Potential *p;
-  if (inside) {
-    p = &g.innergrid[px0+gx*py0+gx*gy*pz0].potential;
-    add_potential(g.energrads, *p,iab,charge,atomtype,wx0*wy0*wz0, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
-    p = &g.innergrid[px0+gx*py0+gx*gy*pz1].potential;
-    add_potential(g.energrads, *p,iab,charge,atomtype,wx0*wy0*wz1, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
-    p = &g.innergrid[px0+gx*py1+gx*gy*pz0].potential;
-    add_potential(g.energrads, *p,iab,charge,atomtype,wx0*wy1*wz0, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
-    p = &g.innergrid[px0+gx*py1+gx*gy*pz1].potential;
-    add_potential(g.energrads, *p,iab,charge,atomtype,wx0*wy1*wz1, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
-    p = &g.innergrid[px1+gx*py0+gx*gy*pz0].potential;
-    add_potential(g.energrads, *p,iab,charge,atomtype,wx1*wy0*wz0, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
-    p = &g.innergrid[px1+gx*py0+gx*gy*pz1].potential;
-    add_potential(g.energrads, *p,iab,charge,atomtype,wx1*wy0*wz1, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
-    p = &g.innergrid[px1+gx*py1+gx*gy*pz0].potential;
-    add_potential(g.energrads, *p,iab,charge,atomtype,wx1*wy1*wz0, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
-    p = &g.innergrid[px1+gx*py1+gx*gy*pz1].potential;
-    add_potential(g.energrads, *p,iab,charge,atomtype,wx1*wy1*wz1, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
-  }
-  else {
-    p = &g.biggrid[px0+gx*py0+gx*gy*pz0];
-    add_potential2(g.energrads, *p,iab,charge,atomtype,wx0*wy0*wz0, fixre, evdw, eelec, grad ,deltar TORQUEARGS);    
-    p = &g.biggrid[px0+gx*py0+gx*gy*pz1];
-    add_potential2(g.energrads, *p,iab,charge,atomtype,wx0*wy0*wz1, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
-    p = &g.biggrid[px0+gx*py1+gx*gy*pz0];
-    add_potential2(g.energrads, *p,iab,charge,atomtype,wx0*wy1*wz0, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
-    p = &g.biggrid[px0+gx*py1+gx*gy*pz1];
-    add_potential2(g.energrads, *p,iab,charge,atomtype,wx0*wy1*wz1, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
-    p = &g.biggrid[px1+gx*py0+gx*gy*pz0];
-    add_potential2(g.energrads, *p,iab,charge,atomtype,wx1*wy0*wz0, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
-    p = &g.biggrid[px1+gx*py0+gx*gy*pz1];
-    add_potential2(g.energrads, *p,iab,charge,atomtype,wx1*wy0*wz1, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
-    p = &g.biggrid[px1+gx*py1+gx*gy*pz0];
-    add_potential2(g.energrads, *p,iab,charge,atomtype,wx1*wy1*wz0, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
-    p = &g.biggrid[px1+gx*py1+gx*gy*pz1];
-    add_potential2(g.energrads, *p,iab,charge,atomtype,wx1*wy1*wz1, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
-  }
-
   if (inside) {
     int pxj = floor(ax+0.5);
     int pyj = floor(ay+0.5);
@@ -563,7 +575,6 @@ inline void trilin(
         for (int i = 0; i < v.nr_neighbours; i++) {
 	  Neighbour &nb = g.neighbours[v.neighbourlist+i-1];
 	  if (rigid && nb.type == 2) continue;
-
 	  const Coor &dd = xr[nb.index];
 
 	  Coor dis = {d[0] - dd[0], 
@@ -573,7 +584,6 @@ inline void trilin(
 	  
 	  double dsq = dis[0]*dis[0]+dis[1]*dis[1]+dis[2]*dis[2];
           if (dsq > g.plateaudissq) continue;
-	  
 	  int atomtype2 = iacir[nb.index]-1;
 	  double ww = wel * wer[nb.index];
 
@@ -585,12 +595,25 @@ inline void trilin(
             double rmin2i = rmin2[atomtype][atomtype2];
             int ivor = ipon[atomtype][atomtype2];
 	  
-	    double rr2 = 1.0/dsq;
+	    double fswi = 1;
+	    if (swi_on > 0 || swi_off > 0) {
+	      if (dsq > swi_on*swi_on) {
+		if (dsq > swi_off*swi_off) {
+		  fswi = 0;
+		}
+		else {
+		  double distance = sqrt(dsq) ;
+		  fswi = (distance - swi_on)/(swi_off-swi_on);
+		}
+	      }    
+	    }
+	  
+	    double rr2 = 1.0/dsq;	    
 	    dis[0] *= rr2; dis[1] *= rr2; dis[2] *= rr2;
 
 	    double evdw0; Coor grad0;
             nonbon(iab,ww,rci,aci,emini,rmin2i,ivor, dsq, rr2, 
-	      dis[0], dis[1], dis[2], potshape, evdw0, grad0);	
+	      dis[0], dis[1], dis[2], potshape, fswi, evdw0, grad0);	
 	    evdw += evdw0;
 	    grad[0] += grad0[0];
 	    grad[1] += grad0[1];
@@ -600,11 +623,25 @@ inline void trilin(
 	      gradr[1] -= grad0[1];
 	      gradr[2] -= grad0[2];
             }
+	    
 	    double r = g.get_ratio(dsq);
 	    Coor rdis = {r*dis[0], r*dis[1], r*dis[2]};  
+	    fswi = 1;
+	    
+	    if (swi_on > 0 || swi_off > 0) {
+	      if (g.plateaudissq > swi_on*swi_on) {
+		if (g.plateaudissq > swi_off*swi_off) {
+		  fswi = 0;
+		}
+		else {
+		  double distance = sqrt(g.plateaudissq) ;
+		  fswi = (distance - swi_on)/(swi_off-swi_on);
+		}
+	      }    
+	    }	    
 	    nonbon(iab,ww,rci,aci,emini,rmin2i,ivor, g.plateaudissq, 
   	      g.plateaudissqinv,
-	      rdis[0], rdis[1], rdis[2], potshape, evdw0, grad0);
+	      rdis[0], rdis[1], rdis[2], potshape, fswi, evdw0, grad0);
 	    evdw -= evdw0;
 	    grad[0] -= grad0[0];
 	    grad[1] -= grad0[1];
@@ -646,7 +683,9 @@ inline void trilin(
 	  else { //distance between 6-10 A 
             int proxmappos = int((dsq-g.proxlim)*proxspace+0.5);
 	    int proxdsq = proxmap[proxmappos];
-	    evdw += prox.prox[atomtype][atomtype2][2*proxdsq] * ww;
+	    double dvdw = prox.prox[atomtype][atomtype2][2*proxdsq] * ww;
+	    //printf("%.10f\n", dvdw);
+	    evdw += dvdw;
 	    double gradf2 = prox.prox[atomtype][atomtype2][2*proxdsq+1] * ww;
 	    
 	    Coor dgrad = {
@@ -712,7 +751,9 @@ extern "C" void nonbon_grid_(
   const int &natoml,const int &natomr,
 
 const Parameters &rc, const Parameters &ac, const Parameters &emin, const Parameters &rmin2,
-  const iParameters &ipon, const int &potshape, //ATTRACT params
+  const iParameters &ipon, const int &potshape, 
+  const float &swi_on, const float &swi_off, 
+  //ATTRACT params
   
   Coor *fl, double &evdw, double &eelec,
   
@@ -734,10 +775,10 @@ const Parameters &rc, const Parameters &ac, const Parameters &emin, const Parame
     Coor &grad = fl[n];
 #ifdef TORQUEGRID    
     trilin(xl[n],atomtype,charge0,charge,wel[n],*g,rigid,xr,wer,chair,iacir,
-      rc,ac,emin,rmin2,ipon,potshape,iab,fixre,evdw,eelec,grad,fr,pm2,deltar,rtorques);
+      rc,ac,emin,rmin2,ipon,potshape,swi_on,swi_off, iab,fixre,evdw,eelec,grad,fr,pm2,deltar,rtorques);
 #else      
     trilin(xl[n],atomtype,charge0,charge,wel[n],*g,rigid,xr,wer,chair,iacir,
-      rc,ac,emin,rmin2,ipon,potshape,iab,fixre,evdw,eelec,grad,fr,deltar);
+      rc,ac,emin,rmin2,ipon,potshape,swi_on,swi_off,iab,fixre,evdw,eelec,grad,fr,deltar);
 #endif
   }
 

@@ -208,7 +208,7 @@ int main(int argc, char *argv[]) {
     for (int l = 0; l < nlig; l++) {      
 
       //Apply harmonic modes
-      double (&dligp)[20] = dlig[l];
+      double (&dligp)[MAXMODE] = dlig[l];
       deform_(MAXLIG, 3*MAXATOM, 3*TOTMAXATOM, MAXATOM,MAXMODE, 
         dligp, nhm, l, ieins, eig, xb, x, xori, xori0);
 
@@ -248,7 +248,7 @@ int main(int argc, char *argv[]) {
       );
     }
     if (iscore == 1) continue;
-    if (iscore == 2) break;
+    //if (iscore == 2) break;
     print_struc_(
      seed,
      label, 

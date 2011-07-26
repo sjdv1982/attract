@@ -1,0 +1,9 @@
+*.o
+RE:[^.]+
+~*
+*/gmon.out
+gmon.out
+*/~*
+*.pyc
+bin/*.pyc
+tools/*.pyc

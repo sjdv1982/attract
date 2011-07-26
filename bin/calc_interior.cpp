@@ -8,9 +8,9 @@
 
 #include "makegrid.h"
 
-//A grid is constructed 10.8 A around the protin
-//Everything within 7 A of any atom is assigned as interior, and holes are filled
-//finally, the interior is shrunk by a 23 voxels
+//A grid is constructed 10.8 A around the protein
+//Everything within 8.5 A of at least 91 atoms is assigned as interior, and holes are filled
+//finally, the interior is shrunk by 9 voxels
 
 typedef struct {
 	char  recd[7];        /*       1 -  6 */
@@ -48,11 +48,15 @@ inline void inc(Coor *dis, int nrdis, int index, double d) {
     dis[n][index] += d;
 }
 
-inline bool test_surface(Coor *dis, int nrdis) {
+inline bool test_surface(Coor *dis, int nrdis, int inside_threshold) {
+  int count = 0;
   for (int n = 0; n < nrdis; n++) {
     Coor &d = dis[n];
     double dsq = d[0]*d[0]+d[1]*d[1]+d[2]*d[2];
-    if (dsq < interior_cutoffsq) return 1;
+    if (dsq < interior_cutoffsq) {
+      count++;
+      if (count >= inside_threshold) return 1;
+    }
   }
   return 0;
 }
@@ -196,8 +200,7 @@ int main(int argc, char*argv[]) {
       indxyz = indxy;
       memcpy(disxyz, disxy, nratoms*sizeof(Coor));    
       for (int z = 0; z < gridz; z++) {         
-	 bool t = test_surface(disxyz, nratoms);
-	 //if (t) grid[indxyz] = 1;
+	 bool t = test_surface(disxyz, nratoms, inside_threshold);
 	 if (t) {
 	   grid[indxyz] = interior_value;
 	   insidec++;
@@ -215,6 +218,7 @@ int main(int argc, char*argv[]) {
     indx += 1;
     
   }      
+
   printf("inside: %d (%.3f %%)\n", insidec, float(long(100) * long(insidec))/(long(gridx)*long(gridy)*long(gridz)));	      
   scan_interior(grid, gridx, gridy, gridz);
   
@@ -258,7 +262,7 @@ int main(int argc, char*argv[]) {
 	    for (int zz = z; zz < zz1; zz++) {
 	      int index2 = x+gridx*y+gridx*gridy*zz;
 	      if (grid0[index2] == 0) printf("ERR\n");
-	      if (grid[index2] != 0) insidec--;
+	      if (grid[index2] == interior_value) insidec--;
 	      grid[index2] = 0;
 	      
 	    }
@@ -271,8 +275,8 @@ int main(int argc, char*argv[]) {
 	    for (int zz = zz0; zz < z; zz++) {
 	      int index2 = x+gridx*y+gridx*gridy*zz;
 	      if (grid0[index2] == 0) printf("ERR\n");
-	      grid[index2] = 0;
-	      if (grid[index2] != 0) insidec--;
+	      if (grid[index2] == interior_value) insidec--;
+	      grid[index2] = 0;	      
 	    }
 	    mode = 0;
 	  }	  
@@ -293,7 +297,7 @@ int main(int argc, char*argv[]) {
 	    for (int yy = y; yy < yy1; yy++) {
 	      int index2 = x+gridx*yy+gridx*gridy*z;
 	      if (grid0[index2] == 0) printf("ERR\n");
-	      if (grid[index2] != 0) insidec--;
+	      if (grid[index2] == interior_value) insidec--;
 	      grid[index2] = 0;
 	      
 	    }
@@ -306,8 +310,8 @@ int main(int argc, char*argv[]) {
 	    for (int yy = yy0; yy < y; yy++) {
 	      int index2 = x+gridx*yy+gridx*gridy*z;
 	      if (grid0[index2] == 0) printf("ERR\n");
+	      if (grid[index2] == interior_value) insidec--;	      
 	      grid[index2] = 0;
-	      if (grid[index2] != 0) insidec--;
 	    }
 	    mode = 0;
 	  }	  
@@ -328,7 +332,7 @@ int main(int argc, char*argv[]) {
 	    for (int xx = x; xx < xx1; xx++) {
 	      int index2 = xx+gridx*y+gridx*gridy*z;
 	      if (grid0[index2] == 0) printf("ERR\n");
-	      if (grid[index2] != 0) insidec--;
+	      if (grid[index2] == interior_value) insidec--;
 	      grid[index2] = 0;
 	      
 	    }
@@ -341,8 +345,8 @@ int main(int argc, char*argv[]) {
 	    for (int xx = xx0; xx < x; xx++) {
 	      int index2 = xx+gridx*y+gridx*gridy*z;
 	      if (grid0[index2] == 0) printf("ERR\n");
-	      grid[index2] = 0;
-	      if (grid[index2] != 0) insidec--;
+	      if (grid[index2] == interior_value) insidec--;
+	      grid[index2] = 0;	      
 	    }
 	    mode = 0;
 	  }	  
