@@ -66,10 +66,10 @@ map2map:	em/situs/map2map.o em/situs/lib_err.o em/situs/lib_vio.o \
 		em/situs/lib_vwk.o em/situs/lib_vec.o em/situs/lib_std.o 
 	$(CC) $(CFLAGS) $^ -o $@ -lm
 
-fix_receptor: fix_receptor.cpp read_dof.o euler2rotmat.o matinv.o matmult.o max.h
+fix_receptor: fix_receptor.o read_dof.o euler2rotmat.o matinv.o matmult.o max.h
 	$(CXX) $(CFLAGS) $^ -o $@ -lm
 
-deredundant: deredundant.cpp read_dof.o euler2rotmat.o matmult.o max.h
+deredundant: deredundant.o read_dof.o euler2rotmat.o matmult.o max.h
 	$(CXX) $(CFLAGS) $^ -o $@ -lm
 
 %-torque.o: %.cpp $(H)
@@ -80,6 +80,12 @@ em/emenergy-gradcheck.o:  em/emenergy.cpp
 
 em/emenergy-precompcheck.o:  em/emenergy.cpp
 	$(CXX) $(CFLAGS) -DPRECOMPCHECK -c $< -o $@
+
+collectlib.o:  collectlib.cpp
+	$(CXX) $(CFLAGS) -fPIC -c $< -o $@	
+
+collectlib.so: collectlib.o
+	$(CXX) $(CFLAGS) -shared -fPIC $^ -o $@ -lm	
 	
 %.o: %.cpp $(H)
 	$(CXX) $(CFLAGS) -c $< -o $@

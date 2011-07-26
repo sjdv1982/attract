@@ -113,7 +113,7 @@ c     set some variables for the first iteration
         go to 256
       else if (iscore.eq.2) then
         call print_struc(seed,label,gesa,energies,nlig,phi,ssi,rot,
-     1  xa,ya,za,nhm,nlig,lablen)	
+     1  xa,ya,za,nhm,dlig,lablen)	
       endif     
       
 110   fa=gesa
@@ -286,7 +286,7 @@ c     store this function value if it is the smallest so far
       gesa=fb
       if (iscore.eq.2) then
         call print_struc(seed,label,gesa,energies,nlig,phi,ssi,rot,
-     1  xa,ya,za,nhm,nlig,lablen)	
+     1  xa,ya,za,nhm,dlig,lablen)	
       endif           
       do 2430 i=1,ju
  2430 g(i)=gb(i)
@@ -326,7 +326,7 @@ c     at this stage the whole calculation is complete
      5 gesa,energies,delta)
       if (iscore.eq.2) then
         call print_struc(seed,label,gesa,energies,nlig,phi,ssi,rot,
-     1  xa,ya,za,nhm,nlig,lablen)	
+     1  xa,ya,za,nhm,dlig,lablen)	
       endif     
 
       do 255 i=1,ju
