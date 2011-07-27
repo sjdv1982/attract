@@ -24,10 +24,11 @@ void get_shm_name(int shm_id, char *shm_name) {
 }
 
 void Grid::init_prox(int cartstatehandle,double proxlim0, double proxmax0, int proxmaxtype0) {
-  prox = prox_init(cartstatehandle, plateaudissq, proxlim0, proxmax0, proxmaxtype0);
+  bool has_pot = (nr_energrads > 0);
+  prox = prox_init(cartstatehandle, plateaudissq, proxlim0, proxmax0, proxmaxtype0, has_pot);
   proxlim = proxlim0;
   proxmax = proxmax0;
-  if (proxmax < plateaudissq) {
+  if (has_pot && proxmax < plateaudissq) {
     fprintf(stderr, "proxmax cannot be smaller than grid plateaudissq: %.3f < %.3f", proxmax, plateaudissq);
     exit(1);
   }
@@ -480,6 +481,8 @@ inline void trilin(
 #define TORQUEARGS 
 #endif
 {
+  bool has_pot = (g.nr_energrads > 0);
+  
   Prox &prox = *g.prox;
   double ax = (d[0]-g.ori[0])/g.gridspacing;
   double ay = (d[1]-g.ori[1])/g.gridspacing;
@@ -603,7 +606,7 @@ inline void trilin(
 		}
 		else {
 		  double distance = sqrt(dsq) ;
-		  fswi = (distance - swi_on)/(swi_off-swi_on);
+		  fswi = 1-(distance - swi_on)/(swi_off-swi_on);
 		}
 	      }    
 	    }
@@ -624,61 +627,62 @@ inline void trilin(
 	      gradr[2] -= grad0[2];
             }
 	    
-	    double r = g.get_ratio(dsq);
-	    Coor rdis = {r*dis[0], r*dis[1], r*dis[2]};  
-	    fswi = 1;
-	    
-	    if (swi_on > 0 || swi_off > 0) {
-	      if (g.plateaudissq > swi_on*swi_on) {
-		if (g.plateaudissq > swi_off*swi_off) {
-		  fswi = 0;
-		}
-		else {
-		  double distance = sqrt(g.plateaudissq) ;
-		  fswi = (distance - swi_on)/(swi_off-swi_on);
-		}
-	      }    
-	    }	    
-	    nonbon(iab,ww,rci,aci,emini,rmin2i,ivor, g.plateaudissq, 
-  	      g.plateaudissqinv,
-	      rdis[0], rdis[1], rdis[2], potshape, fswi, evdw0, grad0);
-	    evdw -= evdw0;
-	    grad[0] -= grad0[0];
-	    grad[1] -= grad0[1];
-	    grad[2] -= grad0[2];
-            if (!fixre) {
-	      gradr[0] += grad0[0];
-	      gradr[1] += grad0[1];
-	      gradr[2] += grad0[2];
-            }
-	    if (chargenonzero) {
-	      double c = charge0 * chair[nb.index] * ww;	    
-	      if (fabs(c) > 0.001) {
-		double eelec00; Coor grad00;
-		elec(iab,c,rr2,dis[0],dis[1],dis[2],eelec00,grad00);
-  		eelec += eelec00;
-		grad[0] += grad00[0];
-		grad[1] += grad00[1];
-		grad[2] += grad00[2];
-                if (!fixre) {	    
-		  gradr[0] -= grad00[0];
-		  gradr[1] -= grad00[1];
-		  gradr[2] -= grad00[2];
-                }
-		elec(iab,c,g.plateaudissqinv,
-		  rdis[0],rdis[1],rdis[2],eelec00,grad00);
-  		eelec -= eelec00;
-		grad[0] -= grad00[0];
-		grad[1] -= grad00[1];
-		grad[2] -= grad00[2];
-                if (!fixre) {	    		
-  		  gradr[0] += grad00[0];
-		  gradr[1] += grad00[1];
-		  gradr[2] += grad00[2];
-                }
-	      }	    	    
-	    }
-	    
+	    if (has_pot) {
+	      double r = g.get_ratio(dsq);
+	      Coor rdis = {r*dis[0], r*dis[1], r*dis[2]};  
+	      fswi = 1;
+
+	      if (swi_on > 0 || swi_off > 0) {
+		if (g.plateaudissq > swi_on*swi_on) {
+		  if (g.plateaudissq > swi_off*swi_off) {
+		    fswi = 0;
+		  }
+		  else {
+		    double distance = sqrt(g.plateaudissq) ;
+		    fswi = 1-(distance - swi_on)/(swi_off-swi_on);
+		  }
+		}    
+	      }	    
+	      nonbon(iab,ww,rci,aci,emini,rmin2i,ivor, g.plateaudissq, 
+  		g.plateaudissqinv,
+		rdis[0], rdis[1], rdis[2], potshape, fswi, evdw0, grad0);
+	      evdw -= evdw0;
+	      grad[0] -= grad0[0];
+	      grad[1] -= grad0[1];
+	      grad[2] -= grad0[2];
+              if (!fixre) {
+		gradr[0] += grad0[0];
+		gradr[1] += grad0[1];
+		gradr[2] += grad0[2];
+              }
+	      if (chargenonzero) {
+		double c = charge0 * chair[nb.index] * ww;	    
+		if (fabs(c) > 0.001) {
+		  double eelec00; Coor grad00;
+		  elec(iab,c,rr2,dis[0],dis[1],dis[2],eelec00,grad00);
+  		  eelec += eelec00;
+		  grad[0] += grad00[0];
+		  grad[1] += grad00[1];
+		  grad[2] += grad00[2];
+                  if (!fixre) {	    
+		    gradr[0] -= grad00[0];
+		    gradr[1] -= grad00[1];
+		    gradr[2] -= grad00[2];
+                  }
+		  elec(iab,c,g.plateaudissqinv,
+		    rdis[0],rdis[1],rdis[2],eelec00,grad00);
+  		  eelec -= eelec00;
+		  grad[0] -= grad00[0];
+		  grad[1] -= grad00[1];
+		  grad[2] -= grad00[2];
+                  if (!fixre) {	    		
+  		    gradr[0] += grad00[0];
+		    gradr[1] += grad00[1];
+		    gradr[2] += grad00[2];
+                  }
+		}	    	    
+	      }
+ 	    }   
 	  }
 	  else { //distance between 6-10 A 
             int proxmappos = int((dsq-g.proxlim)*proxspace+0.5);

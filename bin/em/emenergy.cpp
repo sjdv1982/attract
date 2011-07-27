@@ -49,7 +49,7 @@ int deltas[26][3] = {
 #include <memory.h>
 
 #ifdef GRADCHECK
-const double d = 0.001;
+const double d = 0.00001;
 const double delta[][3] = {{d,0,0},{-d,0,0},{0,d,0},{0,-d,0},{0,0,d},{0,0,-d}};
 #endif
 
@@ -774,7 +774,6 @@ double emenergy (Map &m, int &nratoms, double *atoms, int *atomtypes, double *fo
       }
     }
   }
-  return energy;  
   if (m.clash_threshold > 0 && m.clash_weight > 0) {
     for (n=0;n<nratoms;n++) {
       double ax = (atoms[3*n] - m.situs_origx)/m.situs_width;    

@@ -248,7 +248,7 @@ int main(int argc, char *argv[]) {
       );
     }
     if (iscore == 1) continue;
-    //if (iscore == 2) break;
+    if (iscore == 2) break;
     print_struc_(
      seed,
      label, 

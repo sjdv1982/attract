@@ -29,6 +29,6 @@ struct Prox {
   double *prox[MAXATOMTYPES][MAXATOMTYPES]; 
 };  
 
-extern Prox *prox_init(int cartstatehandle, double plateaudissq, double proxlim, double proxmax, int proxmaxtype);
+extern Prox *prox_init(int cartstatehandle, double plateaudissq, double proxlim, double proxmax, int proxmaxtype, bool has_pot);
 
 #endif

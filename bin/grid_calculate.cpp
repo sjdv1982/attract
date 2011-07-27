@@ -438,7 +438,7 @@ double plateaudissq //grid params
 	  }
 	  else {
 	    double distance = sqrt(dsq) ;
-	    fswi = (distance - swi_on)/(swi_off-swi_on);
+	    fswi = 1-(distance - swi_on)/(swi_off-swi_on);
 	  }
 	}    
       }

@@ -33,7 +33,7 @@ int proxcount = 0;
 char *shmlinks[100];
 int shmlinkcount = 0;
 
-Prox *prox_init(int cartstatehandle, double plateaudissq, double proxlim, double proxmax, int proxmaxtype) {
+Prox *prox_init(int cartstatehandle, double plateaudissq, double proxlim, double proxmax, int proxmaxtype, bool has_pot) {
   
   const int proxarsize = ceil((1/proxlim-1/proxmax)*proxconst);
   Prox *p;
@@ -154,7 +154,7 @@ Prox *prox_init(int cartstatehandle, double plateaudissq, double proxlim, double
 	    }
 	    else {
 	      double distance = sqrt(dsq) ;
-	      fswi = (distance - swi_on)/(swi_off-swi_on);
+	      fswi = 1-(distance - swi_on)/(swi_off-swi_on);
 	    }
 	  }    
 	}
@@ -168,40 +168,41 @@ Prox *prox_init(int cartstatehandle, double plateaudissq, double proxlim, double
 	  energy = fswi * ivor * vlj;
 	  grad = fswi * ivor * fb * rr2;
 	}
+        if (has_pot) {
+	  rr2 = 1.0/plateaudissq;
+	  rr23 = rr2 * rr2 * rr2;
+	  if (potshape==8) {
+	    rrd = rr2;
+	  }
+	  else if (potshape==12) {
+	    rrd = rr23;
+	  }
 
-	rr2 = 1.0/plateaudissq;
-	rr23 = rr2 * rr2 * rr2;
-	if (potshape==8) {
-	  rrd = rr2;
-	}
-	else if (potshape==12) {
-	  rrd = rr23;
-	}
+	  rep = rlen * rrd;
+	  vlj = (rep-alen)*rr23; 
+	  fb=6.0*vlj+2.0*(rep*rr23);	
 
-	rep = rlen * rrd;
-	vlj = (rep-alen)*rr23; 
-	fb=6.0*vlj+2.0*(rep*rr23);	
+          fswi = 1;
+	  if (swi_on > 0 || swi_off > 0) {
+	    if (plateaudissq > swi_on*swi_on) {
+	      if (plateaudissq > swi_off*swi_off) {
+		fswi = 0;
+	      }
+	      else {
+		double distance = sqrt(plateaudissq) ;
+		fswi = 1-(distance - swi_on)/(swi_off-swi_on);
+	      }
+	    }    
+	  }
 
-        fswi = 1;
-	if (swi_on > 0 || swi_off > 0) {
-	  if (plateaudissq > swi_on*swi_on) {
-	    if (plateaudissq > swi_off*swi_off) {
-	      fswi = 0;
-	    }
-	    else {
-	      double distance = sqrt(plateaudissq) ;
-	      fswi = (distance - swi_on)/(swi_off-swi_on);
-	    }
-	  }    
-	}
-
-	if (plateaudissq < rmin2i) {
-	  energy -= fswi * (vlj + (ivor-1) * emini);
-	  grad -= fswi * fb * rr2 * sqrt(dsq/plateaudissq);
-	}
-	else {
-	  energy -= fswi * ivor * vlj;
-	  grad -= fswi * ivor * fb * rr2 * sqrt(dsq/plateaudissq);
+	  if (plateaudissq < rmin2i) {
+	    energy -= fswi * (vlj + (ivor-1) * emini);
+	    grad -= fswi * fb * rr2 * sqrt(dsq/plateaudissq);
+	  }
+	  else {
+	    energy -= fswi * ivor * vlj;
+	    grad -= fswi * ivor * fb * rr2 * sqrt(dsq/plateaudissq);
+	  }
 	}
 	currprox[2*n] = energy;
 	currprox[2*n+1] = grad;	

@@ -58,6 +58,10 @@ struct CartState {
   
   /* translation table */
   int *transtable;
+  
+  /*ensemble*/
+  int nrens[MAXLIG];
+  double *ensd[MAXLIG][MAXENS];   //ensemble delta coordinates
 };
 
 struct MolPair {
@@ -147,6 +151,7 @@ extern "C" void read_single_pdb_(
    int &nlig, limitarr nres, limitarr natom, limitarr n3atom,
    int &nall,int &nall3,
    limitarr ieins,limitarr ieins3,
+   int &i, int &irs,
    int pdbfile_len
   );
 

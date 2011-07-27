@@ -38,11 +38,13 @@ s.swi_on, s.swi_off, strlen(argv[0]));
   if (argv[1] != NULL) {
     if (single) {
       s.nlig = 1;
+      int dmmy=0,dmmy2=0;
       read_single_pdb_(
        MAXLIG, TOTMAXRES, TOTMAXATOM,
        argv[1],s.kai,s.tyi,s.rgi,s.iei,s.x,s.iaci,s.xlai,
        s.icop,s.we,s.chai,s.ncop,s.nmaxco,s.natco,
        s.nlig,s.nres,s.natom,s.n3atom,s.nall,s.nall3,s.ieins,s.ieins3,
+       dmmy, dmmy2,
        strlen(argv[1])
       );
     }
@@ -251,7 +253,7 @@ extern "C" void cartstate_select_ligand_(
  int *&ncop,
  int *&nmaxco,
  int *&natco,
- int &ori
+ const int &ori
  ) {
   CartState &cartstate = *cartstates[handle-9990];
 

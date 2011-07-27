@@ -50,7 +50,7 @@ c     Local variables
 	    fswi = 0.0d0
 	  else
 	    r = sqrt(r2) 
-	    fswi = (r - swi_on)/(swi_off-swi_on)
+	    fswi = 1.0d0-(r - swi_on)/(swi_off-swi_on)
 	  endif
 	endif
       endif

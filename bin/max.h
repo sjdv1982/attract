@@ -13,6 +13,7 @@ const int MAXDOF = 600; //100 ligands without modes
 const int MAXATOMTYPES = 99;
 const int MAXSELECTION = 1000; //maximum size of selection; NOTE: a static array of MAXSELECTION*MAXSELECTION Coors+doubles is kept in memory!
 const int MAXRESTRAINTS = 10000;
+const int MAXENS = 1000; //maximum ensemble size
 
 typedef double dof[MAXSTRUC][MAXLIG];
 typedef double modes[MAXSTRUC][MAXLIG][MAXMODE];
