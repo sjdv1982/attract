@@ -915,7 +915,7 @@ static int test_registration(float origx, float origy, float origz, float width)
   if (xreg1<xreg) xreg = xreg1;
   if (yreg1<yreg) yreg = yreg1;
   if (zreg1<zreg) zreg = zreg1;
-  if (xreg+yreg+zreg>0.0001) return 0;
+  if (xreg+yreg+zreg>0.00003*width) return 0;
   else return 1;
 }
 	

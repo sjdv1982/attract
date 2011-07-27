@@ -1,0 +1,23 @@
+The following parameters describe the CNS parameters for the OPLSX forcefield (from parallhdg5.3.pro in the HADDOCK distribution):
+
+ elseif ($par_nonbonded eq "OPLSX") then
+! these are close to the original OPLS parameters without introducing
+! new atom types. The commented out lines are for atom types that 
+! are unique in OPLS but would require additional atom types in 
+! allhdg. Michael Nilges.
+{ suggested values for refinement in H2O
+  NBONds
+    CUTNB=12   WMIN=1.5
+    REPEl = 0.0     cdie shift     
+    TOLErance = 0.5      NBXMOD = 5
+    ctonnb=5.5 ctofnb=11.0 
+  END
+}
+(see oplsx.par)
+
+In CNS, the first parameter is epsilon and the second is sigma. These
+parameters are used directly in a 12-6 LJ potential: vdw = 4*epsilon(rr**12-rr**6),
+where rr is sigma/r. This is used directly for homo-atom-type interactions.
+For hetero-type interactions, the mean radius of sigma is used, while the geometric mean radius of epsilon is used (sqrt(eps1*eps2)).
+
+In CNS, you can also directly describe the interaction parameters between two types, using the NBFIX statement. In this case, you need to supply the parameters A and B, where A = 4*epsilon*sigma**12 and B = 4*epsilon*sigma**6, so that the interaction energy can be simply expressed as A/r**12 - B/r**6.

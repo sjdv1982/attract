@@ -25,7 +25,7 @@ c     Parameters
       dimension nhm(maxlig)
       real*8 phi, ssi, rot, dlig, xa, ya, za
       dimension phi(maxlig), ssi(maxlig), rot(maxlig)
-      dimension dlig(maxlig, maxmode)
+      dimension dlig(maxmode, maxlig)
       dimension xa(maxlig), ya(maxlig), za(maxlig)
 
 c     Local variables      
@@ -89,7 +89,7 @@ c
        
       if (iscore.eq.2) then
         call print_struc(seed,label,gesa,energies,nlig,phi,ssi,rot,
-     1  xa,ya,za,nhm,nlig,lablen)
+     1  xa,ya,za,nhm,dlig,lablen)
       endif     
       
 c   start Monte Carlo
@@ -121,7 +121,7 @@ c if ligand flex is included store deformation factor in every mode in dlig(j)
       jj = 0
       do 130 j=1,nlig
       do 131 i=1,nhm(j)
-      xaa(jb+jj+i)=dlig(j,i)
+      xaa(jb+jj+i)=dlig(i,j)
   131 continue
       jj = jj + nhm(j)
   130 continue
@@ -177,19 +177,14 @@ c        write(*,*)'new ii,c,phi,ssi,rot',i,ii,c,phi(i),ssi(i),rot(i)
   190    continue
       endif
 c make a move in HM direction and update x, y(1,i) and y(2,i) and dlig(j)
-<<<<<<< TREE
 c     call crand(dseed,ju+1,rr) 
       call GGUBS(dseed,ju+1,rr) 
 c     dseed = int(10000*rr(ju+1))
-=======
-      call crand(dseed,ju+1,rr) 
-      dseed = int(10000*rr(ju+1))
->>>>>>> MERGE-SOURCE
       if(ieig.eq.1) then
       kk = 0
       do 1180 k=1,nlig
       do 1200 i=1,nhm(k)
-      dlig(k,i)=xaa(i+jb+kk)+scalemode*(rr(i+jb+kk)-0.5d0)
+      dlig(i,k)=xaa(i+jb+kk)+scalemode*(rr(i+jb+kk)-0.5d0)
  1200 continue
  1180 kk = kk + nhm(k)
       continue 
@@ -237,7 +232,7 @@ c    2 rrot1,rrot2,rrot3,rrot4,sphi,phi(2),sssi,ssi(2),srot,rot(2)
       iaccept=1
       if (iscore.eq.2) then
         call print_struc(seed,label,gesa,energies,nlig,phi,ssi,rot,
-     1  xa,ya,za,nhm,nlig,lablen)
+     1  xa,ya,za,nhm,dlig,lablen)
       endif           
 c overwrite old xaa variables, see above
       else
@@ -264,12 +259,12 @@ c if ligand flex is included store deformation factor in every mode in dlig(j)
 
       if(ieig.eq.1) then
       jj = 0
-      do 1130 j=1,nlig
-      do 1131 i=1,nhm(j)
-      dlig(j,i)=xaa(jb+jj+i)
- 1131 continue
+      do 230 j=1,nlig
+      do 231 i=1,nhm(j)
+      dlig(i,j)=xaa(jb+jj+i)
+  231 continue
       jj = jj + nhm(j)
- 1130 continue
+  230 continue
       endif
       endif 
  4000 continue

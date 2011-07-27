@@ -61,6 +61,7 @@ c      Handle variables: cartstate
 
 c      Handle variables: forcefield parameters
        integer potshape
+       real swi_on, swi_off
        real*8 rbc,rc,ac,emin,rmin2,xnull,vlj
        dimension rbc(99,99),rc(99,99),ac(99,99),emin(99,99),
      1  rmin2(99,99)
@@ -81,6 +82,7 @@ c      Local variables
        
        integer i,ii,iii,it,j,jj,jjj,jt,k,kk,ipt,ivor,irid
        real*8 r2,rr2,rrd,rr23,rlen,rep,et,enref,charge,alen
+       real*8 fswi, r
                      
        false = 0
        
@@ -96,7 +98,8 @@ c      Local variables
      2  ptr_icopl,ptr_wel,ptr_chail,ptr_ncopl,
      3  ptr_nmaxcol,ptr_natcol, false)
        call cartstate_get_parameters(cartstatehandle,
-     1  ptr_rbc,ptr_rc,ptr_ac,ptr_emin,ptr_rmin2,ptr_ipon,potshape)
+     1  ptr_rbc,ptr_rc,ptr_ac,ptr_emin,ptr_rmin2,ptr_ipon,potshape,
+     2  swi_on, swi_off)
           
 c This subroutine goes through all residues and all side chain copies
 c The atoms belonging to the energetically most favorable side chain copy
@@ -145,6 +148,17 @@ c go over all interactions with the ligand
       ivor=ipon(it,jt)
       charge=wel(j)*wer(irid)*chair(irid)*chail(j)
       r2=r2+0.001d0
+      fswi = 1.0d0
+      if (swi_on.gt.0.or.swi_off.gt.0) then
+        if (r2.ge.(swi_on*swi_on)) then
+	  if (r2.ge.(swi_off*swi_off)) then
+	    fswi = 0.0d0
+	  else
+	    r = sqrt(r2) 
+	    fswi = 1.0d0 - (r - swi_on)/(swi_off-swi_on)
+	  endif
+	endif
+      endif      
       rr2=1.0d0/r2
       if(abs(charge).gt.xnull) et=charge*rr2
       if (potshape.eq.8) then
@@ -159,7 +173,7 @@ c go over all interactions with the ligand
       else
       vlj=ivor*(rep-alen)*rr23
       endif
-      enr(i,ii)=enr(i,ii)+vlj+et
+      enr(i,ii)=enr(i,ii)+fswi*(vlj+et)
 c     write(*,*)'i,j,vlj',i,ii,j,ncopr(ii,jj,i),vlj,et
       endif
   110 continue
@@ -190,28 +204,36 @@ c go over all interactions with the receptor
       ivor=ipon(jt,it)
       charge=wer(j)*wel(irid)*chail(irid)*chair(j)
       r2=r2+0.001d0
+      fswi = 1.0d0
+      if (swi_on.gt.0.or.swi_off.gt.0) then
+        if (r2.ge.(swi_on*swi_on)) then
+	  if (r2.ge.(swi_off*swi_off)) then
+	    fswi = 0.0d0
+	  else
+	    r = sqrt(r2) 
+	    fswi = 1.0d0 - (r - swi_on)/(swi_off-swi_on)
+	  endif
+	endif
+      endif            
       rr2=1.0d0/r2
       if(abs(charge).gt.xnull) et=charge*rr2
-      if(r2.lt.rmin2(jt,it)) then
+
       rr23=rr2**3
       if (potshape.eq.8) then
       rrd = rr2
       else if (potshape.eq.12) then
       rrd = rr23
       endif      
+      
+      if(r2.lt.rmin2(jt,it)) then      
       rep=rlen*rrd
-      vlj=(rep-alen)*rr23+(ivor-1)*emin(jt,it)
-      else
-      rr23=rr2**3
-      if (potshape.eq.8) then
-      rrd = rr2
-      else if (potshape.eq.12) then
-      rrd = rr23
-      endif      
+      vlj=(rep-alen)*rr23+(ivor-1)*emin(jt,it)      
+      else     
       rep=rlen*rrd
-      vlj=ivor*(rep-alen)*rr23
+      vlj=ivor*(rep-alen)*rr23     
       endif
-      enl(i,ii)=enl(i,ii)+vlj+et
+      
+      enl(i,ii)=enl(i,ii)+fswi*(vlj+et)
 c     write(*,*)'i,j,vlj',i,j,ii,jj,ncopl(ii,jj,i),vlj,et,r2
       endif
   210 continue

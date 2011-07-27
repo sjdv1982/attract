@@ -1,5 +1,5 @@
       subroutine read_parameters(paramfile,rbc,rc,ac,emin,rmin2,ipon,
-     1 haspar, potshape)
+     1 haspar, potshape, swi_on, swi_off)
       implicit none
       
 c     Parameters
@@ -10,6 +10,7 @@ c     Parameters
       integer ipon
       dimension ipon(99,99)
       integer potshape
+      real swi_on, swi_off
       integer haspar
       dimension haspar(99,99)
 
@@ -20,7 +21,7 @@ c     Local variables
       integer maxpar
       
       open(11,file=paramfile)
-      read(11,*) potshape,maxpar
+      read(11,*) potshape,maxpar, swi_on, swi_off
       do 443 i=1,maxpar
       read(11,*)(rbc(i,j),j=1,maxpar)
       do 445 j=1,maxpar

@@ -61,6 +61,7 @@ c      Handle variables: cartstate
 
 c      Handle variables: forcefield parameters
        integer potshape
+       real swi_on, swi_off
        real*8 rbc,rc,ac,emin,rmin2,xnull,vlj
        dimension rbc(99,99),rc(99,99),ac(99,99),emin(99,99),
      1  rmin2(99,99)
@@ -92,7 +93,8 @@ c     Local variables
      2  ptr_icopl,ptr_wel,ptr_chail,ptr_ncopl,
      3  ptr_nmaxcol,ptr_natcol,false)
        call cartstate_get_parameters(cartstatehandle,
-     1  ptr_rbc,ptr_rc,ptr_ac,ptr_emin,ptr_rmin2,ptr_ipon,potshape)
+     1  ptr_rbc,ptr_rc,ptr_ac,ptr_emin,ptr_rmin2,ptr_ipon,potshape,
+     2  swi_on, swi_off)
 
 
 c This subroutine generates a ligand-receptor pairlist
@@ -111,13 +113,16 @@ c active atoms are in iactr(i):receptor and iactl(j):ligand.
        if(iactl(j).eq.1.and.iacil(j).ne.0) then
        jjj=3*(j-1)
        jt=iacil(j)
+
 c      TODO: use rcut or rcut1?
        rcut1=(rcut0+rbc(it,jt))**2 
+
        rd=(xr(iii+1)-xl(jjj+1))**2+
      1   (xr(iii+2)-xl(jjj+2))**2+
      2   (xr(iii+3)-xl(jjj+3))**2 
-c       write(*,*)'rcut', iii,jjj+3411,rd, rcut1
+
        if(rd.le.rcut1) then
+c      write(*,*)'rcut', iii,jjj,rd, rcut1
 c      if(rd.le.rcut) then
        jj=jj+1
        nonr(jj)=i

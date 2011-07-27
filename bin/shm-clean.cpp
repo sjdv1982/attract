@@ -13,6 +13,8 @@ int main(int argc, char *argv[]) {
   files[0] = "/attract-prox-100000-36000-200000-31";
   files[1] = "/attract-prox-100000-64000-200000-31";
   files[2] = "/attract-prox-100000-100000-200000-31";
+  files[3] = "/attract-prox-100000-100000-200000-48";
+  files[4] = "/attract-prox-100000-144000-200000-48";  
   //files[1] = "/attract-prox-250";
   for (int n = 1; n <= 100; n++) {
     char *name = new char[100];

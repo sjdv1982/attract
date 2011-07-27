@@ -5,7 +5,7 @@
 #include "state.h"
 
 extern "C" void read_parameters_(char *paramfile, double *rbc, 
- double *rc,double *ac,double *emin,double *rmin2,int *ipon,int *haspar, int &potshape,
+ double *rc,double *ac,double *emin,double *rmin2,int *ipon,int *haspar, int &potshape, float &swi_on, float &swi_off,
  int paramfile_len);
 
 CartState *cartstates[100];
@@ -14,7 +14,7 @@ int cartstatesize = 0;
 extern bool exists(const char *f);
 
 extern "C" void cartstate_get_parameters_(const int &handle,double *&rbc, 
-  double *&rc,double *&ac,double *&emin,double *&rmin2,int *&ipon, int &potshape);
+  double *&rc,double *&ac,double *&emin,double *&rmin2,int *&ipon, int &potshape, float &swi_on, float &swi_off);
 
 int cartstate_new(int argc, char *argv[], bool single=0) {
   CartState *s0 = new CartState;
@@ -26,22 +26,25 @@ int cartstate_new(int argc, char *argv[], bool single=0) {
   s.transtable = NULL;
   
   int i;
-  int dmmy;
+  int dmmy; float dmmy2, dmmy3;
   if (argv[0] != NULL) {
     double *rbc; double *rc; double *ac;
     double *emin; double *rmin2; int *ipon;
     cartstate_get_parameters_(cartstatehandle,
-      rbc,rc,ac,emin,rmin2,ipon,dmmy);
-read_parameters_(argv[0],rbc,rc,ac,emin,rmin2,ipon,&s.haspar[0][0],s.potshape,strlen(argv[0]));
+      rbc,rc,ac,emin,rmin2,ipon,dmmy, dmmy2, dmmy3);
+read_parameters_(argv[0],rbc,rc,ac,emin,rmin2,ipon,&s.haspar[0][0],s.potshape,
+s.swi_on, s.swi_off, strlen(argv[0]));
   }
   if (argv[1] != NULL) {
     if (single) {
       s.nlig = 1;
+      int dmmy=0,dmmy2=0;
       read_single_pdb_(
        MAXLIG, TOTMAXRES, TOTMAXATOM,
        argv[1],s.kai,s.tyi,s.rgi,s.iei,s.x,s.iaci,s.xlai,
        s.icop,s.we,s.chai,s.ncop,s.nmaxco,s.natco,
        s.nlig,s.nres,s.natom,s.n3atom,s.nall,s.nall3,s.ieins,s.ieins3,
+       dmmy, dmmy2,
        strlen(argv[1])
       );
     }
@@ -128,7 +131,7 @@ extern "C" void cartstate_get_forces_(const int &handle,double *&f, int &nall3) 
 }
 
 extern "C" void cartstate_get_parameters_(const int &handle,double *&rbc, 
-double *&rc,double *&ac,double *&emin,double *&rmin2,int *&ipon, int &potshape) 
+double *&rc,double *&ac,double *&emin,double *&rmin2,int *&ipon, int &potshape, float &swi_on, float &swi_off) 
 {
   CartState &cartstate = *cartstates[handle-9990]; 
   rbc = &(cartstate.rbc[0][0]);
@@ -138,6 +141,8 @@ double *&rc,double *&ac,double *&emin,double *&rmin2,int *&ipon, int &potshape)
   rmin2 = &(cartstate.rmin2[0][0]);
   ipon = &(cartstate.ipon[0][0]);
   potshape = cartstate.potshape;
+  swi_on = cartstate.swi_on;
+  swi_off = cartstate.swi_off;  
 }
 
 extern "C" void cartstate_get_pivot_(const int &handle,double *&pivot) {
@@ -248,7 +253,7 @@ extern "C" void cartstate_select_ligand_(
  int *&ncop,
  int *&nmaxco,
  int *&natco,
- int &ori
+ const int &ori
  ) {
   CartState &cartstate = *cartstates[handle-9990];
 

@@ -8,7 +8,7 @@ c     Parameters
       integer maxlig,maxdof,maxmode
       real*8 dlig,val,delta
       integer nhm
-      dimension delta(maxdof),val(maxmode),dlig(maxdof)
+      dimension delta(maxdof),val(maxmode),dlig(maxmode)
 
 
 c     Local variables

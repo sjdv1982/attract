@@ -18,7 +18,7 @@ c     Parameters
 
       real*8 phi, ssi, rot, dlig, xa, ya, za
       dimension phi(maxlig), ssi(maxlig), rot(maxlig)
-      dimension dlig(maxlig, maxmode)
+      dimension dlig(maxmode, maxlig)
       dimension xa(maxlig), ya(maxlig), za(maxlig)
 
 c     Local variables      
@@ -84,9 +84,9 @@ c  iterate over all pairs: call pairenergy...
      2 cartstatehandle,molpairhandle,
      3 iab,fixre2,gridptr,
      4 phi(idr+1),ssi(idr+1),rot(idr+1),
-     5 xa(idr+1),ya(idr+1),za(idr+1),dlig(idr+1,:),
+     5 xa(idr+1),ya(idr+1),za(idr+1),dlig(:,idr+1),
      6 phi(idl+1),ssi(idl+1),rot(idl+1),
-     7 xa(idl+1),ya(idl+1),za(idl+1),dlig(idl+1,:),     
+     7 xa(idl+1),ya(idl+1),za(idl+1),dlig(:,idl+1),     
      8 pairenergies,deltar,deltal)
      
 c  ...and sum up the energies and deltas            

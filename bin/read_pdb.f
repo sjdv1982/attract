@@ -41,7 +41,7 @@ c     write(*,*)'all ligand atoms',nall,(natom(j),j=0,nlig-1)
       subroutine read_single_pdb(maxlig, totmaxres, totmaxatom,
      1 pdbfile,kai,tyi,rgi,iei,x,iaci,xlai,
      2 icop,we,chai,ncop,nmaxco,natco,
-     3 nlig, nres, natom, n3atom, nall, nall3, ieins, ieins3)
+     3 nlig, nres, natom, n3atom, nall, nall3, ieins, ieins3,i,irs)
       
       implicit real*8 (a-h,o-z)
       implicit integer*4 (i-n)      
@@ -49,9 +49,6 @@ c     write(*,*)'all ligand atoms',nall,(natom(j),j=0,nlig-1)
       dimension natom(0:maxlig-1)
       dimension ieins(0:maxlig-1),ieins3(0:maxlig-1)            
       
-      i=0
-      irs=0
-
       open(42,file=pdbfile)
       call read_pdb(42, maxlig, totmaxatom, totmaxres, 0,nlig,
      1 kai,tyi,rgi,iei,x,iaci,xlai,

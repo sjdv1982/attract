@@ -48,7 +48,9 @@ struct CartState {
   Parameters rmin2;
   iParameters ipon;
   iParameters haspar;
-  int potshape;
+  int potshape; //potential shape
+  float swi_on; //start (A) of switching
+  float swi_off;  //end (A) of switching
 
   /* grid representations */
   Grid *grids[MAXLIG];
@@ -56,6 +58,10 @@ struct CartState {
   
   /* translation table */
   int *transtable;
+  
+  /*ensemble*/
+  int nrens[MAXLIG];
+  double *ensd[MAXLIG][MAXENS];   //ensemble delta coordinates
 };
 
 struct MolPair {
@@ -145,6 +151,7 @@ extern "C" void read_single_pdb_(
    int &nlig, limitarr nres, limitarr natom, limitarr n3atom,
    int &nall,int &nall3,
    limitarr ieins,limitarr ieins3,
+   int &i, int &irs,
    int pdbfile_len
   );
 

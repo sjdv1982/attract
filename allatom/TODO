@@ -1,0 +1,9 @@
+compute pairwise parameter matrix (with alphabet) from oplsx.trans
+  adapt parameter parser to read it in: -1 flag
+make custom collect that assign
+  there cannot be any missing atoms!  
+  (delete all uncharged H)
+  WHATIF => CNS
+test r12 function
+test r12 function for the grid
+implement cdie option + elec weighting parameter 

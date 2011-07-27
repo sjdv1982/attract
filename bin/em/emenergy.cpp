@@ -846,8 +846,8 @@ extern "C" void emenergy_(double &energy, int &nratoms, double *atoms, int *atom
     double *datoms = new double[3*nratoms];
     memcpy(datoms, atoms, 3*nratoms*sizeof(double));
     double energy0;
-    //printf("tgradx %.6g tgrady %.6g tgradz %.6g\n", tgradx,tgrady,tgradz);
-    for (int i=0;i<3;i++) {
+    printf("tgradx %.6g tgrady %.6g tgradz %.6g\n", tgradx,tgrady,tgradz);
+    for (int i=0;i<6;i++) {
       memcpy(datoms, atoms, 3*nratoms*sizeof(double));
       for (int n=0;n<nratoms;n++) {
         datoms[3*n] += delta[i][0];
