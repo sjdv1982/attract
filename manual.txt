@@ -391,6 +391,9 @@ Adjusts the Metropolis temperature.
 --mcscalemode <scaling in mode A> (default: 3)
 Adjusts the step size of the rotation, translation and normal modes, respectively.
 
+--mcensprob <probility> (default: 0.05)
+Adjusts the probability to switch between ensemble copies in an MC step
+
 Orthogonality issue: this is fully compatible with grids, normal modes, restraints and all other features.
 Orthogonality issue: mode coordinates are not in A but such that the sum of squares of all displacements is 1 A. Therefore, you probably want large steps for modes and increase them for larger proteins.
 Orthogonality issue: also in pure MC you can use vmax to control the maximum number of steps.

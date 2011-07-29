@@ -7,6 +7,8 @@ extern bool exists(const char *);
 extern void parse_restraintfile(MiniState &ms, const char *restfile);
 extern "C" void read_densitymaps_(char *densitymapsfile0, int len_densitymapsfile);
 
+extern void read_ens(int cartstatehandle, int ligand, char *ensfile, bool strict);
+
 extern CartState &cartstate_get(int handle);
 extern MiniState &ministate_get(int handle);
 
@@ -15,8 +17,19 @@ void grid_usage() {
   exit(1);
 }
 
+void ens_usage() {
+ fprintf(stderr, "--ens option usage: --ens <ligand nr> <file name>\n");
+  exit(1);
+}
+
+
 void mctemp_usage() {
  fprintf(stderr, "--mctemp option usage: --mctemp <temperature in KT>\n");
+  exit(1);
+}
+
+void mcensprob_usage() {
+ fprintf(stderr, "--mcensprob option usage: --mcensprob <probability>\n");
   exit(1);
 }
 
@@ -107,6 +120,13 @@ void parse_options(int ministatehandle, int cartstatehandle, int nlig, int argc,
       ms.mctemp = mctemp;
       n += 1;
     }    
+    else if (!strcmp(arg,"--mcensprob")) {
+      if (argc-n < 2) mcensprob_usage();    
+      double mcensprob = atof(argv[n+1]);
+      if (mcensprob < 0 | mcensprob > 1) mcensprob_usage();
+      ms.mcensprob = mcensprob;
+      n += 1;
+    }    
     else if (!strcmp(arg,"--mcscalerot")) {
       if (argc-n < 2) mcscalerot_usage();    
       double mcscalerot = atof(argv[n+1]);
@@ -163,6 +183,18 @@ void parse_options(int ministatehandle, int cartstatehandle, int nlig, int argc,
       }
       g->init_prox(cartstatehandle,ms.proxlim,ms.proxmax,ms.proxmaxtype);
       c.grids[lig-1] = g;
+      n += 2;
+    }
+    else if (!strcmp(arg,"--ens") || (!strcmp(arg,"--ensemble"))) {
+      if (argc-n < 3) ens_usage();
+      int lig = atoi(argv[n+1]);
+      if (lig < 1 || lig > nlig) ens_usage();
+      char *ensf = argv[n+2];
+      if (!exists(ensf)) {
+        fprintf(stderr, "Ensemble file %s does not exist\n", ensf);
+	ens_usage();
+      }
+      read_ens(cartstatehandle,lig-1,ensf,1);
       n += 2;
     }
     else if (!strcmp(arg,"--rcut")) {

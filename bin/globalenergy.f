@@ -1,7 +1,7 @@
        subroutine globalenergy(
      1  maxlig,maxatom,totmaxatom,maxmode,maxdof,
      2	cartstatehandle, ministatehandle,
-     3  phi,ssi,rot,xa,ya,za,dlig,seed,
+     3  ens,phi,ssi,rot,xa,ya,za,dlig,seed,
      4  iab,iori,itra,ieig,fixre,energies, delta)
 
        implicit none
@@ -13,6 +13,8 @@ c      Parameters
        real*8 energies(6)
        real*8 delta(maxdof)
 
+       integer ens
+       dimension ens(maxlig)
        real*8 phi, ssi, rot, dlig, xa, ya, za
        dimension phi(maxlig), ssi(maxlig), rot(maxlig)
        dimension dlig(maxlig, maxmode)
@@ -48,7 +50,9 @@ c      Handle variables: full coordinates and modes
        pointer(ptr_pivot,pivot)
        pointer(ptr_natom,natom)
        pointer(ptr_iaci_old,iaci_old)
-       
+       real*8 ensd
+       dimension ensd(3*maxatom)
+       pointer(ptr_ensd, ensd)
        
 c      Local variables   
        integer i,ii,n,jl,jb  
@@ -74,10 +78,12 @@ c get parameters
        jl=3*iori*(nlig-fixre)
        jb=3*iori*(nlig-fixre)+3*itra*(nlig-fixre)
 
-c apply normal mode deformations
+c apply ensemble/normal mode deformations
        do 5 i=1, nlig
+       call cartstate_get_ensd(cartstatehandle,i,ens(i),ptr_ensd)
        call deform(maxlig,3*maxatom,3*totmaxatom,maxatom,maxmode,
-     1  dlig(i,:),nhm,i-1,ieins,eig,xb,x,xori,xori0)
+     1  ens(i),ensd,dlig(i,:),
+     2  nhm,i-1,ieins,eig,xb,x,xori,xori0)
 5      continue
 
        xold(1:nall3) = x(1:nall3)
