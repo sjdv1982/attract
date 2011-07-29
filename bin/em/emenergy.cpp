@@ -818,15 +818,15 @@ double emenergy (Map &m, int &nratoms, double *atoms, int *atomtypes, double *fo
     }
   }  
   if (m.clash_threshold > 0 && m.clash_weight > 0) { //use_contour must be off
-    fprintf(stderr,"EM energy: %d %.3f clash %.3f\n", &m-maps+1, energy, clashenergy);  
+    //fprintf(stderr,"EM energy: %d %.3f clash %.3f\n", &m-maps+1, energy, clashenergy);  
     energy += clashenergy;
   }
   else if (m.use_contour) { //clash detection must be off 
-    fprintf(stderr, "EM energy: %d %.3f contour %.3f\n", &m-maps+1, energy, contourenergy);  
+    //fprintf(stderr, "EM energy: %d %.3f contour %.3f\n", &m-maps+1, energy, contourenergy);  
     energy += contourenergy;  
   }
   else {
-    fprintf(stderr,"EM energy: %d %.3f\n", &m-maps+1, energy);  
+    //fprintf(stderr,"EM energy: %d %.3f\n", &m-maps+1, energy);  
   }
   return energy;  
 }
