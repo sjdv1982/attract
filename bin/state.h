@@ -97,6 +97,7 @@ struct MiniState {
   double mcscalerot; //Monte Carlo rotation step size (in radians)
   double mcscalecenter; //Monte Carlo translation step size (in A)
   double mcscalemode; //Monte Carlo mode step size (in mode A)
+  double mcensprob; //Monte Carlo probability of switching ensemble copies
   int iscore;  //scoring mode: 0 = normal, 1 = scoring, 2 = trajectory
   int ivmax; //max steps
   int iori;  //enable orientations

@@ -2,7 +2,7 @@
      1 maxlig, maxdof, maxmode, maxmolpair,
      2 cartstatehandle,ministatehandle,
      3 nhm, nlig, 
-     4 phi, ssi, rot, xa, ya, za, dlig, seed, label,
+     4 ens, phi, ssi, rot, xa, ya, za, dlig, seed, label,
      5 gesa, energies, lablen)
 c
 c  variable metric minimizer (Harwell subroutine lib.  as in Jumna with modifications)
@@ -23,6 +23,8 @@ c     Parameters
       
       integer nhm
       dimension nhm(maxlig)
+      integer ens
+      dimension ens(maxlig)      
       real*8 phi, ssi, rot, dlig, xa, ya, za
       dimension phi(maxlig), ssi(maxlig), rot(maxlig)
       dimension dlig(maxmode, maxlig)
@@ -90,7 +92,7 @@ c     set some variables for the first iteration
      1 maxlig, maxatom,totmaxatom,maxmode,maxres,
      2 cartstatehandle,ministatehandle,
      3 iab,iori,itra,ieig,fixre,gridmode,
-     4 phi,ssi,rot,xa,ya,za,dlig,seed,
+     4 ens,phi,ssi,rot,xa,ya,za,dlig,seed,
      5 gesa,energies,delta)
        
       if (iscore.eq.1) then
@@ -114,8 +116,8 @@ c     set some variables for the first iteration
        enddo      
        go to 256
       else if (iscore.eq.2) then
-        call print_struc(seed,label,gesa,energies,nlig,phi,ssi,rot,
-     1  xa,ya,za,nhm,dlig,lablen)	
+        call print_struc(seed,label,gesa,energies,nlig,
+     1  ens,phi,ssi,rot,xa,ya,za,nhm,dlig,lablen)	
       endif     
       
 110   fa=gesa
@@ -237,7 +239,7 @@ c      write (*,*),'lig',i,phi(i),ssi(i),rot(i),xa(i),ya(i),za(i)
      1 maxlig, maxatom,totmaxatom,maxmode,maxres,
      2 cartstatehandle,ministatehandle,
      3 iab,iori,itra,ieig,fixre,gridmode,
-     4 phi,ssi,rot,xa,ya,za,dlig,seed,
+     4 ens,phi,ssi,rot,xa,ya,za,dlig,seed,
      5 fb,energies,delta)
       dnorm=xnull
       do i=1,ju
@@ -291,8 +293,8 @@ c     store this function value if it is the smallest so far
 200   isfv=3
       gesa=fb
       if (iscore.eq.2) then
-        call print_struc(seed,label,gesa,energies,nlig,phi,ssi,rot,
-     1  xa,ya,za,nhm,dlig,lablen)	
+        call print_struc(seed,label,gesa,energies,nlig,
+     1  ens,phi,ssi,rot,xa,ya,za,nhm,dlig,lablen)	
       endif           
       do i=1,ju
        g(i)=gb(i)
@@ -334,11 +336,11 @@ c     at this stage the whole calculation is complete
      1 maxlig, maxatom,totmaxatom,maxmode,maxres,
      2 cartstatehandle,ministatehandle,
      3 iab,iori,itra,ieig,fixre,gridmode,
-     4 phi,ssi,rot,xa,ya,za,dlig,seed,
+     4 ens,phi,ssi,rot,xa,ya,za,dlig,seed,
      5 gesa,energies,delta)
       if (iscore.eq.2) then
-        call print_struc(seed,label,gesa,energies,nlig,phi,ssi,rot,
-     1  xa,ya,za,nhm,dlig,lablen)	
+        call print_struc(seed,label,gesa,energies,nlig,
+     1  ens,phi,ssi,rot,xa,ya,za,nhm,dlig,lablen)	
       endif     
 
       do 255 i=1,ju

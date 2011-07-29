@@ -1,8 +1,8 @@
        subroutine pairenergy(maxlig,maxatom,totmaxatom,maxmode,
      1 maxdof,maxmolpair,maxres,
      2 cartstatehandle,molpairhandle,iab,fixre,gridptr,
-     3 phir, ssir, rotr, xar, yar, zar, dligr,
-     4 phil, ssil, rotl, xal, yal, zal, dligl,
+     3 ensr, phir, ssir, rotr, xar, yar, zar, dligr,
+     4 ensl, phil, ssil, rotl, xal, yal, zal, dligl,
      5 energies, deltar, deltal)
 
        implicit none
@@ -14,6 +14,7 @@ c      Parameters
        integer iab, fixre
        integer gridptr_dmmy
        pointer(gridptr, gridptr_dmmy)
+       integer ensl, ensr
        real*8 phir, ssir, rotr, xar, yar, zar, dligr
        real*8 phil, ssil, rotl, xal, yal, zal, dligl
        dimension dligr(maxmode), dligl(maxmode)
@@ -71,6 +72,14 @@ c      Handle variables: cartstate
        dimension ncopr(0:10,0:20,maxres), ncopl(0:10,0:20,maxres)
        pointer(ptr_ncopr,ncopr)
        pointer(ptr_ncopl,ncopl)
+
+       real*8 ensdr
+       dimension ensdr(3*maxatom)
+       pointer(ptr_ensdr, ensdr)
+       real*8 ensdl
+       dimension ensdl(3*maxatom)
+       pointer(ptr_ensdl, ensdl)
+
 
 c      Handle variables: forcefield parameters
        integer potshape
@@ -140,9 +149,6 @@ c reset forces
 c Are we using a grid?
        use_grid = 0
        if (gridptr.ne.0) then
-c TODO?: use dligr to determine RMSD
-c  if RMSD is zero: rigid mode? or keep non-rigid?
-c  if RMSD is larger: non-rigid mode
        rigid = 0
        use_grid = 1
        endif
@@ -157,11 +163,13 @@ c get full coordinates and normal modes
        call cartstate_f_pairenergy(cartstatehandle,ptr_nhm,ptr_ieins,
      1  ptr_eig, ptr_xb, ptr_x, ptr_xori, ptr_xori0)
 
-c apply normal mode deformations to receptor and ligand
+c apply ensemble/normal mode deformations to receptor and ligand
+       call cartstate_get_ensd(cartstatehandle,idr,ensr,ptr_ensdr)
        call deform(maxlig,3*maxatom,3*totmaxatom,maxatom,maxmode,
-     1  dligr,nhm,idr,ieins,eig,xb,x,xori,xori0)
+     1  ensr,ensdr,dligr,nhm,idr,ieins,eig,xb,x,xori,xori0)
+       call cartstate_get_ensd(cartstatehandle,idl,ensl,ptr_ensdl)     
        call deform(maxlig,3*maxatom,3*totmaxatom,maxatom,maxmode,
-     1  dligl,nhm,idl,ieins,eig,xb,x,xori,xori0)
+     1  ensl,ensdl,dligl,nhm,idl,ieins,eig,xb,x,xori,xori0)
 
 c select deformed coordinates: select non-pivotized coordinates for receptor
 

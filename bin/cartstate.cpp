@@ -150,6 +150,21 @@ extern "C" void cartstate_get_pivot_(const int &handle,double *&pivot) {
   pivot = &(cartstate.pivot[0][0]);
 }
 
+extern "C" void cartstate_get_nrens_(const int &handle,int *&nrens) {
+  CartState &cartstate = *cartstates[handle-9990]; 
+  nrens = cartstate.nrens;
+}
+
+extern "C" void cartstate_get_ensd_(const int &handle,
+  const int &ligand,
+  const int &ens,
+  double *&ensd) 
+  {
+  CartState &cartstate = *cartstates[handle-9990]; 
+  ensd = cartstate.ensd[ligand][ens-1];
+}
+
+
 extern "C" void cartstate_f_write_pdb_(
   const int &handle,
   int &nlig, int *&kai, char4 *&tyi, char4 *&rgi, int *&iei, double *&x,

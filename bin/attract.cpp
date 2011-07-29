@@ -17,6 +17,7 @@ extern "C" void print_struc_(
  const double &energy,
  const double *energies,
  const int &nlig,
+ const int *ens,
  const double *phi,
  const double *ssi,
  const double *rot,
@@ -50,6 +51,7 @@ extern "C" void cartstate_f_rotdeform_(
 
 extern "C" void cartstate_get_nlig_nhm_(const int &handle, int &nlig, int *(&nhm));
 extern "C" void cartstate_get_pivot_(const int &handle,double *&pivot);
+extern "C" void cartstate_get_nrens_(const int &handle,int *&nrens);
 
 extern "C" int ministate_new_();
 
@@ -57,15 +59,14 @@ void ministate_iscore_imc_(const int &handle, int &iscore, int &imc);
 
 extern "C" FILE *read_dof_init_(const char *f_, int nlig, int &line, double (&pivot)[3][MAXLIG], int &auto_pivot, int &centered_receptor, int &centered_ligands, int f_len);
 
-extern "C" int read_dof_(FILE *fil, int &line, int &nstruc, const char *f_, dof2 &phi, dof2 &ssi, dof2 &rot, dof2 &xa, dof2 &ya, dof2 &za, modes2 &dlig, const int &nlig, const int *nhm, int &seed, char *&label, int f_len);
-
+extern "C" int read_dof_(FILE *fil, int &line, int &nstruc, const char *f_, idof2 &ens, dof2 &phi, dof2 &ssi, dof2 &rot, dof2 &xa, dof2 &ya, dof2 &za, modes2 &dlig, const int &nlig, const int *nhm, const int *nrens0, int &seed, char *&label, int f_len);
 
 extern "C" void minfor_(
 const int &maxatom, const int &totmaxatom, const int &maxres,
 const int &maxlig, const int &maxdof, const int &maxmode,const int &maxmolpair,
 const int &cartstatehandle,const int &ministatehandle, 
 int *nhm, const int &nlig, 
-double *phi, double *ssi, double *rot, double *xa, double *ya, double *za, 
+int *ens, double *phi, double *ssi, double *rot, double *xa, double *ya, double *za, 
 double *dlig, const int &seed, char *label, double &energy, double *energies, int lablen);
 
 extern "C" void monte_(
@@ -73,7 +74,7 @@ const int &maxatom, const int &totmaxatom, const int &maxres,
 const int &maxlig, const int &maxdof, const int &maxmode,const int &maxmolpair,
 const int &cartstatehandle,const int &ministatehandle, 
 int *nhm, const int &nlig, 
-double *phi, double *ssi, double *rot, double *xa, double *ya, double *za, 
+int *ens,  double *phi, double *ssi, double *rot, double *xa, double *ya, double *za, 
 double *dlig, const int &seed, char *label, double &energy, double *energies, int lablen);
 
 extern "C" void write_pdb_(
@@ -92,6 +93,7 @@ const int &totmax3atom, const int &maxatom,const int &maxmode,double (&dligp)[MA
 int *nhm,int &ijk,int *ieins,double *eig,double *xb,double *x,double *xori,double *xori0); 
 
 /* DOFs */
+static int ens[MAXLIG];
 static double phi[MAXLIG];
 static double ssi[MAXLIG];
 static double rot[MAXLIG];
@@ -162,7 +164,9 @@ int main(int argc, char *argv[]) {
   else cartstate_set_pivot_(cartstatehandle, fpivot);  
   
   double *pivot; //the actual pivots (from file or auto-calculated)
+  int *nrens; //the ensemble size for each ligand
   cartstate_get_pivot_(cartstatehandle,pivot);
+  cartstate_get_nrens_(cartstatehandle,nrens);
   
   //get the Cartesian parameters we need for rotation and deformation
   double *x; int *ieins;double *eig; double *xb; double *xori; double *xori0;
@@ -186,7 +190,7 @@ int main(int argc, char *argv[]) {
     printf("#centered ligands: false\n");
   }
   while (1) {
-    int result = read_dof_(fil, line, nstruc, argv[1], phi, ssi, rot, xa, ya, za, dlig, nlig, nhm, seed, label, strlen(argv[1]));
+    int result = read_dof_(fil, line, nstruc, argv[1], ens, phi, ssi, rot, xa, ya, za, dlig, nlig, nhm, nrens, seed, label, strlen(argv[1]));
     if (result != 0) break;
 
     if (centered_receptor) { //...then subtract pivot from receptor
@@ -229,7 +233,7 @@ int main(int argc, char *argv[]) {
 	MAXLIG,MAXDOF,MAXMODE,MAXMOLPAIR,
 	cartstatehandle, ministatehandle,
 	nhm, nlig,
-	&phi[0], &ssi[0], &rot[0], 
+	&ens[0], &phi[0], &ssi[0], &rot[0], 
 	&xa[0], &ya[0], &za[0], &dlig[0][0],
 	seed, label,
 	energy, energies, lablen
@@ -241,7 +245,7 @@ int main(int argc, char *argv[]) {
 	MAXLIG,MAXDOF,MAXMODE,MAXMOLPAIR,
 	cartstatehandle, ministatehandle,
 	nhm, nlig,
-	&phi[0], &ssi[0], &rot[0], 
+	&ens[0], &phi[0], &ssi[0], &rot[0], 
 	&xa[0], &ya[0], &za[0], &dlig[0][0],
 	seed, label,
 	energy, energies, lablen
@@ -255,6 +259,7 @@ int main(int argc, char *argv[]) {
      energy,
      energies,
      nlig,
+     ens,
      phi,
      ssi,
      rot,

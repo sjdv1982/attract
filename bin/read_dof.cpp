@@ -96,7 +96,16 @@ extern "C" FILE *read_dof_init_(const char *f_, int nlig, int &line, double (&pi
   return fil;
 }
 
-extern "C" int read_dof_(FILE *fil, int &line, int &nstruc, const char *f_, dof2 &phi, dof2 &ssi, dof2 &rot, dof2 &xa, dof2 &ya, dof2 &za, modes2 &dlig, const int &nlig, const int *nhm, int &seed, char *&label, int f_len) {
+extern "C" int read_dof_(FILE *fil, int &line, int &nstruc, const char *f_, idof2 &ens, dof2 &phi, dof2 &ssi, dof2 &rot, dof2 &xa, dof2 &ya, dof2 &za, modes2 &dlig, const int &nlig, const int *nhm, const int *nrens0, int &seed, char *&label, int f_len) {
+  int nrens00[MAXLIG];
+  memset(nrens00,0,MAXLIG*sizeof(int));
+  
+  const int *nrens;
+  if (nrens0 == NULL) {
+    nrens = nrens00;
+  }
+  else nrens = nrens0;
+
   char f[1000];
   memcpy(f, f_, f_len);
   f[f_len] = 0;  
@@ -159,6 +168,7 @@ extern "C" int read_dof_(FILE *fil, int &line, int &nstruc, const char *f_, dof2
 	exit(1);
       }
       char chars[] = {32,10,13,0};
+      int firstfield;
       char *field = strtok(buf,chars);
       int nf = 0;
       while (field != NULL) {
@@ -166,23 +176,34 @@ extern "C" int read_dof_(FILE *fil, int &line, int &nstruc, const char *f_, dof2
    	  fprintf(stderr, "Reading error in %s, line %d: too many values on a line\n", f, line);
    	  exit(1);
 	}
+	if (nf == 0) firstfield = atoi(field);
 	fields[nf] = atof(field);
+	//printf("%s\n", field);
 	field = strtok(NULL,chars);
 	nf++;
       }
-      if (nf < 6 || nf > 6 + nhm[clig]) {
-   	  fprintf(stderr, "Reading error in %s, line %d: read %d values, expected %d values\n", f, line, nf, 6 + nhm[clig]);
+      int has_ens = 0;
+      if (nrens[clig]) has_ens = 1;
+      if (nf < has_ens + 6 || nf > has_ens + 6 + nhm[clig]) {
+   	  fprintf(stderr, "Reading error in %s, line %d: read %d values, expected %d values\n", f, line, nf, has_ens + 6 + nhm[clig]);
 	  exit(1);
       }
-      phi[clig] = fields[0];
-      ssi[clig] = fields[1];
-      rot[clig] = fields[2];
-      xa[clig] = fields[3];
-      ya[clig] = fields[4];
-      za[clig] = fields[5];
+      if (has_ens) {
+        ens[clig] = firstfield; //fields[0]
+	if (firstfield <= 0 || firstfield > nrens[clig]) {
+   	  fprintf(stderr, "Reading error in %s, line %d: ensemble copy must be in range 1-%d, is %d\n", f, line, nrens[clig], firstfield);
+	  exit(1);
+	}
+      }
+      phi[clig] = fields[has_ens+0];
+      ssi[clig] = fields[has_ens+1];
+      rot[clig] = fields[has_ens+2];
+      xa[clig] = fields[has_ens+3];
+      ya[clig] = fields[has_ens+4];
+      za[clig] = fields[has_ens+5];
       for (int n=0;n<nhm[clig];n++) {
-        if (6+n < nf) {
-          dlig[clig][n] = fields[6+n];
+        if (has_ens+6+n < nf) {
+          dlig[clig][n] = fields[has_ens+6+n];
 	}
 	else 
 	  dlig[clig][n] = 0;
