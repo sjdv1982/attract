@@ -31,10 +31,12 @@ extern "C" void print_struc_(
     label[len_label] = 0;
     printf("%s",label);
   }
-  printf("## Energy: %.3f\n", energy);
-  printf("##   %.3f %.3f %.3f %.3f %.3f %.3f\n", 
-   energies[0],energies[1],energies[2],
-   energies[3],energies[4],energies[5]);
+  if (energies != NULL) {
+    printf("## Energy: %.3f\n", energy);
+    printf("##   %.3f %.3f %.3f %.3f %.3f %.3f\n", 
+     energies[0],energies[1],energies[2],
+     energies[3],energies[4],energies[5]);
+  }
   for (int i = 0; i < nlig; i++) {
     printf("   ");   
     if (ens[i] > 0) {

@@ -1,5 +1,5 @@
 NEW: --ensemble option: --ensemble <ligand> <PDB list file>
-TODO: read_ens
+TODO: read_ens; adapt fix-receptor among others
 NEW: 2 extra floats in the parameter file: start and end of the switch
  function; if they are zero, then no switching 
 NEW --shm switch for make-grid

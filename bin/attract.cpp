@@ -53,6 +53,12 @@ extern "C" void cartstate_get_nlig_nhm_(const int &handle, int &nlig, int *(&nhm
 extern "C" void cartstate_get_pivot_(const int &handle,double *&pivot);
 extern "C" void cartstate_get_nrens_(const int &handle,int *&nrens);
 
+extern "C" void cartstate_get_ensd_(const int &handle,
+  const int &ligand,
+  const int &ens,
+  double *&ensd);
+
+
 extern "C" int ministate_new_();
 
 void ministate_iscore_imc_(const int &handle, int &iscore, int &imc);
@@ -67,7 +73,7 @@ const int &maxlig, const int &maxdof, const int &maxmode,const int &maxmolpair,
 const int &cartstatehandle,const int &ministatehandle, 
 int *nhm, const int &nlig, 
 int *ens, double *phi, double *ssi, double *rot, double *xa, double *ya, double *za, 
-double *dlig, const int &seed, char *label, double &energy, double *energies, int lablen);
+double *dlig, const int &seed, char *label, double &energy, double *energies, int &lablen);
 
 extern "C" void monte_(
 const int &maxatom, const int &totmaxatom, const int &maxres,
@@ -75,7 +81,7 @@ const int &maxlig, const int &maxdof, const int &maxmode,const int &maxmolpair,
 const int &cartstatehandle,const int &ministatehandle, 
 int *nhm, const int &nlig, 
 int *ens,  double *phi, double *ssi, double *rot, double *xa, double *ya, double *za, 
-double *dlig, const int &seed, char *label, double &energy, double *energies, int lablen);
+double *dlig, const int &seed, char *label, double &energy, double *energies, int &lablen);
 
 extern "C" void write_pdb_(
   const int &totmaxatom, const int &maxlig, const int &nlig,
@@ -89,7 +95,8 @@ double *pivot,
 int &ijk,int *ieins, double *x);
 
 extern "C" void deform_(const int &maxlig,const int &max3atom, 
-const int &totmax3atom, const int &maxatom,const int &maxmode,double (&dligp)[MAXMODE],
+const int &totmax3atom, const int &maxatom,const int &maxmode,
+int &ens, double *ensdp, double (&dligp)[MAXMODE], 
 int *nhm,int &ijk,int *ieins,double *eig,double *xb,double *x,double *xori,double *xori0); 
 
 /* DOFs */
@@ -211,10 +218,14 @@ int main(int argc, char *argv[]) {
     double energy; double energies[8];
     for (int l = 0; l < nlig; l++) {      
 
+      //Get ensemble differences
+      double *ensdp;
+      cartstate_get_ensd_(cartstatehandle, l, ens[l], ensdp);
+            	    
       //Apply harmonic modes
       double (&dligp)[MAXMODE] = dlig[l];
       deform_(MAXLIG, 3*MAXATOM, 3*TOTMAXATOM, MAXATOM,MAXMODE, 
-        dligp, nhm, l, ieins, eig, xb, x, xori, xori0);
+        ens[l], ensdp, dligp, nhm, l, ieins, eig, xb, x, xori, xori0);
 
       //Compute rotation matrix
       double rotmat[9];

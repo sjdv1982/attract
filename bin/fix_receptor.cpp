@@ -9,6 +9,24 @@
 
 const double pi = 4.0f * atan(1.0f);
 
+extern "C" void print_struc_(
+ const int &seed,
+ char *label0, 
+ const double &energy,
+ const double *energies,
+ const int &nlig,
+ const int *ens,
+ const double *phi,
+ const double *ssi,
+ const double *rot,
+ const double *xa,
+ const double *ya,
+ const double *za,
+ const int *nhm,
+ const modes2 &dlig,
+ int len_label
+);
+
 extern "C" void matinv_(double *rotmat);
 extern "C" void matmult_(double *rotmat1, double *rotmat2, double *rotmat);
 extern "C" void vecmatmult_(double *v0, double *m, double *v);
@@ -24,6 +42,8 @@ double *pivot,
 int &ijk,int *ieins, double *x);
 
 /* DOFs */
+static int nrens[MAXLIG];
+static int ens[MAXLIG];
 static double phi[MAXLIG];
 static double ssi[MAXLIG];
 static double rot[MAXLIG];
@@ -55,12 +75,35 @@ int main(int argc, char *argv[]) {
   int i;
   int nhm[MAXLIG];
   for (int n = 0; n < MAXLIG; n++) nhm[n] = 0;
-  if (argc > 3 && (!strcmp(argv[3],"--modes"))) {
-    for (int n = 0; n < argc-4; n++) {
-      nhm[n] = atoi(argv[n+4]);
+
+  while (argc > 3) {
+    if (!strcmp(argv[3],"--modes")) {
+      int count = 0;
+      while (argc > 4) {
+        memmove(argv+3, argv+4, sizeof(char*) * (argc-3));
+        argc--;      
+        if (!strncmp(argv[3],"--",2)) break;      
+        nhm[count] = atoi(argv[3]);
+        count++;
+      }
+      memmove(argv+3, argv+4, sizeof(char*) * (argc-3));
+      argc--;      
     }
-    argc = 3;
-  }
+    if (!strcmp(argv[3],"--ens")) {
+      int count = 0;
+      while (argc > 4) {
+        memmove(argv+3, argv+4, sizeof(char*) * (argc-3));
+        argc--;      
+        if (!strncmp(argv[3],"--",2)) break;      
+        nrens[count] = atoi(argv[3]);
+        count++;
+      }
+      memmove(argv+3, argv+4, sizeof(char*) * (argc-3));
+      argc--;      
+
+    }
+  }  
+
   if (argc != 3) {
     fprintf(stderr, "Wrong number of arguments\n"); usage();
   }
@@ -100,12 +143,9 @@ int main(int argc, char *argv[]) {
   int nstruc = 0;
   while (1) {
     
-    int result = read_dof_(fil, line, nstruc, argv[1], phi, ssi, rot, xa, ya, za, dlig, nlig, nhm, NULL, seed, label, strlen(argv[1]));
+    int result = read_dof_(fil, line, nstruc, argv[1], ens, phi, ssi, rot, xa, ya, za, dlig, nlig, nhm, nrens, seed, label, strlen(argv[1]));
     if (result != 0) break;
 
-    printf("#%d\n",nstruc);
-    printf("### SEED %d\n", seed); 
-    if (label != NULL) printf("%s",label);
     double rotmatr[9], rotmatrinv[9];
     euler2rotmat_(phi[0],ssi[0],rot[0],rotmatr); 
     memcpy(rotmatrinv,rotmatr,sizeof(rotmatr));
@@ -155,16 +195,28 @@ int main(int argc, char *argv[]) {
         else if (rotmatd[0] <= -0.999) rot[i] = pi;	
         else rot[i] = acos(rotmatd[0]);
       }
-            
-      printf("   %.8f %.8f %.8f %.4f %.4f %.4f", 
-        phi[i], ssi[i], rot[i], 
-        xa[i],  ya[i], za[i]      
-      );
-      for (int ii = 0; ii < nhm[i]; ii++) {
-        printf(" %.4f", dlig[i][ii]);
-      }
-      printf("\n"); 
-
     }
+    double dummy = 0;
+    int lablen = 0;
+    if (label) lablen = strlen(label);
+
+    print_struc_(
+     seed,
+     label, 
+     dummy,
+     NULL,
+     nlig,
+     ens,
+     phi,
+     ssi,
+     rot,
+     xa,
+     ya,
+     za,
+     nhm,
+     dlig,
+     lablen
+    );
+
   }
 }
