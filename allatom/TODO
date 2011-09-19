@@ -1,3 +1,6 @@
+
+!!!forces aren't good for potshape 12 !!!
+
 compute pairwise parameter matrix (with alphabet) from oplsx.trans
   adapt parameter parser to read it in: -1 flag
 make custom collect that assign

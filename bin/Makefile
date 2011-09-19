@@ -3,7 +3,7 @@ OBJ= read_hm.o read_dof.o read_parameters.o read_pdb.o write_pdb.o print_struc.o
   parse_options.o select.o pairgen.o pairenergy.o energy.o globalenergy.o \
   matmult.o matinv.o prox.o reset_forces.o nonbon8.o ligmin.o rota.o trans.o \
   em/situs/lib_vio.o em/situs/lib_pio.o em/situs/lib_err.o \
-  parse_restraints.o restrain.o read_ens.o\
+  parse_restraints.o restrain.o read_ens.o read_pdb2.cpp\
   axisrot.o crand.o \
   euler2torquemat.o memcpy.o disre.o moderest.o
     
