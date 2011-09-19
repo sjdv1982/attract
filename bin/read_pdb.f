@@ -111,11 +111,8 @@ c      write(*,*)'all ligand atoms',nall,(natom(j),j=0,2-1)
       dimension ieins(0:maxlig-1),ieins3(0:maxlig-1),
      1 natom(0:maxlig-1),n3atom(0:maxlig-1)
       dimension nres(0:maxlig-1)
-
-      permi=15.0D0
-      felec=332.053986d0
-      felec=sqrt(felec/permi)
       
+
       iold=0
       irso=0
       izz=1
@@ -127,7 +124,8 @@ c open and read ligand protein file
        ii=3*i
        read(b,26) at,kai(i+1),tyi(i+1),rgi(i+1),iei(i+1),x(ii+1),
      1  x(ii+2),x(ii+3),iaci(i+1),xlai(i+1),icop(i+1),we(i+1)
-       chai(i+1)=felec*xlai(i+1)
+c       chai(i+1)=felec*xlai(i+1) #done later
+       chai(i+1) = xlai(i+1)
        kai(i+1)=i+1
 c
 c this for renumbering of residues
@@ -175,4 +173,39 @@ c     1           ieins3(ijk),nlig
 
    20 format(a100)
    26 format(a4,i7,2x,a4,a4,2x,i3,4x,3f8.3,i5,f8.3,i2,f5.2)   
+
+      end
+      
+      subroutine apply_permi(totmaxatom,nall,chai,permi)
+      implicit real*8 (a-h,o-z)
+      implicit integer*4 (i-n)      
+      integer totmaxatom
+      dimension chai(totmaxatom)
+
+c     Electric permittivity constant (epsilon); 1 = vacuum
+
+      felec=332.053986d0
+
+c     The felec constant is the electrostatic energy, in kcal/mol,      
+c      between two electrons, at 1 A distance, in vacuum
+c     The formula is:
+c      e**2 * NA * KC * Ang * kcal 
+c     where:
+c      e = charge of the electron, in Coulomb
+c      NA = Avogadro's number
+c      KC = Coulomb force constant
+c      Ang = the size of an Angstrom (10**-10 meter)
+c      kcal = the amount of Joules per kcal, 4184
+c
+
+      felec=sqrt(felec/permi)
+c      This is because the charges are multiplied with each other
+c      Multiplying every charge with sqrt(felec) allows removing felec
+c       from the calculation
+       
+      do i=1,nall
+      chai(i) = felec*chai(i)
+      end do
+      
+
       end

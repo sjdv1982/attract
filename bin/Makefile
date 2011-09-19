@@ -8,13 +8,14 @@ OBJ= read_hm.o read_dof.o read_parameters.o read_pdb.o write_pdb.o print_struc.o
   euler2torquemat.o memcpy.o disre.o moderest.o
     
 FLAG= -g -p -O3 -fno-automatic -ffast-math -fcray-pointer
-#FLAG= -g -p -D -fno-automatic -ffast-math -fcray-pointer
+#FLAG= -g -p -O0 -fno-automatic -ffast-math -fcray-pointer
 H=state.h max.h grid.h nonbon.h makegrid.h prox.h
 FF=gfortran
 
 CXX        = g++
 CC        = gcc
 CFLAGS = -g -p -O3 -Wall -ffast-math 
+#CFLAGS = -g -p -O0 -fno-inline -Wall -ffast-math 
 
 attract: attract.o em/emenergy.o grid.o ministate.o $(OBJ) 
 	$(CXX) $(CFLAGS)  $^ -lgfortran -lrt -o $@

@@ -14,7 +14,7 @@ int cartstatesize = 0;
 extern bool exists(const char *f);
 
 extern "C" void cartstate_get_parameters_(const int &handle,double *&rbc, 
-  double *&rc,double *&ac,double *&emin,double *&rmin2,int *&ipon, int &potshape, float &swi_on, float &swi_off);
+  double *&rc,double *&ac,double *&emin,double *&rmin2,int *&ipon, int &potshape, int &cdie, float &swi_on, float &swi_off);
 
 int cartstate_new(int argc, char *argv[], bool single=0) {
   CartState *s0 = new CartState;
@@ -24,6 +24,8 @@ int cartstate_new(int argc, char *argv[], bool single=0) {
   int cartstatehandle = cartstatesize-1+9990; 
   memset(s.haspar,0,sizeof(iParameters));
   s.transtable = NULL;
+  s.epsilon = 15; 
+  s.cdie = 0;
   
   int i;
   int dmmy; float dmmy2, dmmy3;
@@ -31,7 +33,7 @@ int cartstate_new(int argc, char *argv[], bool single=0) {
     double *rbc; double *rc; double *ac;
     double *emin; double *rmin2; int *ipon;
     cartstate_get_parameters_(cartstatehandle,
-      rbc,rc,ac,emin,rmin2,ipon,dmmy, dmmy2, dmmy3);
+      rbc,rc,ac,emin,rmin2,ipon,dmmy, dmmy, dmmy2, dmmy3);
 read_parameters_(argv[0],rbc,rc,ac,emin,rmin2,ipon,&s.haspar[0][0],s.potshape,
 s.swi_on, s.swi_off, strlen(argv[0]));
   }
@@ -131,7 +133,8 @@ extern "C" void cartstate_get_forces_(const int &handle,double *&f, int &nall3) 
 }
 
 extern "C" void cartstate_get_parameters_(const int &handle,double *&rbc, 
-double *&rc,double *&ac,double *&emin,double *&rmin2,int *&ipon, int &potshape, float &swi_on, float &swi_off) 
+double *&rc,double *&ac,double *&emin,double *&rmin2,int *&ipon, int &potshape, 
+int &cdie, float &swi_on, float &swi_off) 
 {
   CartState &cartstate = *cartstates[handle-9990]; 
   rbc = &(cartstate.rbc[0][0]);
@@ -141,6 +144,7 @@ double *&rc,double *&ac,double *&emin,double *&rmin2,int *&ipon, int &potshape, 
   rmin2 = &(cartstate.rmin2[0][0]);
   ipon = &(cartstate.ipon[0][0]);
   potshape = cartstate.potshape;
+  cdie = cartstate.cdie;
   swi_on = cartstate.swi_on;
   swi_off = cartstate.swi_off;  
 }
@@ -348,6 +352,11 @@ extern "C" void cartstate_translate_atomtypes_(const int &handle) {
     }
     cartstate.iaci[n] = transtable[res-1];
   }  
+}
+
+extern "C" void cartstate_apply_epsilon_(const int  &cartstatehandle) {
+  CartState &cartstate = cartstate_get(cartstatehandle);
+  apply_permi_(TOTMAXATOM, cartstate.nall, cartstate.chai, cartstate.epsilon);
 }
    
 bool exists(const char *f) {

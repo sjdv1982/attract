@@ -9,13 +9,15 @@ double &energy, Coor &grad)
   double rlen = welwel * rc; 
     
   double rr23 = rr2 * rr2 * rr2;
-  double rrd;
+  double rrd, shapedelta;
     
   if (potshape==8) {
     rrd = rr2;
+    shapedelta = 2;
   }
   else if (potshape==12) {
     rrd = rr23;
+    shapedelta = 6;    
   }
   double rep = rlen * rrd;
   double vlj = (rep-alen)*rr23; 
@@ -23,7 +25,7 @@ double &energy, Coor &grad)
   if (dsq < rmin2) {
     energy = vlj + fswi * (ivor-1) * emin;
     if (iab) {
-      double fb=fswi*6.0*vlj+2.0*(rep*rr23);
+      double fb=fswi*6.0*vlj+shapedelta*(rep*rr23);
       grad[0] = fb * dx;
       grad[1] = fb * dy;
       grad[2] = fb * dz;
@@ -32,7 +34,7 @@ double &energy, Coor &grad)
   else {
     energy = fswi*ivor * vlj;
     if (iab) {
-      double fb=fswi*6.0*vlj+2.0*(rep*rr23);
+      double fb=fswi*6.0*vlj+shapedelta*(rep*rr23);
       grad[0] = ivor * fb * dx;
       grad[1] = ivor * fb * dy;
       grad[2] = ivor * fb * dz;
@@ -41,6 +43,7 @@ double &energy, Coor &grad)
   
 }
 
+//TODO: update with swi and potshape!
 inline void nonbon_nograd(double welwel, double rc, double ac, double emin, double rmin2, int ivor, double dsq, double rr2, 
 double &energy) 
 

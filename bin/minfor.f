@@ -116,7 +116,7 @@ c     set some variables for the first iteration
        enddo      
        go to 256
       else if (iscore.eq.2) then
-        call print_struc(seed,label,gesa,energies,nlig,
+        call print_struc2(seed,label,gesa,energies,nlig,
      1  ens,phi,ssi,rot,xa,ya,za,nhm,dlig,lablen)	
       endif     
       
@@ -293,7 +293,7 @@ c     store this function value if it is the smallest so far
 200   isfv=3
       gesa=fb
       if (iscore.eq.2) then
-        call print_struc(seed,label,gesa,energies,nlig,
+        call print_struc2(seed,label,gesa,energies,nlig,
      1  ens,phi,ssi,rot,xa,ya,za,nhm,dlig,lablen)	
       endif           
       do i=1,ju
@@ -339,7 +339,7 @@ c     at this stage the whole calculation is complete
      4 ens,phi,ssi,rot,xa,ya,za,dlig,seed,
      5 gesa,energies,delta)
       if (iscore.eq.2) then
-        call print_struc(seed,label,gesa,energies,nlig,
+        call print_struc2(seed,label,gesa,energies,nlig,
      1  ens,phi,ssi,rot,xa,ya,za,nhm,dlig,lablen)	
       endif     
 

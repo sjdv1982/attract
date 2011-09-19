@@ -105,3 +105,6 @@ int main(int argc, char*argv[]) {
   }
 */
 }  
+
+
+//TODO: potshape (only option parsing), epsilon (make-grid), cdie (nonbon.h)

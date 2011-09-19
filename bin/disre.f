@@ -43,10 +43,10 @@ c     gravity=3 => to all other centers
       yd=ya(n)+pivot(n,2)-ya(nn)-pivot(nn,2)
       zd=za(n)+pivot(n,3)-za(nn)-pivot(nn,3)
       et=(xd**2+yd**2+zd**2)
-      erest=erest+rstk*et*et
-      xf=xf-4.0d0*rstk*et*xd
-      yf=yf-4.0d0*rstk*et*yd
-      zf=zf-4.0d0*rstk*et*zd      
+      erest=erest+rstk*et
+      xf=xf-2.0d0*rstk*xd
+      yf=yf-2.0d0*rstk*yd
+      zf=zf-2.0d0*rstk*zd      
  90   continue      
       
       else 

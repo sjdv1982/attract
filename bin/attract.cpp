@@ -63,6 +63,8 @@ extern "C" int ministate_new_();
 
 void ministate_iscore_imc_(const int &handle, int &iscore, int &imc);
 
+extern "C" void cartstate_apply_epsilon_(const int  &cartstatehandle);
+
 extern "C" FILE *read_dof_init_(const char *f_, int nlig, int &line, double (&pivot)[3][MAXLIG], int &auto_pivot, int &centered_receptor, int &centered_ligands, int f_len);
 
 extern "C" int read_dof_(FILE *fil, int &line, int &nstruc, const char *f_, idof2 &ens, dof2 &phi, dof2 &ssi, dof2 &rot, dof2 &xa, dof2 &ya, dof2 &za, modes2 &dlig, const int &nlig, const int *nhm, const int *nrens0, int &seed, char *&label, int f_len);
@@ -158,6 +160,7 @@ int main(int argc, char *argv[]) {
   parse_options(ministatehandle, cartstatehandle, nlig, argc-argc0,argv+argc0);
     
   cartstate_translate_atomtypes_(cartstatehandle);
+  cartstate_apply_epsilon_(cartstatehandle);
     
   //read DOFs and set pivots
   //fpivot contains any pivots read from the DOF file
@@ -236,7 +239,7 @@ int main(int argc, char *argv[]) {
       xa[l],ya[l],za[l],
       pivot,l,ieins,x);
     }
-    int lablen = 0;
+    int lablen = 1;
     if (label != NULL) lablen = strlen(label);
     if (imc == 0) {
       minfor_(

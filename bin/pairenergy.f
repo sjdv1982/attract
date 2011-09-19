@@ -82,7 +82,7 @@ c      Handle variables: cartstate
 
 
 c      Handle variables: forcefield parameters
-       integer potshape
+       integer potshape, cdie
        real swi_on, swi_off
        real*8 rbc,rc,ac,emin,rmin2,vlj
        dimension rbc(99,99),rc(99,99),ac(99,99),emin(99,99),
@@ -186,7 +186,7 @@ c select deformed coordinates: select non-pivotized coordinates for receptor
      
        call cartstate_get_parameters(cartstatehandle,
      1  ptr_rbc,ptr_rc,ptr_ac,ptr_emin,ptr_rmin2,ptr_ipon,potshape,
-     2  swi_on, swi_off)
+     2  cdie,swi_on, swi_off)
             
        xnull = 0.0d0   
        do 10 i=1,6+maxmode
@@ -271,7 +271,7 @@ c      rotate delta-translate back into global frame
        call nonbon8(maxatom,maxmolpair,
      1  iab,xl,xr,fl,fr,wel,wer,chair,chail,ac,rc,
      2  emin,rmin2,iacir,iacil,nonr,nonl,ipon,nonp,
-     3  potshape,swi_on,swi_off,enon,epote)
+     3  potshape,cdie,swi_on,swi_off,enon,epote)
        endif
        
        energies(1) = enon
