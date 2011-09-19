@@ -100,11 +100,13 @@ em/emenergy-gradcheck.o:  em/emenergy.cpp
 em/emenergy-precompcheck.o:  em/emenergy.cpp
 	$(CXX) $(CFLAGS) -DPRECOMPCHECK -c $< -o $@
 
-collectlib.o:  collectlib.cpp
-	$(CXX) $(CFLAGS) -fPIC -c $< -o $@	
+collectlib.so: collectlib-pic.o read_parameters-pic.o read_pdb-pic.o \
+  read_pdb2-pic.o read_dof-pic.o cartstate-pic.o euler2rotmat-pic.o \
+  deform-pic.o rotate-pic.o read_hm-pic.o memcpy-pic.o write_pdb-pic.o \
+  read_ens-pic.o
+	$(CXX) $(CFLAGS) -Wall -shared -fPIC $^ -lgfortran -lm -o $@ 
 
-collectlib.so: collectlib.o
-	$(CXX) $(CFLAGS) -shared -fPIC $^ -o $@ -lm	
+collectlib: collectlib.so
 	
 %.o: %.cpp $(H)
 	$(CXX) $(CFLAGS) -c $< -o $@
@@ -114,6 +116,12 @@ collectlib.so: collectlib.o
 
 %.o: %.f
 	$(FF) $(FLAG) -c $< -o $@
+
+%-pic.o: %.cpp $(H)
+	$(CXX) $(CFLAGS) -c -fPIC $< -o $@
+
+%-pic.o: %.f
+	$(FF) $(FLAG) -c -fPIC $< -o $@
 
 all: attract attract-torque collect lrmsd calc_interior make-grid \
  make-grid-omp make-grid-torque make-grid-torque-omp shm-grid \
