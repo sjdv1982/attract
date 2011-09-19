@@ -71,12 +71,12 @@ c     Local variables
   130 continue
       endif
       endif
+      rr23=rr2**3
       if (potshape.eq.8) then
       rrd = rr2
       else if (potshape.eq.12) then
       rrd = rr23
       endif
-      rr23=rr2**3
       rep=rlen*rrd
       vlj=(rep-alen)*rr23
       if(r2.lt.rmin2(it,jt)) then

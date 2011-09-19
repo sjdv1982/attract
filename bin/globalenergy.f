@@ -80,9 +80,9 @@ c get parameters
 
 c apply ensemble/normal mode deformations
        do 5 i=1, nlig
-       call cartstate_get_ensd(cartstatehandle,i,ens(i),ptr_ensd)
+       call cartstate_get_ensd(cartstatehandle,i-1,ens(i-1),ptr_ensd)
        call deform(maxlig,3*maxatom,3*totmaxatom,maxatom,maxmode,
-     1  ens(i),ensd,dlig(i,:),
+     1  ens(i-1),ensd,dlig(i,:),
      2  nhm,i-1,ieins,eig,xb,x,xori,xori0)
 5      continue
 

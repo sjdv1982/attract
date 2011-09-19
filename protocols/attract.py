@@ -1,4 +1,4 @@
-chunksize = 2000 #structures per job
+jobsize = 2000 #structures per job
 
 import sys, random, os, time
 from math import *
@@ -51,6 +51,15 @@ while 1:
     sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
     anr -= 1
     continue
+  if arg == "-jobsize" or arg == "--jobsize":
+    try:
+      jobsize = int(nextarg)
+      if jobsize <= 0: raise ValueError
+    except ValueError: 
+      raise ValueError("Invalid jobsize: %s" % nextarg)
+    sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
+    anr -= 1
+    continue
   if arg == "--output":
     output = nextarg
     sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
@@ -62,14 +71,15 @@ if output is None:
 queue = [None for n in range(np)]
 nstrucs = [None for n in range(np)]
 
-attractdir = os.path.split(sys.argv[0])[0]
-tooldir = attractdir + "/../tools"
+attractdir0 = os.path.split(sys.argv[0])[0]
+tooldir = attractdir0 + "/../tools"
+attractdir = attractdir0 + "/../bin"
 
-attract = sys.argv[0][:-len(".py")] + torque
+attract = attractdir + "/attract" + torque
 strucfile = sys.argv[1]
 
 totstruc = get_struc(strucfile)
-chunks = ceil(totstruc/float(chunksize))
+chunks = ceil(totstruc/float(jobsize))
 if not chunks: sys.exit()
 
 args = sys.argv[2:]
@@ -109,7 +119,10 @@ try:
     run(com)
     current += 1
 
-  com = "python %s/join.py %s > %s" % (tooldir, pat2, output); run(com)
+  o = open(output, "w")
+  print >> o, "## Command line arguments: " + " ".join([attract,strucfile]+args)
+  o.close()
+  com = "python %s/join.py %s >> %s" % (tooldir, pat2, output); run(com)
 finally:
   com = "rm %s-*" % pat; run(com)
   com = "rm %s-*" % pat2; run(com)

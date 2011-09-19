@@ -138,7 +138,7 @@ extern "C" int read_dof_(FILE *fil, int &line, int &nstruc, const char *f_, idof
       if (atoi(&buf[1]) == nstruc+1) {
         nstruc++;
         clig = 0;
-        cseed = rand() % 10000 + 1;
+        cseed = rand() % 1000000 + 1;
 	label = NULL;
 	mode = 1;
 	continue;

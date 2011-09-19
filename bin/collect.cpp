@@ -1,7 +1,7 @@
 //Converts DOF to PDB
 //does not eliminate redundant solutions
 
-//usage: ./collect structures.dat receptor.pdb [ligand.pdb]
+//usage: ./collect structures.dat receptor.pdb [ligand.pdb] [...] [...] [--modes <modefile>] [--ens <ligand nr> <ensemble file>]
 //  if no ligand.pdb, receptor.pdb is a multi-ligand PDB file 
 
 
@@ -88,7 +88,7 @@ static char *label;
 #include <cstdlib>
 
 void usage() {
-  fprintf(stderr, "usage: $path/collect structures.dat receptor.pdb [ligand.pdb] [...] [...]\n");
+  fprintf(stderr, "usage: collect structures.dat receptor.pdb [...] [...] [--modes <modefile>] [--ens <ligand nr> <ensemble file>]");
   exit(1);
 }
 
@@ -239,13 +239,13 @@ int main(int argc, char *argv[]) {
       }
     }          
     for (i = 0; i < nlig; i++) {
-      //Apply harmonic modes
-      double (&dligp)[20] = dlig[i];
 
       //Get ensemble differences
       double *ensdp;
       cartstate_get_ensd_(cartstatehandle, i, ens[i], ensdp);
-      
+    
+      //Apply harmonic modes and ensemble differences
+      double (&dligp)[MAXMODE] = dlig[i];      
       deform_(MAXLIG, 3*MAXATOM, 3*TOTMAXATOM,MAXATOM, MAXMODE, 
         ens[i], ensdp, dligp, nhm, i, ieins, eig, xb, x,dmmy1,dmmy2);
      
