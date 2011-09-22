@@ -28,6 +28,11 @@ void mctemp_usage() {
   exit(1);
 }
 
+void epsilon_usage() {
+ fprintf(stderr, "--epsilon option usage: --epsilon <dielectric constant; 1=vacuum>\n");
+  exit(1);
+}
+
 void mcensprob_usage() {
  fprintf(stderr, "--mcensprob option usage: --mcensprob <probability>\n");
   exit(1);
@@ -120,10 +125,17 @@ void parse_options(int ministatehandle, int cartstatehandle, int nlig, int argc,
       ms.mctemp = mctemp;
       n += 1;
     }    
+    else if (!strcmp(arg,"--epsilon")) {
+      if (argc-n < 2) epsilon_usage();    
+      double epsilon = atof(argv[n+1]);
+      if (epsilon <= 0) epsilon_usage();
+      c.epsilon = epsilon;
+      n += 1;
+    }    
     else if (!strcmp(arg,"--mcensprob")) {
       if (argc-n < 2) mcensprob_usage();    
       double mcensprob = atof(argv[n+1]);
-      if (mcensprob < 0 | mcensprob > 1) mcensprob_usage();
+      if (mcensprob < 0 || mcensprob > 1) mcensprob_usage();
       ms.mcensprob = mcensprob;
       n += 1;
     }    
@@ -153,6 +165,9 @@ void parse_options(int ministatehandle, int cartstatehandle, int nlig, int argc,
     }
     else if (!strncmp(arg,"--traj", 4)) {
       ms.iscore = 2;
+    }
+    else if (!strcmp(arg,"--cdie")) {
+      c.cdie = 1;
     }
     else if (!strcmp(arg,"--fix-receptor")) {
       ms.fixre = 1;
@@ -238,7 +253,7 @@ void parse_options(int ministatehandle, int cartstatehandle, int nlig, int argc,
       }
       if (argc-n < 2) proxlim_usage();    
       double proxlim = atof(argv[n+1]);
-      if (proxlim <= 0) proxlim_usage();
+      if (proxlim < 0) proxlim_usage();
       if (proxlim >= ms.proxmax) {
         fprintf(stderr, "proxlim must be smaller than proxmax\n");
 	exit(1);

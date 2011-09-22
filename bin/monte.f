@@ -98,7 +98,7 @@ c
      5 gesa,energies,delta)
        
       if (iscore.eq.2) then
-        call print_struc(seed,label,gesa,energies,nlig,
+        call print_struc2(seed,label,gesa,energies,nlig,
      1  ens,phi,ssi,rot,xa,ya,za,nhm,dlig,lablen)
       endif     
       
@@ -250,7 +250,7 @@ c    2 rrot1,rrot2,rrot3,rrot4,sphi,phi(2),sssi,ssi(2),srot,rot(2)
       energies(:)=energies0(:)
       iaccept=1
       if (iscore.eq.2) then
-        call print_struc(seed,label,gesa,energies,nlig,
+        call print_struc2(seed,label,gesa,energies,nlig,
      1	ens,phi,ssi,rot,xa,ya,za,nhm,dlig,lablen)
       endif           
 c overwrite old xaa variables, see above

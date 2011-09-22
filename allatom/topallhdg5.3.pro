@@ -2205,6 +2205,31 @@ presidue PROP                        ! N-terminal for PRO: "PROP - PRO"
 end
  
 
+presidue CTER2               ! C-terminal for all amino acids, produces OXT
+! For parsing by ATTRACT , Sjoerd de Vries
+  group
+    modify    atom -CA            charge= 0.100  end
+    modify    atom -C             charge= 0.700  end
+    delete    atom -O                            end
+    add       atom -O type=OC   charge=-0.800  end
+    add       atom -OXT type=OC   charge=-0.800  end
+
+  add bond -C -O
+  add bond -C -OXT
+
+  add angle -CA  -C -O
+  add angle -CA  -C -OXT
+  add angle -OT1 -C -OXT
+
+  add improper -C -CA -OXT -O
+ 
+  add dihedral -N -CA -C -O
+
+  ADD ACCEptor -O -C
+  ADD ACCEptor -OXT -C
+end
+
+
 presidue CTER               ! C-terminal for all amino acids "* - CTER"
 ! charge on -C changed from 0.700 to make group -1, Michael Nilges
   group

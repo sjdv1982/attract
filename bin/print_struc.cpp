@@ -25,8 +25,8 @@ extern "C" void print_struc_(
   nstruc += 1;
   printf("#%d\n", nstruc);
   printf("### SEED %d\n", seed);
-  if (len_label > 0) {
-    char label[100];
+  if (len_label > 1) {
+    char label[1000];
     memcpy(label, label0, len_label);
     label[len_label] = 0;
     printf("%s",label);
@@ -51,4 +51,42 @@ extern "C" void print_struc_(
     }
     printf("\n"); 
   }
+  fflush(stdout);
+}
+
+extern "C" void print_struc2_(
+ const int &seed,
+ char *label0, 
+ const double &energy,
+ const double *energies,
+ const int &nlig,
+ const int *ens, 
+ const double *phi,
+ const double *ssi,
+ const double *rot,
+ const double *xa,
+ const double *ya,
+ const double *za,
+ const int *nhm,
+ const modes2 &dlig, 
+ const int &len_label
+) {
+
+ print_struc_(
+  seed,
+  label0, 
+  energy,
+  energies,
+  nlig,
+  ens, 
+  phi,
+  ssi,
+  rot,
+  xa,
+  ya,
+  za,
+  nhm,
+  dlig, 
+  len_label
+ );
 }

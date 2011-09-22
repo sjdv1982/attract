@@ -49,6 +49,8 @@ struct CartState {
   iParameters ipon;
   iParameters haspar;
   int potshape; //potential shape
+  int cdie; //use constant dielectric
+  double epsilon; //dielectric constant
   float swi_on; //start (A) of switching
   float swi_off;  //end (A) of switching
 
@@ -169,4 +171,13 @@ extern "C" void read_two_pdbs_(
    limitarr ieins,limitarr ieins3,
    int pdbfile1_len, int pdbfile2_len
   );
+
+extern "C" void apply_permi_(
+  const int &totmaxatom,
+  const int &nall,
+  dblarr chai,
+  const double &permi
+);
+
+  
 #endif

@@ -106,7 +106,7 @@ struct Grid {
   }  
   
   
-  void calculate(int cartstatehandle, int ligand, const char *interior_grid, double plateaudis, double neighbourdis, int gridextension, int nhm0, bool (&alphabet)[MAXATOMTYPES], bool calc_pot);
+  void calculate(int cartstatehandle, int ligand, const char *interior_grid, double plateaudis, double neighbourdis, int gridextension, int nhm0, bool (&alphabet)[MAXATOMTYPES], bool cdie, float epsilon, bool calc_pot);
 };
 
 #endif

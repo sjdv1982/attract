@@ -28,8 +28,8 @@ void Grid::init_prox(int cartstatehandle,double proxlim0, double proxmax0, int p
   prox = prox_init(cartstatehandle, plateaudissq, proxlim0, proxmax0, proxmaxtype0, has_pot);
   proxlim = proxlim0;
   proxmax = proxmax0;
-  if (has_pot && proxmax < plateaudissq) {
-    fprintf(stderr, "proxmax cannot be smaller than grid plateaudissq: %.3f < %.3f", proxmax, plateaudissq);
+  if (has_pot && proxlim > 0 && proxmax < plateaudissq) {
+    fprintf(stderr, "proxmax cannot be smaller than grid plateaudissq: %.3f < %.3f\n", proxmax, plateaudissq);
     exit(1);
   }
 }
@@ -458,7 +458,7 @@ inline void trilin(
   const Grid &g, bool rigid, const Coor *xr, const double *wer, const double *chair, const int *iacir,  //receptor
 
   const Parameters &rc, const Parameters &ac, const Parameters &emin, const Parameters &rmin2,
-  const iParameters &ipon, int potshape, float swi_on, float swi_off, 
+  const iParameters &ipon, int potshape, int cdie, float swi_on, float swi_off, 
   //ATTRACT params
 
   int iab, int fixre, double &evdw, double &eelec, Coor &grad, //output
@@ -472,7 +472,7 @@ inline void trilin(
   const Grid &g, bool rigid, const Coor *xr, const double *wer, const double *chair, const int *iacir,  //receptor
 
   const Parameters &rc, const Parameters &ac, const Parameters &emin, const Parameters &rmin2,
-  const iParameters &ipon, int potshape, float swi_on, float swi_off,  //ATTRACT params
+  const iParameters &ipon, int potshape, int cdie, float swi_on, float swi_off,  //ATTRACT params
 
   int iab, int fixre, double &evdw, double &eelec, Coor &grad, //output
   
@@ -591,7 +591,7 @@ inline void trilin(
 	  double ww = wel * wer[nb.index];
 
   	  Coor &gradr = fr[nb.index];
-	  if (dsq <= g.proxlim) { //only for distance within 6A
+	  if (g.proxlim == 0 || dsq <= g.proxlim) { //only for distance within 6A
             double rci = rc[atomtype][atomtype2];
             double aci = ac[atomtype][atomtype2];
             double emini = emin[atomtype][atomtype2];
@@ -626,10 +626,22 @@ inline void trilin(
 	      gradr[1] -= grad0[1];
 	      gradr[2] -= grad0[2];
             }
+
+            bool calc_elec = 0;
+            double c;
+	    if (chargenonzero) {
+	      c = charge0 * chair[nb.index] * ww;	    
+	      if (fabs(c) > 0.001) calc_elec = 1;
+	    }
 	    
-	    if (has_pot) {
+            Coor rdis;
+            if (has_pot || calc_elec) {
 	      double r = g.get_ratio(dsq);
-	      Coor rdis = {r*dis[0], r*dis[1], r*dis[2]};  
+	      rdis[0] = r*dis[0];
+              rdis[1] = r*dis[1];
+              rdis[2] = r*dis[2];              
+            }
+	    if (has_pot) {
 	      fswi = 1;
 
 	      if (swi_on > 0 || swi_off > 0) {
@@ -655,34 +667,31 @@ inline void trilin(
 		gradr[1] += grad0[1];
 		gradr[2] += grad0[2];
               }
-	      if (chargenonzero) {
-		double c = charge0 * chair[nb.index] * ww;	    
-		if (fabs(c) > 0.001) {
-		  double eelec00; Coor grad00;
-		  elec(iab,c,rr2,dis[0],dis[1],dis[2],eelec00,grad00);
-  		  eelec += eelec00;
-		  grad[0] += grad00[0];
-		  grad[1] += grad00[1];
-		  grad[2] += grad00[2];
-                  if (!fixre) {	    
-		    gradr[0] -= grad00[0];
-		    gradr[1] -= grad00[1];
-		    gradr[2] -= grad00[2];
-                  }
-		  elec(iab,c,g.plateaudissqinv,
-		    rdis[0],rdis[1],rdis[2],eelec00,grad00);
-  		  eelec -= eelec00;
-		  grad[0] -= grad00[0];
-		  grad[1] -= grad00[1];
-		  grad[2] -= grad00[2];
-                  if (!fixre) {	    		
-  		    gradr[0] += grad00[0];
-		    gradr[1] += grad00[1];
-		    gradr[2] += grad00[2];
-                  }
-		}	    	    
-	      }
  	    }   
+            if (calc_elec) {
+	      double eelec00; Coor grad00;
+	      elec(iab,cdie,c,rr2,dis[0],dis[1],dis[2],eelec00,grad00);
+  	      eelec += eelec00;
+	      grad[0] += grad00[0];
+	      grad[1] += grad00[1];
+	      grad[2] += grad00[2];
+              if (!fixre) {	    
+		gradr[0] -= grad00[0];
+		gradr[1] -= grad00[1];
+		gradr[2] -= grad00[2];
+              }
+	      elec(iab,cdie,c,g.plateaudissqinv,
+		rdis[0],rdis[1],rdis[2],eelec00,grad00);
+  	      eelec -= eelec00;
+	      grad[0] -= grad00[0];
+	      grad[1] -= grad00[1];
+	      grad[2] -= grad00[2];
+              if (!fixre) {	    		
+  		gradr[0] += grad00[0];
+		gradr[1] += grad00[1];
+		gradr[2] += grad00[2];
+              }            
+            }
 	  }
 	  else { //distance between 6-10 A 
             int proxmappos = int((dsq-g.proxlim)*proxspace+0.5);
@@ -713,7 +722,7 @@ inline void trilin(
   	       dis[0] *= rr2; dis[1] *= rr2; dis[2] *= rr2;
 	      
 		double eelec00; Coor grad00;
-		elec(iab,c,rr2,dis[0],dis[1],dis[2],eelec00,grad00);
+		elec(iab,cdie,c,rr2,dis[0],dis[1],dis[2],eelec00,grad00);
   		eelec += eelec00;
 		grad[0] += grad00[0];
 		grad[1] += grad00[1];
@@ -726,7 +735,7 @@ inline void trilin(
    	        double r = g.get_ratio(dsq);
 		Coor rdis = {r*dis[0], r*dis[1], r*dis[2]};  
 		
-		elec(iab,c,g.plateaudissqinv,
+		elec(iab,cdie,c,g.plateaudissqinv,
 		  rdis[0],rdis[1],rdis[2],eelec00,grad00);
   		eelec -= eelec00;
 		grad[0] -= grad00[0];
@@ -743,8 +752,9 @@ inline void trilin(
 	  
 	}
       }
-    }
-  }
+    } 
+    
+  }//end inside
 }
 
 extern "C" void nonbon_grid_(
@@ -755,7 +765,7 @@ extern "C" void nonbon_grid_(
   const int &natoml,const int &natomr,
 
 const Parameters &rc, const Parameters &ac, const Parameters &emin, const Parameters &rmin2,
-  const iParameters &ipon, const int &potshape, 
+  const iParameters &ipon, const int &potshape, const int &cdie, const double &epsilon,
   const float &swi_on, const float &swi_off, 
   //ATTRACT params
   
@@ -763,6 +773,9 @@ const Parameters &rc, const Parameters &ac, const Parameters &emin, const Parame
   
   Coor *fr, const double (&pm2)[3][3][3], double *deltar)
 {
+  
+  double ffelec = sqrt(felec/epsilon);
+  
   evdw = 0;
   eelec = 0;
 #ifdef TORQUEGRID  
@@ -775,14 +788,14 @@ const Parameters &rc, const Parameters &ac, const Parameters &emin, const Parame
     if (atomtype == -1) continue;
     counter2++;
     double charge0 = chail[n];
-    double charge = charge0/felecsqrt;
+    double charge = charge0/ffelec;
     Coor &grad = fl[n];
 #ifdef TORQUEGRID    
     trilin(xl[n],atomtype,charge0,charge,wel[n],*g,rigid,xr,wer,chair,iacir,
-      rc,ac,emin,rmin2,ipon,potshape,swi_on,swi_off, iab,fixre,evdw,eelec,grad,fr,pm2,deltar,rtorques);
+      rc,ac,emin,rmin2,ipon,potshape,cdie,swi_on,swi_off, iab,fixre,evdw,eelec,grad,fr,pm2,deltar,rtorques);
 #else      
     trilin(xl[n],atomtype,charge0,charge,wel[n],*g,rigid,xr,wer,chair,iacir,
-      rc,ac,emin,rmin2,ipon,potshape,swi_on,swi_off,iab,fixre,evdw,eelec,grad,fr,deltar);
+      rc,ac,emin,rmin2,ipon,potshape,cdie,swi_on,swi_off,iab,fixre,evdw,eelec,grad,fr,deltar);
 #endif
   }
 
