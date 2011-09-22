@@ -19,7 +19,7 @@ c     Parameters
 
 c     Local variables
       real*8 dx,xnull,r2,rr1,rr2,rrd,rr23,rep,vlj,et,charge,alen,
-     1 rlen,fb,fdb
+     1 rlen,fb,fdb, rr2a
       real*8 fswi, r, shapedelta
       integer k,ik,i,j,ii,jj,it,jt,ivor
       dimension dx(3)
@@ -64,10 +64,16 @@ c     Local variables
       et=xnull
       if(charge.gt.0.001.or.charge.lt.-0.001) then
       if (cdie.eq.1) then
-      rr1 = 1.0d0/sqrt(r2)
+      rr1 = 1.0d0/sqrt(r2)-1.0/50.0 
+c     (cap all distances at 50 A)
+      if (rr1.lt.0) rr1 = 0
       et=charge*rr1
+c      write(*,*), sqrt(r2), et, epote
       else
-      et=charge*rr2
+      rr2a = rr2 - (1.0/50.0)*(1.0/50.0)
+      if (rr2a.lt.0) rr2a = 0
+c     (cap all distances at 50 A)
+      et=charge*rr2a
       endif
       epote=epote+fswi*et
       if(iab.eq.1) then

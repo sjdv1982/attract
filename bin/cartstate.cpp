@@ -14,7 +14,7 @@ int cartstatesize = 0;
 extern bool exists(const char *f);
 
 extern "C" void cartstate_get_parameters_(const int &handle,double *&rbc, 
-  double *&rc,double *&ac,double *&emin,double *&rmin2,int *&ipon, int &potshape, int &cdie, float &swi_on, float &swi_off);
+  double *&rc,double *&ac,double *&emin,double *&rmin2,int *&ipon, int &potshape, int &cdie, double &epsilon, float &swi_on, float &swi_off);
 
 int cartstate_new(int argc, char *argv[], bool single=0) {
   CartState *s0 = new CartState;
@@ -28,12 +28,12 @@ int cartstate_new(int argc, char *argv[], bool single=0) {
   s.cdie = 0;
   
   int i;
-  int dmmy; float dmmy2, dmmy3;
+  int dmmy; float dmmy2, dmmy3; double dmmy4;
   if (argv[0] != NULL) {
     double *rbc; double *rc; double *ac;
     double *emin; double *rmin2; int *ipon;
     cartstate_get_parameters_(cartstatehandle,
-      rbc,rc,ac,emin,rmin2,ipon,dmmy, dmmy, dmmy2, dmmy3);
+      rbc,rc,ac,emin,rmin2,ipon,dmmy, dmmy, dmmy4, dmmy2, dmmy3);
 read_parameters_(argv[0],rbc,rc,ac,emin,rmin2,ipon,&s.haspar[0][0],s.potshape,
 s.swi_on, s.swi_off, strlen(argv[0]));
   }
@@ -134,7 +134,7 @@ extern "C" void cartstate_get_forces_(const int &handle,double *&f, int &nall3) 
 
 extern "C" void cartstate_get_parameters_(const int &handle,double *&rbc, 
 double *&rc,double *&ac,double *&emin,double *&rmin2,int *&ipon, int &potshape, 
-int &cdie, float &swi_on, float &swi_off) 
+int &cdie, double &epsilon, float &swi_on, float &swi_off) 
 {
   CartState &cartstate = *cartstates[handle-9990]; 
   rbc = &(cartstate.rbc[0][0]);
@@ -145,6 +145,7 @@ int &cdie, float &swi_on, float &swi_off)
   ipon = &(cartstate.ipon[0][0]);
   potshape = cartstate.potshape;
   cdie = cartstate.cdie;
+  epsilon = cartstate.epsilon;
   swi_on = cartstate.swi_on;
   swi_off = cartstate.swi_off;  
 }

@@ -199,6 +199,8 @@ c      kcal = the amount of Joules per kcal, 4184
 c
 
       felec=sqrt(felec/permi)
+c      write(*,*), "FELEC", felec/permi
+c      stop
 c      This is because the charges are multiplied with each other
 c      Multiplying every charge with sqrt(felec) allows removing felec
 c       from the calculation

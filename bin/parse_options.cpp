@@ -253,7 +253,7 @@ void parse_options(int ministatehandle, int cartstatehandle, int nlig, int argc,
       }
       if (argc-n < 2) proxlim_usage();    
       double proxlim = atof(argv[n+1]);
-      if (proxlim <= 0) proxlim_usage();
+      if (proxlim < 0) proxlim_usage();
       if (proxlim >= ms.proxmax) {
         fprintf(stderr, "proxlim must be smaller than proxmax\n");
 	exit(1);

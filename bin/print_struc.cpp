@@ -51,6 +51,7 @@ extern "C" void print_struc_(
     }
     printf("\n"); 
   }
+  fflush(stdout);
 }
 
 extern "C" void print_struc2_(

@@ -1,13 +1,16 @@
 break_threshold = 3.5 #3.5 A before a N/C-terminal patch is applied
 threshsq = break_threshold * break_threshold
 
-import sys
+import sys, os
 
 import parse_cns_top 
 
 pdb = sys.argv[1]
 transfile = sys.argv[2]
 topfile = sys.argv[3]
+
+outfile = os.path.splitext(pdb)[0] + "-aaX.pdb"
+outf = open(outfile, "w")
 
 residues, presidues = parse_cns_top.parse_stream(open(topfile))
 
@@ -56,7 +59,7 @@ def write_res(res, resprev=None, resnext=None):
   if patchn:
     r.patch(presidues["nter"])
   if patchc:
-    r.patch(presidues["cter"])
+    r.patch(presidues["cter2"])
 
   done = set()
   for a in r.atomorder: 
@@ -72,9 +75,10 @@ def write_res(res, resprev=None, resnext=None):
     a0 = aa
     if len(a0) < 4:
       a0 = " " + a0 + "   "[len(a0):]
-    print "ATOM %6d %4s %s %5d    %s %4d %6.3f 0 1.00" % \
+    print >> outf, "ATOM %6d %4s %s %5d    %s %4d %7.3f 0 1.00" % \
      (atomcounter, a0, res.resname, rescounter, xyz, type, atom.charge )
     atomcounter += 1
+  print res.resid.split()[-1], rescounter
   rescounter += 1
 
 

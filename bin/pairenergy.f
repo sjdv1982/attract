@@ -84,7 +84,7 @@ c      Handle variables: cartstate
 c      Handle variables: forcefield parameters
        integer potshape, cdie
        real swi_on, swi_off
-       real*8 rbc,rc,ac,emin,rmin2,vlj
+       real*8 rbc,rc,ac,emin,rmin2,vlj,epsilon
        dimension rbc(99,99),rc(99,99),ac(99,99),emin(99,99),
      1  rmin2(99,99)
        integer ipon
@@ -186,7 +186,7 @@ c select deformed coordinates: select non-pivotized coordinates for receptor
      
        call cartstate_get_parameters(cartstatehandle,
      1  ptr_rbc,ptr_rc,ptr_ac,ptr_emin,ptr_rmin2,ptr_ipon,potshape,
-     2  cdie,swi_on, swi_off)
+     2  cdie,epsilon,swi_on, swi_off)
             
        xnull = 0.0d0   
        do 10 i=1,6+maxmode
@@ -260,8 +260,9 @@ c      therefore, we must rotate the pm2 matrix
        
        call nonbon_grid(gridptr,rigid,iab,fixre,xl,xr,pivotr,tr,
      1  wel,wer,chail,chair,iacil,iacir,natoml,natomr,
-     2  rc,ac,emin,rmin2,ipon,potshape,swi_on, swi_off,
-     3  fl,enon,epote,fr,pm2,deltar0) 
+     2  rc,ac,emin,rmin2,ipon,potshape,cdie,epsilon,
+     3  swi_on, swi_off,
+     4  fl,enon,epote,fr,pm2,deltar0) 
 c      rotate delta-translate back into global frame
        call rotate1(3*maxatom,
      1  rotmatr,zero,zero,zero,

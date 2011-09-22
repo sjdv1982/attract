@@ -35,11 +35,26 @@ int new_shm_id() {
 int main(int argc, char*argv[]) {
   if (argc < 7) {
     fprintf(stderr,"Too few arguments\n");
-    fprintf(stderr, "Please provide PDB file, SITUS map of the interior, ATTRACT parameter file, plateau distance, neighbour distance, output file name [calc-potentials=1] [--shm]\n");
+    fprintf(stderr, "Please provide PDB file, SITUS map of the interior, ATTRACT parameter file, plateau distance, neighbour distance, output file name [calc-potentials=1] [--shm] [--cdie] [--epsilon=15] \n");
     return -1;
   }
   bool use_shm = 0;
+  bool cdie = 0;
+  float epsilon = 15;
+  
   for (int n = 1; n < argc; n++) {
+    if (n < argc -1) {
+      if (!strcmp(argv[n],"--epsilon")) {
+        epsilon = atof(argv[n+1]);
+        char **argv2 = new char *[argc-1];
+        if (n > 0) memcpy(argv2, argv,n*sizeof(char*));
+        if (n+2 < argc) memcpy(argv2+n,argv+n+2,(argc-n-2)*sizeof(char*));
+        argv = argv2;
+        argc -= 2;
+        n -= 1;
+        continue;
+      }
+    }
     if (!strcmp(argv[n],"--shm")) {
       use_shm = 1;
       char **argv2 = new char *[argc-1];
@@ -47,8 +62,20 @@ int main(int argc, char*argv[]) {
       if (n+1 < argc) memcpy(argv2+n,argv+n+1,(argc-n-1)*sizeof(char*));
       argv = argv2;
       argc -= 1;
-      break;
+      n -= 1;
+      continue;
     }
+    if (!strcmp(argv[n],"--cdie")) {
+      cdie = 1;
+      char **argv2 = new char *[argc-1];
+      if (n > 0) memcpy(argv2, argv,n*sizeof(char*));
+      if (n+1 < argc) memcpy(argv2+n,argv+n+1,(argc-n-1)*sizeof(char*));
+      argv = argv2;
+      argc -= 1;
+      n -= 1;
+      continue;
+    }
+    
   }  
   
    //load the Cartesian parameters and get a handle to it
@@ -79,32 +106,13 @@ int main(int argc, char*argv[]) {
   bool calc_pot = 1;
   if (argc > 7) calc_pot = atoi(argv[7]);
   g.calculate(cartstatehandle, 0, argv[2], atof(argv[4]), atof(argv[5]), 
-   gridextension, 0, alphabet, calc_pot);
+   gridextension, 0, alphabet, cdie, epsilon, calc_pot);
   if (use_shm) {
     g.shm_energrads = new_shm_id();
     g.shm_neighbours = new_shm_id();  
   }
   g.write(argv[6]);
-/*
-  FILE *f = fopen(argv[8], "w");
-  for (int x = 0; x < g.gridx; x++) {
-    for (int y = 0; y < g.gridy; y++) {
-      for (int z = 0; z < g.gridz; z++) {
-        double lsum = 0;
-	double tsum = 0;
-	int index = g.gridx*g.gridy*z + g.gridx*y + x;
-	Voxel &v = g.innergrid[index];
-	for (int i = 0; i < v.nr_neighbours; i++) {
-	  Neighbour &n = g.neighbours[v.neighbourlist + i];
-	  lsum += log(double(n.index));
-	  tsum += (n.index+1)*n.type;
-	}
-	fprintf(f, "%d %.5f %.5f\n", v.nr_neighbours, lsum, tsum);
-      }
-    }
-  }
-*/
 }  
 
 
-//TODO: potshape (only option parsing), epsilon (make-grid), cdie (nonbon.h)
+
