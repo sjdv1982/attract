@@ -74,7 +74,10 @@ bool exists(const char *f) {
 int main(int argc, char *argv[]) {
   int i;
   int nhm[MAXLIG];
-  for (int n = 0; n < MAXLIG; n++) nhm[n] = 0;
+  for (int n = 0; n < MAXLIG; n++) {
+    nhm[n] = 0;
+    nrens[n] = 0;
+  }
 
   while (argc > 3) {
     if (!strcmp(argv[3],"--modes")) {
