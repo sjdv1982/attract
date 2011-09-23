@@ -80,7 +80,8 @@ fix_receptor:   fix_receptor.cpp read_dof.o euler2rotmat.o matinv.o matmult.o \
                 print_struc.o max.h
 	$(CXX) $(CFLAGS) $^ -o $@ -lm
 
-deredundant: deredundant.cpp read_dof.o euler2rotmat.o matmult.o max.h
+deredundant: deredundant.cpp read_dof.o euler2rotmat.o matmult.o \
+                print_struc.o max.h
 	$(CXX) $(CFLAGS) $^ -o $@ -lm
 
 omp_threadnum: omp_threadnum.cpp

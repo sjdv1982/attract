@@ -18,6 +18,7 @@ extern "C" void cartstate_get_parameters_(const int &handle,double *&rbc,
 
 int cartstate_new(int argc, char *argv[], bool single=0) {
   CartState *s0 = new CartState;
+  memset(s0,0,sizeof(s));
   CartState &s = *s0;
   cartstates[cartstatesize] = s0;
   cartstatesize++;
