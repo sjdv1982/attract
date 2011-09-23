@@ -75,6 +75,8 @@ c      Handle variables: forcefield parameters
        pointer(ptr_ipon,ipon)
 
 c     Local variables       
+       integer dmmy1
+       real*8 dmmy2
        integer i,j,jj,jjj,k,ii,iii,it,jt,false,true
        real*8 rcut0, rcut1,rd
               
@@ -94,7 +96,7 @@ c     Local variables
      3  ptr_nmaxcol,ptr_natcol,false)
        call cartstate_get_parameters(cartstatehandle,
      1  ptr_rbc,ptr_rc,ptr_ac,ptr_emin,ptr_rmin2,ptr_ipon,potshape,
-     2  swi_on, swi_off)
+     2  dmmy1,dmmy2,swi_on, swi_off)
 
 
 c This subroutine generates a ligand-receptor pairlist

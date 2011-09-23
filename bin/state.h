@@ -49,6 +49,8 @@ struct CartState {
   iParameters ipon;
   iParameters haspar;
   int potshape; //potential shape
+  int cdie; //use constant dielectric
+  double epsilon; //dielectric constant
   float swi_on; //start (A) of switching
   float swi_off;  //end (A) of switching
 
@@ -97,6 +99,7 @@ struct MiniState {
   double mcscalerot; //Monte Carlo rotation step size (in radians)
   double mcscalecenter; //Monte Carlo translation step size (in A)
   double mcscalemode; //Monte Carlo mode step size (in mode A)
+  double mcensprob; //Monte Carlo probability of switching ensemble copies
   int iscore;  //scoring mode: 0 = normal, 1 = scoring, 2 = trajectory
   int ivmax; //max steps
   int iori;  //enable orientations
@@ -168,4 +171,13 @@ extern "C" void read_two_pdbs_(
    limitarr ieins,limitarr ieins3,
    int pdbfile1_len, int pdbfile2_len
   );
+
+extern "C" void apply_permi_(
+  const int &totmaxatom,
+  const int &nall,
+  dblarr chai,
+  const double &permi
+);
+
+  
 #endif

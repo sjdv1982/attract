@@ -2,7 +2,7 @@
      1  maxlig, maxatom,totmaxatom,maxmode,maxres,
      2 cartstatehandle, ministatehandle,
      3 iab,iori,itra,ieig,fixre,gridmode,
-     4 phi,ssi,rot,xa,ya,za,dlig,seed,
+     4 ens,phi,ssi,rot,xa,ya,za,dlig,seed,
      5 e,energies,delta)
      
       implicit none
@@ -16,6 +16,8 @@ c     Parameters
       dimension energies(6), delta(maxdof)
       real*8 e, epair
 
+      integer ens
+      dimension ens(maxlig)
       real*8 phi, ssi, rot, dlig, xa, ya, za
       dimension phi(maxlig), ssi(maxlig), rot(maxlig)
       dimension dlig(maxmode, maxlig)
@@ -83,9 +85,9 @@ c  iterate over all pairs: call pairenergy...
      1 maxdof,maxmolpair,maxres,
      2 cartstatehandle,molpairhandle,
      3 iab,fixre2,gridptr,
-     4 phi(idr+1),ssi(idr+1),rot(idr+1),
+     4 ens(idr+1),phi(idr+1),ssi(idr+1),rot(idr+1),
      5 xa(idr+1),ya(idr+1),za(idr+1),dlig(:,idr+1),
-     6 phi(idl+1),ssi(idl+1),rot(idl+1),
+     6 ens(idl+1),phi(idl+1),ssi(idl+1),rot(idl+1),
      7 xa(idl+1),ya(idl+1),za(idl+1),dlig(:,idl+1),     
      8 pairenergies,deltar,deltal)
      
@@ -153,7 +155,7 @@ c      in that case, we are only interested in the forces, not the energies
       call globalenergy(
      1  maxlig,maxatom,totmaxatom,maxmode,maxdof,
      2	cartstatehandle, ministatehandle,
-     3  phi,ssi,rot,xa,ya,za,dlig,seed,
+     3  ens,phi,ssi,rot,xa,ya,za,dlig,seed,
      4  iab,iori,itra,ieig,fixre, energies, delta)
       
       e = 0

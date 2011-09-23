@@ -21,3 +21,57 @@ where rr is sigma/r. This is used directly for homo-atom-type interactions.
 For hetero-type interactions, the mean radius of sigma is used, while the geometric mean radius of epsilon is used (sqrt(eps1*eps2)).
 
 In CNS, you can also directly describe the interaction parameters between two types, using the NBFIX statement. In this case, you need to supply the parameters A and B, where A = 4*epsilon*sigma**12 and B = 4*epsilon*sigma**6, so that the interaction energy can be simply expressed as A/r**12 - B/r**6.
+
+ATTRACT
+
+In ATTRACT, the formulas are as follows:
+
+i, j are the atom types
+
+r2 = distance^2
+rrd = rr23 = distance^-6 (for potshape 12)
+
+if r2 < rmin2(i,j):
+  vdw = (rep-alen)*rr23+(ipon(i,j)-1)*emin(i,j)
+    rep = rlen * rrd
+    rlen = rc(i,j) (if weights are 1)
+    alen = ac(i,j) (if weights are 1)
+  vdw = ( rc(i,j)*rrd-ac(i,j) ) * rr23 + (ipon(i,j)-1) * emin(i,j)
+  vdw = ( rc(i,j)*distance^-12 - ac(i,j) *distance^-6 ) + (ipon(i,j)) * emin(i,j)
+else:
+  vdw = (rep-alen)*rr23*ipon(i,j)
+  vdw = ( rc(i,j)*distance^-12 - ac(i,j) *distance^-6 ) * ipon(i,j)
+
+ipon(i,j) is always 1 or -1
+
+rmin2(i,j) is computed as 4.0d0*rc(i,j)/(3.0d0*ac(i,j))
+this is because r^8-r^6 = r2^4 - r2^3
+
+if ipon is 1, then VDW is normal, regardless of whether r2 < rmin2 or not
+
+if ipon is -1, then at r2 == rmin2, emin must be equal to (rep-alen)*rr23
+  in that case: 
+    rr23 = rmin2^-3  = 27*ac^3/64*rc^3
+    rep = rc / rmin2 = 3/4 * ac
+    rep - alen = -1/4 * ac
+    (rep-alen)*rr23 = -27*ac^4/256*rc^3, correct
+
+emin is in fact the energy minimum, and rmin2 is the distance(sq) of the minimum
+
+so, for potshape = 12:
+  rmin2(i,j) = 6.0d0*rc(i,j)/(3.0d0*ac(i,j)) = 2 rc(i,j) / ac(i,j)
+  if r2 == rmin2:
+    rr23 = rmin2^-3  = ac^3/8*rc^3
+    rep = rc / rmin2 = 1/2 * ac
+    rep - alen = -1/2 * ac
+    (rep-alen)*rr23 = -ac^4/16*rc^3
+  
+What it all means:
+ In ATTRACT, rc(i,j) is computed as abc(i,j)*rbc(i,j)**potshape
+  and ac(i,j) = abc(i,j)*rbc(i,j)**6
+ => rc(i,j)*distance^-12 - ac(i,j) *distance^-6
+ = abc(i,j)*( rr^-12 - rr^-6), where rr=distance/rbc(i,j)
+
+so, for two atoms i and j:
+   abc(i,j) = 4 * sqrt(epsilon(i)*epsilon(j))
+   rbc(i,j) = (sigma(i)+sigma(j))/2

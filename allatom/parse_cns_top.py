@@ -63,18 +63,24 @@ class Atom(object):
 class Residue(object):
   def __init__(self, name):
     self.name = name
+    self.atomorder = []
     self.atoms = {}
   def add(self, species,tokens):
     assert species in allspecies, species
     if species != "atom": return
     assert tokens[-1] == "end", tokens[-1]
     a = Atom.parse(tokens[:-1])
+    self.atomorder.append(a.name)
     self.atoms[a.name] = a
   def delete(self, species, name):
     assert species in allspecies
     if species != "atom": return
-    assert name in self.atoms, name
-    del self.atoms[name]
+    #assert name in self.atoms, name
+    try:
+      del self.atoms[name]
+      self.atomorder.remove(name)
+    except KeyError: 
+      pass
   def modify(self, species, a):
     assert species in allspecies
     if species != "atom": return
@@ -82,6 +88,7 @@ class Residue(object):
     self.atoms[a.name].modify(a)
   def copy(self):
     ret = type(self)(self.name)
+    ret.atomorder = list(self.atomorder)
     for aname in self.atoms:
       ret.atoms[aname] = self.atoms[aname].copy()
     return ret
@@ -89,6 +96,7 @@ class Residue(object):
     for mode, species, obj in pres.commands:
       if species != "atom": continue
       if mode == "add":
+        self.atomorder.append(obj.name)
         self.atoms[obj.name] = obj
       elif mode == "modify":
         self.modify(species, obj)
@@ -149,7 +157,7 @@ def parse_stream(stream):
       mode = 2; continue
     if tokens[0] == "end":
       mode = 0; continue
-    print linenr, tokens
+    #print linenr, tokens
     typename = res.__class__.__name__
     if typename == "Residue":
       res.add(tokens[0],tokens[1:])

@@ -1,11 +1,14 @@
 //Converts DOF to PDB
 //does not eliminate redundant solutions
 
-//usage: ./collect structures.dat receptor.pdb [ligand.pdb]
+//usage: ./collect structures.dat receptor.pdb [ligand.pdb] [...] [...] [--modes <modefile>] [--ens <ligand nr> <ensemble file>]
 //  if no ligand.pdb, receptor.pdb is a multi-ligand PDB file 
 
 
 #include "max.h"
+
+int maxlig = MAXLIG;
+
 #include <cmath>
 #include <cstdio>
 
@@ -25,10 +28,16 @@ extern "C" void cartstate_f_rotdeform_(
 
 extern "C" void cartstate_get_nlig_nhm_(const int &handle, int &nlig, int *(&nlm));
 extern "C" void cartstate_get_pivot_(const int &handle,double *&pivot);
+extern "C" void cartstate_get_nrens_(const int &handle,int *&nrens);
 
+extern "C" void cartstate_get_ensd_(const int &handle,
+  const int &ligand,
+  const int &ens,
+  double *&ensd);
+  
 extern "C" FILE *read_dof_init_(const char *f_, int nlig, int &line, double (&pivot)[3][MAXLIG], int &auto_pivot, int &centered_receptor, int &centered_ligands, int f_len);
 
-extern "C" int read_dof_(FILE *fil, int &line, int &nstruc, const char *f_, dof2 &phi, dof2 &ssi, dof2 &rot, dof2 &xa, dof2 &ya, dof2 &za, modes2 &dlig, const int &nlig, const int *nhm, int &seed, char *&label, int f_len);
+extern "C" int read_dof_(FILE *fil, int &line, int &nstruc, const char *f_, idof2 &ens, dof2 &phi, dof2 &ssi, dof2 &rot, dof2 &xa, dof2 &ya, dof2 &za, modes2 &dlig, const int &nlig, const int *nhm, const int *nrens0, int &seed, char *&label, int f_len);
 
 extern "C" void write_pdb_(
   const int &totmaxatom, const int &maxlig, const int &nlig,
@@ -42,7 +51,8 @@ double *pivot,
 int &ijk,int *ieins, double *x);
 
 extern "C" void deform_(const int &maxlig,const int &max3atom, 
-const int &totmax3atom, const int &maxatom,const int &maxmode,double (&dligp)[MAXMODE],
+const int &totmax3atom, const int &maxatom,const int &maxmode,
+int &ens, double *ensdp, double (&dligp)[MAXMODE], 
 int *nhm,int &ijk,int *ieins,double *eig,double *xb,double *x,double *xori,double *xori0); 
 
 /*support for non-reduced PDBs*/
@@ -60,9 +70,12 @@ extern void write_pdb2(
   int coorcounter, int linecounter
 );
 
+extern void read_ens(int cartstatehandle, int ligand, char *ensfile, bool strict);
+
 CartState &cartstate_get(int handle);
 
 /* DOFs */
+static int ens[MAXLIG];
 static double phi[MAXLIG];
 static double ssi[MAXLIG];
 static double rot[MAXLIG];
@@ -78,7 +91,7 @@ static char *label;
 #include <cstdlib>
 
 void usage() {
-  fprintf(stderr, "usage: $path/collect structures.dat receptor.pdb [ligand.pdb] [...] [...]\n");
+  fprintf(stderr, "usage: collect structures.dat receptor.pdb [...] [...] [--modes <modefile>] [--ens <ligand nr> <ensemble file>]");
   exit(1);
 }
 
@@ -95,12 +108,17 @@ double *pivot; //the actual pivots (from file or auto-calculated)
 int *kai;char4 *tyi;char4 *rgi; int *iei; 
 double *x; int *iaci; double *xlai; int *icop; double *we; int *ieins;
 double *eig; double *xb; double *dmmy1; double *dmmy2;
+int *nrens; //the ensemble size for each ligand
 int nstruc;
 FILE *fil;
 int cartstatehandle;
 char **pdbstrings[MAXLIG]; bool *pdblayout[MAXLIG]; int linecounter[MAXLIG];
 
-void collect_init(int argc00, char *argv00[]) {
+int enscount = 0;
+int ens_ligands[MAXLIG];
+char *ens_files[MAXLIG];
+
+extern "C" void collect_init(int argc00, char *argv00[]) {
   int i;
   argc = argc00;
   argv = argv00;
@@ -125,7 +143,22 @@ void collect_init(int argc00, char *argv00[]) {
       argc -= 2;
       break;
     }
+  }
+  for (int n = 1; n < argc-2; n++) {
+    if (!strcmp(argv[n],"--ens")) {
+      ens_ligands[enscount] = atoi(argv[n+1]);
+      ens_files[enscount] = argv[n+2];
+      enscount++;
+      char **argv2 = new char *[argc-1];
+      if (n > 0) memcpy(argv2, argv,n*sizeof(char*));
+      if (n+3 < argc) memcpy(argv2+n,argv+n+3,(argc-n-3)*sizeof(char*));
+      argv = argv2;
+      argc -= 3;
+      n -= 1;
+    }    
   }  
+  char **pdbstrings[MAXLIG]; bool *pdblayout[MAXLIG]; int linecounter[MAXLIG];
+
   //load the Cartesian parameters and get a handle to it
   if (argc == 3) { //one PDB, reduced or non-reduced
     char *argv0[] = {NULL, argv[2]};
@@ -160,10 +193,15 @@ void collect_init(int argc00, char *argv00[]) {
   }
 
   CartState &cs = cartstate_get(cartstatehandle);  
+  memcpy(cs.xori,cs.xori0,TOTMAXATOM*3*sizeof(double));  
   if (modefile != NULL) {
     const int multi = 1;
     read_hm_(modefile,"ligand",cs.nlig, cs.natom, cs.nhm, cs.val, (double *) cs.eig, multi, strlen(modefile), strlen("ligand"));
   }
+      
+  for (int n = 0; n < enscount; n++) {
+    read_ens(cartstatehandle, ens_ligands[n]-1, ens_files[n], 0);
+  }      
       
   //retrieve the parameters needed to read the DOFs
   cartstate_get_nlig_nhm_(cartstatehandle, nlig,nhm);
@@ -184,19 +222,16 @@ void collect_init(int argc00, char *argv00[]) {
   //get the Cartesian parameters we need for rotation and deformation
   cartstate_f_rotdeform_(cartstatehandle,
    nhm, ieins, eig, pivot, xb, x, dmmy1, dmmy2);
-    
-  //get the Cartesian parameters we need for PDB writeout
-  cartstate_f_write_pdb_(cartstatehandle,
-   nlig, kai,tyi,rgi,iei,x,iaci,xlai,icop,we,ieins); 
-   
+  cartstate_get_nrens_(cartstatehandle,nrens);
+       
   nstruc = 0;
 }
 
-int collect_next(double *x) {
+extern "C" int collect_next() {
   int i;
   //main loop
     
-  int result = read_dof_(fil, line, nstruc, argv[1], phi, ssi, rot, xa, ya, za, dlig, nlig, nhm, seed, label, strlen(argv[1]));
+  int result = read_dof_(fil, line, nstruc, argv[1], ens, phi, ssi, rot, xa, ya, za, dlig, nlig, nhm, nrens, seed, label, strlen(argv[1]));
   if (result != 0) return result;
 
   if (centered_receptor) { //...then subtract pivot from receptor
@@ -205,7 +240,6 @@ int collect_next(double *x) {
     za[0] -= pivot[2*MAXLIG];
   }
 
-
   if (centered_ligands) { //...then subtract pivot from all (other) ligands 
     for (i = 1; i < nlig; i++) {
       xa[i] -= pivot[i];
@@ -213,11 +247,17 @@ int collect_next(double *x) {
       za[i] -= pivot[2*MAXLIG+i];
     }
   }          
+
   for (i = 0; i < nlig; i++) {
-    //Apply harmonic modes
-    double (&dligp)[20] = dlig[i];
+
+    //Get ensemble differences
+    double *ensdp;
+    cartstate_get_ensd_(cartstatehandle, i, ens[i], ensdp);
+
+    //Apply harmonic modes and ensemble differences
+    double (&dligp)[MAXMODE] = dlig[i];      
     deform_(MAXLIG, 3*MAXATOM, 3*TOTMAXATOM,MAXATOM, MAXMODE, 
-      dligp, nhm, i, ieins, eig, xb, x,dmmy1,dmmy2);
+      ens[i], ensdp, dligp, nhm, i, ieins, eig, xb, x,dmmy1,dmmy2);
 
     //Compute rotation matrix
     double rotmat[9];
@@ -229,6 +269,7 @@ int collect_next(double *x) {
     pivot,i,ieins,x);
 
   }
+
   /*
   //Write out PDB
   if (argc == 3) {

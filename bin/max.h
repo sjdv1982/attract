@@ -19,6 +19,7 @@ typedef double dof[MAXSTRUC][MAXLIG];
 typedef double modes[MAXSTRUC][MAXLIG][MAXMODE];
 typedef char char4[4];
 typedef double dof2[MAXLIG];
+typedef int idof2[MAXLIG];
 typedef double modes2[MAXLIG][MAXMODE];
 
 typedef double Parameters[MAXATOMTYPES][MAXATOMTYPES];

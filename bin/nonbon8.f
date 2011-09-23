@@ -1,11 +1,12 @@
       subroutine nonbon8(maxatom,maxmolpair,
      1 iab,xl,xr,fl,fr,wel,wer,chair,chail,ac,rc,       
      2 emin,rmin2,iacir,iacil,nonr,nonl,ipon,nonp,
-     3 potshape, swi_on,swi_off, enon,epote)
+     3 potshape, cdie, swi_on,swi_off, enon,epote)
       implicit none
 
 c     Parameters      
       integer maxatom, maxmolpair,iab,nonp,potshape
+      integer cdie
       real swi_on, swi_off
       real*8 xl,xr,fl,fr,wel,wer,chair,chail,ac,rc
       real*8 emin,rmin2,enon,epote      
@@ -17,8 +18,9 @@ c     Parameters
       dimension xl(maxatom),xr(maxatom),emin(99,99)
 
 c     Local variables
-      real*8 dx,xnull,r2,rr2,rrd,rr23,rep,vlj,et,charge,alen,rlen,fb,fdb
-      real*8 fswi, r
+      real*8 dx,xnull,r2,rr1,rr2,rrd,rr23,rep,vlj,et,charge,alen,
+     1 rlen,fb,fdb, rr2a
+      real*8 fswi, r, shapedelta
       integer k,ik,i,j,ii,jj,it,jt,ivor
       dimension dx(3)
       
@@ -61,29 +63,46 @@ c     Local variables
   125 continue
       et=xnull
       if(charge.gt.0.001.or.charge.lt.-0.001) then
-      et=charge*rr2
+      if (cdie.eq.1) then
+      rr1 = 1.0d0/sqrt(r2)-1.0/50.0 
+c     (cap all distances at 50 A)
+      if (rr1.lt.0) rr1 = 0
+      et=charge*rr1
+c      write(*,*), sqrt(r2), et, epote
+      else
+      rr2a = rr2 - (1.0/50.0)*(1.0/50.0)
+      if (rr2a.lt.0) rr2a = 0
+c     (cap all distances at 50 A)
+      et=charge*rr2a
+      endif
       epote=epote+fswi*et
       if(iab.eq.1) then
       do 130 k=1,3
+      if (cdie.eq.1) then
+      fdb=fswi*et*dx(k)
+      else
       fdb=fswi*2.0d0*et*dx(k)
+      endif
       fl(jj+k)=fl(jj+k)+fdb
       fr(ii+k)=fr(ii+k)-fdb
   130 continue
       endif
       endif
+      rr23=rr2**3
       if (potshape.eq.8) then
       rrd = rr2
+      shapedelta = 2.0D0
       else if (potshape.eq.12) then
       rrd = rr23
+      shapedelta = 6.0D0
       endif
-      rr23=rr2**3
       rep=rlen*rrd
       vlj=(rep-alen)*rr23
       if(r2.lt.rmin2(it,jt)) then
       enon=enon+fswi*(vlj+(ivor-1)*emin(it,jt))
 c      write(*,*)'pair',i,j,it,jt,r2,vlj+(ivor-1)*emin(it,jt),et
       if(iab.eq.1) then
-      fb=6.0D0*vlj+2.0D0*(rep*rr23)
+      fb=6.0D0*vlj+shapedelta*(rep*rr23)
       do 135 k=1,3
       fdb=fswi*fb*dx(k)
       fl(jj+k)=fl(jj+k)+fdb
@@ -94,7 +113,8 @@ c      write(*,*)'pair',i,j,it,jt,r2,vlj+(ivor-1)*emin(it,jt),et
       enon=enon+fswi*ivor*vlj
 c      write(*,*)'pair',i,j,it,jt,r2,ivor*vlj,et
       if(iab.eq.1) then
-      fb=6.0D0*vlj+2.0D0*(rep*rr23)
+      fb=6.0D0*vlj+shapedelta*(rep*rr23)
+
       do 145 k=1,3
       fdb=fswi*ivor*fb*dx(k)
       fl(jj+k)=fl(jj+k)+fdb

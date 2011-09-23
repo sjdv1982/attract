@@ -1,5 +1,6 @@
+NEW: cdie, potshape, all-atom, alphabet, proxlim=0
+
 NEW: --ensemble option: --ensemble <ligand> <PDB list file>
-TODO: read_ens
 NEW: 2 extra floats in the parameter file: start and end of the switch
  function; if they are zero, then no switching 
 NEW --shm switch for make-grid
@@ -76,7 +77,7 @@ TODO: specifying a custom translation table is not yet implemented
 - Residue type address space
 I propose the following: residue type 1-31 are ATTRACT protein reduced atom types, 32-74 are reserved for non-protein reduced atom types, residue 75-99 are reserved for full-atom/heavy atom types.
 
-TODO: generic reduce that can also deal with RNA, full atom, ...
+NEW: generic reduce (allatom) that can also deal with RNA, full atom, ...
 
 ********************************************************************************
 Atom type parameter file format
@@ -88,7 +89,7 @@ The rest of the file must contain parameters for X atomtypes in standard ATTRACT
 
 Testing issue: Piotr and I got a preliminary version working for RNA, but the new one still needs to be tested
 
-TODO: full atom force field
+NEW: full atom force field
 
 ********************************************************************************
 Command line options
@@ -179,7 +180,7 @@ Monte.py takes as input a DOF file and applies a random perturbation to the DOFs
 Metro.py takes as input two DOF files. They must have the same number of structures. The second DOF file is considered "new". For every structure, it selects the old or the new structure according to a Metropolis criterion. The selected structures are printed out.
 
 Together, you can use them to do a Monte-Carlo + minimization protocol. Taking initial docking solutions, you run monte, then ATTRACT, then metro on the results + the initial docking solutions. You can repeat this as many times as you wish.
-TODO: the monte.py DOF steps are currently hard-coded in the script, I will make them parameterizable from command line.
+NEW: the monte.py DOF steps, command line
 TODO: metro.py currently accepts only new structures that have a lower energy, i.e. the temperature is 0 K. I will make it parameterizable from command line.
 Coding issue/TODO: monte.py uses the system time as seed. Perhaps it would be better to use the structure's seed, so that the result becomes deterministic (on the same CPU architecture at least).
 
@@ -371,7 +372,7 @@ Testing issue: it should be extensively tested to what extent prox tables give a
 5. Grid alphabets
   
 When building a grid, you can supply an alphabet of atom types. The grid will only be built for those atom types. When you use the grid for docking, it will be checked that the partners only contain those atom types.
-  TODO: you cannot supply a custom alphabet yet
+  NEW: you cannot supply a custom alphabet yet
   TODO: checking against the alphabets is not yet implemented
 
 ********************************************************************************
@@ -390,6 +391,9 @@ Adjusts the Metropolis temperature.
 --mcscalecenter <scaling in A> (default: 0.1)
 --mcscalemode <scaling in mode A> (default: 3)
 Adjusts the step size of the rotation, translation and normal modes, respectively.
+
+--mcensprob <probility> (default: 0.05)
+Adjusts the probability to switch between ensemble copies in an MC step
 
 Orthogonality issue: this is fully compatible with grids, normal modes, restraints and all other features.
 Orthogonality issue: mode coordinates are not in A but such that the sum of squares of all displacements is 1 A. Therefore, you probably want large steps for modes and increase them for larger proteins.
@@ -421,7 +425,7 @@ TODO: I will document this further once it is completely ready :-)
 Benchmarking tools
 ********************************************************************************
 
-TODO: There is a lrmsd program but it is out of date and not working fully accurately
-TODO: irmsd program
+NEW: lrmsd program 
+NEW: irmsd program
 TODO: copy fnat program from HADDOCK (I am the one who wrote it in any case)
 

@@ -26,7 +26,7 @@ inline void _calc_potential_elec(float &energy, Coorf &grad,
 float (&torques)[9],
 #endif
 const  Coor *dis, const Coor *xb, int nrdis, double *charges,
-double plateaudissq
+bool cdie, double ffelec, double plateaudissq
 );
 
 inline void _calc_potential(Potential &p, const Coor *dis, const Coor *xb, 
@@ -36,7 +36,7 @@ inline void _calc_potential(Potential &p, const Coor *dis, const Coor *xb,
  const int &potshape, const float &swi_on, const float &swi_off,
  bool (&alphabet)[MAXATOMTYPES],
  int &nr_energrads, EnerGrad *&energrads,
- double plateaudissq
+ bool cdie, double ffelec, double plateaudissq
 );
 inline short _calc_neighbours(int &neighbourlist, 
  const Coor *dis, int nrdis, int *atomtypes,
@@ -79,7 +79,8 @@ void calculate_line(
   int gridz,
   int nratoms,
   const Coor *xb,
-  double neighbourdissq, double plateaudissq,
+  double neighbourdissq, 
+  bool cdie, double ffelec, double plateaudissq,
   bool calc_pot,
   
   int z,
@@ -163,7 +164,7 @@ void calculate_line(
 	     _calc_potential(v.potential, diszyx, xb, nratoms, 
 	      wer,charges,atomtypes,
 	      rc,ac,emin,rmin2,ipon,potshape,swi_on, swi_off,
-	      alphabet,nr_energrads,energrads,plateaudissq
+	      alphabet,nr_energrads,energrads,cdie,ffelec,plateaudissq
 	     ); 
 	   }
 	   if (junction_zyx) {
@@ -192,7 +193,7 @@ void calculate_line(
            potcount++;	   
            _calc_potential(p, diszyx, xb, nratoms, wer,charges,atomtypes,
 	    rc,ac,emin,rmin2,ipon,potshape, swi_on, swi_off,
-	    alphabet,nr_energrads,energrads,plateaudissq
+	    alphabet,nr_energrads,energrads,cdie,ffelec,plateaudissq
 	   ); 	   
 	 }
        }
@@ -222,7 +223,8 @@ void calculate_line(
      gridz, \
      nratoms, \
      xb, \
-     neighbourdissq, plateaudissq, \
+     neighbourdissq, \
+     cdie, ffelec, plateaudissq, \
      calc_pot, \
      \
      z, \
@@ -245,9 +247,11 @@ void calculate_line(
     ); 
 
 
-void Grid::calculate(int cartstatehandle, int ligand, const char *interior_grid, double plateaudis, double neighbourdis, int gridextension, int nhm0, bool (&alphabet)[MAXATOMTYPES], bool calc_pot) {  
+void Grid::calculate(int cartstatehandle, int ligand, const char *interior_grid, double plateaudis, double neighbourdis, int gridextension, int nhm0, bool (&alphabet)[MAXATOMTYPES], bool cdie, float epsilon, bool calc_pot) {  
   init(gridspacing, gridextension, plateaudis, neighbourdis, alphabet);
 
+  double ffelec = sqrt(felec/epsilon);
+  
   nr_neighbours = 0; 
   shm_neighbours = -1; 
   energrads = NULL;
@@ -344,7 +348,7 @@ inline void _calc_potential_elec(float &energy, Coorf &grad,
 float (&torques)[9],
 #endif
 const  Coor *dis, const Coor *xb, int nrdis, double *charges,
-double plateaudissq
+bool cdie, double ffelec, double plateaudissq
 
 ) {
   double energy0 = 0; Coor grad0 = {0,0,0};
@@ -353,6 +357,7 @@ double plateaudissq
     if (fabs(charge) > 0.001) {    
       const Coor &d = dis[n];
       double dsq = d[0]*d[0]+d[1]*d[1]+d[2]*d[2];
+      if (dsq > 2500) continue; //cap distances at 50 A
       double rr2 = 1.0/dsq;
       double ratio = 1;
       if (dsq < plateaudissq) {
@@ -362,10 +367,11 @@ double plateaudissq
       }
       Coor dd = {d[0]*rr2,d[1]*rr2,d[2]*rr2};          
       
-      double charge0 = charge * felecsqrt; //at realtime, to be multiplied with the charge of the other atom...
+      double charge0 = charge * ffelec * ffelec; //at realtime: to be multiplied with the charge of the other atom...
       
       double energy00; Coor grad00;
-      elec(1,charge0,rr2,dd[0]*ratio,dd[1]*ratio,dd[2]*ratio,energy00,grad00);
+      elec(1,cdie,
+        charge0,rr2,dd[0]*ratio,dd[1]*ratio,dd[2]*ratio,energy00,grad00);
       energy0 += energy00;
       grad0[0] += grad00[0];
       grad0[1] += grad00[1];
@@ -396,7 +402,7 @@ const Parameters &rc, const Parameters &ac, const Parameters &emin, const Parame
 
 bool (&alphabet)[MAXATOMTYPES],
 int &nr_energrads, EnerGrad *&energrads,
-double plateaudissq //grid params
+bool cdie, double ffelec, double plateaudissq //grid params
 ) {
   memset(&p, 0, sizeof(Potential));
   for (int i = 0; i <= MAXATOMTYPES; i++) {
@@ -469,7 +475,7 @@ double plateaudissq //grid params
 #ifdef TORQUEGRID    
   e.torques,
 #endif
-  dis, xb, nrdis, charges, plateaudissq);  
+  dis, xb, nrdis, charges, cdie, ffelec, plateaudissq);  
 }
 
 inline short _calc_neighbours(int &neighbourlist, const Coor *dis, int nrdis, int *atomtypes, 

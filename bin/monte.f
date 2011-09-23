@@ -2,7 +2,7 @@
      1 maxlig, maxdof, maxmode, maxmolpair,
      2 cartstatehandle,ministatehandle,
      3 nhm, nlig, 
-     4 phi, ssi, rot, xa, ya, za, dlig, seed, label,
+     4 ens, phi, ssi, rot, xa, ya, za, dlig, seed, label,
      5 gesa, energies, lablen)
 c
 c  variable metric minimizer (Harwell subroutine lib.  as in Jumna with modifications)
@@ -23,6 +23,8 @@ c     Parameters
       
       integer nhm
       dimension nhm(maxlig)
+      integer ens
+      dimension ens(maxlig)
       real*8 phi, ssi, rot, dlig, xa, ya, za
       dimension phi(maxlig), ssi(maxlig), rot(maxlig)
       dimension dlig(maxmode, maxlig)
@@ -38,17 +40,25 @@ c     integer dseed,i,ii,j,jj,k,kk,itr,nfun
       integer ju,jl,jb,nmodes
       integer iab,ijk,iaccept
       real*8 xnull
-      real*8 scalecenter,scalemode,scalerot,rr
+      real*8 scalecenter,scalemode,ensprob,scalerot,rr
       real*8 rotmat,randrot,newrot,sum 
       real*8 xaa,delta,bol,pi,mctemp
+      integer ensaa
       real*8 dseed
       dimension xaa(maxdof)
+      dimension ensaa(maxlig)      
       dimension delta(maxdof)
       dimension rr(maxdof),randrot(0:9),rotmat(0:9),newrot(0:9)
+      integer nrens
+      dimension nrens(maxlig)
+      pointer(ptr_nrens,nrens)
       pi=3.141592654d0
+
       call ministate_f_monte(ministatehandle,
      1 iscore,ivmax,iori,itra,ieig,fixre,gridmode,mctemp,
-     2 scalerot,scalecenter,scalemode)
+     2 scalerot,scalecenter,scalemode,ensprob)
+      call cartstate_get_nrens(cartstatehandle, ptr_nrens)
+
      
 c     always calculate only energies
       iab = 0
@@ -84,12 +94,12 @@ c
      1 maxlig, maxatom,totmaxatom,maxmode,maxres,
      2 cartstatehandle,ministatehandle,
      3 iab,iori,itra,ieig,fixre,gridmode,
-     4 phi,ssi,rot,xa,ya,za,dlig,seed,
+     4 ens,phi,ssi,rot,xa,ya,za,dlig,seed,
      5 gesa,energies,delta)
        
       if (iscore.eq.2) then
-        call print_struc(seed,label,gesa,energies,nlig,phi,ssi,rot,
-     1  xa,ya,za,nhm,dlig,lablen)
+        call print_struc2(seed,label,gesa,energies,nlig,
+     1  ens,phi,ssi,rot,xa,ya,za,nhm,dlig,lablen)
       endif     
       
 c   start Monte Carlo
@@ -99,6 +109,7 @@ c store old Euler angle, position and ligand and receptor coordinates
 c
 c phi,ssi,rot for first molecule are fixed!
       if(iaccept.eq.1) then
+      ensaa(i)=ens(i)      
       if(iori.eq.1) then 
       do 118 i=1+fixre,nlig
       ii=3*(i-fixre-1)
@@ -131,6 +142,14 @@ c old Cartesians are not stored!
 c generate a total of ju random numbers
 c     write(*,*)'random rr(1),rr(2)..', rr(1),rr(2),rr(3)
 c make an Euler rotation
+      do i=1,nlig
+        if (nrens(i).ge.0) then
+	  call GGUBS(dseed,2,rr)
+	  if (rr(1).lt.ensprob) then
+	    ens(i) = int(rr(2)*nrens(i))+1
+	  endif
+        endif
+      enddo
       if(iori.eq.1) then
         do 190 i=1+fixre,nlig
         ii=3*(i-fixre-1)
@@ -208,7 +227,7 @@ c      write (*,*),'lig',i,phi(i),ssi(i),rot(i),xa(i),ya(i),za(i)
      1 maxlig, maxatom,totmaxatom,maxmode,maxres,
      2 cartstatehandle,ministatehandle,
      3 iab,iori,itra,ieig,fixre,gridmode,
-     4 phi,ssi,rot,xa,ya,za,dlig,seed,
+     4 ens,phi,ssi,rot,xa,ya,za,dlig,seed,
      5 enew,energies0,delta)
 c  new energy 
 c      write (*,*),'Energy2', enew 
@@ -231,14 +250,15 @@ c    2 rrot1,rrot2,rrot3,rrot4,sphi,phi(2),sssi,ssi(2),srot,rot(2)
       energies(:)=energies0(:)
       iaccept=1
       if (iscore.eq.2) then
-        call print_struc(seed,label,gesa,energies,nlig,phi,ssi,rot,
-     1  xa,ya,za,nhm,dlig,lablen)
+        call print_struc2(seed,label,gesa,energies,nlig,
+     1	ens,phi,ssi,rot,xa,ya,za,nhm,dlig,lablen)
       endif           
 c overwrite old xaa variables, see above
       else
 c do not overwrite xaa variables
 c      write(*,*)' step rejected'
       iaccept=0
+      ens(i)=ensaa(i)
       if(iori.eq.1) then
       do 1118 i=1+fixre,nlig
       ii=3*(i-fixre-1)

@@ -75,6 +75,8 @@ c      Handle variables: forcefield parameters
        pointer(ptr_ipon,ipon)
 
 c      Local variables       
+       integer dmmy1
+       real*8 dmmy2
        real*8 enr, enl, false
        dimension enr(maxres,maxres),enl(maxres,maxres)
        integer ilowr, ilowl
@@ -99,7 +101,7 @@ c      Local variables
      3  ptr_nmaxcol,ptr_natcol, false)
        call cartstate_get_parameters(cartstatehandle,
      1  ptr_rbc,ptr_rc,ptr_ac,ptr_emin,ptr_rmin2,ptr_ipon,potshape,
-     2  swi_on, swi_off)
+     2  dmmy1,dmmy2,swi_on, swi_off)
           
 c This subroutine goes through all residues and all side chain copies
 c The atoms belonging to the energetically most favorable side chain copy

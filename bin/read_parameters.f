@@ -40,12 +40,16 @@ c     write(*,*)(abc(i,j),j=1,maxpar)
       do 450 j=1,maxpar
       do 448 i=1,maxpar
       haspar(i,j) = 1
-c     TODO: adapt computations in case of 12-6 LJ
-      rc(i,j)=abc(i,j)*rbc(i,j)**8
+      rc(i,j)=abc(i,j)*rbc(i,j)**potshape
       ac(i,j)=abc(i,j)*rbc(i,j)**6
-      emin(i,j)=-27.0d0*ac(i,j)**4/(256.0d0*rc(i,j)**3)
-      rmin2(i,j)=4.0d0*rc(i,j)/(3.0d0*ac(i,j))
-      ipon(i,j)=iflo(i,j)
+      if (potshape.eq.8) then
+       emin(i,j)=-27.0d0*ac(i,j)**4/(256.0d0*rc(i,j)**3)
+       rmin2(i,j)=4.0d0*rc(i,j)/(3.0d0*ac(i,j))
+      elseif (potshape.eq.12) then
+       emin(i,j)=-ac(i,j)**4/(16.0d0*rc(i,j)**3)
+       rmin2(i,j)=6.0d0*rc(i,j)/(3.0d0*ac(i,j))      
+      endif
+      ipon(i,j)=iflo(i,j)      
   448 continue
   450 continue
       return
