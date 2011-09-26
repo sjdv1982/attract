@@ -34,7 +34,6 @@ for lnr in range(len(pqrlines)):
   l = l.replace(" H ", " HN")
   resid = l[21:27]
   if l.find(" H2 ") > -1:
-    for ll in pqrlines[lnr+1:lnr+10]: print l,
     for n in range(len(pdblines)):
       if pdblines[n][21:27] == resid:
         pdblines[n] = pdblines[n].replace( " HN ", " HT1")
