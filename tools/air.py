@@ -24,6 +24,7 @@ def load_pdb(pdb):
 def load_map(mapfile):
   ret = {}
   for l in open(mapfile).readlines():
+    if not len(l.strip()): continue
     ll = l.split()
     ret[ll[0]] = int(ll[1])
   return ret
