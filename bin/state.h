@@ -64,6 +64,12 @@ struct CartState {
   /*ensemble*/
   int nrens[MAXLIG];
   double *ensd[MAXLIG][MAXENS];   //ensemble delta coordinates
+  double **ensw[MAXLIG];   //ensemble pairwise RMSDs (used in MC, only initialized when needed)
+  
+  /*symmetries*/
+  int nsym;
+  int symtypes[MAXLIG];
+  int sym[MAXLIG][MAXLIG];
 };
 
 struct MolPair {

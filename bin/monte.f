@@ -143,10 +143,11 @@ c generate a total of ju random numbers
 c     write(*,*)'random rr(1),rr(2)..', rr(1),rr(2),rr(3)
 c make an Euler rotation
       do i=1,nlig
-        if (nrens(i).ge.0) then
+        if (nrens(i).gt.0) then
 	  call GGUBS(dseed,2,rr)
 	  if (rr(1).lt.ensprob) then
-	    ens(i) = int(rr(2)*nrens(i))+1
+c	    ens(i) = int(rr(2)*nrens(i))+1
+            call enstrans(cartstatehandle,i-1,ens(i),rr(2), ens(i))
 	  endif
         endif
       enddo

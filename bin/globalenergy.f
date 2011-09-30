@@ -85,6 +85,7 @@ c apply ensemble/normal mode deformations
      1  ens(i-1),ensd,dlig(i,:),
      2  nhm,i-1,ieins,eig,xb,x,xori,xori0)
 5      continue
+c apply symmetry restraints
 
        xold(1:nall3) = x(1:nall3)
 c       call memcpy(xold,x,nall3*8)
@@ -105,6 +106,7 @@ c       stop
        call restrain(ministatehandle,cartstatehandle,seed,
      1  iab,energies(3))
        call emenergy(energies(6),nall,x,iaci_old,f,iab)
+       call sym(cartstatehandle, iab, energies(3))
 
        x(1:nall3) = xold(1:nall3)
 c       call memcpy(x,xold,nall3*8)

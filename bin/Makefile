@@ -4,7 +4,7 @@ OBJ= read_hm.o read_dof.o read_parameters.o read_pdb.o write_pdb.o print_struc.o
   matmult.o matinv.o prox.o reset_forces.o nonbon8.o ligmin.o rota.o trans.o \
   em/situs/lib_vio.o em/situs/lib_pio.o em/situs/lib_err.o \
   parse_restraints.o restrain.o read_ens.o read_pdb2.cpp\
-  axisrot.o crand.o \
+  axisrot.o crand.o sym.o enstrans.o \
   euler2torquemat.o memcpy.o disre.o moderest.o
     
 FLAG= -g -p -O3 -fno-automatic -ffast-math -fcray-pointer

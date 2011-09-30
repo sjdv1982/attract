@@ -13,13 +13,18 @@ extern CartState &cartstate_get(int handle);
 extern MiniState &ministate_get(int handle);
 
 void grid_usage() {
- fprintf(stderr, "--grid option usage: --grid <ligand nr> <file name>\n");
+ fprintf(stderr, "--grid option usage: --grid <ligand nr> <file name/ligand number>\n");
   exit(1);
 }
 
 void ens_usage() {
  fprintf(stderr, "--ens option usage: --ens <ligand nr> <file name>\n");
   exit(1);
+}
+
+void sym_usage() {
+ fprintf(stderr, "--sym option usage: --sym <symmetry type> <ligand number> <ligand number> ...\n");
+  exit(1); 
 }
 
 
@@ -187,8 +192,19 @@ void parse_options(int ministatehandle, int cartstatehandle, int nlig, int argc,
       if (lig < 1 || lig > nlig) grid_usage();
       char *gridf = argv[n+2];
       if (!exists(gridf)) {
-        fprintf(stderr, "Grid file %s does not exist\n", gridf);
-	grid_usage();
+        char *endptr;
+        int lig_old = strtol(gridf,&endptr, 0);
+        if (lig_old == 0 || endptr-gridf < strlen(gridf)) {        
+          fprintf(stderr, "Grid file %s does not exist\n", gridf);
+  	  grid_usage();          
+        }
+        if (lig_old < 0 || lig_old > nlig || c.grids[lig_old-1] == NULL) {
+          fprintf(stderr, "Grid index %d does not point to an existing grid\n", lig_old);
+  	  grid_usage();          
+        }
+        c.grids[lig-1] = c.grids[lig_old-1];
+        n += 2;
+        continue;
       }
       Grid *g = new Grid;
       g->read(gridf);
@@ -199,6 +215,25 @@ void parse_options(int ministatehandle, int cartstatehandle, int nlig, int argc,
       g->init_prox(cartstatehandle,ms.proxlim,ms.proxmax,ms.proxmaxtype);
       c.grids[lig-1] = g;
       n += 2;
+    }
+    else if (!strcmp(arg,"--sym")) {
+      if (argc-n < 4) sym_usage();
+      int type = atoi(argv[n+1]);
+      if (type < 2 || type > 6) sym_usage();
+      if (argc-n < type + 2) sym_usage();
+      if (c.nsym >= MAXLIG-1) {
+        fprintf(stderr, "Too many symmetries\n");
+        exit(1);
+      }
+      c.symtypes[c.nsym] = type;
+      for (int nn = 0; nn  < type; nn++) {
+        int lig = atoi(argv[n+2+nn]);
+        if (lig < 1 || lig > nlig) sym_usage();
+        c.sym[c.nsym][nn] = lig;
+      }
+      c.nsym++;
+      ms.has_globalenergy = 1;
+      n += 1+type;
     }
     else if (!strcmp(arg,"--ens") || (!strcmp(arg,"--ensemble"))) {
       if (argc-n < 3) ens_usage();
