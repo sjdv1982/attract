@@ -191,6 +191,9 @@ c       write(*,*)'phi(i),ssi(i),rot(i)',i,phi(i),ssi(i),rot(i)
          rot(i) = pi
         else 
          rot(i) = acos(newrot(0))
+         if (newrot(1) < 0) then
+           rot(i) = -rot(i)
+         endif
        endif
       endif      
 c        write(*,*)'new ii,c,phi,ssi,rot',i,ii,c,phi(i),ssi(i),rot(i)
