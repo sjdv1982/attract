@@ -219,7 +219,7 @@ void parse_options(int ministatehandle, int cartstatehandle, int nlig, int argc,
     else if (!strcmp(arg,"--sym")) {
       if (argc-n < 4) sym_usage();
       int type = atoi(argv[n+1]);
-      if (type < 2 || type > 6) sym_usage();
+      if (type < 2 || type >= MAXLIG) sym_usage();
       if (argc-n < type + 2) sym_usage();
       if (c.nsym >= MAXLIG-1) {
         fprintf(stderr, "Too many symmetries\n");

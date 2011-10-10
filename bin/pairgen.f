@@ -116,16 +116,16 @@ c active atoms are in iactr(i):receptor and iactl(j):ligand.
        jjj=3*(j-1)
        jt=iacil(j)
 
-c      TODO: use rcut or rcut1?
-       rcut1=(rcut0+rbc(it,jt))**2 
+c      TODO: use rcut or rcut1? use rcut for now....
+c       rcut1=(rcut0+rbc(it,jt))**2 
 
        rd=(xr(iii+1)-xl(jjj+1))**2+
      1   (xr(iii+2)-xl(jjj+2))**2+
      2   (xr(iii+3)-xl(jjj+3))**2 
 
-       if(rd.le.rcut1) then
+c       if(rd.le.rcut1) then
 c      write(*,*)'rcut', iii,jjj,rd, rcut1
-c      if(rd.le.rcut) then
+       if(rd.le.rcut) then
        jj=jj+1
        nonr(jj)=i
        nonl(jj)=j

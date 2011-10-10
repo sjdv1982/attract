@@ -26,7 +26,7 @@ inline void _calc_potential_elec(float &energy, Coorf &grad,
 float (&torques)[9],
 #endif
 const  Coor *dis, const Coor *xb, int nrdis, double *charges,
-bool cdie, double ffelec, double plateaudissq
+float swi_on, float swi_off, bool cdie, double ffelec, double plateaudissq
 );
 
 inline void _calc_potential(Potential &p, const Coor *dis, const Coor *xb, 
@@ -348,16 +348,31 @@ inline void _calc_potential_elec(float &energy, Coorf &grad,
 float (&torques)[9],
 #endif
 const  Coor *dis, const Coor *xb, int nrdis, double *charges,
-bool cdie, double ffelec, double plateaudissq
+float swi_on, float swi_off, bool cdie, double ffelec, double plateaudissq
 
 ) {
   double energy0 = 0; Coor grad0 = {0,0,0};
   for (int n = 0; n < nrdis; n++) {
+ 
     float charge = charges[n];
     if (fabs(charge) > 0.001) {    
       const Coor &d = dis[n];
       double dsq = d[0]*d[0]+d[1]*d[1]+d[2]*d[2];
       if (dsq > 2500) continue; //cap distances at 50 A
+
+      double fswi = 1;
+      if (swi_on > 0 || swi_off > 0) {
+        if (dsq > swi_on*swi_on) {
+	  if (dsq > swi_off*swi_off) {
+	    fswi = 0;
+	  }
+	  else {
+	    double distance = sqrt(dsq) ;
+	    fswi = 1-(distance - swi_on)/(swi_off-swi_on);
+	  }
+        }    
+      }
+
       double rr2 = 1.0/dsq;
       double ratio = 1;
       if (dsq < plateaudissq) {
@@ -371,7 +386,7 @@ bool cdie, double ffelec, double plateaudissq
       
       double energy00; Coor grad00;
       elec(1,cdie,
-        charge0,rr2,dd[0]*ratio,dd[1]*ratio,dd[2]*ratio,energy00,grad00);
+        charge0,rr2,dd[0]*ratio,dd[1]*ratio,dd[2]*ratio,fswi,energy00,grad00);
       energy0 += energy00;
       grad0[0] += grad00[0];
       grad0[1] += grad00[1];
@@ -475,7 +490,7 @@ bool cdie, double ffelec, double plateaudissq //grid params
 #ifdef TORQUEGRID    
   e.torques,
 #endif
-  dis, xb, nrdis, charges, cdie, ffelec, plateaudissq);  
+  dis, xb, nrdis, charges, swi_on, swi_off, cdie, ffelec, plateaudissq);  
 }
 
 inline short _calc_neighbours(int &neighbourlist, const Coor *dis, int nrdis, int *atomtypes, 

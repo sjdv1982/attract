@@ -198,7 +198,7 @@ int main(int argc, char *argv[]) {
         else if (rotmatd[0] <= -0.999) rot[i] = pi;	
         else {
           rot[i] = acos(rotmatd[0]);
-          if rotmatd[1] < 0: rot[i] *= -1;
+          if (rotmatd[1] < 0) rot[i] *= -1;
         }
       }
     }

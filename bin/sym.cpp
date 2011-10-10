@@ -8,7 +8,7 @@
 static int nhandles = 0;
 static int handles[MAXSYMHANDLES];
 
-static int amino[MAXSYMHANDLES][MAXLIG][MAXRES];
+static int amino[MAXSYMHANDLES][MAXLIG][TOTMAXRES];
 static int namino[MAXSYMHANDLES][MAXLIG];
 
 extern CartState &cartstate_get(int handle);
@@ -40,7 +40,7 @@ void test(int cartstatehandle) {
       int lig = cs.sym[n][nn]-1;
       int cncoor;
       int *iaci;
-      int camino[MAXRES];
+      int camino[TOTMAXRES];
 
 
       if (lig == 0) {

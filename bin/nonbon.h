@@ -67,15 +67,16 @@ double &energy)
 const double felec = double(332.053986);
 
 inline void elec(int iab, bool cdie, double charge, 
-double rr2, double dx, double dy, double dz, 
+double rr2, double dx, double dy, double dz, double fswi,
 double &energy, Coor &grad) {
 
-  double dd = rr2-1.0/50.0*1.0/50.0;
+  double dd;
   if (cdie) dd = sqrt(rr2)-1.0/50.0;
+  else dd = rr2-1.0/50.0*1.0/50.0;
   /* (cap all distances at 50 A) */
   if (dd < 0) dd = 0;
 
-  double et = charge * dd;
+  double et = fswi * charge * dd;
   energy = et;
   if (iab) {
     if (cdie) {
@@ -91,6 +92,7 @@ double &energy, Coor &grad) {
   }
 }
 
+//TODO: update with swi 
 inline void elec_nograd(bool cdie, double charge, 
 double rr2, double &energy) {
   double dd = rr2-1.0/50.0*1.0/50.0;

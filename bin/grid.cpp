@@ -591,14 +591,8 @@ inline void trilin(
 	  double ww = wel * wer[nb.index];
 
   	  Coor &gradr = fr[nb.index];
-	  if (g.proxlim == 0 || dsq <= g.proxlim) { //only for distance within 6A
-            double rci = rc[atomtype][atomtype2];
-            double aci = ac[atomtype][atomtype2];
-            double emini = emin[atomtype][atomtype2];
-            double rmin2i = rmin2[atomtype][atomtype2];
-            int ivor = ipon[atomtype][atomtype2];
-	  
-	    double fswi = 1;
+          double fswi = 1, fswi2 = 1;
+          if (g.proxlim == 0 || dsq <= g.proxlim || chargenonzero) {
 	    if (swi_on > 0 || swi_off > 0) {
 	      if (dsq > swi_on*swi_on) {
 		if (dsq > swi_off*swi_off) {
@@ -608,8 +602,26 @@ inline void trilin(
 		  double distance = sqrt(dsq) ;
 		  fswi = 1-(distance - swi_on)/(swi_off-swi_on);
 		}
+	      } 
+	      if (g.plateaudissq > swi_on*swi_on) {
+		if (g.plateaudissq > swi_off*swi_off) {
+		  fswi2 = 0;
+		}
+		else {
+		  double distance = sqrt(g.plateaudissq) ;
+		  fswi2 = 1-(distance - swi_on)/(swi_off-swi_on);
+		}
 	      }    
+                 
 	    }
+          }
+	  if (g.proxlim == 0 || dsq <= g.proxlim) { //only for distance within 6A
+            double rci = rc[atomtype][atomtype2];
+            double aci = ac[atomtype][atomtype2];
+            double emini = emin[atomtype][atomtype2];
+            double rmin2i = rmin2[atomtype][atomtype2];
+            int ivor = ipon[atomtype][atomtype2];
+	  
 	  
 	    double rr2 = 1.0/dsq;	    
 	    dis[0] *= rr2; dis[1] *= rr2; dis[2] *= rr2;
@@ -642,22 +654,9 @@ inline void trilin(
               rdis[2] = r*dis[2];              
             }
 	    if (has_pot) {
-	      fswi = 1;
-
-	      if (swi_on > 0 || swi_off > 0) {
-		if (g.plateaudissq > swi_on*swi_on) {
-		  if (g.plateaudissq > swi_off*swi_off) {
-		    fswi = 0;
-		  }
-		  else {
-		    double distance = sqrt(g.plateaudissq) ;
-		    fswi = 1-(distance - swi_on)/(swi_off-swi_on);
-		  }
-		}    
-	      }	    
 	      nonbon(iab,ww,rci,aci,emini,rmin2i,ivor, g.plateaudissq, 
   		g.plateaudissqinv,
-		rdis[0], rdis[1], rdis[2], potshape, fswi, evdw0, grad0);
+		rdis[0], rdis[1], rdis[2], potshape, fswi2, evdw0, grad0);
 	      evdw -= evdw0;
 	      grad[0] -= grad0[0];
 	      grad[1] -= grad0[1];
@@ -670,7 +669,7 @@ inline void trilin(
  	    }   
             if (calc_elec) {
 	      double eelec00; Coor grad00;
-	      elec(iab,cdie,c,rr2,dis[0],dis[1],dis[2],eelec00,grad00);
+	      elec(iab,cdie,c,rr2,dis[0],dis[1],dis[2],fswi,eelec00,grad00);
   	      eelec += eelec00;
 	      grad[0] += grad00[0];
 	      grad[1] += grad00[1];
@@ -681,7 +680,7 @@ inline void trilin(
 		gradr[2] -= grad00[2];
               }
 	      elec(iab,cdie,c,g.plateaudissqinv,
-		rdis[0],rdis[1],rdis[2],eelec00,grad00);
+		rdis[0],rdis[1],rdis[2],fswi2,eelec00,grad00);
   	      eelec -= eelec00;
 	      grad[0] -= grad00[0];
 	      grad[1] -= grad00[1];
@@ -722,7 +721,7 @@ inline void trilin(
   	       dis[0] *= rr2; dis[1] *= rr2; dis[2] *= rr2;
 	      
 		double eelec00; Coor grad00;
-		elec(iab,cdie,c,rr2,dis[0],dis[1],dis[2],eelec00,grad00);
+		elec(iab,cdie,c,rr2,dis[0],dis[1],dis[2],fswi,eelec00,grad00);
   		eelec += eelec00;
 		grad[0] += grad00[0];
 		grad[1] += grad00[1];
@@ -736,7 +735,7 @@ inline void trilin(
 		Coor rdis = {r*dis[0], r*dis[1], r*dis[2]};  
 		
 		elec(iab,cdie,c,g.plateaudissqinv,
-		  rdis[0],rdis[1],rdis[2],eelec00,grad00);
+		  rdis[0],rdis[1],rdis[2],fswi2,eelec00,grad00);
   		eelec -= eelec00;
 		grad[0] -= grad00[0];
 		grad[1] -= grad00[1];
