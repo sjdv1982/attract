@@ -29,6 +29,7 @@ np = 1
 output = None
 anr = 0
 torque = ""
+existing = None
 while 1:
   anr += 1
 
@@ -42,6 +43,12 @@ while 1:
     
   if anr >= len(sys.argv)-1: break
   arg, nextarg = sys.argv[anr],sys.argv[anr+1]
+
+  if arg.startswith("--exist"):
+    existing = nextarg
+    sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
+    anr -= 1
+    continue
   if arg == "-np" or arg == "--np":
     try:
       np = int(nextarg)
@@ -116,6 +123,10 @@ try:
     queue[q] = outp
     nstrucs[q] = get_struc(inp)
     com = " ".join([attract,inp]+args) + " > %s &" % outp
+    if existing is not None:
+      ef = "%s-%d" % (existing, current)
+      if os.path.exists(ef):
+        com = "cp %s %s" % (ef, outp)
     run(com)
     current += 1
 

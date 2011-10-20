@@ -39,6 +39,11 @@ lrmsd: lrmsd.o read_parameters.o read_pdb.o read_pdb2.o read_dof.o \
   read_ens.o
 	$(CXX) $(CFLAGS)  $^ -lgfortran -o $@
 
+rmsd: rmsd.o read_parameters.o read_pdb.o read_pdb2.o read_dof.o \
+  cartstate.o euler2rotmat.o deform.o rotate.o read_hm.o memcpy.o write_pdb.o \
+  read_ens.o
+	$(CXX) $(CFLAGS)  $^ -lgfortran -o $@
+
 calc_interior: calc_interior.o em/situs/lib_vio.o em/situs/lib_pio.o em/situs/lib_err.o
 	$(CXX) $(CFLAGS) $^  -lgfortran -o $@
 
@@ -125,11 +130,6 @@ collectlib: collectlib.so
 %-pic.o: %.f
 	$(FF) $(FLAG) -c -fPIC $< -o $@
 
-all: attract attract-torque collect lrmsd calc_interior make-grid \
- make-grid-omp make-grid-torque make-grid-torque-omp shm-grid \
- shm-grid-torque shm-clean systsearch map2map fix_receptor \
- omp_threadnum deredundant 
-
 clean: 
 	rm -f *.o
 	rm -f em/*.o 
@@ -146,3 +146,10 @@ rest: read_pdb2.o
 	$(FF) $(FLAG) viewe.f -o viewe 
 	$(FF) $(FLAG) rmsca.f -o rmsca 
 	$(CXX) $(CFLAGS) center.cpp read_pdb2.o -o center
+	$(CXX) $(CFLAGS) deflate.cpp read_pdb2.o -o deflate
+        
+all: attract attract-torque collect lrmsd calc_interior make-grid \
+ make-grid-omp make-grid-torque make-grid-torque-omp shm-grid \
+ shm-grid-torque shm-clean systsearch map2map fix_receptor \
+ omp_threadnum deredundant rest
+

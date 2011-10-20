@@ -5,6 +5,14 @@ try:
 except:
   pass  
 
+fast = False
+try:
+  i = sys.argv.index("--fast")
+  sys.argv.pop(i)
+  fast = True
+except ValueError:
+  pass  
+
 bodies = int(sys.argv[1])
 structures = int(sys.argv[2])
 seed = 1
@@ -54,12 +62,13 @@ for n in range(structures):
 	  #dsqnew = dx*dx+dy*dy+dz*dz
 	  #print dsq,dsqnew-dsq
 	x,y,z = adjust(x,y,z)
-	dd = x-xold,y-yold,z-zold
-	delta+=dd[0]*dd[0]+dd[1]*dd[1]+dd[2]*dd[2]
+	if not fast:
+          dd = x-xold,y-yold,z-zold
+	  delta+=dd[0]*dd[0]+dd[1]*dd[1]+dd[2]*dd[2]
 	newp.append((x,y,z))
       p = newp
       #print delta
-      if delta < 0.001*bodies: break
+      if fast or delta < 0.001*bodies: break
   for i in range(bodies):
     x,y,z = p[i]
     print 2*(random.random()-1)*pi,2*(random.random()-1)*pi,2*(random.random()-1)*pi,x,y,z

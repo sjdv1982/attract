@@ -54,6 +54,10 @@ c     integer dseed,i,ii,j,jj,k,kk,itr,nfun
       pointer(ptr_nrens,nrens)
       pi=3.141592654d0
 
+      do i=1, maxlig      
+      ensaa(i) = 0
+      enddo
+      
       call ministate_f_monte(ministatehandle,
      1 iscore,ivmax,iori,itra,ieig,fixre,gridmode,mctemp,
      2 scalerot,scalecenter,scalemode,ensprob)

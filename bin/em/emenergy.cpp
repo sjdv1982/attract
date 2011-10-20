@@ -87,6 +87,7 @@ struct Map {
   double *densities;
   double *maxatoms;
   int nrmaxatoms;
+  double maxmax; //maximum value of maxatoms
   float *precomp_overlap;
   float *precomp_gradx;
   float *precomp_grady;
@@ -98,6 +99,16 @@ struct Map {
   double clash_weight;
   bool use_contour;
 };
+
+inline void check_xyz(int indxyz, Map &m, int px, int py, int pz, const char* label) {
+  /*
+  int gridsize =  m.dimx * m.dimy * m.dimz;
+  if (indxyz > gridsize) {
+    fprintf(stderr, "ERR: %s indxyz %d gridsize %d px %d dimx %d py %d dimy %d pz %d dimz %d\n", label, indxyz, gridsize, px, m.dimx,py, m.dimy,pz, m.dimz);
+    exit(0);
+  }
+  */
+}
 
 Map maps[100];
 int nrmaps = 0;
@@ -426,6 +437,7 @@ inline void apply(Map &m, int indxyz, double cwxyz, double &overlap, double &gra
     if (clash <= 0) return; 
     overlap += clash*clash;
     double cgrad = 2*clash*gradw(cwxyz);
+    //printf("CLASH %.3f %d %d CGRAD %.3f %.3f %.3f %.3f\n", clash*clash, indxyz, m.dimx * m.dimy * m.dimz, cgrad, sx, sy, sz);
     gradx -= sx * cgrad;
     grady -= sy * cgrad;
     gradz -= sz * cgrad;
@@ -442,25 +454,26 @@ inline void apply(Map &m, int indxyz, double cwxyz, double &overlap, double &gra
 inline void trilin(Map &m, double ax, double ay, double az, double &overlap, double &gradx, double &grady, double &gradz, Mode mode) {
   double wx1=0,wy1=0,wz1=0;
   
+  
   int px0 = floor(ax);  
   int px1 = ceil(ax);
   if (px1 < 0 || px0 >= m.dimx) return;
-  if (px0 < 0) wx1 = 0;
-  else if (px1 >= m.dimx) wx1 = 1;
+  if (px0 < 0) wx1 = 1;
+  else if (px1 >= m.dimx) wx1 = 0;
   else wx1 = ax - px0;
 
   int py0 = floor(ay);  
   int py1 = ceil(ay);
   if (py1 < 0 || py0 >= m.dimy) return;
-  if (py0 < 0) wy1 = 0;
-  else if (py1 >= m.dimy) wy1 = 1;
+  if (py0 < 0) wy1 = 1;
+  else if (py1 >= m.dimy) wy1 = 0;
   else wy1 = ay - py0;
 
   int pz0 = floor(az);  
   int pz1 = ceil(az);
   if (pz1 < 0 || pz0 >= m.dimz) return;
-  if (pz0 < 0) wz1 = 0;
-  else if (pz1 >= m.dimz) wz1 = 1;
+  if (pz0 < 0) wz1 = 1;
+  else if (pz1 >= m.dimz) wz1 = 0;
   else wz1 = az - pz0;
   
   double wx0 = 1-wx1, wy0 = 1-wy1, wz0 = 1-wz1;
@@ -479,13 +492,13 @@ inline void trilin(Map &m, double ax, double ay, double az, double &overlap, dou
         cwxyz = cwxy * wz0;
 	dsqxyz = dsqxy + wz1*wz1;
         indxyz = indxy + dimxy*pz0;      
-        apply(m,indxyz,cwxyz,overlap,gradx,grady,gradz,mode,-wy0*wz0,-wx0*wz0,-wx0*wy0);
+        check_xyz(indxyz, m, px0,py0,pz0,"000");        apply(m,indxyz,cwxyz,overlap,gradx,grady,gradz,mode,-wy0*wz0,-wx0*wz0,-wx0*wy0);
       }
       if (wz1 > 0) {
         cwxyz = cwxy * wz1;
 	dsqxyz = dsqxy + wz0*wz0;
         indxyz = indxy + dimxy*pz1;      
-        apply(m,indxyz,cwxyz,overlap,gradx,grady,gradz,mode,-wy0*wz1,-wx0*wz1,wx0*wy0);
+        check_xyz(indxyz, m, px0,py0,pz1,"001");        apply(m,indxyz,cwxyz,overlap,gradx,grady,gradz,mode,-wy0*wz1,-wx0*wz1,wx0*wy0);
       }
     }
     if (wy1 > 0) {
@@ -496,13 +509,14 @@ inline void trilin(Map &m, double ax, double ay, double az, double &overlap, dou
         cwxyz = cwxy * wz0;
 	dsqxyz = dsqxy + wz1*wz1;
         indxyz = indxy + dimxy*pz0;      
-        apply(m,indxyz,cwxyz,overlap,gradx,grady,gradz,mode,-wy1*wz0,wx0*wz0,-wx0*wy1);
+        check_xyz(indxyz, m, px0,py1,pz0,"010");      
+ apply(m,indxyz,cwxyz,overlap,gradx,grady,gradz,mode,-wy1*wz0,wx0*wz0,-wx0*wy1);
       }
       if (wz1 > 0) {
         cwxyz = cwxy * wz1;
 	dsqxyz = dsqxy + wz0*wz0;
         indxyz = indxy + dimxy*pz1;      
-        apply(m,indxyz,cwxyz,overlap,gradx,grady,gradz,mode,-wy1*wz1,wx0*wz1,wx0*wy1);
+        check_xyz(indxyz, m, px0,py1,pz1,"011");       apply(m,indxyz,cwxyz,overlap,gradx,grady,gradz,mode,-wy1*wz1,wx0*wz1,wx0*wy1);
       }
     }
   }
@@ -518,13 +532,13 @@ inline void trilin(Map &m, double ax, double ay, double az, double &overlap, dou
         cwxyz = cwxy * wz0;
 	dsqxyz = dsqxy + wz1*wz1;
         indxyz = indxy + dimxy*pz0;      
-        apply(m,indxyz,cwxyz,overlap,gradx,grady,gradz,mode,wy0*wz0,-wx1*wz0,-wx1*wy0);
+        check_xyz(indxyz, m, px1,py0,pz0,"100");              apply(m,indxyz,cwxyz,overlap,gradx,grady,gradz,mode,wy0*wz0,-wx1*wz0,-wx1*wy0);
       }
       if (wz1 > 0) {
         cwxyz = cwxy * wz1;
 	dsqxyz = dsqxy + wz0*wz0;
         indxyz = indxy + dimxy*pz1;      
-        apply(m,indxyz,cwxyz,overlap,gradx,grady,gradz,mode,wy0*wz0,-wx1*wz1,-wx1*wy0);
+        check_xyz(indxyz, m, px1,py0,pz1,"101");        apply(m,indxyz,cwxyz,overlap,gradx,grady,gradz,mode,wy0*wz0,-wx1*wz1,-wx1*wy0);
       }
     }
     if (wy1 > 0) {
@@ -535,13 +549,13 @@ inline void trilin(Map &m, double ax, double ay, double az, double &overlap, dou
         cwxyz = cwxy * wz0;
 	dsqxyz = dsqxy + wz1*wz1;
         indxyz = indxy + dimxy*pz0;      
-        apply(m,indxyz,cwxyz,overlap,gradx,grady,gradz,mode,wy1*wz0,wx1*wz0,-wx1*wy1);
+        check_xyz(indxyz, m, px1,py1,pz0,"110");        apply(m,indxyz,cwxyz,overlap,gradx,grady,gradz,mode,wy1*wz0,wx1*wz0,-wx1*wy1);
       }
       if (wz1 > 0) {
         cwxyz = cwxy * wz1;
 	dsqxyz = dsqxy + wz0*wz0;
         indxyz = indxy + dimxy*pz1;      
-        apply(m,indxyz,cwxyz,overlap,gradx,grady,gradz,mode,wy1*wz1,wx1*wz1,wx1*wy1);
+        check_xyz(indxyz, m, px1,py1,pz1,"111");        apply(m,indxyz,cwxyz,overlap,gradx,grady,gradz,mode,wy1*wz1,wx1*wz1,wx1*wy1);
       }
     }
   }
@@ -598,6 +612,7 @@ extern "C" void read_densitymaps_(char *densitymapsfile0, int len_densitymapsfil
       exit(1);
     }    
     int nrmaxatoms = 0;
+    double maxmax = 0;
     while(!feof(fil2)) {
       if (!fgets(buf, 2000, fil2)) break;
       float max;
@@ -607,12 +622,14 @@ extern "C" void read_densitymaps_(char *densitymapsfile0, int len_densitymapsfil
 	exit(1);
       }
       maxatoms[nrmaxatoms] = max;
+      if (max > maxmax) maxmax = max;
       nrmaxatoms++;      
     }
     fclose(fil2);
     m.maxatoms = new double[nrmaxatoms];
     memcpy(m.maxatoms, maxatoms, nrmaxatoms*sizeof(double));
     m.nrmaxatoms = nrmaxatoms;
+    m.maxmax = maxmax;
     
     #ifdef PRECOMPCHECK
     double voxels_per_sigma = m.sigma / m.situs_width;
@@ -756,10 +773,11 @@ double emenergy (Map &m, int &nratoms, double *atoms, int *atomtypes, double *fo
     
     double max_overlap = m.maxatoms[n];  
     double gradscale = 2*m.emweight/(-max_overlap*m.situs_width);
+    double lackfac = max_overlap/m.maxmax;
     totoverlap /= max_overlap;
     double curr_energy = 0;
     if (totoverlap < m.overlapmargin) {
-      double lack = m.overlapmargin - totoverlap;
+      double lack = (m.overlapmargin - totoverlap) * lackfac;
       curr_energy = m.emweight * lack*lack;
       energy += curr_energy;
       double currgradscale = lack * gradscale;

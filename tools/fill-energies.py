@@ -19,7 +19,13 @@ for st in strucs:
   stnr += 1
   l1,l2 = s
   print "#"+str(stnr)
-  for l in l1: print l
-  print "## Energy:", e
+  found = False
+  for l in l1: 
+    if l.startswith("## Energy:"):
+      print "## Energy:", e
+      found = True
+      continue
+    print l
+  if not found: print "## Energy:", e
   for l in l2: print l
 

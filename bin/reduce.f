@@ -5,15 +5,15 @@ c  usage: $path/reduce structure.pdb
 c  generates structurer.pdb as output pdb-file
 c  author: Martin Zacharias, Jacobs University Bremen
 c
-      character*4 at,ty(30000),rg(30000),rgo,base(4,300)
-      character*1 mark(30000)
+      character*4 at,ty(60000),rg(60000),rgo
+      character*1 mark(60000)
       character*80 b
       character*40 name
-      integer ilab(30000),iexi(30000),iexj(30000),ie(30000),
-     1        ianf(30000)
+      integer ilab(60000),iexi(60000),iexj(60000),ie(60000),
+     1        ianf(60000)
       character*1 markold
-      real xp(30000,3),xs(30000,3),xb(30000,3),sps(30000),
-     1     psp(30000),psb(30000),bsp(900),x(30000,3),xi(3),
+      real xp(60000,3),xs(60000,3),xb(60000,3),sps(60000),
+     1     psp(60000),psb(60000),bsp(900),x(60000,3),xi(3),
      2     xj(3),xk(3),xl(3),wpsp(20),wsps(20),wbsp(20),
      3     wpsb(20),wt1(20),wt2(20),wt3(20),wt4(20),
      4     wim(20)

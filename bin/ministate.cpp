@@ -30,7 +30,8 @@ extern "C" int ministate_new_() {
   ms.irst = 0; 
   ms.fixre = 0; 
   ms.rcut = 1500;
-  ms.proxlim = 36;
+  //ms.proxlim = 36;
+  ms.proxlim = 0;
   ms.proxmax = 200;
   ms.proxmaxtype = 31;
   ms.nr_restraints = 0;
@@ -43,6 +44,7 @@ extern "C" int ministate_new_() {
   ms.gravity = 0;
   //ms.rstk = 0.015; //for second order restraints...; too much?
   ms.rstk = 0.0015; //for second order restraints...
+  ms.ghost = 0;
   return ministatesize-1+7770; 
 
 }
@@ -51,7 +53,12 @@ MiniState &ministate_get(int handle) {
   return *ministates[handle-7770];
 }
 
-void ministate_iscore_imc_(const int &handle, int &iscore, int &imc) {
+extern "C" void ministate_ghost_(const int &handle, int &ghost) {
+  MiniState &ms = *ministates[handle-7770];
+  ghost = ms.ghost;
+}
+
+extern "C" void ministate_iscore_imc_(const int &handle, int &iscore, int &imc) {
   MiniState &ms = *ministates[handle-7770];
   iscore = ms.iscore;
   imc = ms.imc;

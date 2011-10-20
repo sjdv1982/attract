@@ -34,13 +34,15 @@ c     Local variables
       pointer(ptr_nhm,nhm)
       real*8 pairenergies,deltar, deltal
       dimension pairenergies(6),deltar(maxdof),deltal(maxdof)
-      integer jb,ju,jl,nmodes,iab,fixre2
+      integer jb,ju,jl,nmodes,iab,fixre2, ghost
 
 c  return values:
 c  energies is an array of double with a value for every energy type
 c  (vdw, elec, ...)
 c  delta contains all the DOF gradients
 
+      call ministate_ghost(ministatehandle, ghost)
+      
       call ministate_get_molpairhandles(
      1 ministatehandle, molpairhandles, molpairs)
 
@@ -81,6 +83,7 @@ c  iterate over all pairs: call pairenergy...
       if (idr.eq.0) fixre2 = fixre
       endif
       
+      if (ghost.eq.0) then
       call pairenergy(maxlig,maxatom,totmaxatom,maxmode,
      1 maxdof,maxmolpair,maxres,
      2 cartstatehandle,molpairhandle,
@@ -149,7 +152,10 @@ c      in that case, we are only interested in the forces, not the energies
       epair = epair + pairenergies(i)
 20    continue  
       endif
-      
+
+      endif 
+c     endif ghost.eq.0
+       
 30    continue
    
       call globalenergy(

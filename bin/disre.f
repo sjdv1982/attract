@@ -20,7 +20,7 @@ c     Handle variables
             
 c     Local variables
       integer n,nn,i,jl
-      real*8 et,xd,yd,zd,xf,yf,zf
+      real*8 et,et2,xd,yd,zd,xf,yf,zf,k
       
       call cartstate_f_disre(cartstatehandle,nlig,ptr_pivot)      
       call ministate_f_disre(ministatehandle,gravity,rstk)
@@ -35,29 +35,63 @@ c     Local variables
       yf = 0.0d0
       zf = 0.0d0
 
-      if (gravity.eq.3) then
+      if (gravity.eq.3.or.gravity.eq.4.or.gravity.eq.5) then
 c     gravity=3 => to all other centers
-      
-      do 90 nn=1,nlig           
+c     gravity=4 => away from all other centers
+c     gravity=5 => away from all other centers
+            
+      do nn=1,nlig           
       xd=xa(n)+pivot(n,1)-xa(nn)-pivot(nn,1)
       yd=ya(n)+pivot(n,2)-ya(nn)-pivot(nn,2)
       zd=za(n)+pivot(n,3)-za(nn)-pivot(nn,3)
       et=(xd**2+yd**2+zd**2)
-      erest=erest+rstk*et
-      xf=xf-2.0d0*rstk*xd
-      yf=yf-2.0d0*rstk*yd
-      zf=zf-2.0d0*rstk*zd      
- 90   continue      
-      
-      else 
 
-      if (gravity.eq.1) then
+      et2 = et
+      k = rstk
+      if (gravity.eq.4) then
+c     gravity=4 => away from all other centers
+        if (et.lt.(200*200)) then
+        et2 = 200*200 - et
+        k = -rstk
+        else
+        et2 = 0
+        k = 0
+        endif
+      endif
+      if (gravity.eq.5) then
+c     gravity=5 => somewhat away from all other centers
+        if (et.lt.(20*20)) then
+        et2 = 20*20 - et
+        k = -10*rstk
+        else
+        et2 = 0
+        k = 0
+        endif
+      endif
+      
+      erest=erest+rstk*et2
+      xf=xf-2.0d0*k*xd
+      yf=yf-2.0d0*k*yd
+      zf=zf-2.0d0*k*zd      
+      
+      end do
+      
+      endif
+      
+      if (gravity.eq.1.or.gravity.eq.2.or.gravity.eq.4.
+     1 or.gravity.eq.5) then
+
+      if (gravity.eq.1.or.gravity.eq.4.or.gravity.eq.5) then
+      if (gravity.eq.1) k = rstk
 c     gravity=1 => to global origin      
+      if (gravity.eq.4.or.gravity.eq.5) k = 0.5 * rstk
+c     gravity=4,5 => to global origin, two times as weak
       xd=xa(n)+pivot(n,1)
       yd=ya(n)+pivot(n,2)
       zd=za(n)+pivot(n,3)
-      else
+      else if (gravity.eq.2) then
 c     gravity=2 => to receptor origin
+      k = rstk
       xd=xa(n)+pivot(n,1)-xa(1)-pivot(1,1)
       yd=ya(n)+pivot(n,2)-ya(1)-pivot(1,2)
       zd=za(n)+pivot(n,3)-za(1)-pivot(1,3)
@@ -66,16 +100,16 @@ c     gravity=2 => to receptor origin
       et=(xd**2+yd**2+zd**2)
 
 c     Fourth order restraints, maybe a bit too steep...
-c      erest=erest+rstk*et*et
-c      xf=xf-4.0d0*rstk*et*xd
-c      yf=yf-4.0d0*rstk*et*yd
-c      zf=zf-4.0d0*rstk*et*zd       
+c      erest=erest+k*et*et
+c      xf=xf-4.0d0*k*et*xd
+c      yf=yf-4.0d0*k*et*yd
+c      zf=zf-4.0d0*k*et*zd       
 
 c     Harmonic restraints
-      erest=erest+rstk*et
-      xf=xf-2.0d0*rstk*xd
-      yf=yf-2.0d0*rstk*yd
-      zf=zf-2.0d0*rstk*zd       
+      erest=erest+k*et
+      xf=xf-2.0d0*k*xd
+      yf=yf-2.0d0*k*yd
+      zf=zf-2.0d0*k*zd       
 
       endif
 

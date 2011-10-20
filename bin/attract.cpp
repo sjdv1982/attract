@@ -61,7 +61,7 @@ extern "C" void cartstate_get_ensd_(const int &handle,
 
 extern "C" int ministate_new_();
 
-void ministate_iscore_imc_(const int &handle, int &iscore, int &imc);
+extern "C" void ministate_iscore_imc_(const int &handle, int &iscore, int &imc);
 
 extern "C" void cartstate_apply_epsilon_(const int  &cartstatehandle);
 

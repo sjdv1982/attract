@@ -64,7 +64,7 @@ void rcut_usage() {
 }
 
 void gravity_usage() {
- fprintf(stderr, "--gravity option usage: --gravity <1,2 or 3>\n");
+ fprintf(stderr, "--gravity option usage: --gravity <1,2,3,4 or 5>\n");
   exit(1);
 }
 
@@ -174,6 +174,9 @@ void parse_options(int ministatehandle, int cartstatehandle, int nlig, int argc,
     else if (!strcmp(arg,"--cdie")) {
       c.cdie = 1;
     }
+    else if (!strcmp(arg,"--ghost")) {
+      ms.ghost = 1;
+    }
     else if (!strcmp(arg,"--fix-receptor")) {
       ms.fixre = 1;
     }
@@ -257,7 +260,7 @@ void parse_options(int ministatehandle, int cartstatehandle, int nlig, int argc,
     else if (!strcmp(arg,"--gravity")) {
       if (argc-n < 2) gravity_usage();    
       int gravity = atoi(argv[n+1]);
-      if (gravity <= 0 || gravity > 3) gravity_usage();
+      if (gravity <= 0 || gravity > 5) gravity_usage();
       ms.gravity = gravity;
       n += 1;
     }

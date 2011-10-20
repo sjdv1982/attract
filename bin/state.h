@@ -66,6 +66,11 @@ struct CartState {
   double *ensd[MAXLIG][MAXENS];   //ensemble delta coordinates
   double **ensw[MAXLIG];   //ensemble pairwise RMSDs (used in MC, only initialized when needed)
   
+  /*morphing*/
+  int nrmorph[MAXLIG];
+  double *morphd[MAXLIG][MAXENS];   //morphing delta coordinates
+  double *morphdd[MAXLIG][MAXENS];   //morphing inter-delta coordinates
+  
   /*symmetries*/
   int nsym;
   int symtypes[MAXLIG];
@@ -122,6 +127,7 @@ struct MiniState {
   int has_globalenergy; //1 = the energy has a global component, globalenergy must be called
   int gravity; //gravity modes: 0 = off, 1 = to global origin, 2 = to receptor origin, 3 = to all other centers;
   double rstk; //gravity force constant
+  bool ghost;
 };
 
 typedef int (&intarr)[TOTMAXATOM];

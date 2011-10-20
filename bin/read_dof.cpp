@@ -188,6 +188,7 @@ extern "C" int read_dof_(FILE *fil, int &line, int &nstruc, const char *f_, idof
    	  fprintf(stderr, "Reading error in %s, line %d: read %d values, expected %d values\n", f, line, nf, has_ens + 6 + nhm[clig]);
 	  exit(1);
       }
+      memset(ens, 0, MAXLIG*sizeof(int));
       if (has_ens) {
         ens[clig] = firstfield; //fields[0]
 	if (firstfield <= 0 || firstfield > nrens[clig]) {
