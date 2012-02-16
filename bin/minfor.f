@@ -2,7 +2,7 @@
      1 maxlig, maxdof, maxmode, maxmolpair,
      2 cartstatehandle,ministatehandle,
      3 nhm, nlig, 
-     4 ens, phi, ssi, rot, xa, ya, za, dlig, seed, label,
+     4 ens, phi, ssi, rot, xa, ya, za, morph, dlig, seed, label,
      5 gesa, energies, lablen)
 c
 c  variable metric minimizer (Harwell subroutine lib.  as in Jumna with modifications)
@@ -25,27 +25,35 @@ c     Parameters
       dimension nhm(maxlig)
       integer ens
       dimension ens(maxlig)      
-      real*8 phi, ssi, rot, dlig, xa, ya, za
+      real*8 phi, ssi, rot, dlig, xa, ya, za, morph
       dimension phi(maxlig), ssi(maxlig), rot(maxlig)
       dimension dlig(maxmode, maxlig)
       dimension xa(maxlig), ya(maxlig), za(maxlig)
+      dimension morph(maxlig)
 
 c     Local variables      
       integer i,ii,iii,n,j,jj,k,kk,ir,isfv,itr,nfun,np     
       integer itra, ieig, iori, fixre, gridmode,iscore,ivmax
-      integer ju,jl,jb,nmodes
+      integer ju,ju0,jl,jb,nmodes
       integer iab
       real*8 c,acc,dff,dgb,enlig,f,fa,fmin,gl1,gl2,gmin,dga,xnull,w
-      real*8 fb,dnorm
+      real*8 fb,dnorm,neomorph
       
       real*8 h,g,ga,gb,xaa,xbb,d,delta,step,stepbd,steplb,stmin
       dimension h(maxdof*maxdof)
       dimension g(maxdof),ga(maxdof),gb(maxdof),w(maxdof)
       dimension xaa(maxdof), xbb(maxdof), d(maxdof)
       dimension delta(maxdof)
+      real*8 deltamorph
+      dimension deltamorph(maxlig)
+
+      integer nrens
+      dimension nrens(maxlig)
+      pointer(ptr_nrens,nrens)
 
       call ministate_f_minfor(ministatehandle,
      1 iscore,ivmax,iori,itra,ieig,fixre,gridmode)
+      call cartstate_get_nrens(cartstatehandle, ptr_nrens)
      
 c     always calculate both forces and energies      
       iab = 1
@@ -62,6 +70,13 @@ c  all variables including lig-hm
       ju=jb+ieig*nmodes
 c  only trans or ori
       jl=3*iori*(nlig-fixre)
+
+      ju0 = ju
+      do i=1,nlig
+      if (morph(i).ge.0) then
+      ju = ju + 1
+      endif
+      enddo
 
       call ministate_calc_pairlist(ministatehandle,cartstatehandle)
      
@@ -87,14 +102,17 @@ c     set some variables for the first iteration
         iori = 1
 	itra = 1
       endif
-      
+
       call energy(maxdof,maxmolpair,
      1 maxlig, maxatom,totmaxatom,maxmode,maxres,
      2 cartstatehandle,ministatehandle,
      3 iab,iori,itra,ieig,fixre,gridmode,
-     4 ens,phi,ssi,rot,xa,ya,za,dlig,seed,
-     5 gesa,energies,delta)
-       
+     4 ens,phi,ssi,rot,xa,ya,za,morph,dlig,seed,
+     5 gesa,energies,delta,deltamorph)
+      do i=ju0+1,ju
+       delta(i) = deltamorph(i-ju0)
+      enddo     
+
       if (iscore.eq.1) then
        write(*,*), 'Energy:', gesa 
        write(*,'(6f12.3)'), 
@@ -117,7 +135,7 @@ c     set some variables for the first iteration
        go to 256
       else if (iscore.eq.2) then
         call print_struc2(seed,label,gesa,energies,nlig,
-     1  ens,phi,ssi,rot,xa,ya,za,nhm,dlig,lablen)	
+     1  ens,phi,ssi,rot,xa,ya,za,morph,nhm,dlig,lablen)	
       endif     
       
 110   fa=gesa
@@ -147,6 +165,7 @@ c phi,ssi,rot for first molecule are fixed!
         xaa(ii+3)=za(i)
        enddo
       endif
+      
 c if ligand flex is included store deformation factor in every mode in dlig(j)
  
       if(ieig.eq.1) then
@@ -158,6 +177,15 @@ c if ligand flex is included store deformation factor in every mode in dlig(j)
         jj = jj + nhm(j)
        enddo
       endif
+      
+      jj = ju0
+      do i=1,nlig
+       if (morph(i).ge.0) then
+        xaa(jj+1) = morph(i)
+        jj = jj + 1
+       endif      
+      enddo
+      
       
 c     begin the iteration by giving the required printing
 135   itr=itr+1
@@ -201,6 +229,15 @@ c     calculate another function value and gradient
       g(i)=-delta(i)
 c      write(*,*)'g(i)',g(i),d(i)
       enddo
+
+      jj = ju0
+      do i=1,nlig
+       if (morph(i).ge.0) then
+        g(jj+1) = -deltamorph(i)
+        jj = jj + 1
+       endif      
+      enddo
+      
 c make an Euler rotation
       if(iori.eq.1) then
        do i=1+fixre,nlig
@@ -232,6 +269,17 @@ c       write(*,*)'new ii,c,xa ya za',i,ii,c,xa(i),ya(i),za(i),d(ii+1)
        enddo
       endif
 
+      jj = ju0
+      do i=1,nlig
+       if (morph(i).ge.0) then
+        neomorph = xaa(jj+1)+c*d(jj+1) 
+        if (neomorph.lt.0) neomorph = 0
+        if (neomorph.gt.nrens(i)-1.001) neomorph = nrens(i)-1.001
+        morph(i) = neomorph
+        jj = jj + 1
+       endif      
+      enddo
+
       do i=1,3
 c      write (*,*),'lig',i,phi(i),ssi(i),rot(i),xa(i),ya(i),za(i)
       enddo
@@ -239,8 +287,12 @@ c      write (*,*),'lig',i,phi(i),ssi(i),rot(i),xa(i),ya(i),za(i)
      1 maxlig, maxatom,totmaxatom,maxmode,maxres,
      2 cartstatehandle,ministatehandle,
      3 iab,iori,itra,ieig,fixre,gridmode,
-     4 ens,phi,ssi,rot,xa,ya,za,dlig,seed,
-     5 fb,energies,delta)
+     4 ens,phi,ssi,rot,xa,ya,za,morph,dlig,seed,
+     5 fb,energies,delta,deltamorph)
+      do i=ju0+1,ju
+       delta(i) = deltamorph(i-ju0)
+      enddo     
+     
       dnorm=xnull
       do i=1,ju
        dnorm=dnorm+delta(i)**2
@@ -250,6 +302,7 @@ c      write (*,*),'Energy2', fb,dnorm
       
       do i=1,ju
       gb(i)=-delta(i)
+c      write(*,*),i,delta(i)
       enddo
       
 c     store this function value if it is the smallest so far      
@@ -280,6 +333,14 @@ c     store this function value if it is the smallest so far
        enddo
       endif
 
+      jj = ju0
+      do i=1,nlig
+       if (morph(i).ge.0) then
+        xbb(jj+1) = morph(i)
+        jj = jj + 1
+       endif      
+      enddo
+
       isfv=min(2,isfv)
       if (fb.gt.gesa) go to 220
       if (fb.lt.gesa) go to 200
@@ -294,7 +355,7 @@ c     store this function value if it is the smallest so far
       gesa=fb
       if (iscore.eq.2) then
         call print_struc2(seed,label,gesa,energies,nlig,
-     1  ens,phi,ssi,rot,xa,ya,za,nhm,dlig,lablen)	
+     1  ens,phi,ssi,rot,xa,ya,za,morph,nhm,dlig,lablen)	
       endif           
       do i=1,ju
        g(i)=gb(i)
@@ -316,6 +377,24 @@ c     store this function value if it is the smallest so far
         za(i)=xbb(ii+3)
        enddo
       endif 
+      if(ieig.eq.1) then
+       kk = 0
+       do k=1,nlig
+        do i=1,nhm(k)
+         dlig(i,k)=xbb(i+jb+kk)
+        enddo
+        kk = kk + nhm(k)
+       enddo
+      endif
+
+      jj = ju0
+      do i=1,nlig
+       if (morph(i).ge.0) then
+        morph(i) = xbb(jj+1)
+        jj = jj + 1
+       endif      
+      enddo
+
       if (nfun.ge.ivmax) go to 250
       dgb=xnull
       do i=1,ju
@@ -336,18 +415,20 @@ c     at this stage the whole calculation is complete
      1 maxlig, maxatom,totmaxatom,maxmode,maxres,
      2 cartstatehandle,ministatehandle,
      3 iab,iori,itra,ieig,fixre,gridmode,
-     4 ens,phi,ssi,rot,xa,ya,za,dlig,seed,
-     5 gesa,energies,delta)
+     4 ens,phi,ssi,rot,xa,ya,za,morph,dlig,seed,
+     5 gesa,energies,delta,deltamorph)
+      do i=ju0+1,ju
+       delta(i) = deltamorph(i-ju0)
+      enddo     
       if (iscore.eq.2) then
         call print_struc2(seed,label,gesa,energies,nlig,
-     1  ens,phi,ssi,rot,xa,ya,za,nhm,dlig,lablen)	
+     1  ens,phi,ssi,rot,xa,ya,za,morph,nhm,dlig,lablen)	
       endif     
 
       do 255 i=1,ju
 255   g(i)=-delta(i)
-      
+ 
 256   call ministate_free_pairlist(ministatehandle)      
-
 c      write (*,*),'Final energy:', gesa
 
       return

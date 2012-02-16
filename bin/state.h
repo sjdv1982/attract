@@ -67,9 +67,9 @@ struct CartState {
   double **ensw[MAXLIG];   //ensemble pairwise RMSDs (used in MC, only initialized when needed)
   
   /*morphing*/
-  int nrmorph[MAXLIG];
-  double *morphd[MAXLIG][MAXENS];   //morphing delta coordinates
-  double *morphdd[MAXLIG][MAXENS];   //morphing inter-delta coordinates
+  int morphing[MAXLIG];
+  double *morphd[MAXLIG][MAXENS];   //morphing inter-delta coordinates
+  double morph_fconstant;
   
   /*symmetries*/
   int nsym;

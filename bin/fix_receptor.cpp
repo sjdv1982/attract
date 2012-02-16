@@ -22,6 +22,7 @@ extern "C" void print_struc_(
  const double *xa,
  const double *ya,
  const double *za,
+ const double *morph,
  const int *nhm,
  const modes2 &dlig,
  int len_label
@@ -33,7 +34,7 @@ extern "C" void vecmatmult_(double *v0, double *m, double *v);
 
 extern "C" FILE *read_dof_init_(const char *f_, int nlig, int &line, double (&pivot)[3][MAXLIG], int &auto_pivot, int &centered_receptor, int &centered_ligands, int f_len);
 
-extern "C" int read_dof_(FILE *fil, int &line, int &nstruc, const char *f_, idof2 &ens, dof2 &phi, dof2 &ssi, dof2 &rot, dof2 &xa, dof2 &ya, dof2 &za, modes2 &dlig, const int &nlig, const int *nhm, const int *nrens0, int &seed, char *&label, int f_len);
+extern "C" int read_dof_(FILE *fil, int &line, int &nstruc, const char *f_, idof2 &ens, dof2 &phi, dof2 &ssi, dof2 &rot, dof2 &xa, dof2 &ya, dof2 &za, dof2 &morph, modes2 &dlig, const int &nlig, const int *nhm, const int *nrens0, const int *morphing, int &seed, char *&label, int f_len);
 
 extern "C" void euler2rotmat_(const double &phi,const double &ssi, const double &rot, double (&rotmat)[9]);
 
@@ -50,6 +51,7 @@ static double rot[MAXLIG];
 static double xa[MAXLIG];
 static double ya[MAXLIG];
 static double za[MAXLIG];
+static double morph[MAXLIG];
 static double dlig[MAXLIG][MAXMODE];
 static int seed;
 static char *label;
@@ -144,9 +146,12 @@ int main(int argc, char *argv[]) {
   else printf("#centered ligands: false\n");
   //main loop  
   int nstruc = 0;
+  
+  int morphing[MAXLIG];
+  memset(morphing, 0, MAXLIG*sizeof(int));
   while (1) {
     
-    int result = read_dof_(fil, line, nstruc, argv[1], ens, phi, ssi, rot, xa, ya, za, dlig, nlig, nhm, nrens, seed, label, strlen(argv[1]));
+    int result = read_dof_(fil, line, nstruc, argv[1], ens, phi, ssi, rot, xa, ya, za, morph, dlig, nlig, nhm, nrens, morphing, seed, label, strlen(argv[1]));
     if (result != 0) break;
 
     double rotmatr[9], rotmatrinv[9];
@@ -219,6 +224,7 @@ int main(int argc, char *argv[]) {
      xa,
      ya,
      za,
+     morph,
      nhm,
      dlig,
      lablen

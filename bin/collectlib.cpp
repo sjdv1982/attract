@@ -33,11 +33,15 @@ extern "C" void cartstate_get_nrens_(const int &handle,int *&nrens);
 extern "C" void cartstate_get_ensd_(const int &handle,
   const int &ligand,
   const int &ens,
-  double *&ensd);
+  double *&ensd,
+  const double &morph,
+  double &cmorph,
+  double *&cmorphd
+  );
   
 extern "C" FILE *read_dof_init_(const char *f_, int nlig, int &line, double (&pivot)[3][MAXLIG], int &auto_pivot, int &centered_receptor, int &centered_ligands, int f_len);
 
-extern "C" int read_dof_(FILE *fil, int &line, int &nstruc, const char *f_, idof2 &ens, dof2 &phi, dof2 &ssi, dof2 &rot, dof2 &xa, dof2 &ya, dof2 &za, modes2 &dlig, const int &nlig, const int *nhm, const int *nrens0, int &seed, char *&label, int f_len);
+extern "C" int read_dof_(FILE *fil, int &line, int &nstruc, const char *f_, idof2 &ens, dof2 &phi, dof2 &ssi, dof2 &rot, dof2 &xa, dof2 &ya, dof2 &za, dof2 &morph, modes2 &dlig, const int &nlig, const int *nhm, const int *nrens0, const int *morphing, int &seed, char *&label, int f_len);
 
 extern "C" void write_pdb_(
   const int &totmaxatom, const int &maxlig, const int &nlig,
@@ -52,8 +56,9 @@ int &ijk,int *ieins, double *x);
 
 extern "C" void deform_(const int &maxlig,const int &max3atom, 
 const int &totmax3atom, const int &maxatom,const int &maxmode,
-int &ens, double *ensdp, double (&dligp)[MAXMODE], 
-int *nhm,int &ijk,int *ieins,double *eig,double *xb,double *x,double *xori,double *xori0); 
+int &ens, double *ensdp, const double &cmorph, const double *cmorphdp, 
+double (&dligp)[MAXMODE], 
+int *nhm,int &ijk,int *ieins,double *eig,double *xb,double *x,double *xori,double *xori0, const int &do_morph); 
 
 /*support for non-reduced PDBs*/
 #include "state.h"
@@ -70,12 +75,13 @@ extern void write_pdb2(
   int coorcounter, int linecounter
 );
 
-extern void read_ens(int cartstatehandle, int ligand, char *ensfile, bool strict);
+extern void read_ens(int cartstatehandle, int ligand, char *ensfile, bool strict, bool morphing);
 
 CartState &cartstate_get(int handle);
 
 /* DOFs */
 static int ens[MAXLIG];
+static double morph[MAXLIG];
 static double phi[MAXLIG];
 static double ssi[MAXLIG];
 static double rot[MAXLIG];
@@ -117,8 +123,11 @@ char **pdbstrings[MAXLIG]; bool *pdblayout[MAXLIG]; int linecounter[MAXLIG];
 int enscount = 0;
 int ens_ligands[MAXLIG];
 char *ens_files[MAXLIG];
+int morphing[MAXLIG];
 
 extern "C" void collect_init(int argc00, char *argv00[]) {
+  memset(morphing,0,MAXLIG*sizeof(int));
+
   int i;
   argc = argc00;
   argv = argv00;
@@ -145,7 +154,15 @@ extern "C" void collect_init(int argc00, char *argv00[]) {
     }
   }
   for (int n = 1; n < argc-2; n++) {
+    bool has_ens = 0;        
     if (!strcmp(argv[n],"--ens")) {
+      has_ens = 1;
+    }
+    if (!strcmp(argv[n],"--morph")) {
+      morphing[enscount] = 1;
+      has_ens = 1;
+    }    
+    if (has_ens) {
       ens_ligands[enscount] = atoi(argv[n+1]);
       ens_files[enscount] = argv[n+2];
       enscount++;
@@ -200,7 +217,7 @@ extern "C" void collect_init(int argc00, char *argv00[]) {
   }
       
   for (int n = 0; n < enscount; n++) {
-    read_ens(cartstatehandle, ens_ligands[n]-1, ens_files[n], 0);
+    read_ens(cartstatehandle, ens_ligands[n]-1, ens_files[n], 0, 1);
   }      
       
   //retrieve the parameters needed to read the DOFs
@@ -231,7 +248,7 @@ extern "C" int collect_next() {
   int i;
   //main loop
     
-  int result = read_dof_(fil, line, nstruc, argv[1], ens, phi, ssi, rot, xa, ya, za, dlig, nlig, nhm, nrens, seed, label, strlen(argv[1]));
+  int result = read_dof_(fil, line, nstruc, argv[1], ens, phi, ssi, rot, xa, ya, za, morph, dlig, nlig, nhm, nrens, morphing, seed, label, strlen(argv[1]));
   if (result != 0) return result;
 
   if (centered_receptor) { //...then subtract pivot from receptor
@@ -252,12 +269,15 @@ extern "C" int collect_next() {
 
     //Get ensemble differences
     double *ensdp;
-    cartstate_get_ensd_(cartstatehandle, i, ens[i], ensdp);
+    double cmorph;
+    double *cmorphdp;
+    cartstate_get_ensd_(cartstatehandle, i, ens[i], ensdp,
+    morph[i],cmorph, cmorphdp);
 
-    //Apply harmonic modes and ensemble differences
-    double (&dligp)[MAXMODE] = dlig[i];      
-    deform_(MAXLIG, 3*MAXATOM, 3*TOTMAXATOM,MAXATOM, MAXMODE, 
-      ens[i], ensdp, dligp, nhm, i, ieins, eig, xb, x,dmmy1,dmmy2);
+    //Apply harmonic modes
+    double (&dligp)[MAXMODE] = dlig[i];
+    deform_(MAXLIG, 3*MAXATOM, 3*TOTMAXATOM, MAXATOM,MAXMODE, 
+      ens[i], ensdp, cmorph, cmorphdp, dligp, nhm, i, ieins, eig, xb, x, dmmy1, dmmy2, 1);
 
     //Compute rotation matrix
     double rotmat[9];

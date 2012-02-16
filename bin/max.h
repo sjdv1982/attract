@@ -2,8 +2,8 @@
 #define MAX_H /* to make sure that we include only once... */
 
 const int MAXSTRUC = 100000;
-const int MAXATOM = 10000;
-const int MAXRES = 1000;
+const int MAXATOM = 30000;
+const int MAXRES = 3000;
 const int TOTMAXATOM = 100000;
 const int TOTMAXRES = 10000;
 const int MAXLIG = 100;

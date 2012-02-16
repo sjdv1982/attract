@@ -24,6 +24,7 @@ extern "C" void print_struc_(
  const double *xa,
  const double *ya,
  const double *za,
+ const double *morph,
  const int *nhm,
  const modes2 &dlig,
  int len_label
@@ -52,11 +53,16 @@ extern "C" void cartstate_f_rotdeform_(
 extern "C" void cartstate_get_nlig_nhm_(const int &handle, int &nlig, int *(&nhm));
 extern "C" void cartstate_get_pivot_(const int &handle,double *&pivot);
 extern "C" void cartstate_get_nrens_(const int &handle,int *&nrens);
+extern "C" void cartstate_get_morphing_(const int &handle,int *&morphing);
 
 extern "C" void cartstate_get_ensd_(const int &handle,
   const int &ligand,
   const int &ens,
-  double *&ensd);
+  double *&ensd,
+  const double &morph,
+  double &cmorph,
+  double *&cmorphd
+  );
 
 
 extern "C" int ministate_new_();
@@ -67,14 +73,14 @@ extern "C" void cartstate_apply_epsilon_(const int  &cartstatehandle);
 
 extern "C" FILE *read_dof_init_(const char *f_, int nlig, int &line, double (&pivot)[3][MAXLIG], int &auto_pivot, int &centered_receptor, int &centered_ligands, int f_len);
 
-extern "C" int read_dof_(FILE *fil, int &line, int &nstruc, const char *f_, idof2 &ens, dof2 &phi, dof2 &ssi, dof2 &rot, dof2 &xa, dof2 &ya, dof2 &za, modes2 &dlig, const int &nlig, const int *nhm, const int *nrens0, int &seed, char *&label, int f_len);
+extern "C" int read_dof_(FILE *fil, int &line, int &nstruc, const char *f_, idof2 &ens, dof2 &phi, dof2 &ssi, dof2 &rot, dof2 &xa, dof2 &ya, dof2 &za, dof2 &morph, modes2 &dlig, const int &nlig, const int *nhm, const int *nrens0, const int *morphing, int &seed, char *&label, int f_len);
 
 extern "C" void minfor_(
 const int &maxatom, const int &totmaxatom, const int &maxres,
 const int &maxlig, const int &maxdof, const int &maxmode,const int &maxmolpair,
 const int &cartstatehandle,const int &ministatehandle, 
 int *nhm, const int &nlig, 
-int *ens, double *phi, double *ssi, double *rot, double *xa, double *ya, double *za, 
+int *ens, double *phi, double *ssi, double *rot, double *xa, double *ya, double *za, double *morph, 
 double *dlig, const int &seed, char *label, double &energy, double *energies, int &lablen);
 
 extern "C" void monte_(
@@ -82,7 +88,7 @@ const int &maxatom, const int &totmaxatom, const int &maxres,
 const int &maxlig, const int &maxdof, const int &maxmode,const int &maxmolpair,
 const int &cartstatehandle,const int &ministatehandle, 
 int *nhm, const int &nlig, 
-int *ens,  double *phi, double *ssi, double *rot, double *xa, double *ya, double *za, 
+int *ens,  double *phi, double *ssi, double *rot, double *xa, double *ya, double *za, double *morph,
 double *dlig, const int &seed, char *label, double &energy, double *energies, int &lablen);
 
 extern "C" void write_pdb_(
@@ -98,11 +104,13 @@ int &ijk,int *ieins, double *x);
 
 extern "C" void deform_(const int &maxlig,const int &max3atom, 
 const int &totmax3atom, const int &maxatom,const int &maxmode,
-int &ens, double *ensdp, double (&dligp)[MAXMODE], 
-int *nhm,int &ijk,int *ieins,double *eig,double *xb,double *x,double *xori,double *xori0); 
+int &ens, double *ensdp, const double &cmorph, const double *cmorphdp, 
+double (&dligp)[MAXMODE], 
+int *nhm,int &ijk,int *ieins,double *eig,double *xb,double *x,double *xori,double *xori0, const int &do_morph); 
 
 /* DOFs */
 static int ens[MAXLIG];
+static double morph[MAXLIG];
 static double phi[MAXLIG];
 static double ssi[MAXLIG];
 static double rot[MAXLIG];
@@ -175,8 +183,10 @@ int main(int argc, char *argv[]) {
   
   double *pivot; //the actual pivots (from file or auto-calculated)
   int *nrens; //the ensemble size for each ligand
+  int *morphing; //flag: is morphing active or not for each ligand
   cartstate_get_pivot_(cartstatehandle,pivot);
   cartstate_get_nrens_(cartstatehandle,nrens);
+  cartstate_get_morphing_(cartstatehandle,morphing);
   
   //get the Cartesian parameters we need for rotation and deformation
   double *x; int *ieins;double *eig; double *xb; double *xori; double *xori0;
@@ -200,7 +210,7 @@ int main(int argc, char *argv[]) {
     printf("#centered ligands: false\n");
   }
   while (1) {
-    int result = read_dof_(fil, line, nstruc, argv[1], ens, phi, ssi, rot, xa, ya, za, dlig, nlig, nhm, nrens, seed, label, strlen(argv[1]));
+    int result = read_dof_(fil, line, nstruc, argv[1], ens, phi, ssi, rot, xa, ya, za, morph, dlig, nlig, nhm, nrens, morphing, seed, label, strlen(argv[1]));
     if (result != 0) break;
 
     if (centered_receptor) { //...then subtract pivot from receptor
@@ -223,12 +233,15 @@ int main(int argc, char *argv[]) {
 
       //Get ensemble differences
       double *ensdp;
-      cartstate_get_ensd_(cartstatehandle, l, ens[l], ensdp);
+      double cmorph;
+      double *cmorphdp;
+      cartstate_get_ensd_(cartstatehandle, l, ens[l], ensdp,
+      morph[l],cmorph, cmorphdp);
             	    
       //Apply harmonic modes
       double (&dligp)[MAXMODE] = dlig[l];
       deform_(MAXLIG, 3*MAXATOM, 3*TOTMAXATOM, MAXATOM,MAXMODE, 
-        ens[l], ensdp, dligp, nhm, l, ieins, eig, xb, x, xori, xori0);
+        ens[l], ensdp, cmorph, cmorphdp, dligp, nhm, l, ieins, eig, xb, x, xori, xori0, 1);
 
       //Compute rotation matrix
       double rotmat[9];
@@ -248,7 +261,8 @@ int main(int argc, char *argv[]) {
 	cartstatehandle, ministatehandle,
 	nhm, nlig,
 	&ens[0], &phi[0], &ssi[0], &rot[0], 
-	&xa[0], &ya[0], &za[0], &dlig[0][0],
+	&xa[0], &ya[0], &za[0], 
+        &morph[0], &dlig[0][0],
 	seed, label,
 	energy, energies, lablen
       );
@@ -260,7 +274,8 @@ int main(int argc, char *argv[]) {
 	cartstatehandle, ministatehandle,
 	nhm, nlig,
 	&ens[0], &phi[0], &ssi[0], &rot[0], 
-	&xa[0], &ya[0], &za[0], &dlig[0][0],
+	&xa[0], &ya[0], &za[0], 
+        &morph[0], &dlig[0][0],
 	seed, label,
 	energy, energies, lablen
       );
@@ -280,6 +295,7 @@ int main(int argc, char *argv[]) {
      xa,
      ya,
      za,
+     morph,
      nhm,
      dlig,
      lablen

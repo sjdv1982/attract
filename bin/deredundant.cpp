@@ -23,6 +23,7 @@ extern "C" void print_struc_(
  const double *xa,
  const double *ya,
  const double *za,
+ const double *morph,
  const int *nhm,
  const modes2 &dlig,
  int len_label
@@ -31,7 +32,7 @@ extern "C" void print_struc_(
 
 extern "C" FILE *read_dof_init_(const char *f_, int nlig, int &line, double (&pivot)[3][MAXLIG], int &auto_pivot, int &centered_receptor, int &centered_ligands, int f_len);
 
-extern "C" int read_dof_(FILE *fil, int &line, int &nstruc, const char *f_, idof2 &ens, dof2 &phi, dof2 &ssi, dof2 &rot, dof2 &xa, dof2 &ya, dof2 &za, modes2 &dlig, const int &nlig, const int *nhm, const int *nrens0, int &seed, char *&label, int f_len);
+extern "C" int read_dof_(FILE *fil, int &line, int &nstruc, const char *f_, idof2 &ens, dof2 &phi, dof2 &ssi, dof2 &rot, dof2 &xa, dof2 &ya, dof2 &za, dof2 &morph, modes2 &dlig, const int &nlig, const int *nhm, const int *nrens0, const int *morphing, int &seed, char *&label, int f_len);
 
 extern "C" void euler2rotmat_(const double &phi,const double &ssi, const double &rot, double (&rotmat)[9]);
 
@@ -46,6 +47,7 @@ static double crot[MAXLIG];
 static double cxa[MAXLIG];
 static double cya[MAXLIG];
 static double cza[MAXLIG];
+static double cmorph[MAXLIG];
 static double dlig[MAXLIG][MAXMODE];
 
 static double crotmat[MAXLIG][9];
@@ -57,7 +59,6 @@ static double rot[MAXSTRUC][MAXLIG];
 static double xa[MAXSTRUC][MAXLIG];
 static double ya[MAXSTRUC][MAXLIG];
 static double za[MAXSTRUC][MAXLIG];
-
 static double rotmat[MAXSTRUC][MAXLIG][9];
 
 static int seed;
@@ -157,9 +158,12 @@ int main(int argc, char *argv[]) {
   int nonredundant = 0;
   int nstruc = 0;
 
+  int morphing[MAXLIG];
+  memset(morphing, 0, MAXLIG*sizeof(int));
+
   while (1) {
 
-    int result = read_dof_(fil, line, nstruc, argv[1], cens, cphi, cssi, crot, cxa, cya, cza, dlig, nlig, nhm, nrens, seed, label, strlen(argv[1]));
+    int result = read_dof_(fil, line, nstruc, argv[1], cens, cphi, cssi, crot, cxa, cya, cza, cmorph, dlig, nlig, nhm, nrens, morphing, seed, label, strlen(argv[1]));
     if (result != 0) break;
 
     if ((fabs(cphi[0])>0.001)|| (fabs(cssi[0])>0.001) ||(fabs(crot[0])>0.001)||
@@ -259,6 +263,7 @@ int main(int argc, char *argv[]) {
      cxa,
      cya,
      cza,
+     cmorph,
      nhm,
      dlig,
      lablen
