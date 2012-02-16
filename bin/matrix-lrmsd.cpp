@@ -1,18 +1,24 @@
-//Calculated ligand RMSD versus reference structure (identity matrix)
+//calculates pairwise lrmsd matrix
 
-//usage: ./lrmsd structures.dat ligand-unbound.pdb ligand-bound.pdb [ligand2-unbound.pdb ligand2-bound.pdb] [...] [--modes <modefile>] [--ens <ligand nr> <ensemble file>]
-//  structures.dat must have been fitted on the receptor
-//  the unbound ligand must have been fitted on the bound ligand
+//usage: ./matrix-lrmsd t structures.dat receptor.pdb [ligand.pdb] [...] [...] [--modes <modefile>] [--ens/--morph <ligand nr> <ensemble file>]
+//  if no ligand.pdb, receptor.pdb is a multi-ligand PDB file 
+
 
 #include "max.h"
 #include <cmath>
-#include "state.h"
 #include <cstdio>
+
+#define MAXMATRIXSTRUC 10000
 
 extern int cartstate_new(int argc, char *argv[],bool single=0);
 
 extern "C" void cartstate_set_pivot_(const int &handle, double (&pivot)[3][MAXLIG]);
 extern "C" void cartstate_pivot_auto_(const int &handle);
+
+extern "C" void cartstate_f_write_pdb_(
+  const int &handle,
+  int &nlig, int *&kai, char4 *&tyi, char4 *&rgi, int *&iei, double *&x,
+  int *&iaci, double *&xlai, int *&icop, double *&we, int *&ieins);
 
 extern "C" void cartstate_f_rotdeform_(
   const int &handle,
@@ -30,7 +36,7 @@ extern "C" void cartstate_get_ensd_(const int &handle,
   double &cmorph,
   double *&cmorphd
   );
-
+  
 extern "C" FILE *read_dof_init_(const char *f_, int nlig, int &line, double (&pivot)[3][MAXLIG], int &auto_pivot, int &centered_receptor, int &centered_ligands, int f_len);
 
 extern "C" int read_dof_(FILE *fil, int &line, int &nstruc, const char *f_, idof2 &ens, dof2 &phi, dof2 &ssi, dof2 &rot, dof2 &xa, dof2 &ya, dof2 &za, dof2 &morph, modes2 &dlig, const int &nlig, const int *nhm, const int *nrens0, const int *morphing, int &seed, char *&label, int f_len);
@@ -52,6 +58,8 @@ int &ens, double *ensdp, const double &cmorph, const double *cmorphdp,
 double (&dligp)[MAXMODE], 
 int *nhm,int &ijk,int *ieins,double *eig,double *xb,double *x,double *xori,double *xori0, const int &do_morph); 
 
+/*support for non-reduced PDBs*/
+#include "state.h"
 
 extern void read_pdb2(
   FILE *fil, Coor *&x, 
@@ -87,95 +95,30 @@ static char *label;
 #include <cstdlib>
 
 void usage() {
-  fprintf(stderr, "usage: $path/lrmsd structures.dat ligand-unbound.pdb ligand-bound.pdb [ligand2-unbound.pdb ligand2-bound.pdb] [...] [...] [--modes <modefile>] [--ens <ligand nr> <ensemble file>]\n");
+  fprintf(stderr, "usage: matrix-lrmsd structures.dat receptor.pdb [...] [...] [--modes <modefile>] [--ens/--morph <ligand nr> <ensemble file>]");
   exit(1);
 }
 
 extern bool exists(const char *f);
 
-double calc_rmsd(Coor *x, Coor *xrefe, int natoms) {
-  double rmsd = 0;
-  for (int ii = 0; ii < natoms; ii++) {
-    double dx = x[ii][0] - xrefe[ii][0];
-    double dy = x[ii][1] - xrefe[ii][1];
-    double dz = x[ii][2] - xrefe[ii][2];
-    double dsq = dx*dx+dy*dy+dz*dz;
-    rmsd += dsq;
-  }
-  if (rmsd > 0 && natoms > 0) rmsd = sqrt(rmsd/natoms);
-  return rmsd;
-}
-
-int read_ligands(CartState &cs, char **argv, Coor **bound, Coor *allbound) {
-  int ret = 0;
-  Coor *xx = (Coor *) &cs.x[0];
-  int pos = 0;
-  cs.ieins[0] = 0;
-  cs.natom[0] = 0;    
-  for (int i = 1; i < cs.nlig; i++) {
-    char *ub = argv[2*i];
-    char *b = argv[2*i+1];
-    FILE *fil;
-    Coor *coor1; Coor *coor2;
-    int ncoor1, ncoor2;
-    char **pdbstrings;
-    bool *pdblayout;
-    int linecounter;
-
-    fil = fopen(ub, "r");
-    read_pdb2(fil,coor1,pdbstrings,pdblayout,ncoor1,linecounter);
-
-    if (!ncoor1) {
-      fprintf(stderr, "Unbound PDB %s contains no atoms\n", ub);
-      exit(1);
-    }
-
-    fil = fopen(b, "r");
-    read_pdb2(fil,coor2,pdbstrings,pdblayout,ncoor2,linecounter);
-
-    if (!ncoor2) {
-      fprintf(stderr, "Bound PDB %s contains no atoms\n", b);
-      exit(1);
-    }
-
-    if (ncoor1 != ncoor2) {
-      fprintf(stderr, "Unbound PDB %s (%d) and bound PDB %s (%d) contains different numbers of atoms\n", ub, ncoor1, b, ncoor2);
-      exit(1);
-    }
-
-    double rmsd = calc_rmsd(coor1, coor2, ncoor1);
-    if (rmsd > 5.0) {
-      fprintf(stderr, "Warning: Unbound PDB %s and bound PDB %s have an RMSD of %.3f A, have they been fitted?\n", ub, b, rmsd);    
-    }
-    ret += ncoor1;
-    
-    memcpy(xx,coor1,ncoor1*sizeof(Coor));
-    memcpy(allbound[pos],coor2,ncoor2*sizeof(Coor));
-    delete [] coor1;      
-    bound[i] = coor2;
-
-    cs.natom[i] = ncoor1;    
-    xx += cs.natom[i];	
-    pos += cs.natom[i];        
-    cs.ieins[i] = pos;
-  }
-  memcpy(cs.xori0,cs.x,TOTMAXATOM*3*sizeof(double));
-  return ret;
-}
-int morphing[MAXLIG];
-
-int main(int argc, char **argv) {
-  memset(morphing,0,MAXLIG*sizeof(int));
-  
-  int n, i;
+int main(int argc, char *argv[]) {
+  int i;
   if (argc < 3) {
     fprintf(stderr, "Too few arguments\n"); usage();
+  }
+  for (i = 1; i <= 2; i++) {
+    if (!exists(argv[i])) {
+      fprintf(stderr, "File %s does not exist\n", argv[i]);
+      exit(1);
+    }
   }
   
   char *modefile = NULL;
   int enscount = 0;
   int ens_ligands[MAXLIG];
   char *ens_files[MAXLIG];
+  int morphing[MAXLIG];
+  memset(morphing,0,MAXLIG*sizeof(int));
   for (int n = 1; n < argc-1; n++) {
     if (!strcmp(argv[n],"--modes")) {
       modefile = argv[n+1];
@@ -188,7 +131,15 @@ int main(int argc, char **argv) {
     }
   }
   for (int n = 1; n < argc-2; n++) {
+    bool has_ens = 0;        
     if (!strcmp(argv[n],"--ens")) {
+      has_ens = 1;
+    }
+    if (!strcmp(argv[n],"--morph")) {
+      morphing[enscount] = 1;
+      has_ens = 1;
+    }    
+    if (has_ens) {
       ens_ligands[enscount] = atoi(argv[n+1]);
       ens_files[enscount] = argv[n+2];
       enscount++;
@@ -200,46 +151,59 @@ int main(int argc, char **argv) {
       n -= 1;
     }    
   }  
-
-  if (argc % 2) {
-    fprintf(stderr, "Number of arguments must be even: supply unbound ligand, then bound ligand PDB\n");
-    exit(1);  
-  }
-  for (i = 1; i < argc; i++) {
-    if (!exists(argv[i])) {
-      fprintf(stderr, "File %s does not exist\n", argv[i]);
-      exit(1);
-    }
-  }
+  char **pdbstrings[MAXLIG]; bool *pdblayout[MAXLIG]; int linecounter[MAXLIG];
 
   //load the Cartesian parameters and get a handle to it
   int cartstatehandle;
-  /*support for non-reduced PDBs*/
-  char *argv0[] = {NULL, NULL};
-  cartstatehandle = cartstate_new(2, argv0);
+  if (argc == 3) { //one PDB, reduced or non-reduced
+    char *argv0[] = {NULL, argv[2]};
+    cartstatehandle = cartstate_new(2, argv0);
+  }
+  else {
+    //char *argv0[] = {NULL, argv[2], argv[3]};
+    //cartstatehandle = cartstate_new(3, argv0);
 
-  CartState &cs = cartstate_get(cartstatehandle);
-  Coor *bound[MAXLIG];
-  
-  cs.nlig = (argc - 2)/2 + 1;
-  Coor allbound[TOTMAXATOM];
-  int natoms = read_ligands(cs, argv, bound, allbound);
-  
-  if (modefile != NULL) {
+    /*support for non-reduced PDBs*/
+    char *argv0[] = {NULL, NULL};
+    cartstatehandle = cartstate_new(2, argv0);
+
     CartState &cs = cartstate_get(cartstatehandle);
+    cs.nlig = argc - 2;
+    Coor *xx = (Coor *) &cs.x[0];
+    int pos = 0;
+    cs.ieins[0] = 0;
+    for (i = 0; i < cs.nlig; i++) {
+      FILE *fil = fopen(argv[i+2], "r");
+      Coor *coor;
+      read_pdb2(fil,coor,pdbstrings[i],pdblayout[i],cs.natom[i],linecounter[i]);
+      if (cs.natom[i]) {
+        memcpy(xx,coor,cs.natom[i]*sizeof(Coor));
+        delete [] coor;      
+        xx += cs.natom[i];	
+	pos += cs.natom[i];
+      }
+      cs.ieins[i] = pos;
+    }
+    memcpy(cs.xori0,cs.x,TOTMAXATOM*3*sizeof(double));
+  }
+
+  CartState &cs = cartstate_get(cartstatehandle);  
+  memcpy(cs.xori,cs.xori0,TOTMAXATOM*3*sizeof(double));  
+  if (modefile != NULL) {
     const int multi = 1;
     read_hm_(modefile,"ligand",cs.nlig, cs.natom, cs.nhm, cs.val, (double *) cs.eig, multi, strlen(modefile), strlen("ligand"));
   }
+      
   for (int n = 0; n < enscount; n++) {
-    read_ens(cartstatehandle, ens_ligands[n]-1, ens_files[n], 0, 0);
+    read_ens(cartstatehandle, ens_ligands[n]-1, ens_files[n], 0, morphing[n]);
   }      
       
   //retrieve the parameters needed to read the DOFs
-  int nlig, nstruc; int *nhm;
+  int nlig; int *nhm;
   cartstate_get_nlig_nhm_(cartstatehandle, nlig,nhm);
   
   int nrdof = 6 * nlig;
-  for (n = 0; n < nlig; n++) nrdof += nhm[n];
+  for (int n = 0; n < nlig; n++) nrdof += nhm[n];
   if (nrdof > MAXDOF) {
     fprintf(stderr, "Too many DOFs: %d, MAXDOF=%d\n",nrdof, MAXDOF); 
     exit(1);
@@ -247,29 +211,44 @@ int main(int argc, char **argv) {
   
   //read DOFs and set pivots
   //fpivot contains any pivots read from the DOF file
-
-  double fpivot[3][MAXLIG]; 
+  double fpivot[3][MAXLIG];
   int auto_pivot, centered_receptor, centered_ligands;  
-  //read_dof_(argv[1], phi, ssi, rot, xa, ya, za, dlig, nlig, nhm, seed, label, nstruc, fpivot, auto_pivot, centered_receptor, centered_ligands, strlen(argv[1]));
   int line;
   FILE *fil = read_dof_init_(argv[1], nlig, line, fpivot, auto_pivot, centered_receptor, centered_ligands, strlen(argv[1]));
-  
   if (auto_pivot) cartstate_pivot_auto_(cartstatehandle);
   else cartstate_set_pivot_(cartstatehandle, fpivot);  
   
   double *pivot; //the actual pivots (from file or auto-calculated)
-  cartstate_get_pivot_(cartstatehandle,pivot);
- 
+  
+  int *kai;char4 *tyi;char4 *rgi; int *iei; 
+  double *x; int *iaci; double *xlai; int *icop; double *we; int *ieins;
+  double *eig; double *xb; double *dmmy1; double *dmmy2;
+    
   //get the Cartesian parameters we need for rotation and deformation
-  double *x; int *ieins;double *eig; double *xb; double *xori; double *xori0;
   cartstate_f_rotdeform_(cartstatehandle,
-   nhm, ieins, eig, pivot, xb, x, xori, xori0);
+   nhm, ieins, eig, pivot, xb, x, dmmy1, dmmy2);
   int *nrens; //the ensemble size for each ligand
   cartstate_get_nrens_(cartstatehandle,nrens);
+    
+  //get the Cartesian parameters we need for PDB writeout
+  cartstate_f_write_pdb_(cartstatehandle,
+   nlig, kai,tyi,rgi,iei,x,iaci,xlai,icop,we,ieins); 
 
-  nstruc = 0;
 
+    if (nlig <= 1) {
+      fprintf(stderr, "Number of ligands must be > 1\n");
+      exit(1);
+    }
+  
+  //main loop
+  Coor *structures[MAXMATRIXSTRUC]; 
+  int nstruc = 0; 
+  int struclen;
   while (1) {
+    if (nstruc == MAXMATRIXSTRUC) {
+      fprintf(stderr, "Number of structures exceeds maximum (%d)\n", MAXMATRIXSTRUC);
+      exit(1);
+    }
     int result = read_dof_(fil, line, nstruc, argv[1], ens, phi, ssi, rot, xa, ya, za, morph, dlig, nlig, nhm, nrens, morphing, seed, label, strlen(argv[1]));
     if (result != 0) break;
 
@@ -278,6 +257,7 @@ int main(int argc, char **argv) {
       ya[0] -= pivot[MAXLIG];
       za[0] -= pivot[2*MAXLIG];
     }
+    
 
     if (centered_ligands) { //...then subtract pivot from all (other) ligands 
       for (i = 1; i < nlig; i++) {
@@ -286,26 +266,19 @@ int main(int argc, char **argv) {
 	za[i] -= pivot[2*MAXLIG+i];
       }
     }          
-    if (fabs(phi[0]) > 0.001 ||
-        fabs(ssi[0]) > 0.001 ||
-	fabs(rot[0]) > 0.001 ||
-	fabs(xa[0]) > 0.001 ||
-	fabs(ya[0]) > 0.001 ||
-	fabs(za[0]) > 0.001) 
-    {
-      fprintf(stderr, "ERROR: Structures have not yet been fitted\n");
-      return 1;
-    }
-    for (i = 1; i < nlig; i++) {
+    for (i = 0; i < nlig; i++) {
+
       //Get ensemble differences
       double *ensdp;
-      double dmmy1; double *dmmy2;
-      cartstate_get_ensd_(cartstatehandle, i, ens[i], ensdp, -1, dmmy1, dmmy2);
-     
-      //Apply harmonic modes and ensemble differences
-      double (&dligp)[MAXMODE] = dlig[i];      
-      deform_(MAXLIG, 3*MAXATOM, 3*TOTMAXATOM,MAXATOM, MAXMODE, 
-       ens[i], ensdp, -1, NULL, dligp, nhm, i, ieins, eig, xb, x,xori,xori0,0);
+      double cmorph;
+      double *cmorphdp;
+      cartstate_get_ensd_(cartstatehandle, i, ens[i], ensdp,
+      morph[i],cmorph, cmorphdp);
+
+      //Apply harmonic modes
+      double (&dligp)[MAXMODE] = dlig[i];
+      deform_(MAXLIG, 3*MAXATOM, 3*TOTMAXATOM, MAXATOM,MAXMODE, 
+        ens[i], ensdp, cmorph, cmorphdp, dligp, nhm, i, ieins, eig, xb, x, dmmy1, dmmy2, 1);
      
       //Compute rotation matrix
       double rotmat[9];
@@ -315,19 +288,38 @@ int main(int argc, char **argv) {
       rotate_(MAXLIG,3*MAXATOM,rotmat,
       xa[i],ya[i],za[i],
       pivot,i,ieins,x);
-      
-    }
-    
-    Coor *x2 = (Coor *) x;
 
-    double rmsd = calc_rmsd(x2, allbound, natoms);
-    printf("l-RMSD %.3f", rmsd);    
-    if (nlig > 2) {
-      for (i = 1; i < nlig; i++) {
-        rmsd = calc_rmsd(x2+ieins[i-1], allbound+ieins[i-1], ieins[i]-ieins[i-1]);
-        printf(" %.3f", rmsd);
-      }
     }
-    printf("\n");
+    if (nstruc-1 == 0) {
+      struclen = ieins[nlig-1] - ieins[0];
+      if (struclen == 0) {
+        fprintf(stderr, "Ligand(s) contain no atoms\n");
+        exit(1);
+      }      
+    }
+    CartState &cs = cartstate_get(cartstatehandle);
+    Coor *xx = (Coor *) &cs.x[0];    
+    
+    structures[nstruc-1] = new Coor[struclen];
+    memcpy(structures[nstruc-1], &xx[ieins[0]], struclen*sizeof(Coor)); 
+  }  
+  for (int n = 0; n < nstruc; n++) {
+    for (int nn = n+1; nn < nstruc; nn++) {
+      double sd = 0;
+      for (int i = 0; i < struclen; i++) {
+        double x1 = structures[n][i][0];
+        double y1 = structures[n][i][1];
+        double z1 = structures[n][i][2];
+        double x2 = structures[nn][i][0];
+        double y2 = structures[nn][i][1];
+        double z2 = structures[nn][i][2];         
+        double d = (x1-x2)*(x1-x2)+(y1-y2)*(y1-y2)+(z1-z2)*(z1-z2);
+        //if (n == 0 && nn == 7) printf("D %.3f %.3f %.3f\n", d, x1, x2);
+        sd += d;
+      }
+      double msd = sd/struclen;
+      double rmsd = sqrt(msd);
+      printf("%d %d %.3f\n", n+1, nn+1, rmsd);
+    }
   }
 }

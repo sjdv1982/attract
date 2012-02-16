@@ -24,12 +24,13 @@ double contour_weight_scale = 1.35;
 /*
 a tolerance for contour mismatches
 */
-double contour_mismatch_tolerance = 1.5;
+double contour_mismatch_tolerance = 20;
+//double contour_mismatch_tolerance = 2.5;
 //double contour_mismatch_tolerance = 1;
 /*
 and a contour mismatch energy weight
 */
-double contour_mismatch_energyweight = 2;
+double contour_mismatch_energyweight = 0.001;
 
 int deltas[26][3] = {
 {-1,-1,-1},{-1,-1,0},{-1,-1,1},
@@ -565,7 +566,8 @@ inline void trilin(Map &m, double ax, double ay, double az, double &overlap, dou
 extern "C" void read_densitymaps_(char *densitymapsfile0, int len_densitymapsfile) {
   char buf[2000];
   
-  char *densitymapsfile = new char[len_densitymapsfile];
+  char *densitymapsfile = new char[len_densitymapsfile+1];
+  densitymapsfile[len_densitymapsfile] = 0;
   memcpy(densitymapsfile, densitymapsfile0, len_densitymapsfile);
   
   FILE *fil = fopen(densitymapsfile, "r");
@@ -707,8 +709,10 @@ double calc_contour(Map &m) {
 	  }
 	  double grad = dplus - dminus;
 	  if (fabs(grad)<contour_min_magnitude) continue;
+          //if (fabs(grad)<0.1) continue;
 	  
 	  double dif = ((dplus - dminus) - (wplus - wminus));	  
+          //printf("CONTOUR %.3f %.3f %.3f %.3f %.3f %.3f %.3f\n", dif, dplus-dminus, wplus-wminus, dplus, dminus, wplus, wminus);
 	  if (fabs(dif) <= contour_mismatch_tolerance) continue;
 	  if (dif > 0) dif -= contour_mismatch_tolerance;
 	  else dif += contour_mismatch_tolerance;

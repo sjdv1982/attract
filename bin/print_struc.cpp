@@ -17,6 +17,7 @@ extern "C" void print_struc_(
  const double *xa,
  const double *ya,
  const double *za,
+ const double *morph,
  const int *nhm,
  const modes2 &dlig, 
  int len_label
@@ -39,7 +40,10 @@ extern "C" void print_struc_(
   }
   for (int i = 0; i < nlig; i++) {
     printf("   ");   
-    if (ens[i] > 0) {
+    if (morph[i] >= 0) {
+      printf("%.4f ", morph[i]);
+    }    
+    else if (ens[i] > 0) {
       printf("%d ", ens[i]);
     }
     printf("%.8f %.8f %.8f %.4f %.4f %.4f", 
@@ -67,6 +71,7 @@ extern "C" void print_struc2_(
  const double *xa,
  const double *ya,
  const double *za,
+ const double *morph,
  const int *nhm,
  const modes2 &dlig, 
  const int &len_label
@@ -85,6 +90,7 @@ extern "C" void print_struc2_(
   xa,
   ya,
   za,
+  morph,
   nhm,
   dlig, 
   len_label

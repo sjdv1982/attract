@@ -7,7 +7,7 @@ extern bool exists(const char *);
 extern void parse_restraintfile(MiniState &ms, const char *restfile);
 extern "C" void read_densitymaps_(char *densitymapsfile0, int len_densitymapsfile);
 
-extern void read_ens(int cartstatehandle, int ligand, char *ensfile, bool strict);
+extern void read_ens(int cartstatehandle, int ligand, char *ensfile, bool strict, bool morphing);
 
 extern CartState &cartstate_get(int handle);
 extern MiniState &ministate_get(int handle);
@@ -19,6 +19,11 @@ void grid_usage() {
 
 void ens_usage() {
  fprintf(stderr, "--ens option usage: --ens <ligand nr> <file name>\n");
+  exit(1);
+}
+
+void morph_usage() {
+ fprintf(stderr, "--morph option usage: --morph <ligand nr> <ensemble file name>\n");
   exit(1);
 }
 
@@ -35,6 +40,11 @@ void mctemp_usage() {
 
 void epsilon_usage() {
  fprintf(stderr, "--epsilon option usage: --epsilon <dielectric constant; 1=vacuum>\n");
+  exit(1);
+}
+
+void morph_fconstant_usage() {
+ fprintf(stderr, "--morph-fconstant option usage: --morph-fconstant <morphing force constant>\n");
   exit(1);
 }
 
@@ -123,18 +133,25 @@ void parse_options(int ministatehandle, int cartstatehandle, int nlig, int argc,
     if (!strcmp(arg,"--mc")) {
       ms.imc = 1;
     }
-    else if (!strcmp(arg,"--mctemp")) {
-      if (argc-n < 2) mctemp_usage();    
-      double mctemp = atof(argv[n+1]);
-      if (mctemp < 0) mctemp_usage();
-      ms.mctemp = mctemp;
+    else if (!strcmp(arg,"--morph-fconstant")) {
+      if (argc-n < 2) epsilon_usage();    
+      double morph_fconstant = atof(argv[n+1]);
+      if (morph_fconstant < 0) morph_fconstant_usage();
+      c.morph_fconstant = morph_fconstant;
       n += 1;
-    }    
+    }        
     else if (!strcmp(arg,"--epsilon")) {
       if (argc-n < 2) epsilon_usage();    
       double epsilon = atof(argv[n+1]);
       if (epsilon <= 0) epsilon_usage();
       c.epsilon = epsilon;
+      n += 1;
+    }    
+    else if (!strcmp(arg,"--mctemp")) {
+      if (argc-n < 2) mctemp_usage();    
+      double mctemp = atof(argv[n+1]);
+      if (mctemp < 0) mctemp_usage();
+      ms.mctemp = mctemp;
       n += 1;
     }    
     else if (!strcmp(arg,"--mcensprob")) {
@@ -186,6 +203,10 @@ void parse_options(int ministatehandle, int cartstatehandle, int nlig, int argc,
     }
     else if (!strcmp(arg,"--only-trans")) {
       ms.itra = 1;
+      ms.iori = 0;
+    }    
+    else if (!strcmp(arg,"--only-flex")) {
+      ms.itra = 0;
       ms.iori = 0;
     }    
     else if (!strcmp(arg,"--grid")) {
@@ -247,7 +268,29 @@ void parse_options(int ministatehandle, int cartstatehandle, int nlig, int argc,
         fprintf(stderr, "Ensemble file %s does not exist\n", ensf);
 	ens_usage();
       }
-      read_ens(cartstatehandle,lig-1,ensf,1);
+      if (c.nrens[lig-1]) {
+        fprintf(stderr, "Ligand %d can have only one ensemble/morphing specification\n", lig);
+        exit(1);
+      }
+      read_ens(cartstatehandle,lig-1,ensf,1,0);
+      n += 2;
+    }
+    else if (!strcmp(arg,"--morph")) {
+      if (argc-n < 3) morph_usage();
+      int lig = atoi(argv[n+1]);
+      if (lig < 1 || lig > nlig) morph_usage();
+      char *ensf = argv[n+2];
+      if (!exists(ensf)) {
+        fprintf(stderr, "Ensemble file %s does not exist\n", ensf);
+	morph_usage();
+      }
+      if (c.nrens[lig-1]) {
+        fprintf(stderr, "Ligand %d can have only one ensemble/morphing specification\n", lig);
+        exit(1);
+      }
+      c.morphing[lig-1] = 1;
+      read_ens(cartstatehandle,lig-1,ensf,1,1);
+      ms.has_globalenergy = 1;
       n += 2;
     }
     else if (!strcmp(arg,"--rcut")) {

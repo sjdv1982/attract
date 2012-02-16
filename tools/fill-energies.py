@@ -9,7 +9,7 @@ for ll in open(sys.argv[2]).readlines():
   if p > -1:
     e = float(ll[p+len("Energy:"):])
     energies.append(e)
-assert len(energies) == len(structures)
+assert len(energies) == len(structures), (len(energies), len(structures))
 strucs = zip(range(1,len(structures)+1), energies, structures)
 
 for h in header: print h

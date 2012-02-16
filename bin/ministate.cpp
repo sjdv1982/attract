@@ -265,7 +265,10 @@ extern "C" void ministate_check_parameters_(const int &ministatehandle, const in
     for (int nn = start; nn < cartstate.ieins[n]; nn++) {
       int res = cartstate.iaci[nn];
       if (res == 0) continue;
-      //printf("%d\n", res-1);      
+      if (res < 0) {
+         fprintf(stderr, "Invalid atom type %d\n", res-1);      
+         exit(1);
+       }
       used[n][res-1] = 1;
     }
   }

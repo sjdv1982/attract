@@ -1,3 +1,4 @@
+--only-flex
 TODO: grid restraints (sym.cpp)
 TODO: 1/(rmsd+1) weighting of MC ensemble switching
 NEW: gravity 4, ghost, --fast option for randsearch

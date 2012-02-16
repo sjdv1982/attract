@@ -2,8 +2,8 @@
      1  maxlig, maxatom,totmaxatom,maxmode,maxres,
      2 cartstatehandle, ministatehandle,
      3 iab,iori,itra,ieig,fixre,gridmode,
-     4 ens,phi,ssi,rot,xa,ya,za,dlig,seed,
-     5 e,energies,delta)
+     4 ens,phi,ssi,rot,xa,ya,za,morph,dlig,seed,
+     5 e,energies,delta,deltamorph)
      
       implicit none
       
@@ -12,18 +12,21 @@ c     Parameters
       integer maxlig,maxdof,maxatom,totmaxatom,maxmode,maxmolpair,
      1 maxres
       integer iori,itra,ieig,fixre,gridmode,seed
-      real*8 energies, delta
-      dimension energies(6), delta(maxdof)
-      real*8 e, epair
+      real*8 energies, delta, deltamorph
+      dimension energies(6), delta(maxdof),deltamorph(maxlig)
+      real*8 deltamorphr, deltamorphl      
+      real*8 e
 
       integer ens
       dimension ens(maxlig)
-      real*8 phi, ssi, rot, dlig, xa, ya, za
+      real*8 phi, ssi, rot, dlig, xa, ya, za, morph
       dimension phi(maxlig), ssi(maxlig), rot(maxlig)
       dimension dlig(maxmode, maxlig)
       dimension xa(maxlig), ya(maxlig), za(maxlig)
+      dimension morph(maxlig)
 
 c     Local variables      
+      real*8 epair
       integer i, k, n, idr, idl,ii
       integer gridptr_dmmy
       pointer(gridptr, gridptr_dmmy)      
@@ -70,6 +73,10 @@ c  only trans or ori
       delta(i) = 0
   11  continue  
              
+      do i=1,maxlig
+      deltamorph(i)=0
+      enddo       
+      
 c  iterate over all pairs: call pairenergy...
       do 30 k=1,molpairs
       
@@ -89,10 +96,10 @@ c  iterate over all pairs: call pairenergy...
      2 cartstatehandle,molpairhandle,
      3 iab,fixre2,gridptr,
      4 ens(idr+1),phi(idr+1),ssi(idr+1),rot(idr+1),
-     5 xa(idr+1),ya(idr+1),za(idr+1),dlig(:,idr+1),
+     5 xa(idr+1),ya(idr+1),za(idr+1),morph(idr+1),dlig(:,idr+1),
      6 ens(idl+1),phi(idl+1),ssi(idl+1),rot(idl+1),
-     7 xa(idl+1),ya(idl+1),za(idl+1),dlig(:,idl+1),     
-     8 pairenergies,deltar,deltal)
+     7 xa(idl+1),ya(idl+1),za(idl+1),morph(idl+1),dlig(:,idl+1),
+     8 pairenergies,deltar,deltal,deltamorphr,deltamorphl)
      
 c  ...and sum up the energies and deltas            
       if ((iori.eq.1).AND.(fixre2.eq.0)) then
@@ -138,8 +145,10 @@ c  ...and sum up the energies and deltas
       do 16 n=1,nhm(idl+1)  
       delta(ii+n) = delta(ii+n) + deltal(6+n)
 16    continue
-
       endif
+
+      deltamorph(idl+1) = deltamorph(idl+1) + deltamorphl
+      deltamorph(idr+1) = deltamorph(idr+1) + deltamorphr
       
       epair = 0
       if (idr.lt.idl.OR.gridmode.eq.2.OR.(fixre.eq.1.and.idl.eq.0)) then
@@ -161,8 +170,9 @@ c     endif ghost.eq.0
       call globalenergy(
      1  maxlig,maxatom,totmaxatom,maxmode,maxdof,
      2	cartstatehandle, ministatehandle,
-     3  ens,phi,ssi,rot,xa,ya,za,dlig,seed,
-     4  iab,iori,itra,ieig,fixre, energies, delta)
+     3  ens,phi,ssi,rot,xa,ya,za,morph,dlig,seed,
+     4  iab,iori,itra,ieig,fixre, 
+     5  energies, delta, deltamorph)
       
       e = 0
       do 990,i=1,6
@@ -174,6 +184,7 @@ c     2  delta(7),delta(8),delta(9),delta(10),delta(11),delta(12),
 c     3  delta(13)
 
 c     e = nonbonded+potential+erest+esolv+enlig+eem 
+
       return
       end
 

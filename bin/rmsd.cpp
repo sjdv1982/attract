@@ -1,7 +1,6 @@
-//Calculated ligand RMSD versus reference structure (identity matrix)
+//Calculated RMSD versus reference structure (identity matrix)
 
-//usage: ./lrmsd structures.dat ligand-unbound.pdb ligand-bound.pdb [ligand2-unbound.pdb ligand2-bound.pdb] [...] [--modes <modefile>] [--ens <ligand nr> <ensemble file>]
-//  structures.dat must have been fitted on the receptor
+//usage: ./rmsd structures.dat ligand-unbound.pdb ligand-bound.pdb [ligand2-unbound.pdb ligand2-bound.pdb] [...] [--modes <modefile>] [--ens <ligand nr> <ensemble file>]
 //  the unbound ligand must have been fitted on the bound ligand
 
 #include "max.h"
@@ -28,9 +27,9 @@ extern "C" void cartstate_get_ensd_(const int &handle,
   double *&ensd,
   const double &morph,
   double &cmorph,
-  double *&cmorphd
+  double *&cmorphd  
   );
-
+  
 extern "C" FILE *read_dof_init_(const char *f_, int nlig, int &line, double (&pivot)[3][MAXLIG], int &auto_pivot, int &centered_receptor, int &centered_ligands, int f_len);
 
 extern "C" int read_dof_(FILE *fil, int &line, int &nstruc, const char *f_, idof2 &ens, dof2 &phi, dof2 &ssi, dof2 &rot, dof2 &xa, dof2 &ya, dof2 &za, dof2 &morph, modes2 &dlig, const int &nlig, const int *nhm, const int *nrens0, const int *morphing, int &seed, char *&label, int f_len);
@@ -112,9 +111,10 @@ int read_ligands(CartState &cs, char **argv, Coor **bound, Coor *allbound) {
   int pos = 0;
   cs.ieins[0] = 0;
   cs.natom[0] = 0;    
-  for (int i = 1; i < cs.nlig; i++) {
-    char *ub = argv[2*i];
-    char *b = argv[2*i+1];
+  for (int i = 0; i < cs.nlig; i++) {
+    char *ub = argv[2*i+2];
+    char *b = argv[2*i+3];
+    printf("%s %s %d\n", b, ub, cs.nlig);
     FILE *fil;
     Coor *coor1; Coor *coor2;
     int ncoor1, ncoor2;
@@ -150,7 +150,7 @@ int read_ligands(CartState &cs, char **argv, Coor **bound, Coor *allbound) {
     ret += ncoor1;
     
     memcpy(xx,coor1,ncoor1*sizeof(Coor));
-    memcpy(allbound[pos],coor2,ncoor2*sizeof(Coor));
+    memcpy(&allbound[pos],coor2,ncoor2*sizeof(Coor));
     delete [] coor1;      
     bound[i] = coor2;
 
@@ -162,11 +162,10 @@ int read_ligands(CartState &cs, char **argv, Coor **bound, Coor *allbound) {
   memcpy(cs.xori0,cs.x,TOTMAXATOM*3*sizeof(double));
   return ret;
 }
-int morphing[MAXLIG];
 
+int morphing[MAXLIG];
 int main(int argc, char **argv) {
   memset(morphing,0,MAXLIG*sizeof(int));
-  
   int n, i;
   if (argc < 3) {
     fprintf(stderr, "Too few arguments\n"); usage();
@@ -221,7 +220,7 @@ int main(int argc, char **argv) {
   CartState &cs = cartstate_get(cartstatehandle);
   Coor *bound[MAXLIG];
   
-  cs.nlig = (argc - 2)/2 + 1;
+  cs.nlig = (argc - 2)/2;
   Coor allbound[TOTMAXATOM];
   int natoms = read_ligands(cs, argv, bound, allbound);
   
@@ -286,20 +285,10 @@ int main(int argc, char **argv) {
 	za[i] -= pivot[2*MAXLIG+i];
       }
     }          
-    if (fabs(phi[0]) > 0.001 ||
-        fabs(ssi[0]) > 0.001 ||
-	fabs(rot[0]) > 0.001 ||
-	fabs(xa[0]) > 0.001 ||
-	fabs(ya[0]) > 0.001 ||
-	fabs(za[0]) > 0.001) 
-    {
-      fprintf(stderr, "ERROR: Structures have not yet been fitted\n");
-      return 1;
-    }
-    for (i = 1; i < nlig; i++) {
+    for (i = 0; i < nlig; i++) {
       //Get ensemble differences
       double *ensdp;
-      double dmmy1; double *dmmy2;
+      double dmmy1; double *dmmy2;      
       cartstate_get_ensd_(cartstatehandle, i, ens[i], ensdp, -1, dmmy1, dmmy2);
      
       //Apply harmonic modes and ensemble differences
@@ -319,11 +308,10 @@ int main(int argc, char **argv) {
     }
     
     Coor *x2 = (Coor *) x;
-
     double rmsd = calc_rmsd(x2, allbound, natoms);
-    printf("l-RMSD %.3f", rmsd);    
-    if (nlig > 2) {
-      for (i = 1; i < nlig; i++) {
+    printf("RMSD %.3f", rmsd);    
+    if (nlig > 1) {
+      for (i = 0; i < nlig; i++) {
         rmsd = calc_rmsd(x2+ieins[i-1], allbound+ieins[i-1], ieins[i]-ieins[i-1]);
         printf(" %.3f", rmsd);
       }

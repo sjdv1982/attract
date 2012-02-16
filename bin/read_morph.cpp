@@ -35,7 +35,7 @@ extern void read_pdb2(
   int &coorcounter, int &linecounter
 );
 
-void read_ens(int cartstatehandle, int ligand, char *ensfile, bool strict, bool morphing) {
+void read_morph(int cartstatehandle, int ligand, char *ensfile, bool strict) {
   CartState &s = cartstate_get(cartstatehandle);
 
   CartState *s0 = new CartState;
@@ -73,7 +73,7 @@ void read_ens(int cartstatehandle, int ligand, char *ensfile, bool strict, bool 
   
   FILE *ensf = fopen(ensfile, "r");
   int line = 0;
-  int nrens = 0;
+  int nrmorph = 0;
   while(!feof(ensf)) {
     line++;
     char fn[1000];
@@ -148,21 +148,20 @@ void read_ens(int cartstatehandle, int ligand, char *ensfile, bool strict, bool 
        exit(0);      
       }
     }
-    double *ens = new double[3*MAXATOM];
+    double *ensd = new double[3*MAXATOM];
     for (int n = 0; n < 3*natom; n++) {
-      ens[n] = x2[n] - x[n];
+      ensd[n] = x2[n] - x[n];
     }          
-    s.ensd[ligand][nrens] = ens;
-    if (nrens > 0 && morphing) {
-      double *morphd = new double[3*MAXATOM];
-      double *ensd0 = s.ensd[ligand][nrens-1];
+    s.ensd[ligand][nrmorph] = morphd;
+    if (nrmorph > 0) {
+      double *ensdd = new double[3*MAXATOM];
+      double *ensd0 = s.morphd[ligand][nrmorph-1];
       for (int n = 0; n < 3*natom; n++) {
-        morphd[n] = ens[n] - ensd0[n];
+        morphd[n] = ensd[n] - ensd0[n];
       }          
-      s.morphd[ligand][nrens-1] = morphd;
-    }    
-    nrens++;
+      s.morphd[ligand][nrmorph] = morphd;
+    }
+    nrmorph++;
   }
-  s.nrens[ligand] = nrens;
-  delete s0;
+  s.nrmorph[ligand] = nrmorph;
 }
