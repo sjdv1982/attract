@@ -38,11 +38,11 @@ for i in range(1,99+1):
   abcs.append(cabcs)
   rbcs.append(crbcs)
 print 12, 99, 0, 0
-for cabcs in abcs:
-  for abc in cabcs: print "%.3f" % abc,
-  print
 for crbcs in rbcs:
   for rbc in crbcs: print "%.3f" % rbc,
+  print
+for cabcs in abcs:
+  for abc in cabcs: print "%.3f" % abc,
   print
 for i in range(1,99+1): 
   for j in range(1,99+1): 

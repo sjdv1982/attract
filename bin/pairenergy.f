@@ -1,9 +1,9 @@
        subroutine pairenergy(maxlig,maxatom,totmaxatom,maxmode,
      1 maxdof,maxmolpair,maxres,
      2 cartstatehandle,molpairhandle,iab,fixre,gridptr,
-     3 ensr, phir, ssir, rotr, xar, yar, zar, dligr,
-     4 ensl, phil, ssil, rotl, xal, yal, zal, dligl,
-     5 energies, deltar, deltal)
+     3 ensr, phir, ssir, rotr, xar, yar, zar, morphr, dligr, 
+     4 ensl, phil, ssil, rotl, xal, yal, zal, morphl, dligl,
+     5 energies, deltar, deltal, deltamorphr, deltamorphl)
 
        implicit none
 
@@ -15,12 +15,14 @@ c      Parameters
        integer gridptr_dmmy
        pointer(gridptr, gridptr_dmmy)
        integer ensl, ensr
-       real*8 phir, ssir, rotr, xar, yar, zar, dligr
-       real*8 phil, ssil, rotl, xal, yal, zal, dligl
+       real*8 phir, ssir, rotr, xar, yar, zar, morphr, dligr
+       real*8 phil, ssil, rotl, xal, yal, zal, morphl, dligl
        dimension dligr(maxmode), dligl(maxmode)
        real*8 energies
        dimension energies(6)
        real*8 deltar(6+maxmode),deltal(6+maxmode)
+       real*8 deltamorphr, deltamorphl
+       
       
 c      Handle variables: molpair
        integer idr, idl
@@ -79,7 +81,13 @@ c      Handle variables: cartstate
        real*8 ensdl
        dimension ensdl(3*maxatom)
        pointer(ptr_ensdl, ensdl)
-
+       real*8 cmorphr, cmorphdr
+       pointer(ptr_cmorphdr,cmorphdr)
+       dimension cmorphdr(3*maxatom)
+       real*8 cmorphl, cmorphdl
+       pointer(ptr_cmorphdl,cmorphdl)
+       dimension cmorphdl(3*maxatom)
+     
 
 c      Handle variables: forcefield parameters
        integer potshape, cdie
@@ -135,6 +143,9 @@ c     Local variables: other
       dimension flcopy(maxatom),xl0(3*maxatom)
       real*8 deltar0(maxdof)
       
+      deltamorphr = 0
+      deltamorphl = 0
+      
       zero=0.0d0
       true = 1
       false = 0
@@ -164,12 +175,16 @@ c get full coordinates and normal modes
      1  ptr_eig, ptr_xb, ptr_x, ptr_xori, ptr_xori0)
 
 c apply ensemble/normal mode deformations to receptor and ligand
-       call cartstate_get_ensd(cartstatehandle,idr,ensr,ptr_ensdr)
+       call cartstate_get_ensd(cartstatehandle,idr,ensr,ptr_ensdr,
+     1  morphr,cmorphr,ptr_cmorphdr)
        call deform(maxlig,3*maxatom,3*totmaxatom,maxatom,maxmode,
-     1  ensr,ensdr,dligr,nhm,idr,ieins,eig,xb,x,xori,xori0)
-       call cartstate_get_ensd(cartstatehandle,idl,ensl,ptr_ensdl)     
+     1  ensr,ensdr,cmorphr,cmorphdr,dligr,nhm,idr,ieins,eig,xb,
+     2  x,xori,xori0,1)
+       call cartstate_get_ensd(cartstatehandle,idl,ensl,ptr_ensdl,
+     1  morphl,cmorphl,ptr_cmorphdl)
        call deform(maxlig,3*maxatom,3*totmaxatom,maxatom,maxmode,
-     1  ensl,ensdl,dligl,nhm,idl,ieins,eig,xb,x,xori,xori0)
+     1  ensl,ensdl,cmorphl,cmorphdl,dligl,nhm,idl,ieins,eig,xb,
+     2  x,xori,xori0,1)
 
 c select deformed coordinates: select non-pivotized coordinates for receptor
 
@@ -281,6 +296,9 @@ c      rotate delta-translate back into global frame
 c calculate receptor mode deltas
        call ligmin(maxlig,maxdof,maxmode,maxatom,
      1  fr,natomr,idr,eig,nhm(idr+1),deltar) 
+
+       call grad_morph(fr,natomr,morphr,cmorphdr,
+     1  deltamorphr)       
        
 c rotate ligand forces into ligand frame
        call matmult(rotmatrinv,rotmatl,rotmatd2)
@@ -292,6 +310,9 @@ c rotate ligand forces into ligand frame
 c calculate ligand mode deltas
        call ligmin(maxlig,maxdof,maxmode,maxatom,
      1  flcopy,natoml,idl,eig,nhm(idl+1),deltal) 
+
+       call grad_morph(flcopy,natoml,morphl,cmorphdl,
+     1  deltamorphl)
 
 c rotate all forces into global frame
        call rotate1(3*maxatom,

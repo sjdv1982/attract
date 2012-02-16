@@ -1,6 +1,7 @@
 import time, random
 
 from optparse import OptionParser
+
 parser = OptionParser()
 
 parser.add_option("--fix-receptor",
@@ -19,10 +20,22 @@ parser.add_option("--seed",
                   action="store", dest="seed", default = time.time(), type="int",
                   )
 
-options, args = parser.parse_args()
+parser.add_option("--morph", 
+                  action="append", dest="morph", type="int",
+                  )
+parser.add_option("--ens", 
+                  action="append", dest="ens", type="int",
+                  )
 
-start = 1
-if options.fix_receptor: start = 0
+
+options, args = parser.parse_args()
+morph, ens = options.morph, options.ens
+if morph is None: morph = []
+if ens is None: ens = []
+for m in morph: assert m not in ens, m
+
+start = 0
+if options.fix_receptor: start = 1
 dori = options.ori
 dtrans = options.trans
 dmode = options.mode
@@ -43,13 +56,29 @@ for s in structures:
   for lnr in range(start,len(l2)):
     l = l2[lnr]
     values = [float(v) for v in l.split()]  
+    is_morph, is_ens = False, False
+    if lnr+1 in morph: is_morph = True
+    elif lnr+1 in ens: is_ens = True
+    if is_morph:
+      cmorph = values[0]
+      values = values[1:]
+    elif is_ens:
+      cens = values[0]
+      values = values[1:]
     values[0] += dori * (random.random()-0.5)
-    values[1] += dori * (random.random()-0.5)/(sin(values[1]+0.1))
+    #values[1] += dori * (random.random()-0.5)/(sin(values[1]+0.1))
+    values[1] += dori * (random.random()-0.5)
     values[2] += dori * (random.random()-0.5)
     for n in 3,4,5:
       values[n] += dtrans * (random.random()-0.5)
     for n in range(6,len(values)):
       values[n] += dmode * (random.random()-0.5) 
+    if is_morph:
+      cmorph += dmode * (random.random()-0.5) 
+      if cmorph < 0: cmorph = 0
+      values = [cmorph] + values
+    elif is_ens:
+      values = [cens] + values
     l2[lnr] = "  " + " ".join([("%.6f" % v) for v in values]) 
   print "#"+str(stnr)
   for l in l1: print l

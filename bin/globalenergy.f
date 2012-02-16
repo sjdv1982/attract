@@ -1,8 +1,9 @@
        subroutine globalenergy(
      1  maxlig,maxatom,totmaxatom,maxmode,maxdof,
      2	cartstatehandle, ministatehandle,
-     3  ens,phi,ssi,rot,xa,ya,za,dlig,seed,
-     4  iab,iori,itra,ieig,fixre,energies, delta)
+     3  ens,phi,ssi,rot,xa,ya,za,morph,dlig,seed,
+     4  iab,iori,itra,ieig,fixre,
+     5  energies, delta, deltamorph)
 
        implicit none
        
@@ -15,10 +16,12 @@ c      Parameters
 
        integer ens
        dimension ens(maxlig)
-       real*8 phi, ssi, rot, dlig, xa, ya, za
+       real*8 phi, ssi, rot, morph, dlig, xa, ya, za
        dimension phi(maxlig), ssi(maxlig), rot(maxlig)
        dimension dlig(maxlig, maxmode)
        dimension xa(maxlig), ya(maxlig), za(maxlig)
+       dimension morph(maxlig)
+       real*8 deltamorph(maxlig)       
 
 c      Handle variables: cartstate ligand
        real*8 xl(3*maxatom), fl(3*maxatom)
@@ -28,6 +31,7 @@ c      Handle variables: cartstate ligand
 c      Handle variables: full coordinates and modes
        integer nlig,nall,nall3
        real*8 xb,xold,x,xori,xori0,f,eig, val,pivot
+       real*8 morph_fconstant
        integer ieins,nhm,natom,iaci_old
        dimension xb(3*totmaxatom),x(3*totmaxatom),f(3*totmaxatom)
        dimension xold(3*totmaxatom)
@@ -59,7 +63,14 @@ c      Local variables
        real*8 cdelta(6+maxmode), rotmat(9)
        real*8 enligl,xnull
        real*8 pm2(3,3,3)
+       real*8 dmmy1 
+       integer dmmy2
+       real*8 dmmy3
+       real*8 dmmy4
+       real*8 emorph       
        integer has_globalenergy
+       
+       dmmy3 = -1
        
 c      Is global energy used at all?
        call ministate_has_globalenergy(ministatehandle, 
@@ -71,7 +82,7 @@ c reset forces
   
 c get parameters      
        call cartstate_f_globalenergy(cartstatehandle,
-     1  nlig, nall, nall3, ptr_nhm,ptr_ieins,
+     1  nlig, nall, nall3, morph_fconstant, ptr_nhm,ptr_ieins,
      2  ptr_eig, ptr_val, ptr_xb, ptr_x, ptr_xori, ptr_xori0, 
      3  ptr_f,ptr_pivot, ptr_natom, ptr_iaci_old)      
       
@@ -80,10 +91,11 @@ c get parameters
 
 c apply ensemble/normal mode deformations
        do 5 i=1, nlig
-       call cartstate_get_ensd(cartstatehandle,i-1,ens(i-1),ptr_ensd)
+       call cartstate_get_ensd(cartstatehandle,i-1,ens(i-1),ptr_ensd,
+     1  -1,dmmy1,dmmy2)
        call deform(maxlig,3*maxatom,3*totmaxatom,maxatom,maxmode,
-     1  ens(i-1),ensd,dlig(i,:),
-     2  nhm,i-1,ieins,eig,xb,x,xori,xori0)
+     1  ens(i-1),ensd,dmmy3,dmmy4,dlig(i,:),
+     2  nhm,i-1,ieins,eig,xb,x,xori,xori0,0)
 5      continue
 c apply symmetry restraints
 
@@ -173,5 +185,7 @@ c      end if (has_globalenergy)
        call disre(maxlig,cartstatehandle,ministatehandle,
      1  iab,iori,itra,fixre,xa,ya,za,delta,energies(3))
 
+       call ene_morph(morph_fconstant, morph, deltamorph, nlig, emorph)
+       energies(4) = energies(4) + emorph     
 
        end

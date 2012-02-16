@@ -27,6 +27,7 @@ int cartstate_new(int argc, char *argv[], bool single=0) {
   s.transtable = NULL;
   s.epsilon = 15; 
   s.cdie = 0;
+  s.morph_fconstant = 1;
   
   int i;
   int dmmy; float dmmy2, dmmy3; double dmmy4;
@@ -161,13 +162,30 @@ extern "C" void cartstate_get_nrens_(const int &handle,int *&nrens) {
   nrens = cartstate.nrens;
 }
 
+extern "C" void cartstate_get_morphing_(const int &handle,int *&morphing) {
+  CartState &cartstate = *cartstates[handle-9990]; 
+  morphing = cartstate.morphing;
+}
+
 extern "C" void cartstate_get_ensd_(const int &handle,
   const int &ligand,
   const int &ens,
-  double *&ensd) 
+  double *&ensd,
+  const double &morph,
+  double &cmorph,
+  double *&cmorphd  
+  ) 
   {
   CartState &cartstate = *cartstates[handle-9990]; 
   ensd = cartstate.ensd[ligand][ens-1];
+  cmorph = -1;
+  int ccmorph = 0;
+  if (morph >= 0 && morph < cartstate.nrens[ligand]) {
+    ccmorph = int(morph);
+    cmorph = morph - ccmorph;
+    ensd = cartstate.ensd[ligand][ccmorph];
+    cmorphd = cartstate.morphd[ligand][ccmorph];
+  }
 }
 
 
@@ -226,7 +244,8 @@ extern "C" void cartstate_f_pairenergy_(const int &handle,
 }
 
 extern "C" void cartstate_f_globalenergy_(const int &handle,
-  int &nlig, int &nall, int &nall3, int *&nhm, int *&ieins, double *&eig, double *&val, 
+  int &nlig, int &nall, int &nall3, 
+  double &morph_fconstant, int *&nhm, int *&ieins, double *&eig, double *&val, 
   double *&xb, double *&x,double *&xori, double *&xori0,
   double *&f, double *&pivot, int *&natom, int *&iaci_old) 
 {   
@@ -234,6 +253,7 @@ extern "C" void cartstate_f_globalenergy_(const int &handle,
   nlig = cartstate.nlig;
   nall = cartstate.nall;
   nall3 = cartstate.nall3;
+  morph_fconstant = cartstate.morph_fconstant;
   nhm = &(cartstate.nhm[0]);
   ieins = &(cartstate.ieins[0]);
   eig = &(cartstate.eig[0][0][0]);  

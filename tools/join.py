@@ -74,8 +74,13 @@ for snr in range(1,maxstruc+1):
   stnr += 1
   l1,l2 = s
   print "#"+str(stnr)
-  for l in l1: 
-    if l.startswith("### SPLIT "): continue
+  skipline = -1
+  for lnr, l in enumerate(l1): 
+    if l.startswith("### SPLIT "): 
+      skipline = lnr
+      break
+  for lnr, l in enumerate(l1): 
+    if lnr == skipline: continue
     print l
   for l in l2: print l
 

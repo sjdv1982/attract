@@ -4,7 +4,7 @@ OBJ= read_hm.o read_dof.o read_parameters.o read_pdb.o write_pdb.o print_struc.o
   matmult.o matinv.o prox.o reset_forces.o nonbon8.o ligmin.o rota.o trans.o \
   em/situs/lib_vio.o em/situs/lib_pio.o em/situs/lib_err.o \
   parse_restraints.o restrain.o read_ens.o read_pdb2.cpp\
-  axisrot.o crand.o sym.o enstrans.o \
+  axisrot.o crand.o sym.o enstrans.o ene_morph.cpp \
   euler2torquemat.o memcpy.o disre.o moderest.o
     
 FLAG= -g -p -O3 -fno-automatic -ffast-math -fcray-pointer
@@ -31,12 +31,17 @@ attract-em-precompcheck: attract.o em/emenergy-precompcheck.o grid.o ministate.o
 
 collect: collect.o read_parameters.o read_pdb.o read_pdb2.o read_dof.o \
   cartstate.o euler2rotmat.o deform.o rotate.o read_hm.o memcpy.o write_pdb.o \
-  read_ens.o
+  read_ens.o 
+	$(CXX) $(CFLAGS)  $^ -lgfortran -o $@
+
+matrix-lrmsd: matrix-lrmsd.o read_parameters.o read_pdb.o read_pdb2.o read_dof.o \
+  cartstate.o euler2rotmat.o deform.o rotate.o read_hm.o memcpy.o write_pdb.o \
+  read_ens.o 
 	$(CXX) $(CFLAGS)  $^ -lgfortran -o $@
 
 lrmsd: lrmsd.o read_parameters.o read_pdb.o read_pdb2.o read_dof.o \
   cartstate.o euler2rotmat.o deform.o rotate.o read_hm.o memcpy.o write_pdb.o \
-  read_ens.o
+  read_ens.o 
 	$(CXX) $(CFLAGS)  $^ -lgfortran -o $@
 
 rmsd: rmsd.o read_parameters.o read_pdb.o read_pdb2.o read_dof.o \
@@ -135,6 +140,9 @@ clean:
 	rm -f em/*.o 
 	rm -f em/situs/*.o 
 	rm -f attract
+
+cluster_struc: cluster_struc.o  
+	$(CXX) $(CFLAGS)  $^ -o $@
 	
 rest: read_pdb2.o
 	$(FF) $(FLAG) reduce.f -o reduce
@@ -146,9 +154,10 @@ rest: read_pdb2.o
 	$(FF) $(FLAG) viewe.f -o viewe 
 	$(FF) $(FLAG) rmsca.f -o rmsca 
 	$(CXX) $(CFLAGS) center.cpp read_pdb2.o -o center
+	$(CXX) $(CFLAGS) transl.cpp read_pdb2.o -o trans
 	$(CXX) $(CFLAGS) deflate.cpp read_pdb2.o -o deflate
         
-all: attract attract-torque collect lrmsd calc_interior make-grid \
+all: attract attract-torque collect lrmsd rmsd calc_interior make-grid \
  make-grid-omp make-grid-torque make-grid-torque-omp shm-grid \
  shm-grid-torque shm-clean systsearch map2map fix_receptor \
  omp_threadnum deredundant rest
