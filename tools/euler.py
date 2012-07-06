@@ -2,6 +2,7 @@
 
 import sys
 from math import *
+from rotmat2euler import rotmat2euler
 
 import numpy
 
@@ -53,20 +54,11 @@ def euler(atoms1, atoms2):
   rotmatd = numpy.transpose(rotmatd)
   rotmatd = [[min(xx,1) for xx in x] for x in rotmatd]
   rotmatd = [[max(xx,-1) for xx in x] for x in rotmatd]
+  #print ["%.3f" % v for v in rotmatd[0]]
+  #print ["%.3f" % v for v in rotmatd[1]]
+  #print ["%.3f" % v for v in rotmatd[2]]
 
-  phi = atan2(rotmatd[1][2],rotmatd[0][2])
-  ssi = acos(rotmatd[2][2])
-  rot = atan2(-rotmatd[2][1],-rotmatd[2][0])       
-
-  if fabs(rotmatd[2][2]) >= 0.9999: #gimbal lock
-    phi = 0
-    if rotmatd[2][2] < 0: 
-      ssi = pi	
-      rot = -acos(-rotmatd[0][0])
-    else:
-      ssi = 0
-      rot = acos(rotmatd[0][0])
-    if (rotmatd[0][1] < 0): rot *= -1
+  phi,ssi,rot = rotmat2euler(rotmatd)
   return phi, ssi, rot, dx, dy, dz
 
 

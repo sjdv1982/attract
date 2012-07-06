@@ -15,7 +15,19 @@ topfile = sys.argv[3]
 
 pqrhandle, pqrfile = tempfile.mkstemp()
 
-args = [pdb2pqr.__file__, "--ff=charmm", pdb, pqrfile]
+mapf = StringIO.StringIO()   
+pdbf = StringIO.StringIO()   
+pdblines = open(pdb).readlines()
+reduce.run(pdblines, topfile, transfile, pdbf, mapf, [])
+
+tmphandle, tmpfile = tempfile.mkstemp()
+tmpf = open(tmpfile, "w")
+for l in pdbf.getvalue().split("\n"):
+  if l.find("XXX") == -1:
+    print >> tmpf, l
+tmpf.close()
+
+args = [pdb2pqr.__file__, "--ff=charmm", tmpfile, pqrfile]
 if pdb2pqr.PACKAGE_PATH != "":
   sys.path.extend(pdb2pqr.PACKAGE_PATH.split(":"))
 oldstdout = sys.stdout
@@ -62,8 +74,8 @@ for resid in his:
     raise ValueError((resid, protons))
 
 outf = StringIO.StringIO()   
-mapf = StringIO.StringIO()   
-reduce.run(pdblines, topfile, transfile, outf, mapf, patches)
+mapf2 = StringIO.StringIO()   
+reduce.run(pdblines, topfile, transfile, outf, mapf2, patches)
 outlines = outf.getvalue().split("\n")
 for l in outlines: 
   if l.find("XXX") > 1:

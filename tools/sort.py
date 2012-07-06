@@ -1,7 +1,7 @@
 import sys
 from _read_struc import read_struc
 header,structures = read_struc(sys.argv[1])
-
+structures = list(structures)
 
 energies = []
 for l1,l2 in structures:

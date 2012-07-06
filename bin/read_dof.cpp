@@ -193,6 +193,7 @@ extern "C" int read_dof_(FILE *fil, int &line, int &nstruc, const char *f_, idof
       }
       morph[clig] = -1;
       int ini = has_ens;
+      memset(ens, 0, MAXLIG*sizeof(int));
       if (has_ens) {
         if (morphing[clig]) {
           morph[clig] = 0;        
