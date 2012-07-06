@@ -49,6 +49,9 @@ c      x(ii+3)=-xar*ss+xb(ii+3)*cs
       rotmat(6) = -crot * ss
       rotmat(7) = -srot * ss
       rotmat(8) = cs
+c      write(*,*), rotmat(0), rotmat(1), rotmat(2)
+c      write(*,*), rotmat(3), rotmat(4), rotmat(5)
+c      write(*,*), rotmat(6), rotmat(7), rotmat(8)
 
       return
       end
