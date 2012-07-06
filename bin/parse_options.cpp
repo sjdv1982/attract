@@ -242,22 +242,28 @@ void parse_options(int ministatehandle, int cartstatehandle, int nlig, int argc,
     }
     else if (!strcmp(arg,"--sym")) {
       if (argc-n < 4) sym_usage();
-      int type = atoi(argv[n+1]);
-      if (type < 2 || type >= MAXLIG) sym_usage();
-      if (argc-n < type + 2) sym_usage();
+      int type = atoi(argv[n+1]);      
+      int nrsym = type;
+      if (type == -2) {
+        nrsym = 4;      
+      }
+      else {      
+        if (type < 2 || type >= MAXLIG) sym_usage();
+      }
+      if (argc-n < nrsym + 2) sym_usage();
       if (c.nsym >= MAXLIG-1) {
         fprintf(stderr, "Too many symmetries\n");
         exit(1);
       }
       c.symtypes[c.nsym] = type;
-      for (int nn = 0; nn  < type; nn++) {
+      for (int nn = 0; nn  < nrsym; nn++) {
         int lig = atoi(argv[n+2+nn]);
         if (lig < 1 || lig > nlig) sym_usage();
         c.sym[c.nsym][nn] = lig;
       }
       c.nsym++;
       ms.has_globalenergy = 1;
-      n += 1+type;
+      n += 1+nrsym;
     }
     else if (!strcmp(arg,"--ens") || (!strcmp(arg,"--ensemble"))) {
       if (argc-n < 3) ens_usage();

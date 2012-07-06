@@ -36,7 +36,9 @@ void test(int cartstatehandle) {
     int symtype = cs.symtypes[n];
     int ncoor;
     int firstlig;
-    for (int nn = 0; nn < symtype; nn++) {
+    int nrsym = symtype;
+    if (symtype == -2) nrsym = 4;    
+    for (int nn = 0; nn < nrsym; nn++) {
       int lig = cs.sym[n][nn]-1;
       int cncoor;
       int *iaci;
@@ -84,7 +86,52 @@ void test(int cartstatehandle) {
   nhandles++;
 }
 
+double symrest_paireq(Coor **cx1, Coor **cf1, Coor **cx2, Coor **cf2) {
+  //accepts a 2 lists of 4 coordinates => 1 list of 4 distances
+  //enforces that:
+  //    distance 1 == distance 3
+  //    distance 2 == distance 4
+  double energy = 0;
+  for (int i = 0; i < 2; i++) {
+    double avg = 0;
+    for (int n = i; n <= i+2; n+=2) {
+      Coor &x1 = *(cx1[n]);
+      Coor &x2 = *(cx2[n]);
+      double avgx = x1[0]-x2[0]; 
+      double avgy = x1[1]-x2[1]; 
+      double avgz = x1[2]-x2[2];     
+      double avgsq =  avgx*avgx+avgy*avgy+avgz*avgz;  
+      double avg0 = sqrt(avgsq);
+      avg += avg0;
+    }
+    avg /= 2; 
+    for (int n = i; n <= i+2; n+=2) {
+      Coor &x1 = *(cx1[n]);
+      Coor &x2 = *(cx2[n]);
+      Coor &f1 = *(cf1[n]);
+      Coor &f2 = *(cf2[n]);
+      double dx = x1[0] - x2[0];
+      double dy = x1[1] - x2[1];
+      double dz = x1[2] - x2[2];
+      double dsq = dx*dx+dy*dy+dz*dz; 
+      double d = sqrt(dsq);
+      //printf("AVG %.3f D %.3f\n", avg, d);
+      double dd = d - avg;
+      double ene = symfactor * dd * dd;
+      double fac = 2 * symfactor * dd;
+      energy += ene;
+      double fx = fac * dx/d;
+      double fy = fac * dy/d;
+      double fz = fac * dz/d;
+      f1[0] -= fx; f1[1] -= fy; f1[2] -= fz;
+      f2[0] += fx; f2[1] += fy; f2[2] += fz;    
+    }
+  }
+  return energy;
+}
 double symrest(int cyclesize, Coor **cx1, Coor **cf1, Coor **cx2, Coor **cf2) {
+  //accepts a 2 lists of <cyclesize> coordinates => 1 list of <cyclesize> distances
+  //enforces that all distances in the list are equal
   double energy = 0;
   double avg = 0;
   for (int n = 0; n < cyclesize; n++) {
@@ -147,6 +194,8 @@ extern "C" void sym_(const int &cartstatehandle, const int &iab, double &energy)
 
   for (int n = 0; n < cs.nsym; n++) {
     int symtype = cs.symtypes[n];  
+    int nrsym = symtype;
+    if (symtype == -2) nrsym = 4;
     //printf("SYMTYPE %d\n", symtype);
     int na = namino[handleindex][n];
     for (int i = 0; i < na; i++) {
@@ -157,12 +206,12 @@ extern "C" void sym_(const int &cartstatehandle, const int &iab, double &energy)
       Coor *cx2[MAXLIG];
       Coor *cf1[MAXLIG];
       Coor *cf2[MAXLIG];
-      int maxstep = ceil(symtype/2);
+      int maxstep = ceil(nrsym/2);
       for (int ligstep = 1; ligstep <= maxstep; ligstep++) {
-        for (int nn = 0; nn < symtype; nn++) {
+        for (int nn = 0; nn < nrsym; nn++) {
           int lig = cs.sym[n][nn]-1;
           int nextnn = nn + ligstep;
-          if (nextnn >= symtype) nextnn -= symtype;
+          if (nextnn >= nrsym) nextnn -= nrsym;
           int nextlig = cs.sym[n][nextnn]-1;
 
           int start = 0;
@@ -175,7 +224,13 @@ extern "C" void sym_(const int &cartstatehandle, const int &iab, double &energy)
           cx2[nn] = &x[start2+aminoindex2];
           cf2[nn] = &f[start2+aminoindex2];        
         }
-        double newenergy = symrest(symtype, cx1, cf1, cx2, cf2);
+        double newenergy;
+        if (symtype == -2) {
+          newenergy = symrest_paireq(cx1, cf1, cx2, cf2);
+        }
+        else {
+          newenergy = symrest(symtype, cx1, cf1, cx2, cf2);
+        }
         energy += newenergy;
         //if (n == 1) break;
       }

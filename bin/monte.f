@@ -204,22 +204,21 @@ c       write(*,*)'phi(i),ssi(i),rot(i)',i,phi(i),ssi(i),rot(i)
         phi(i) = atan2(newrot(5),newrot(2))
         ssi(i) = acos(newrot(8))
         rot(i) = atan2(-newrot(7),-newrot(6))       
-      if (abs(newrot(8)) >= 0.999999) then 
-        phi(i) = 0.0d0
-        ssi(i) = 0.0d0
-        if (newrot(0) >= 0.999999) then
-        rot(i) = 0.0d0
-        else if (newrot(0) <= -0.999999) then
-         rot(i) = pi
-        else 
-         rot(i) = acos(newrot(0))
-         if (newrot(1) < 0) then
-           rot(i) = -rot(i)
-         endif
-       endif
-      endif      
-c        write(*,*)'new ii,c,phi,ssi,rot',i,ii,c,phi(i),ssi(i),rot(i)
-  190    continue
+        if (abs(newrot(8)) >= 0.999999) then 
+          phi(i) = 0.0d0
+          if (newrot(8) < 0) then
+            ssi(i) = pi
+            rot(i) = -acos(-newrot(0))
+          else 
+            ssi(i) = 0
+            rot(i) = acos(newrot(0))
+          endif
+          if (newrot(1) < 0) then
+            rot(i) = -rot(i)
+          endif
+        endif      
+c       write(*,*)'new ii,c,phi,ssi,rot',i,ii,c,phi(i),ssi(i),rot(i)
+  190   continue
       endif
 c make a move in HM direction and update x, y(1,i) and y(2,i) and dlig(j)
 c     call crand(dseed,ju+1,rr) 
