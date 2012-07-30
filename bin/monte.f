@@ -2,8 +2,10 @@
      1 maxlig, maxdof, maxmode, maxmolpair,
      2 cartstatehandle,ministatehandle,
      3 nhm, nlig, 
-     4 ens, phi, ssi, rot, xa, ya, za, morph, dlig, seed, label,
-     5 gesa, energies, lablen)
+     4 ens, phi, ssi, rot, xa, ya, za, morph, dlig, 
+     5 locrests, has_locrests,
+     6 seed, label,
+     7 gesa, energies, lablen)
 c
 c  variable metric minimizer (Harwell subroutine lib.  as in Jumna with modifications)
 c     minimizes a single structure
@@ -15,6 +17,7 @@ c     Parameters
       integer maxlig,maxatom,totmaxatom,maxres,maxdof,maxmode,
      1 maxmolpair
       integer nlig, seed
+      integer locrests, has_locrests      
       real *8 gesa, energies
       dimension energies(6)
       integer lablen
@@ -113,7 +116,8 @@ c
        
       if (iscore.eq.2) then
         call print_struc2(seed,label,gesa,energies,nlig,
-     1  ens,phi,ssi,rot,xa,ya,za,morph,nhm,dlig,lablen)
+     1  ens,phi,ssi,rot,xa,ya,za,locrests,morph,
+     2  nhm,dlig,has_locrests,lablen)	
       endif     
       
 c   start Monte Carlo
@@ -204,18 +208,23 @@ c       write(*,*)'phi(i),ssi(i),rot(i)',i,phi(i),ssi(i),rot(i)
         phi(i) = atan2(newrot(5),newrot(2))
         ssi(i) = acos(newrot(8))
         rot(i) = atan2(-newrot(7),-newrot(6))       
-        if (abs(newrot(8)) >= 0.999999) then 
+        if (abs(newrot(8)) >= 0.9999) then 
           phi(i) = 0.0d0
+          if (abs(newrot(0)) >= 0.9999) then
+            ssi(i) = 0.0d0
+            rot(i) = 0.0d0
+          else          
           if (newrot(8) < 0) then
             ssi(i) = pi
             rot(i) = -acos(-newrot(0))
           else 
-            ssi(i) = 0
+            ssi(i) = 0.0d0
             rot(i) = acos(newrot(0))
+          endif
           endif
           if (newrot(1) < 0) then
             rot(i) = -rot(i)
-          endif
+          endif          
         endif      
 c       write(*,*)'new ii,c,phi,ssi,rot',i,ii,c,phi(i),ssi(i),rot(i)
   190   continue
@@ -288,7 +297,8 @@ c    2 rrot1,rrot2,rrot3,rrot4,sphi,phi(2),sssi,ssi(2),srot,rot(2)
       iaccept=1
       if (iscore.eq.2) then
         call print_struc2(seed,label,gesa,energies,nlig,
-     1	ens,phi,ssi,rot,xa,ya,za,morph,nhm,dlig,lablen)
+     1  ens,phi,ssi,rot,xa,ya,za,locrests,morph,
+     2  nhm,dlig,has_locrests,lablen)	
       endif           
 c overwrite old xaa variables, see above
       else

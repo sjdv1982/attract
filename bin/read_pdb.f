@@ -28,6 +28,7 @@ c
       dimension ieins(0:maxlig-1),ieins3(0:maxlig-1),
      1 natom(0:maxlig-1),n3atom(0:maxlig-1)
       dimension nres(0:maxlig-1)
+      character*4 tyi(totmaxatom),rgi(totmaxatom)
       
       i=0
       irs=0
@@ -54,9 +55,18 @@ c     write(*,*)'all ligand atoms',nall,(natom(j),j=0,nlig-1)
       implicit real*8 (a-h,o-z)
       implicit integer*4 (i-n)      
       character*100 pdbfile
-      dimension natom(0:maxlig-1)
-      dimension ieins(0:maxlig-1),ieins3(0:maxlig-1)            
-      
+      integer totmaxatom, totmaxres, maxlig
+      dimension kai(totmaxatom),
+     1 iei(totmaxatom), x(totmaxatom), iaci(totmaxatom),
+     2 xlai(totmaxatom), icop(totmaxatom), we(totmaxatom),
+     3 chai(totmaxatom)
+      dimension ncop(0:10,0:20,totmaxres),nmaxco(totmaxres),
+     1 natco(totmaxres)
+      dimension ieins(0:maxlig-1),ieins3(0:maxlig-1),
+     1 natom(0:maxlig-1),n3atom(0:maxlig-1)
+      dimension nres(0:maxlig-1)
+      character*4 tyi(totmaxatom),rgi(totmaxatom)
+
       open(42,file=pdbfile)
       call read_pdb(42, maxlig, totmaxatom, totmaxres, 0,nlig,
      1 kai,tyi,rgi,iei,x,iaci,xlai,
@@ -75,10 +85,20 @@ c     write(*,*)'all ligand atoms',nall,(natom(j),j=0,nlig-1)
       
       implicit real*8 (a-h,o-z)
       implicit integer*4 (i-n)      
-c      implicit none
-      character*100 pdbfile1, pdbfile2
-      dimension natom(0:maxlig-1)
-      dimension ieins(0:maxlig-1),ieins3(0:maxlig-1)            
+      character*100 pdbfile1,pdbfile2
+      integer totmaxatom, totmaxres, maxlig
+      dimension kai(totmaxatom),
+     1 iei(totmaxatom), x(totmaxatom), iaci(totmaxatom),
+     2 xlai(totmaxatom), icop(totmaxatom), we(totmaxatom),
+     3 chai(totmaxatom)
+      dimension ncop(0:10,0:20,totmaxres),nmaxco(totmaxres),
+     1 natco(totmaxres)
+      dimension ieins(0:maxlig-1),ieins3(0:maxlig-1),
+     1 natom(0:maxlig-1),n3atom(0:maxlig-1)
+      dimension nres(0:maxlig-1)
+      character*4 tyi(totmaxatom),rgi(totmaxatom)
+      
+      
       
       i=0
       irs=0

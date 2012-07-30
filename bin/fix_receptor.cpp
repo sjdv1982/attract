@@ -1,6 +1,6 @@
 //Converts DOF so that receptor rotations and translations are zero
 
-//usage: ./fix_receptor structures.dat <number of ligands>
+//usage: ./fix_receptor structures.dat <number of ligands> [--ens <ensemble size for each ligand>] [--modes <number of modes for each ligand>] [--locrest <ligand>]
 
 
 #include "max.h"
@@ -15,18 +15,20 @@ extern "C" void print_struc_(
  const double &energy,
  const double *energies,
  const int &nlig,
- const int *ens,
+ const int *ens, 
  const double *phi,
  const double *ssi,
  const double *rot,
  const double *xa,
  const double *ya,
  const double *za,
+ const coors2 &locrests, 
  const double *morph,
  const int *nhm,
- const modes2 &dlig,
+ const modes2 &dlig, 
+ const int *has_locrests,
  int len_label
-);
+); 
 
 extern "C" void matinv_(double *rotmat);
 extern "C" void matmult_(double *rotmat1, double *rotmat2, double *rotmat);
@@ -34,7 +36,7 @@ extern "C" void vecmatmult_(double *v0, double *m, double *v);
 
 extern "C" FILE *read_dof_init_(const char *f_, int nlig, int &line, double (&pivot)[3][MAXLIG], int &auto_pivot, int &centered_receptor, int &centered_ligands, int f_len);
 
-extern "C" int read_dof_(FILE *fil, int &line, int &nstruc, const char *f_, idof2 &ens, dof2 &phi, dof2 &ssi, dof2 &rot, dof2 &xa, dof2 &ya, dof2 &za, dof2 &morph, modes2 &dlig, const int &nlig, const int *nhm, const int *nrens0, const int *morphing, int &seed, char *&label, int f_len);
+extern "C" int read_dof_(FILE *fil, int &line, int &nstruc, const char *f_, idof2 &ens, dof2 &phi, dof2 &ssi, dof2 &rot, dof2 &xa, dof2 &ya, dof2 &za, coors2 &locrests, dof2 &morph, modes2 &dlig, const int &nlig, const int *nhm, const int *nrens0, const int *morphing, const int *has_locrests, int &seed, char *&label, int f_len);
 
 extern "C" void euler2rotmat_(const double &phi,const double &ssi, const double &rot, double (&rotmat)[9]);
 
@@ -60,7 +62,7 @@ static char *label;
 #include <cstdlib>
 
 void usage() {
-  fprintf(stderr, "usage: $path/fix_receptor structures.dat <number of ligands>\n");
+  fprintf(stderr, "usage: $path/fix_receptor structures.dat <number of ligands> [--ens <ensemble size for each ligand>] [--modes <number of modes for each ligand>] [--locrest <ligand>]\n");
   exit(1);
 }
 
@@ -80,6 +82,9 @@ int main(int argc, char *argv[]) {
     nhm[n] = 0;
     nrens[n] = 0;
   }
+  coors2 locrests;
+  int has_locrests[MAXLIG];
+  memset(has_locrests, 0, MAXLIG*sizeof(int));
 
   while (argc > 3) {
     if (!strcmp(argv[3],"--modes")) {
@@ -91,8 +96,7 @@ int main(int argc, char *argv[]) {
         nhm[count] = atoi(argv[3]);
         count++;
       }
-      memmove(argv+3, argv+4, sizeof(char*) * (argc-3));
-      argc--;      
+      continue;          
     }
     if (!strcmp(argv[3],"--ens")) {
       int count = 0;
@@ -103,10 +107,20 @@ int main(int argc, char *argv[]) {
         nrens[count] = atoi(argv[3]);
         count++;
       }
-      memmove(argv+3, argv+4, sizeof(char*) * (argc-3));
-      argc--;      
-
+      continue;
     }
+    if (argc > 4 && (!strcmp(argv[3],"--locrest"))) {
+      int lig = atoi(argv[4]);
+      if (lig <= 0 || lig > MAXLIG) {
+        fprintf(stderr,"Ligand %d must be larger than 0\n", lig);
+        usage();
+      }
+      has_locrests[lig-1] = 1;
+      memmove(argv+3, argv+5, sizeof(char*) * (argc-4));
+      argc -= 2;      
+      continue;
+    }
+    fprintf(stderr, "Wrong number of arguments\n"); usage();
   }  
 
   if (argc != 3) {
@@ -151,7 +165,11 @@ int main(int argc, char *argv[]) {
   memset(morphing, 0, MAXLIG*sizeof(int));
   while (1) {
     
-    int result = read_dof_(fil, line, nstruc, argv[1], ens, phi, ssi, rot, xa, ya, za, morph, dlig, nlig, nhm, nrens, morphing, seed, label, strlen(argv[1]));
+    int result = read_dof_(fil, line, nstruc, argv[1], ens, phi, ssi, rot, 
+     xa, ya, za, locrests, 
+     morph, dlig, nlig, nhm, nrens, morphing, has_locrests,
+     seed, label, strlen(argv[1])
+    );
     if (result != 0) break;
 
     double rotmatr[9], rotmatrinv[9];
@@ -198,13 +216,19 @@ int main(int argc, char *argv[]) {
       
       if (fabs(rotmatd[8]) >= 0.9999) { //gimbal lock
 	phi[i] = 0;
-        if (rotmatd[8] < 0) {
-          ssi[i] = pi;	
-          rot[i] = -acos(-rotmatd[0]);
+        if (fabs(rotmatd[0]) >= 0.9999) {
+          ssi[i] = 0;	
+          rot[i] = 0;
         }
         else {
-  	  ssi[i] = 0;	
-          rot[i] = acos(rotmatd[0]);
+          if (rotmatd[8] < 0) {
+            ssi[i] = pi;	
+            rot[i] = -acos(-rotmatd[0]);
+          }
+          else {
+  	    ssi[i] = 0;	
+            rot[i] = acos(rotmatd[0]);
+          }
         }
         if (rotmatd[1] < 0) rot[i] *= -1;        
       }
@@ -226,9 +250,11 @@ int main(int argc, char *argv[]) {
      xa,
      ya,
      za,
+     locrests,
      morph,
      nhm,
      dlig,
+     has_locrests,
      lablen
     );
 
