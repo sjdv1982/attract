@@ -160,5 +160,5 @@ rest: read_pdb2.o
 all: attract attract-torque collect lrmsd rmsd calc_interior make-grid \
  make-grid-omp make-grid-torque make-grid-torque-omp shm-grid \
  shm-grid-torque shm-clean systsearch map2map fix_receptor \
- omp_threadnum deredundant rest
+ omp_threadnum deredundant matrix-lrmsd rest 
 

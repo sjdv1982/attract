@@ -196,15 +196,17 @@ int main(int argc, char *argv[]) {
       ssi[i] = acos(rotmatd[8]);
       rot[i] = atan2(-rotmatd[7],-rotmatd[6]);       
       
-      if (fabs(rotmatd[8]) >= 0.999) { //gimbal lock
+      if (fabs(rotmatd[8]) >= 0.9999) { //gimbal lock
 	phi[i] = 0;
-	ssi[i] = 0;	
-	if (rotmatd[0] >= 0.999) rot[i] = 0;
-        else if (rotmatd[0] <= -0.999) rot[i] = pi;	
-        else {
-          rot[i] = acos(rotmatd[0]);
-          if (rotmatd[1] < 0) rot[i] *= -1;
+        if (rotmatd[8] < 0) {
+          ssi[i] = pi;	
+          rot[i] = -acos(-rotmatd[0]);
         }
+        else {
+  	  ssi[i] = 0;	
+          rot[i] = acos(rotmatd[0]);
+        }
+        if (rotmatd[1] < 0) rot[i] *= -1;        
       }
     }
     double dummy = 0;
