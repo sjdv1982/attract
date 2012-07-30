@@ -9,7 +9,7 @@ def read_pdb(pdb):
   for l in open(pdb).readlines():
     if l[:4] != "ATOM" or l[13:16] != "CA ": continue
     resid = l[22:26]
-    assert resid not in ret
+    assert resid not in ret, resid
     x,y,z = float(l[30:38]),float(l[38:46]),float(l[46:54])
     ret[resid] = numpy.array((x,y,z))
   return ret

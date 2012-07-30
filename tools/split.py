@@ -8,7 +8,8 @@ if len(sys.argv) < 3:
 nrsplit = int(sys.argv[3])
 
 pattern = sys.argv[2]
-header,structures = read_struc(sys.argv[1])
+header,structures_gen = read_struc(sys.argv[1])
+structures = list(structures_gen)
 splitsize = int(float(len(structures))/nrsplit+0.99999)
 
 

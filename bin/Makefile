@@ -29,9 +29,22 @@ attract-em-gradcheck: attract.o em/emenergy-gradcheck.o grid.o ministate.o $(OBJ
 attract-em-precompcheck: attract.o em/emenergy-precompcheck.o grid.o ministate.o $(OBJ) 
 	$(CXX) $(CFLAGS)  $^ -lgfortran -lrt -o $@
 
+attract-em-contour: attract.o em/emenergy-contour.o grid.o ministate.o $(OBJ) 
+	$(CXX) $(CFLAGS)  $^ -lgfortran -lrt -o $@
+
 collect: collect.o read_parameters.o read_pdb.o read_pdb2.o read_dof.o \
   cartstate.o euler2rotmat.o deform.o rotate.o read_hm.o memcpy.o write_pdb.o \
   read_ens.o 
+	$(CXX) $(CFLAGS)  $^ -lgfortran -o $@
+
+emcoor: emcoor.o read_parameters.o read_pdb.o read_pdb2.o read_dof.o \
+  cartstate.o euler2rotmat.o deform.o rotate.o read_hm.o memcpy.o write_pdb.o \
+  read_ens.o em/lib_em.o em/lib_corr.o em/situs/lib_vio.o em/situs/lib_pio.o em/situs/lib_err.o
+	$(CXX) $(CFLAGS)  $^ -lgfortran -o $@
+
+gvm: gvm.o read_parameters.o read_pdb.o read_pdb2.o read_dof.o \
+  cartstate.o euler2rotmat.o deform.o rotate.o read_hm.o memcpy.o write_pdb.o \
+  read_ens.o em/lib_em.o em/lib_corr.o em/situs/lib_vio.o em/situs/lib_pio.o em/situs/lib_err.o
 	$(CXX) $(CFLAGS)  $^ -lgfortran -o $@
 
 matrix-lrmsd: matrix-lrmsd.o read_parameters.o read_pdb.o read_pdb2.o read_dof.o \
@@ -105,6 +118,9 @@ omp_threadnum: omp_threadnum.cpp
 
 %-omp.o: %.cpp $(H)
 	$(CXX) $(CFLAGS) -fopenmp -c $< -o $@ 
+
+em/emenergy-contour.o:  em/emenergy.cpp
+	$(CXX) $(CFLAGS) -DCONTOUR -c $< -o $@
 
 em/emenergy-gradcheck.o:  em/emenergy.cpp
 	$(CXX) $(CFLAGS) -DGRADCHECK -c $< -o $@

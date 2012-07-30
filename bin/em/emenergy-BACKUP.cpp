@@ -16,7 +16,7 @@ In a later version, the contour density gradients will be computed only once; at
 There are four parameters: the minimum size of a contour weight gradient:
 
 */
-const double contour_min_magnitude = 0.1;
+const double contour_min_magnitude = 2;
 /*
 a scaling factor, because the weight gradient over-estimates the density gradient by this factor:
 */
@@ -36,8 +36,8 @@ int deltas[26][3] = {
 {-1,-1,-1},{-1,-1,0},{-1,-1,1},
 {-1,0,-1},{-1,0,0},{-1,0,1},
 {-1,1,-1},{-1,1,0},{-1,1,1},
-{0,-1,-1},{0,-1,0},{0,-1,1},
-{0,0,-1},{0,0,1},
+{0,-1,-1},{0,-1,0},{-1,-1,1},
+{0,0,-1},{-1,0,1},
 {0,1,-1},{0,1,0},{0,1,1},
 {1,-1,-1},{1,-1,0},{1,-1,1},
 {1,0,-1},{1,0,0},{1,0,1},
@@ -680,9 +680,6 @@ extern "C" void read_densitymaps_(char *densitymapsfile0, int len_densitymapsfil
 }
 
 double calc_contour(Map &m) {
-  #ifdef CONTOUR 
-  printf("CONTOUR START\n");
-  #endif
   int gridsize = m.dimx * m.dimy * m.dimz;
   double *contour_weights = new double[gridsize];
   memset(contour_weights, 0, gridsize*sizeof(double));
@@ -711,14 +708,10 @@ double calc_contour(Map &m) {
 	    }		    
 	  }
 	  double grad = dplus - dminus;
-	  if (fabs(grad)<contour_min_magnitude) continue;          
-	  //if (fabs(grad)<contour_min_magnitude) continue;
-          //if (fabs(grad)<0.1) continue;
+	  if (fabs(grad)<contour_min_magnitude) continue;
 	  
 	  double dif = ((dplus - dminus) - (wplus - wminus));	  
-          #ifdef CONTOUR
-          printf("CONTOUR %d %d %d %.3f %.3f %.3f\n", x,y,z,dif, dplus-dminus, wplus-wminus);
-          #endif
+          //printf("CONTOUR %.3f %.3f %.3f %.3f %.3f %.3f %.3f\n", dif, dplus-dminus, wplus-wminus, dplus, dminus, wplus, wminus);
 	  if (fabs(dif) <= contour_mismatch_tolerance) continue;
 	  if (dif > 0) dif -= contour_mismatch_tolerance;
 	  else dif += contour_mismatch_tolerance;
@@ -746,9 +739,6 @@ double calc_contour(Map &m) {
   delete[] contour_weights;
   //delete[] m.contour_weights;
   //m.contour_weights = contour_weights;
-  #ifdef CONTOUR 
-  printf("CONTOUR END\n");
-  #endif
   return contour_energy;
 }
 

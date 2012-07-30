@@ -9,13 +9,14 @@ for ll in open(sys.argv[2]).readlines():
   if p > -1:
     e = float(ll[p+len("Energy:"):])
     energies.append(e)
-assert len(energies) == len(structures), (len(energies), len(structures))
-strucs = zip(range(1,len(structures)+1), energies, structures)
 
 for h in header: print h
 stnr = 0
-for st in strucs:
-  r,e,s = st
+for e in energies:
+  try:
+    s = structures.next()
+  except StopIteration:
+    raise IndexError(stnr)
   stnr += 1
   l1,l2 = s
   print "#"+str(stnr)
@@ -29,3 +30,9 @@ for st in strucs:
   if not found: print "## Energy:", e
   for l in l2: print l
 
+try:
+  structures.next()
+except StopIteration:
+  pass  
+else:
+  raise AssertionError("More structures than energies: %d" % stnr)
