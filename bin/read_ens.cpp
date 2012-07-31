@@ -36,8 +36,8 @@ extern void read_pdb2(
 );
 
 void read_ens(int cartstatehandle, int ligand, char *ensfile, bool strict, bool morphing) {
-  CartState &s = cartstate_get(cartstatehandle);
 
+  CartState &s = cartstate_get(cartstatehandle);
   CartState *s0 = new CartState;
   CartState &s2 = *s0;
   cartstates[cartstatesize] = s0;
@@ -57,9 +57,10 @@ void read_ens(int cartstatehandle, int ligand, char *ensfile, bool strict, bool 
   int *nmaxco;
   int *natco;
   int ori = 0;
+
   cartstate_select_ligand_(cartstatehandle, ligand,
    natom,nres,iei,x,f,pivot,iaci,icop,we,chai,ncop,nmaxco,natco,ori);
-  
+
   char *zeroes;
   if (natom) {
     zeroes = new char[natom*sizeof(int)];
@@ -70,6 +71,10 @@ void read_ens(int cartstatehandle, int ligand, char *ensfile, bool strict, bool 
     exit(0);
   }
   
+  if (!exists(ensfile)) {
+    fprintf(stderr, "Ensemble file %s does not exist\n", ensfile);
+    exit(0);
+  }
   
   FILE *ensf = fopen(ensfile, "r");
   int line = 0;
@@ -125,8 +130,14 @@ void read_ens(int cartstatehandle, int ligand, char *ensfile, bool strict, bool 
      icop2,we2,chai2,ncop2,nmaxco2,natco2,ori2);
 
     if (natom != natom2) { //number of atoms
-     fprintf(stderr, "Ensemble file %s, line %d: PDB file %s has the wrong number of atoms (%d, expected %d) \n",ensfile, line, fn, natom2, natom);
-     exit(0);
+     if (natom == 0) { //zero atoms, ignore this ligand
+       nrens++;
+       continue;
+     }
+     else{
+       fprintf(stderr, "Ensemble file %s, line %d: PDB file %s has the wrong number of atoms (%d, expected %d) \n",ensfile, line, fn, natom2, natom);
+       exit(0);
+     }  
     }
     if (strict) {
       if (nres != nres2) { //number of residues

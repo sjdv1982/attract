@@ -6,12 +6,16 @@ def rotmat2euler(rotmat):
 
   if fabs(rotmat[2][2]) >= 0.9999: #gimbal lock
     phi = 0
-    if rotmat[2][2] < 0: 
-      ssi = pi	
-      rot = -acos(-rotmat[0][0])
+    if fabs(rotmat[0][0]) >= 0.9999
+      ssi = 0	
+      rot = 0
     else:
-      ssi = 0
-      rot = acos(rotmat[0][0])
+      if rotmat[2][2] < 0: 
+        ssi = pi	
+        rot = -acos(-rotmat[0][0])
+      else:
+        ssi = 0
+        rot = acos(rotmat[0][0])
     if (rotmat[0][1] < 0): rot *= -1
 
   return phi,ssi,rot

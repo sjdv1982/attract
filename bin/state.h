@@ -75,6 +75,10 @@ struct CartState {
   int nsym;
   int symtypes[MAXLIG];
   int sym[MAXLIG][MAXLIG];
+
+  /*location restraints*/
+  int has_locrests[MAXLIG];
+
 };
 
 struct MolPair {

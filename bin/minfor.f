@@ -2,8 +2,10 @@
      1 maxlig, maxdof, maxmode, maxmolpair,
      2 cartstatehandle,ministatehandle,
      3 nhm, nlig, 
-     4 ens, phi, ssi, rot, xa, ya, za, morph, dlig, seed, label,
-     5 gesa, energies, lablen)
+     4 ens, phi, ssi, rot, xa, ya, za, morph, dlig, 
+     5 locrests, has_locrests,
+     6 seed, label,
+     7 gesa, energies, lablen)
 c
 c  variable metric minimizer (Harwell subroutine lib.  as in Jumna with modifications)
 c     minimizes a single structure
@@ -15,6 +17,7 @@ c     Parameters
       integer maxlig,maxatom,totmaxatom,maxres,maxdof,maxmode,
      1 maxmolpair
       integer nlig, seed
+      integer locrests, has_locrests
       real*8 gesa, energies
       dimension energies(6)
       integer lablen
@@ -135,7 +138,8 @@ c     set some variables for the first iteration
        go to 256
       else if (iscore.eq.2) then
         call print_struc2(seed,label,gesa,energies,nlig,
-     1  ens,phi,ssi,rot,xa,ya,za,morph,nhm,dlig,lablen)	
+     1  ens,phi,ssi,rot,xa,ya,za,locrests,morph,
+     2  nhm,dlig,has_locrests,lablen)	
       endif     
       
 110   fa=gesa
@@ -355,7 +359,8 @@ c     store this function value if it is the smallest so far
       gesa=fb
       if (iscore.eq.2) then
         call print_struc2(seed,label,gesa,energies,nlig,
-     1  ens,phi,ssi,rot,xa,ya,za,morph,nhm,dlig,lablen)	
+     1  ens,phi,ssi,rot,xa,ya,za,locrests,morph,
+     2  nhm,dlig,has_locrests,lablen)	
       endif           
       do i=1,ju
        g(i)=gb(i)
@@ -422,7 +427,8 @@ c     at this stage the whole calculation is complete
       enddo     
       if (iscore.eq.2) then
         call print_struc2(seed,label,gesa,energies,nlig,
-     1  ens,phi,ssi,rot,xa,ya,za,morph,nhm,dlig,lablen)	
+     1  ens,phi,ssi,rot,xa,ya,za,locrests,morph,
+     2  nhm,dlig,has_locrests,lablen)	
       endif     
 
       do 255 i=1,ju

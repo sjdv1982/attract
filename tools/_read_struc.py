@@ -25,7 +25,7 @@ def read_next_struc(lines, firstline):
 	mode = 2
     if mode == 2:
       ret1.append(l)
-  if len(ret0):
+  if len(ret0) or len(ret1):
     yield ret0,ret1
   
 def read_struc(fil):

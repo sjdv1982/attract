@@ -17,9 +17,11 @@ extern "C" void print_struc_(
  const double *xa,
  const double *ya,
  const double *za,
+ const coors2 &locrests, 
  const double *morph,
  const int *nhm,
  const modes2 &dlig, 
+ const int *has_locrests,
  int len_label
 ) 
 {
@@ -46,10 +48,15 @@ extern "C" void print_struc_(
     else if (ens[i] > 0) {
       printf("%d ", ens[i]);
     }
-    printf("%.8f %.8f %.8f %.4f %.4f %.4f", 
+    printf("%.6f %.6f %.6f %.4f %.4f %.4f", 
       phi[i], ssi[i], rot[i], 
       xa[i],  ya[i], za[i]      
     );
+    if (has_locrests[i]) {
+      for (int ii = 0; ii < 3; ii++) {
+        printf(" %.4f", locrests[i][ii]);
+      }
+    }
     for (int ii = 0; ii < nhm[i]; ii++) {
       printf(" %.4f", dlig[i][ii]);
     }
@@ -71,9 +78,11 @@ extern "C" void print_struc2_(
  const double *xa,
  const double *ya,
  const double *za,
+ const coors2 &locrests,
  const double *morph,
  const int *nhm,
  const modes2 &dlig, 
+ const int *has_locrests,
  const int &len_label
 ) {
 
@@ -90,9 +99,11 @@ extern "C" void print_struc2_(
   xa,
   ya,
   za,
+  locrests,
   morph,
   nhm,
   dlig, 
+  has_locrests,
   len_label
  );
 }
