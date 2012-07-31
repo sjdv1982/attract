@@ -191,7 +191,7 @@ extern "C" void collect_init(int argc00, char *argv00[]) {
       if (n+2 < argc) memcpy(argv2+n,argv+n+2,(argc-n-2)*sizeof(char*));
       argv = argv2;
       argc -= 2;
-      break;
+      n -= 1;
     }
   }
   char **pdbstrings[MAXLIG]; bool *pdblayout[MAXLIG]; int linecounter[MAXLIG];
