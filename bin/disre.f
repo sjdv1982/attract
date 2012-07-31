@@ -1,5 +1,7 @@
       subroutine disre(maxlig,cartstatehandle,ministatehandle,
-     1 iab,iori,itra,fixre,xa,ya,za,delta,erest)
+     1 iab,iori,itra,fixre,xa,ya,za,
+     2 locrests, has_locrests,
+     3 delta,erest)
 c  adds a restraining contribution due to attraction between 
 c centers of the ligand
 c
@@ -10,6 +12,10 @@ c     Parameters
       integer iab,iori,itra,fixre
       real*8 delta(maxlig),xa(maxlig),ya(maxlig),za(maxlig)
       real*8 erest
+      real*8 locrests
+      dimension locrests(3,maxlig)
+      integer has_locrests      
+      dimension has_locrests(maxlig)
       
 c     Handle variables
       integer nlig
@@ -24,9 +30,7 @@ c     Local variables
       
       call cartstate_f_disre(cartstatehandle,nlig,ptr_pivot)      
       call ministate_f_disre(ministatehandle,gravity,rstk)
-      
-      if (gravity.eq.0) return
-      
+           
       jl=3*iori*(nlig-fixre)
       
       do 100 n=1+fixre,nlig
@@ -34,6 +38,19 @@ c     Local variables
       xf = 0.0d0
       yf = 0.0d0
       zf = 0.0d0
+      
+      if (has_locrests(n).gt.0) then
+      xd=xa(n)+pivot(n,1)-locrests(1,n)
+      yd=ya(n)+pivot(n,2)-locrests(2,n)
+      zd=za(n)+pivot(n,3)-locrests(3,n)
+      et=(xd**2+yd**2+zd**2)
+
+      erest=erest+rstk*et
+      xf=xf-2.0d0*rstk*xd
+      yf=yf-2.0d0*rstk*yd
+      zf=zf-2.0d0*rstk*zd      
+
+      endif
 
       if (gravity.eq.3.or.gravity.eq.4.or.gravity.eq.5) then
 c     gravity=3 => to all other centers

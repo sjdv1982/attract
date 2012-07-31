@@ -17,7 +17,10 @@ c     Parameters
       integer maxlig,maxatom,totmaxatom,maxres,maxdof,maxmode,
      1 maxmolpair
       integer nlig, seed
-      integer locrests, has_locrests      
+      real*8 locrests
+      dimension locrests(3,maxlig)
+      integer has_locrests      
+      dimension has_locrests(maxlig)
       real *8 gesa, energies
       dimension energies(6)
       integer lablen
@@ -111,8 +114,9 @@ c
      1 maxlig, maxatom,totmaxatom,maxmode,maxres,
      2 cartstatehandle,ministatehandle,
      3 iab,iori,itra,ieig,fixre,gridmode,
-     4 ens,phi,ssi,rot,xa,ya,za,morph,dlig,seed,
-     5 gesa,energies,delta,deltamorph)
+     4 ens,phi,ssi,rot,xa,ya,za,morph,dlig,
+     5 locrests, has_locrests, seed,
+     6 gesa,energies,delta,deltamorph)
        
       if (iscore.eq.2) then
         call print_struc2(seed,label,gesa,energies,nlig,
@@ -273,8 +277,9 @@ c      write (*,*),'lig',i,phi(i),ssi(i),rot(i),xa(i),ya(i),za(i)
      1 maxlig, maxatom,totmaxatom,maxmode,maxres,
      2 cartstatehandle,ministatehandle,
      3 iab,iori,itra,ieig,fixre,gridmode,
-     4 ens,phi,ssi,rot,xa,ya,za,morph,dlig,seed,
-     5 enew,energies0,delta,deltamorph)
+     4 ens,phi,ssi,rot,xa,ya,za,morph,dlig,
+     5 locrests, has_locrests, seed,
+     6 enew,energies0,delta,deltamorph)
 c  new energy 
 c      write (*,*),'Energy2', enew 
       bol=enew-gesa
