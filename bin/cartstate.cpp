@@ -167,6 +167,11 @@ extern "C" void cartstate_get_morphing_(const int &handle,int *&morphing) {
   morphing = cartstate.morphing;
 }
 
+extern "C" void cartstate_get_has_locrests_(const int &handle,int *&has_locrests) {
+  CartState &cartstate = *cartstates[handle-9990]; 
+  has_locrests = cartstate.has_locrests;
+}
+
 extern "C" void cartstate_get_ensd_(const int &handle,
   const int &ligand,
   const int &ens,

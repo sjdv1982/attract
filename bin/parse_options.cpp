@@ -78,6 +78,12 @@ void gravity_usage() {
   exit(1);
 }
 
+void locrest_usage() {
+ fprintf(stderr, "--locrest option usage: --locrest <ligand number>\n");
+  exit(1);
+}
+
+
 void rstk_usage() {
  fprintf(stderr, "--rstk option usage: --rstk <gravity constant>\n");
   exit(1);
@@ -311,6 +317,13 @@ void parse_options(int ministatehandle, int cartstatehandle, int nlig, int argc,
       int gravity = atoi(argv[n+1]);
       if (gravity <= 0 || gravity > 5) gravity_usage();
       ms.gravity = gravity;
+      n += 1;
+    }
+    else if (!strcmp(arg,"--locrest")) {
+      if (argc-n < 2) locrest_usage();    
+      int lig = atoi(argv[n+1]);
+      if (lig < 1 || lig > nlig) locrest_usage();
+      c.has_locrests[lig-1] = 1;
       n += 1;
     }
     else if (!strcmp(arg,"--rstk")) {

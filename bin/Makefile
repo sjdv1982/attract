@@ -34,32 +34,34 @@ attract-em-contour: attract.o em/emenergy-contour.o grid.o ministate.o $(OBJ)
 
 collect: collect.o read_parameters.o read_pdb.o read_pdb2.o read_dof.o \
   cartstate.o euler2rotmat.o deform.o rotate.o read_hm.o memcpy.o write_pdb.o \
-  read_ens.o 
+  read_ens.o state.h
 	$(CXX) $(CFLAGS)  $^ -lgfortran -o $@
 
-emcoor: emcoor.o read_parameters.o read_pdb.o read_pdb2.o read_dof.o \
+emcorr: emcorr.o read_parameters.o read_pdb.o read_pdb2.o read_dof.o \
   cartstate.o euler2rotmat.o deform.o rotate.o read_hm.o memcpy.o write_pdb.o \
-  read_ens.o em/lib_em.o em/lib_corr.o em/situs/lib_vio.o em/situs/lib_pio.o em/situs/lib_err.o
+  read_ens.o em/lib_em.o em/lib_corr.o em/situs/lib_vio.o em/situs/lib_pio.o em/situs/lib_err.o \
+  state.h
 	$(CXX) $(CFLAGS)  $^ -lgfortran -o $@
 
 gvm: gvm.o read_parameters.o read_pdb.o read_pdb2.o read_dof.o \
   cartstate.o euler2rotmat.o deform.o rotate.o read_hm.o memcpy.o write_pdb.o \
-  read_ens.o em/lib_em.o em/lib_corr.o em/situs/lib_vio.o em/situs/lib_pio.o em/situs/lib_err.o
+  read_ens.o em/lib_em.o em/lib_corr.o em/situs/lib_vio.o em/situs/lib_pio.o em/situs/lib_err.o \
+  state.h
 	$(CXX) $(CFLAGS)  $^ -lgfortran -o $@
 
 matrix-lrmsd: matrix-lrmsd.o read_parameters.o read_pdb.o read_pdb2.o read_dof.o \
   cartstate.o euler2rotmat.o deform.o rotate.o read_hm.o memcpy.o write_pdb.o \
-  read_ens.o 
+  read_ens.o state.h
 	$(CXX) $(CFLAGS)  $^ -lgfortran -o $@
 
 lrmsd: lrmsd.o read_parameters.o read_pdb.o read_pdb2.o read_dof.o \
   cartstate.o euler2rotmat.o deform.o rotate.o read_hm.o memcpy.o write_pdb.o \
-  read_ens.o 
+  read_ens.o state.h
 	$(CXX) $(CFLAGS)  $^ -lgfortran -o $@
 
 rmsd: rmsd.o read_parameters.o read_pdb.o read_pdb2.o read_dof.o \
   cartstate.o euler2rotmat.o deform.o rotate.o read_hm.o memcpy.o write_pdb.o \
-  read_ens.o
+  read_ens.o state.h
 	$(CXX) $(CFLAGS)  $^ -lgfortran -o $@
 
 calc_interior: calc_interior.o em/situs/lib_vio.o em/situs/lib_pio.o em/situs/lib_err.o
@@ -99,15 +101,15 @@ map2map:	em/situs/map2map.o em/situs/lib_err.o em/situs/lib_vio.o \
 		em/situs/lib_vwk.o em/situs/lib_vec.o em/situs/lib_std.o 
 	$(CC) $(CFLAGS) $^ -o $@ -lm
 
-fix_receptor:   fix_receptor.cpp read_dof.o euler2rotmat.o matinv.o matmult.o \
-                print_struc.o max.h
+fix_receptor:   fix_receptor.o read_dof.o euler2rotmat.o matinv.o matmult.o \
+                print_struc.o state.h
 	$(CXX) $(CFLAGS) $^ -o $@ -lm
 
-deredundant: deredundant.cpp read_dof.o euler2rotmat.o matmult.o \
-                print_struc.o max.h
+deredundant: deredundant.o read_dof.o euler2rotmat.o matmult.o \
+                print_struc.o state.h
 	$(CXX) $(CFLAGS) $^ -o $@ -lm
 
-omp_threadnum: omp_threadnum.cpp
+omp_threadnum: omp_threadnum.o
 	$(CXX) $(CFLAGS)  $^  -fopenmp -o $@
 
 %-torque-omp.o: %.cpp $(H)
@@ -131,7 +133,7 @@ em/emenergy-precompcheck.o:  em/emenergy.cpp
 collectlib.so: collectlib-pic.o read_parameters-pic.o read_pdb-pic.o \
   read_pdb2-pic.o read_dof-pic.o cartstate-pic.o euler2rotmat-pic.o \
   deform-pic.o rotate-pic.o read_hm-pic.o memcpy-pic.o write_pdb-pic.o \
-  read_ens-pic.o
+  read_ens-pic.o state.h
 	$(CXX) $(CFLAGS) -Wall -shared -fPIC $^ -lgfortran -lm -o $@ 
 
 collectlib: collectlib.so

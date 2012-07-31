@@ -96,7 +96,8 @@ extern "C" FILE *read_dof_init_(const char *f_, int nlig, int &line, double (&pi
   return fil;
 }
 
-extern "C" int read_dof_(FILE *fil, int &line, int &nstruc, const char *f_, idof2 &ens, dof2 &phi, dof2 &ssi, dof2 &rot, dof2 &xa, dof2 &ya, dof2 &za, dof2 &morph, modes2 &dlig, const int &nlig, const int *nhm, const int *nrens0, const int *morphing, int &seed, char *&label, int f_len) {
+extern "C" int read_dof_(FILE *fil, int &line, int &nstruc, const char *f_, idof2 &ens, dof2 &phi, dof2 &ssi, dof2 &rot, dof2 &xa, dof2 &ya, dof2 &za,
+coors2 &locrests, dof2 &morph, modes2 &dlig, const int &nlig, const int *nhm, const int *nrens0, const int *morphing, const int *has_locrests, int &seed, char *&label, int f_len) {
   int nrens00[MAXLIG];
   memset(nrens00,0,MAXLIG*sizeof(int));
   
@@ -169,7 +170,7 @@ extern "C" int read_dof_(FILE *fil, int &line, int &nstruc, const char *f_, idof
 	exit(1);
       }
       char chars[] = {32,10,13,0};
-      int firstfield;
+      int firstfield = 0;
       char *field = strtok(buf,chars);
       int nf = 0;
       while (field != NULL) {
@@ -185,28 +186,23 @@ extern "C" int read_dof_(FILE *fil, int &line, int &nstruc, const char *f_, idof
       }
       int has_ens = 0;
       if (nrens[clig]) has_ens = 1;
-      int min = 6;
-      if (!morphing[clig]) min += has_ens;
-      if (nf < min || nf > has_ens + 6 + nhm[clig]) {
-   	  fprintf(stderr, "Reading error in %s, line %d: read %d values, expected %d values\n", f, line, nf, has_ens + 6 + nhm[clig]);
-	  exit(1);
+      int has_locrest = has_locrests[clig];
+      int min = has_ens + 6 + 3 * has_locrest;
+      if (nf < min || nf > min + nhm[clig]) {
+   	  if (nhm[clig] > 0) 
+            fprintf(stderr, "Reading error in %s, line %d: read %d values, expected %d-%d values\n", f, line, nf, min, min + nhm[clig]);
+	  else 
+            fprintf(stderr, "Reading error in %s, line %d: read %d values, expected %d values\n", f, line, nf, min);
+          exit(1);
       }
       morph[clig] = -1;
-      int ini = has_ens;
-      memset(ens, 0, MAXLIG*sizeof(int));
       if (has_ens) {
         if (morphing[clig]) {
-          morph[clig] = 0;        
-          if (nf > 6) {
-            morph[clig] = fields[0]; 
-	    if (fields[0] < 0 || fields[0] > nrens[clig]-1) {
-   	      fprintf(stderr, "Reading error in %s, line %d: morphing coordinate must be in range 0-%d, is %.3f\n", f, line, nrens[clig]-1, fields[0]);
-	      exit(1);
-	    }
-          }
-          else {
-            ini = 0;
-          }
+          morph[clig] = fields[0]; 
+	  if (fields[0] < 0 || fields[0] > nrens[clig]-1) {
+   	    fprintf(stderr, "Reading error in %s, line %d: morphing coordinate must be in range 0-%d, is %.3f\n", f, line, nrens[clig]-1, fields[0]);
+	    exit(1);
+	  }
         }
         else {
           ens[clig] = firstfield; //fields[0]
@@ -217,15 +213,23 @@ extern "C" int read_dof_(FILE *fil, int &line, int &nstruc, const char *f_, idof
         }
 
       }
+      int ini = has_ens;
       phi[clig] = fields[ini+0];
       ssi[clig] = fields[ini+1];
       rot[clig] = fields[ini+2];
       xa[clig] = fields[ini+3];
       ya[clig] = fields[ini+4];
       za[clig] = fields[ini+5];
+      ini += 6;
+      if (has_locrest) {
+        for (int n = 0; n < 3; n++) {
+          locrests[clig][n] = fields[ini+n];
+        }
+        ini += 3;
+      }
       for (int n=0;n<nhm[clig];n++) {
-        if (has_ens+6+n < nf) {
-          dlig[clig][n] = fields[has_ens+6+n];
+        if (ini+n < nf) {
+          dlig[clig][n] = fields[ini+n];
 	}
 	else 
 	  dlig[clig][n] = 0;

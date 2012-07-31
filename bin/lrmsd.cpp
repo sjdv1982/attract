@@ -33,7 +33,7 @@ extern "C" void cartstate_get_ensd_(const int &handle,
 
 extern "C" FILE *read_dof_init_(const char *f_, int nlig, int &line, double (&pivot)[3][MAXLIG], int &auto_pivot, int &centered_receptor, int &centered_ligands, int f_len);
 
-extern "C" int read_dof_(FILE *fil, int &line, int &nstruc, const char *f_, idof2 &ens, dof2 &phi, dof2 &ssi, dof2 &rot, dof2 &xa, dof2 &ya, dof2 &za, dof2 &morph, modes2 &dlig, const int &nlig, const int *nhm, const int *nrens0, const int *morphing, int &seed, char *&label, int f_len);
+extern "C" int read_dof_(FILE *fil, int &line, int &nstruc, const char *f_, idof2 &ens, dof2 &phi, dof2 &ssi, dof2 &rot, dof2 &xa, dof2 &ya, dof2 &za, coors2 &locrests, dof2 &morph, modes2 &dlig, const int &nlig, const int *nhm, const int *nrens0, const int *morphing, const int *has_locrests, int &seed, char *&label, int f_len);
 
 extern "C" void write_pdb_(
   const int &totmaxatom, const int &maxlig, const int &nlig,
@@ -166,6 +166,10 @@ int morphing[MAXLIG];
 
 int main(int argc, char **argv) {
   memset(morphing,0,MAXLIG*sizeof(int));
+
+  coors2 locrests;
+  int has_locrests[MAXLIG];
+  memset(has_locrests, 0, MAXLIG*sizeof(int));
   
   int n, i;
   if (argc < 3) {
@@ -200,6 +204,22 @@ int main(int argc, char **argv) {
       n -= 1;
     }    
   }  
+  for (int n = 1; n < argc-1; n++) {
+    if (!strcmp(argv[n],"--locrest")) {
+      int lig = atoi(argv[n+1]);
+      if (lig <= 0 || lig > MAXLIG) {
+        fprintf(stderr,"Ligand %d must be larger than 0\n", lig);
+        usage();
+      }
+      has_locrests[lig-1] = 1;
+      char **argv2 = new char *[argc-1];
+      if (n > 0) memcpy(argv2, argv,n*sizeof(char*));
+      if (n+2 < argc) memcpy(argv2+n,argv+n+2,(argc-n-2)*sizeof(char*));
+      argv = argv2;
+      argc -= 2;
+      break;
+    }
+  }
 
   if (argc % 2) {
     fprintf(stderr, "Number of arguments must be even: supply unbound ligand, then bound ligand PDB\n");
@@ -270,7 +290,11 @@ int main(int argc, char **argv) {
   nstruc = 0;
 
   while (1) {
-    int result = read_dof_(fil, line, nstruc, argv[1], ens, phi, ssi, rot, xa, ya, za, morph, dlig, nlig, nhm, nrens, morphing, seed, label, strlen(argv[1]));
+    int result = read_dof_(fil, line, nstruc, argv[1], ens, phi, ssi, rot, 
+     xa, ya, za, locrests, 
+     morph, dlig, nlig, nhm, nrens, morphing, has_locrests,
+     seed, label, strlen(argv[1])
+    );
     if (result != 0) break;
 
     if (centered_receptor) { //...then subtract pivot from receptor
