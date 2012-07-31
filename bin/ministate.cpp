@@ -43,7 +43,7 @@ extern "C" int ministate_new_() {
   ms.has_globalenergy = 0;
   ms.gravity = 0;
   //ms.rstk = 0.015; //for second order restraints...; too much?
-  ms.rstk = 0.0015; //for second order restraints...
+  ms.rstk = 0.2; //for harmonic restraints...
   ms.ghost = 0;
   return ministatesize-1+7770; 
 

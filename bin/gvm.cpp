@@ -201,7 +201,7 @@ int main(int argc, char *argv[]) {
       if (n+2 < argc) memcpy(argv2+n,argv+n+2,(argc-n-2)*sizeof(char*));
       argv = argv2;
       argc -= 2;
-      break;
+      n -= 1;
     }
   }
 

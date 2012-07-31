@@ -1,9 +1,10 @@
        subroutine globalenergy(
      1  maxlig,maxatom,totmaxatom,maxmode,maxdof,
      2	cartstatehandle, ministatehandle,
-     3  ens,phi,ssi,rot,xa,ya,za,morph,dlig,seed,
-     4  iab,iori,itra,ieig,fixre,
-     5  energies, delta, deltamorph)
+     3  ens,phi,ssi,rot,xa,ya,za,morph,dlig,
+     4  locrests, has_locrests, seed,
+     5  iab,iori,itra,ieig,fixre,
+     6  energies, delta, deltamorph)
 
        implicit none
        
@@ -13,6 +14,11 @@ c      Parameters
        integer iab,iori,itra,ieig,fixre,seed
        real*8 energies(6)
        real*8 delta(maxdof)
+
+       real*8 locrests
+       dimension locrests(3,maxlig)
+       integer has_locrests      
+       dimension has_locrests(maxlig)
 
        integer ens
        dimension ens(maxlig)
@@ -183,7 +189,9 @@ c     1  cdelta(4),cdelta(5),cdelta(6)
 c      end if (has_globalenergy)
        endif 
        call disre(maxlig,cartstatehandle,ministatehandle,
-     1  iab,iori,itra,fixre,xa,ya,za,delta,energies(3))
+     1  iab,iori,itra,fixre,xa,ya,za,
+     2  locrests, has_locrests,
+     3  delta,energies(3))
 
        call ene_morph(morph_fconstant, morph, deltamorph, nlig, emorph)
        energies(4) = energies(4) + emorph     

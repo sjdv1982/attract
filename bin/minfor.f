@@ -17,7 +17,10 @@ c     Parameters
       integer maxlig,maxatom,totmaxatom,maxres,maxdof,maxmode,
      1 maxmolpair
       integer nlig, seed
-      integer locrests, has_locrests
+      real*8 locrests
+      dimension locrests(3,maxlig)
+      integer has_locrests      
+      dimension has_locrests(maxlig)
       real*8 gesa, energies
       dimension energies(6)
       integer lablen
@@ -110,8 +113,9 @@ c     set some variables for the first iteration
      1 maxlig, maxatom,totmaxatom,maxmode,maxres,
      2 cartstatehandle,ministatehandle,
      3 iab,iori,itra,ieig,fixre,gridmode,
-     4 ens,phi,ssi,rot,xa,ya,za,morph,dlig,seed,
-     5 gesa,energies,delta,deltamorph)
+     4 ens,phi,ssi,rot,xa,ya,za,morph,dlig,
+     5 locrests, has_locrests,seed,
+     6 gesa,energies,delta,deltamorph)
       do i=ju0+1,ju
        delta(i) = deltamorph(i-ju0)
       enddo     
@@ -291,8 +295,9 @@ c      write (*,*),'lig',i,phi(i),ssi(i),rot(i),xa(i),ya(i),za(i)
      1 maxlig, maxatom,totmaxatom,maxmode,maxres,
      2 cartstatehandle,ministatehandle,
      3 iab,iori,itra,ieig,fixre,gridmode,
-     4 ens,phi,ssi,rot,xa,ya,za,morph,dlig,seed,
-     5 fb,energies,delta,deltamorph)
+     4 ens,phi,ssi,rot,xa,ya,za,morph,dlig,
+     5 locrests, has_locrests, seed,
+     6 fb,energies,delta,deltamorph)
       do i=ju0+1,ju
        delta(i) = deltamorph(i-ju0)
       enddo     
@@ -420,8 +425,9 @@ c     at this stage the whole calculation is complete
      1 maxlig, maxatom,totmaxatom,maxmode,maxres,
      2 cartstatehandle,ministatehandle,
      3 iab,iori,itra,ieig,fixre,gridmode,
-     4 ens,phi,ssi,rot,xa,ya,za,morph,dlig,seed,
-     5 gesa,energies,delta,deltamorph)
+     4 ens,phi,ssi,rot,xa,ya,za,morph,dlig,
+     5 locrests, has_locrests, seed,
+     6 gesa,energies,delta,deltamorph)
       do i=ju0+1,ju
        delta(i) = deltamorph(i-ju0)
       enddo     

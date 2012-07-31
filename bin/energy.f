@@ -2,8 +2,9 @@
      1  maxlig, maxatom,totmaxatom,maxmode,maxres,
      2 cartstatehandle, ministatehandle,
      3 iab,iori,itra,ieig,fixre,gridmode,
-     4 ens,phi,ssi,rot,xa,ya,za,morph,dlig,seed,
-     5 e,energies,delta,deltamorph)
+     4 ens,phi,ssi,rot,xa,ya,za,morph,dlig,
+     5 locrests, has_locrests, seed,
+     6 e,energies,delta,deltamorph)
      
       implicit none
       
@@ -16,6 +17,11 @@ c     Parameters
       dimension energies(6), delta(maxdof),deltamorph(maxlig)
       real*8 deltamorphr, deltamorphl      
       real*8 e
+      
+      real*8 locrests
+      dimension locrests(3,maxlig)
+      integer has_locrests      
+      dimension has_locrests(maxlig)      
 
       integer ens
       dimension ens(maxlig)
@@ -170,9 +176,10 @@ c     endif ghost.eq.0
       call globalenergy(
      1  maxlig,maxatom,totmaxatom,maxmode,maxdof,
      2	cartstatehandle, ministatehandle,
-     3  ens,phi,ssi,rot,xa,ya,za,morph,dlig,seed,
-     4  iab,iori,itra,ieig,fixre, 
-     5  energies, delta, deltamorph)
+     3  ens,phi,ssi,rot,xa,ya,za,morph,dlig,
+     4  locrests, has_locrests, seed,
+     5  iab,iori,itra,ieig,fixre, 
+     6  energies, delta, deltamorph)
       
       e = 0
       do 990,i=1,6
