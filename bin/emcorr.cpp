@@ -60,12 +60,6 @@ int &ens, double *ensdp, const double &cmorph, const double *cmorphdp,
 double (&dligp)[MAXMODE], 
 int *nhm,int &ijk,int *ieins,double *eig,double *xb,double *x,double *xori,double *xori0, const int &do_morph); 
 
-extern void read_pdb2(
-  FILE *fil, Coor *&x, 
-  char **&pdbstrings, bool *&pdblayout,
-  int &coorcounter, int &linecounter
-);
-
 extern void read_ens(int cartstatehandle, int ligand, char *ensfile, bool strict, bool morphing);
 
 CartState &cartstate_get(int handle);
@@ -163,38 +157,14 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  char **pdbstrings[MAXLIG]; bool *pdblayout[MAXLIG]; int linecounter[MAXLIG];
-
   //load the Cartesian parameters and get a handle to it
   int cartstatehandle;
-  if (argc == 6) { //one PDB, reduced or non-reduced
-    char *argv0[] = {NULL, argv[5]};
-    cartstatehandle = cartstate_new(2, argv0);
+  if (argc != 6) {
+    fprintf(stderr, "Wrong number of arguments (%d, expected 5)\n", argc);
+    usage();
   }
-  else {
-    /*support for non-reduced PDBs*/
-    char *argv0[] = {NULL, NULL};
-    cartstatehandle = cartstate_new(2, argv0);
-
-    CartState &cs = cartstate_get(cartstatehandle);
-    cs.nlig = argc - 5;
-    Coor *xx = (Coor *) &cs.x[0];
-    int pos = 0;
-    cs.ieins[0] = 0;
-    for (i = 0; i < cs.nlig; i++) {
-      FILE *fil = fopen(argv[i+5], "r");
-      Coor *coor;
-      read_pdb2(fil,coor,pdbstrings[i],pdblayout[i],cs.natom[i],linecounter[i]);
-      if (cs.natom[i]) {
-        memcpy(xx,coor,cs.natom[i]*sizeof(Coor));
-        delete [] coor;      
-        xx += cs.natom[i];	
-	pos += cs.natom[i];
-      }
-      cs.ieins[i] = pos;
-    }
-    memcpy(cs.xori0,cs.x,TOTMAXATOM*3*sizeof(double));
-  }
+  char *argv0[] = {NULL, argv[5]};
+  cartstatehandle = cartstate_new(2, argv0);
 
   CartState &cs = cartstate_get(cartstatehandle);  
   memcpy(cs.xori,cs.xori0,TOTMAXATOM*3*sizeof(double));  

@@ -2,6 +2,11 @@ import sys
 from _read_struc import read_struc
 header,structures = read_struc(sys.argv[1])
 structures = list(structures)
+rev = False
+if len(sys.argv) > 2:
+  assert len(sys.argv) == 3
+  assert sys.argv[2].startswith("--rev")
+  rev = True
 
 energies = []
 for l1,l2 in structures:
@@ -13,6 +18,7 @@ assert len(energies) == len(structures)
 strucs = zip(range(1,len(structures)+1), energies, structures)
 
 strucs.sort(key=lambda v:v[1])
+if rev: strucs.reverse()
 for h in header: print h
 stnr = 0
 for st in strucs:

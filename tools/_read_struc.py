@@ -32,6 +32,7 @@ def read_struc(fil):
   lines = open(fil).xreadlines()
   header = []
   centeredlen = 0
+  firstline = None
   for lnr, l in enumerate(lines):
     l = l.rstrip("\n")
     if centeredlen < 2:
@@ -41,4 +42,6 @@ def read_struc(fil):
       continue
     firstline = l
     break
+  if firstline is None:
+    raise ValueError("Cannot find structures in file %s" % fil)
   return header, read_next_struc(lines,firstline)
