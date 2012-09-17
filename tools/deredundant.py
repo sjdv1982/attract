@@ -8,7 +8,7 @@ except:
   pass  
 
 header,structures = read_struc(sys.argv[1])
-
+structures = list(structures)
 from euler2rotmat import euler2rotmat
 
 dofs = []
