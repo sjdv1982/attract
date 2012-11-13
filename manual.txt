@@ -1,3 +1,7 @@
+TODO: --cdie has distances capped at 50 A!
+  rr1 = 1.0d0/sqrt(r2)-1.0/50.0
+  r2a = rr2 - (1.0/50.0)*(1.0/50.0)
+  
 --only-flex
 TODO: grid restraints (sym.cpp)
 TODO: 1/(rmsd+1) weighting of MC ensemble switching

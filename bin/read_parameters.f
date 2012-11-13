@@ -45,11 +45,12 @@ c     write(*,*)(abc(i,j),j=1,maxpar)
       if (potshape.eq.8) then
        emin(i,j)=-27.0d0*ac(i,j)**4/(256.0d0*rc(i,j)**3)
        rmin2(i,j)=4.0d0*rc(i,j)/(3.0d0*ac(i,j))
+       ipon(i,j)=iflo(i,j)
       elseif (potshape.eq.12) then
-       emin(i,j)=-ac(i,j)**4/(16.0d0*rc(i,j)**3)
-       rmin2(i,j)=6.0d0*rc(i,j)/(3.0d0*ac(i,j))      
-      endif
-      ipon(i,j)=iflo(i,j)      
+       emin(i,j)= 0.0d0
+       rmin2(i,j)= 0.0d0
+       ipon(i,j)= 1.0d0
+      endif            
   448 continue
   450 continue
       return

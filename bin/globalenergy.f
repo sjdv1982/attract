@@ -76,7 +76,7 @@ c      Local variables
        real*8 emorph       
        integer has_globalenergy
        
-       dmmy3 = -1
+       dmmy3 = -1.0d0
        
 c      Is global energy used at all?
        call ministate_has_globalenergy(ministatehandle, 
@@ -97,14 +97,15 @@ c get parameters
 
 c apply ensemble/normal mode deformations
        do 5 i=1, nlig
-       call cartstate_get_ensd(cartstatehandle,i-1,ens(i-1),ptr_ensd,
-     1  -1,dmmy1,dmmy2)
+       call cartstate_get_ensd(cartstatehandle,i-1,ens(i),ptr_ensd,
+     1  -1.0d0,dmmy1,dmmy2)
        call deform(maxlig,3*maxatom,3*totmaxatom,maxatom,maxmode,
-     1  ens(i-1),ensd,dmmy3,dmmy4,dlig(i,:),
+     1  ens(i),ensd,dmmy3,dmmy4,dlig(i,:),
      2  nhm,i-1,ieins,eig,xb,x,xori,xori0,0)
 5      continue
 c apply symmetry restraints
 
+       
        xold(1:nall3) = x(1:nall3)
 c       call memcpy(xold,x,nall3*8)
        
@@ -158,23 +159,15 @@ c     1  'DOFS',i,phi(i),ssi(i),rot(i),xa(i),ya(i),za(i)
        delta(ii+2) = delta(ii+2) + cdelta(5)
        delta(ii+3) = delta(ii+3) + cdelta(6)
        endif
-
-c       write(*,*),'DELTA',i,cdelta(1),cdelta(2),cdelta(3),
-c     1  cdelta(4),cdelta(5),cdelta(6)
        
        if (ieig.eq.1) then       
 
        call ligmin(maxlig,maxdof,maxmode,maxatom,
-     1  fl,natom(i),i-1,eig,nhm(i),cdelta)
-
-       ii = jb
-       do 113 n=1,i-1
-       ii = ii + nhm(n)
-113    continue  
+     1  fl,natom(i),i,eig,nhm(i),cdelta)
                
        call moderest(maxdof,maxmode,dlig(i,:),nhm(i),val(i,:),
      1  cdelta, energies(3))
-	
+       	
        ii = jb
        do 13 n=1,i-1
        ii = ii + nhm(n)

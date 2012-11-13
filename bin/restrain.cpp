@@ -89,6 +89,7 @@ inline void grad_deff(double gradfac, const int *selection1, int s1, const int *
 }
 
 inline void restrain_type_1(const Restraint &r, int iab, const Coor *x, Coor *f, double &energy) {
+  //maximum-distance harmonic restraints
   if (r.s1 == 1 && r.s2 == 1) {
     int atomnr1 = r.selection1[0]-1;
     const Coor &a1 = x[atomnr1];
@@ -143,6 +144,7 @@ inline void restrain_type_1(const Restraint &r, int iab, const Coor *x, Coor *f,
 }
 
 inline void restrain_type_2(const Restraint &r, int iab, const Coor *x, Coor *f, double &energy) {
+  //HADDOCK-type AIR restraints
   if (double(rand())/RAND_MAX <= r.par4) return;
   if (r.s1 == 1 && r.s2 == 1) {
     int atomnr1 = r.selection1[0]-1;
@@ -222,6 +224,43 @@ inline void restrain_type_2(const Restraint &r, int iab, const Coor *x, Coor *f,
   }
 }
 
+inline void restrain_type_3(const Restraint &r, int iab, const Coor *x, Coor *f, double &energy) {
+  //minimum-distance harmonic restraints
+  if (r.s1 == 1 && r.s2 == 1) {
+    int atomnr1 = r.selection1[0]-1;
+    const Coor &a1 = x[atomnr1];
+    int atomnr2 = r.selection2[0]-1;
+    const Coor &a2 = x[atomnr2];
+
+    double disx = a1[0]-a2[0];
+    double disy = a1[1]-a2[1];
+    double disz = a1[2]-a2[2];
+    double dsq = disx*disx+disy*disy+disz*disz;      
+    double limsq = r.par1 * r.par1;
+    if (limsq < dsq) {
+      //printf("ENERGY: 0\n");
+      return;
+    }
+    double cforce = r.par2;
+    double dis = sqrt(dsq);
+    double violation = r.par1 - dis;
+    double violationsq = violation*violation;
+    energy += 0.5 * cforce * violationsq;
+    if (iab) {
+      double factor = violation/dis;
+      Coor force = {disx * cforce*factor,disy * cforce*factor,disz * cforce*factor};
+      Coor &f1 = f[atomnr1];
+      f1[0] += force[0];
+      f1[1] += force[1];
+      f1[2] += force[2];      
+      Coor &f2 = f[atomnr2];
+      f2[0] -= force[0];
+      f2[1] -= force[1];
+      f2[2] -= force[2];
+    }
+  }
+}
+
 
 extern "C" void restrain_(const int &ministatehandle, const int &cartstatehandle, const int &seed, const int &iab, double &energy) {
   MiniState &ms = ministate_get(ministatehandle);
@@ -233,5 +272,6 @@ extern "C" void restrain_(const int &ministatehandle, const int &cartstatehandle
     Restraint &r = ms.restraints[n];
     if (r.type == 1) restrain_type_1(r,iab,x,f,energy);
     if (r.type == 2) restrain_type_2(r,iab,x,f,energy);    
+    if (r.type == 3) restrain_type_3(r,iab,x,f,energy);    
   }
 }

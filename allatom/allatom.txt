@@ -16,7 +16,7 @@ The following parameters describe the CNS parameters for the OPLSX forcefield (f
 (see oplsx.par)
 
 In CNS, the first parameter is epsilon and the second is sigma. These
-parameters are used directly in a 12-6 LJ potential: vdw = 4*epsilon(rr**12-rr**6),
+parameters are used directly in a 12-6 LJ potential: vdw = 4*epsilon*(rr**12-rr**6),
 where rr is sigma/r. This is used directly for homo-atom-type interactions.
 For hetero-type interactions, the mean radius of sigma is used, while the geometric mean radius of epsilon is used (sqrt(eps1*eps2)).
 
@@ -59,17 +59,18 @@ if ipon is -1, then at r2 == rmin2, emin must be equal to (rep-alen)*rr23
 emin is in fact the energy minimum, and rmin2 is the distance(sq) of the minimum
 
 so, for potshape = 12:
-  rmin2(i,j) = 6.0d0*rc(i,j)/(3.0d0*ac(i,j)) = 2 rc(i,j) / ac(i,j)
-  if r2 == rmin2:
-    rr23 = rmin2^-3  = ac^3/8*rc^3
-    rep = rc / rmin2 = 1/2 * ac
-    rep - alen = -1/2 * ac
-    (rep-alen)*rr23 = -ac^4/16*rc^3
+  rr23 = rmin2**-3
+  rc * rr23 * rr23 - ac * rr23 = emin
+  rc * rr23 * rr23 - ac * rr23 - emin = 0
+  rr23 = ac/2*rc +/- sqrt(ac**2-4*rc*emin), not really solvable...
+  So, we must kind of assume that ipon is 1!!
   
 What it all means:
+
+ The formula is rep-alen*rr23 = rc(i,j)*distance^-12 - ac(i,j) *distance^-6, no ivor
  In ATTRACT, rc(i,j) is computed as abc(i,j)*rbc(i,j)**potshape
-  and ac(i,j) = abc(i,j)*rbc(i,j)**6
  => rc(i,j)*distance^-12 - ac(i,j) *distance^-6
+ => abc(i,j) * rbc(i,j)**12 * distance**-12  - abc(i,j) * rbc(i,j)**6 * distance**-6
  = abc(i,j)*( rr^-12 - rr^-6), where rr=distance/rbc(i,j)
 
 so, for two atoms i and j:

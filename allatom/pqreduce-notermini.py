@@ -78,16 +78,12 @@ for resid in his:
 outf = StringIO.StringIO()   
 mapf2 = StringIO.StringIO()   
 
-reduce.run(pdblines, topfile, transfile, outf, mapf2, patches)
+reduce.run(pdblines, topfile, transfile, outf, mapf2, patches, termini = False)
 outlines = outf.getvalue().split("\n")
 for l in outlines: 
   if l.find("XXX") > -1:
     ok = False
     if l[12:16] == " HG " and  l[17:20] == "CYS": ok = True
-    if l[12:16] == " OXT": ok = True
-    if l[12:16] == " HT1": ok = True
-    if l[12:16] == " HT2": ok = True
-    if l[12:16] == " HT3": ok = True
     if not ok:
       raise ValueError("Missing atom:\n%s" % l)
 

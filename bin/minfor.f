@@ -70,7 +70,7 @@ c
       jb=3*iori*(nlig-fixre)+3*itra*(nlig-fixre)
 c  all variables including lig-hm
       nmodes = 0
-      do i=fixre, nlig
+      do i=1, nlig
       nmodes = nmodes + nhm(i)
       enddo
       ju=jb+ieig*nmodes
@@ -104,10 +104,6 @@ c     set the hessian to a diagonal matrix
       enddo
 c     set some variables for the first iteration
       dff=xnull
-      if (iscore.eq.1) then
-        iori = 1
-	itra = 1
-      endif
 
       call energy(maxdof,maxmolpair,
      1 maxlig, maxatom,totmaxatom,maxmode,maxres,
@@ -126,18 +122,27 @@ c     set some variables for the first iteration
      1  energies(1),energies(2),energies(3),
      2  energies(4),energies(5),energies(6)
        j = jb
-       do i=fixre,nlig-1
-        ii = 3 * (i-fixre)
-	iii = jl + 3 * (i-fixre)
-	write(*,*),'Gradients:', delta(ii+1),delta(ii+2),delta(ii+3),
-     1	 delta(iii+1),delta(iii+2),delta(iii+3)
+       do i=1,nlig        
+        if (i.gt.fixre) then
+        
+        ii = 3 * (i-fixre-1)
+	iii= jl+3*(i-fixre-1)
+        if (iori.eq.1.AND.itra.eq.1) then
+          write(*,*),'Gradients:', delta(ii+1),delta(ii+2),delta(ii+3),
+     1	   delta(iii+1),delta(iii+2),delta(iii+3)
+        else if (iori.eq.1.OR.itra.eq.1) then
+          write(*,*),'Gradients:', 
+     1	   delta(ii+1),delta(ii+2),delta(ii+3)
+        endif
+        endif
+            
         if ((ieig.eq.1).AND.nhm(i).gt.0) then
 	 write(*,*), 'Mode gradients:'
 	 do n=1,nhm(i)
-          write(*,*),delta(j+1)
+          write(*,*),delta(j+n)
 	 enddo
-	endif		
-	j = j + nhm(i)
+         j = j + nhm(i)
+	endif			
        enddo      
        go to 256
       else if (iscore.eq.2) then

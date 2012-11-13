@@ -102,17 +102,18 @@ c     Local variables
 c This subroutine generates a ligand-receptor pairlist
 c based on a cutoff (rcut) and on the active atoms (in case of multiple copies)
 c active atoms are in iactr(i):receptor and iactl(j):ligand.
+c Atom code 32 is a universal code for 'dummy'
 
        jj=0
        k=1
        rcut0=dsqrt(rcut)
 
        do 250 i=1,natomr
-       if(iactr(i).eq.1.and.iacir(i).ne.0) then
+       if(iactr(i).eq.1.and.iacir(i).ne.0.and.iacir(i).ne.32) then
        iii=3*(i-1)
        it=iacir(i)
        do 255 j=1,natoml
-       if(iactl(j).eq.1.and.iacil(j).ne.0) then
+       if(iactl(j).eq.1.and.iacil(j).ne.0.and.iacil(j).ne.32) then
        jjj=3*(j-1)
        jt=iacil(j)
 
@@ -127,6 +128,10 @@ c       if(rd.le.rcut1) then
 c      write(*,*)'rcut', iii,jjj,rd, rcut1
        if(rd.le.rcut) then
        jj=jj+1
+       if (jj.ge.maxmolpair) then
+       write(*,*) 'ERROR: maximum number of pairs reached', maxmolpair
+       stop
+       endif
        nonr(jj)=i
        nonl(jj)=j
        endif

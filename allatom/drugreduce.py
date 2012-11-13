@@ -6,7 +6,7 @@ import sys, os
 import parse_cns_top 
 
 
-def run(pdblines, topfile, transfile, outf, mapf, patches, termini=True):
+def run(pdblines, topfile, transfile, outf, mapf, patches):
   global rescounter, atomcounter
 
   rescounter = 1
@@ -34,31 +34,7 @@ def run(pdblines, topfile, transfile, outf, mapf, patches, termini=True):
   def write_res(res, resprev=None, resnext=None):
     global rescounter, atomcounter
 
-    patchn, patchc = False, False
-    if termini:
-      patchn = True
-      if resprev is not None and resprev.resid[0] == res.resid[0] \
-       and resprev.ter == False: 
-        if "C" in resprev.coords and "N" in res.coords:
-          x1,y1,z1 = resprev.coords["C"]
-          x2,y2,z2 = res.coords["N"]
-          d = (x1-x2)**2 + (y1-y2)**2 + (z1-z2)**2
-          if d < threshsq: patchn = False
-
-      patchc = True
-      if resnext is not None and resnext.resid[0] == res.resid[0] \
-       and res.ter == False: 
-        if "C" in res.coords and "N" in resnext.coords:
-          x1,y1,z1 = res.coords["C"]
-          x2,y2,z2 = resnext.coords["N"]
-          d = (x1-x2)**2 + (y1-y2)**2 + (z1-z2)**2
-          if d < threshsq: patchc = False
-
     r = residues[res.resname.lower()].copy()
-    if patchn:
-      r.patch(presidues["nter"])
-    if patchc:
-      r.patch(presidues["cter2"])
     if res.resid in patches:
       p = patches[res.resid]
       if isinstance(p, str): p = [p]
@@ -92,7 +68,7 @@ def run(pdblines, topfile, transfile, outf, mapf, patches, termini=True):
     if l.startswith("TER"):
       if curr_res is not None: curr_res.ter = True
       continue
-    if l.startswith("ATOM"):
+    if l.startswith("ATOM") or l.startswith("HETATM"):
       atomcode = l[12:16].strip()
       assert l[16] == " ", l
       resname = l[17:20]   
@@ -121,7 +97,7 @@ if __name__ == "__main__":
   transfile = sys.argv[2]
   topfile = sys.argv[3]
 
-  outfile = os.path.splitext(pdb)[0] + "-aaX.pdb"
+  outfile = os.path.splitext(pdb)[0] + "-aa.pdb"
   outf = open(outfile, "w")
 
   run(pdblines, topfile, transfile, outf, sys.stdout, {})

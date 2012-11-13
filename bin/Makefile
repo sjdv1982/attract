@@ -67,6 +67,9 @@ rmsd: rmsd.o read_parameters.o read_pdb.o read_pdb2.o read_dof.o \
 calc_interior: calc_interior.o em/situs/lib_vio.o em/situs/lib_pio.o em/situs/lib_err.o
 	$(CXX) $(CFLAGS) $^  -lgfortran -o $@
 
+calc_no_interior: calc_no_interior.o em/situs/lib_vio.o em/situs/lib_pio.o em/situs/lib_err.o
+	$(CXX) $(CFLAGS) $^  -lgfortran -o $@
+
 make-grid: make-grid.o em/emenergy.o grid_calculate.o grid.o ministate.o $(OBJ) 
 	$(CXX) $(CFLAGS) $^  -lgfortran -lrt -o $@
 
@@ -78,6 +81,12 @@ make-grid-torque: make-grid-torque.o em/emenergy.o grid_calculate-torque.o grid-
 
 make-grid-torque-omp: make-grid-torque.o em/emenergy.o grid_calculate-torque-omp.o grid-torque.o ministate-torque.o $(OBJ) 
 	$(CXX) $(CFLAGS)  $^  -fopenmp -lgfortran -lrt -o $@
+
+gridstat-torque: gridstat-torque.o max.h
+	$(CXX) $(CFLAGS) $^  -o $@
+
+gridstat: gridstat.o max.h
+	$(CXX) $(CFLAGS) $^  -o $@
 
 shm-grid: shm-grid.o grid_calculate.o grid.o ministate.o em/emenergy.o $(OBJ)
 	$(CXX) $(CFLAGS) $^  -lgfortran -lrt -o $@
@@ -175,7 +184,7 @@ rest: read_pdb2.o
 	$(CXX) $(CFLAGS) transl.cpp read_pdb2.o -o trans
 	$(CXX) $(CFLAGS) deflate.cpp read_pdb2.o -o deflate
         
-all: attract attract-torque collect lrmsd rmsd calc_interior make-grid \
+all: attract attract-torque collect lrmsd rmsd calc_interior calc_no_interior make-grid \
  make-grid-omp make-grid-torque make-grid-torque-omp shm-grid \
  shm-grid-torque shm-clean systsearch map2map fix_receptor \
  omp_threadnum deredundant matrix-lrmsd rest 

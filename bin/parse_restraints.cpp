@@ -100,16 +100,23 @@ void parse_restraintfile(MiniState &ms, const char *restfile) {
       r.s2 = sel_natoms[id2];
       r.type = atoi(fields[2]);
 
-      if (r.type > 2) {
+      if (r.type > 3) {
         fprintf(stderr, "Reading error in %s, line %d: Restraint type %s not supported\n", restfile, line, fields[2]);
 	exit(1);      
       }
       bool wrong = 0;
       if (r.type == 1 && nf != 5) wrong = 1;
       if (r.type == 2 && nf != 7) wrong = 1;
+      if (r.type == 3 && nf != 5) wrong = 1;
       if (wrong) {
         fprintf(stderr, "Reading error in %s, line %d: Wrong number of parameters for restraint type %d\n", restfile, line, r.type);
 	exit(1);      
+      }
+      if (r.type == 3) {
+        if (r.s1 != 1 || r.s2 != 1) {
+          fprintf(stderr, "Reading error in %s, line %d: Minimum-distance restraints require single-atom selections\n", restfile, line);
+	  exit(1);      
+        }
       }
       if (nf > 3) r.par1 = atof(fields[3]);
       if (nf > 4) r.par2 = atof(fields[4]);

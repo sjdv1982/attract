@@ -295,7 +295,7 @@ c      rotate delta-translate back into global frame
        
 c calculate receptor mode deltas
        call ligmin(maxlig,maxdof,maxmode,maxatom,
-     1  fr,natomr,idr,eig,nhm(idr+1),deltar) 
+     1  fr,natomr,idr+1,eig,nhm(idr+1),deltar) 
 
        call grad_morph(fr,natomr,morphr,cmorphdr,
      1  deltamorphr)       
@@ -309,7 +309,7 @@ c rotate ligand forces into ligand frame
 
 c calculate ligand mode deltas
        call ligmin(maxlig,maxdof,maxmode,maxatom,
-     1  flcopy,natoml,idl,eig,nhm(idl+1),deltal) 
+     1  flcopy,natoml,idl+1,eig,nhm(idl+1),deltal) 
 
        call grad_morph(flcopy,natoml,morphl,cmorphdl,
      1  deltamorphl)
