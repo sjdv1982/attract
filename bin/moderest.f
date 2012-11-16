@@ -23,6 +23,7 @@ c
       enlig=enlig+en
       deloldl=4.0d0*val(i)*dlig(i)**3
       delta(6+i)=delta(6+i)+deloldl
+c      write(*,*),i, val(i), dlig(i), en, enlig
    50 continue
       return 
       end
