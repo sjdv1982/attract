@@ -111,7 +111,7 @@ extern "C" void ministate_calc_pairlist_(const int &ministatehandle, const int  
 	  if (i == 0) {
 	    if (cartstate.grids[i] != NULL) is_grid = 1;
 	  }
-	  else if (j == 0) {
+	  else if (j == 0 && cartstate.nhm[j] == 0) {
 	    continue;
 	  }
 	  else if (cartstate.grids[i] != NULL && cartstate.grids[j] != NULL) {
