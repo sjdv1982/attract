@@ -24,7 +24,7 @@ c      Parameters
        dimension ens(maxlig)
        real*8 phi, ssi, rot, morph, dlig, xa, ya, za
        dimension phi(maxlig), ssi(maxlig), rot(maxlig)
-       dimension dlig(maxlig, maxmode)
+       dimension dlig(maxmode, maxlig)
        dimension xa(maxlig), ya(maxlig), za(maxlig)
        dimension morph(maxlig)
        real*8 deltamorph(maxlig)       
@@ -100,7 +100,7 @@ c apply ensemble/normal mode deformations
        call cartstate_get_ensd(cartstatehandle,i-1,ens(i),ptr_ensd,
      1  -1.0d0,dmmy1,dmmy2)
        call deform(maxlig,3*maxatom,3*totmaxatom,maxatom,maxmode,
-     1  ens(i),ensd,dmmy3,dmmy4,dlig(i,:),
+     1  ens(i),ensd,dmmy3,dmmy4,dlig(:,i),
      2  nhm,i-1,ieins,eig,xb,x,xori,xori0,0)
 5      continue
 c apply symmetry restraints
@@ -165,7 +165,7 @@ c     1  'DOFS',i,phi(i),ssi(i),rot(i),xa(i),ya(i),za(i)
        call ligmin(maxlig,maxdof,maxmode,maxatom,
      1  fl,natom(i),i,eig,nhm(i),cdelta)
                
-       call moderest(maxdof,maxmode,dlig(i,:),nhm(i),val(i,:),
+       call moderest(maxdof,maxmode,dlig(:,i),nhm(i),val(i,:),
      1  cdelta, energies(3))
        	
        ii = jb
