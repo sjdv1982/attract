@@ -1,0 +1,155 @@
+#!/usr/bin/python
+
+"""
+Minimalistic ATTRACT interface file editor
+
+To edit an existing ATTRACT interface file, supply it on the command line:
+  attract-editor attract.web
+To create a new one, don't supply a second argument:
+  attract-editor
+
+The "Save" button saves the edited file (to the same file, or to new.web
+ if no file was supplied)
+
+The "Generate shell script" button generates an executable protocol
+
+
+Any exceptions will be printed on screen
+
+"""
+
+from __future__ import print_function
+
+import sys, os
+
+if len(sys.argv) == 1:
+  inp = None
+  outp = "new.web"
+elif len(sys.argv) == 2:
+  inp = sys.argv[1]
+  outp = inp
+else: 
+ raise Exception("Usage: attract-editor [file name]")
+
+try:
+  import spyder
+  sys.path.append("/home/sjoerd/data/Spyder/modules") ###
+  import spyder.modules.atom ###
+  import haddock
+  import spyder.qtform.anyQt
+except ImportError:
+  traceback.print_exc()
+  if sys.platform == "win32":
+    time.sleep(30) 
+  sys.exit()    
+from spyder.qtform.anyQt.QtCore import QBuffer, QObject
+from spyder.qtform.anyQt.QtGui import QApplication
+from spyder.qtform.anyQt.QtUiTools import QUiLoader
+
+from spyder.qtform import qtview
+import attractmodel
+from Spyder import AttractModel
+
+from spyder.formtools import model, controller, comparator, mvc
+
+spydertype = AttractModel
+
+form = spydertype._form()
+form.add_button("Generate shell script", "after")
+form.add_button("Save", "after")
+
+
+#construct model, controller, comparator
+m = model(spydertype._typetree())  #or: m = model(spydertype)
+con = controller(form, m)
+com = comparator(form)
+
+#link model and comparator
+m.listen(com._set)
+
+#optional: initialize model 
+if inp is not None:
+  params = AttractModel.fromfile(inp)
+  m.set(params)
+
+#build view
+xml = spyder.qtform.xml(spydertype, form=form)
+app = QApplication(sys.argv)
+loader = QUiLoader()
+buf = QBuffer()
+buf.open(QBuffer.ReadWrite)
+buf.write(xml)
+buf.close()
+ui = loader.load(buf)
+v = qtview.qtview(form)
+v._wrap(ui)
+
+#construct mvc
+my_mvc = mvc(form, lambda:m, lambda: v, lambda:con, lambda:com)
+
+#bind mvc
+my_mvc.bind()
+my_mvc.sync_m2v()
+
+#register view listener 
+# (note the order, after the mvc binding! The viewupdate will now be invoked last)
+import traceback
+def format_model_exc(exc,limit=None,pat = None):
+  if exc is None: return []
+  ret = []
+  if isinstance(exc, list):
+    for e in exc:
+      ret += format_model_exc(e,limit,pat)
+  elif isinstance(exc, dict):
+    for k in exc:
+      subpat = k
+      if pat is not None: subpat = pat + "." + k
+      subret = format_model_exc(exc[k],limit,subpat)
+      if len(subret):
+        ret.append("Attribute %s:\n" % subpat)
+        for l in subret: ret.append("  " + l)
+  else:
+    ret = traceback.format_exception(exc[0],exc[1],exc[2],limit)
+  return ret
+
+#exception printing (prints *all* exceptions, also the non-fatal ones)  
+old_exc = None
+def viewupdate(*args):
+  global old_exc
+  if m.exc is None:
+    if old_exc is not None: print("No exception")
+    old_exc = None 
+  else: 
+    exc = "".join(format_model_exc(m.exc,10))
+    if exc == old_exc: return
+    print(exc)
+    old_exc = exc
+
+def save(*args):
+  v = m.get() 
+  if v is not None:
+    v.tofile(outp)
+    print("Form object saved to %s" % outp)
+  else:
+    print("Cannot save form: does not contain a valid object")
+
+def generate(*args):
+  v = m.get() 
+  if v is not None:
+    sh = os.path.splitext(outp)[0] + ".sh"
+    script = v.generate()
+    fsh = open(sh, "w")
+    fsh.write(script+"\n")
+    fsh.close()
+    print("Shell script generated: %s" % sh)
+  else:
+    print("Cannot generate shell script: form does not contain a valid object")
+
+v.buttons[0].listen(save)
+v.buttons[1].listen(generate)
+v.listen(viewupdate)
+
+#fire up application
+ui.show()
+app.exec_()
+
