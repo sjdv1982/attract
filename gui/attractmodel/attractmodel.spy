@@ -96,7 +96,7 @@ Type AttractPartnerInterface {
   ## form collect_pdb.file = "Data_PDB"
   *File collect_ensemble_list
   ## form collect_ensemble_list.add_header("If you specified a PDB file above, you may provide an ensemble conformer list for it")
-  ## form collect_ensemble_list.name = "Ensemble list file"
+  ## form collect_ensemble_list.name = "Collect Ensemble list file"
   ## form collect_ensemble_list.type = "required"
   ## form collect_ensemble_list.file = "Data_TXT_FileList_PDB"
 

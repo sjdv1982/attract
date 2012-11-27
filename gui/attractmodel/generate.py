@@ -8,7 +8,7 @@ def generate(m):
   if (m.header is not None):
     ret = m.header + "\n\n"
   ret += "if [ 1 -eq 1 ]; then ### move and change to disable parts of the protocol\n"
-  ret += "$ATTRACTDIR/bin/shm-clean\n\n"
+  ret += "$ATTRACTDIR/shm-clean\n\n"
 
   modes_any = any((p.modes_file for p in m.partners))
   aa_modes_any = any((p.aa_modes_file for p in m.partners))
@@ -168,9 +168,12 @@ echo '**************************************************************'
       rotfil = "$ATTRACTDIR/../rotation.dat"
       if m.rotations_file is not None:
         rotfil = m.rotations_file.name
-      ret += "cat %s > rotation.dat\n" % rotfil
+      if rotfil != "rotation.dat":
+        ret += "cat %s > rotation.dat\n" % rotfil
       if m.translations_file is not None:
-        ret += "cat %s > translate.dat\n" % m.translations_file.name
+        transfil = m.translations_file.name
+        if transfil != "translate.dat":
+          ret += "cat %s > translate.dat\n" % transfil
       else:
         ret += "$ATTRACTDIR/translate %s %s > translate.dat\n" % \
          (filenames[0], filenames[1])
@@ -401,7 +404,7 @@ echo '**************************************************************'
       filename = filenames[pnr]
       p = m.partners[pnr]
       if p.rmsd_pdb is not None:
-        filename = p.rmsd_pdb
+        filename = p.rmsd_pdb.name
         if p.lrmsd_ca:
           filename2 = os.path.splitext(filename)[0] + "ca.pdb"
           ret += "grep ' CA ' %s > %s\n" % (filename, filename2)
