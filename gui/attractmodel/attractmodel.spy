@@ -1,0 +1,421 @@
+Type Data_ATTRACT_Structures:Data{}
+Type Data_ATTRACT_Rotations:Data{}
+Type Data_ATTRACT_Translations:Data{}
+Type Data_ATTRACT_Modes:Data{}
+Type Data_ATTRACT_CryoEM_data:Data{}
+Type Data_ATTRACT_Grid:Data{}
+
+Type Data_TXT_FileList_PDB:Data{}
+
+Type AttractSymmetry {
+  Enum symmetry("Cx","Dx") = "Cx"
+  IntegerArray partners = []
+  validate {
+    assert len(partners) > 1
+    if symmetry == "Dx": assert len(partners) == 4
+  }
+}
+
+Type AttractPartnerInterface {
+  ## form pdb.name = "Structure definition"
+  PDBInterface pdb
+  
+  #RestraintsInterface r = RestraintsInterface()
+  ## #form r.name = "Restraint definition"
+  ## #form r.type = "required"
+    
+  Enum moleculetype("Protein", "DNA", "RNA") = "Protein"
+  ## form moleculetype.name = "What kind of molecule are you docking?"
+  ## form moleculetype.optiontitles = "Protein/peptide/small ligand", "DNA", "RNA"
+  
+  Bool is_reduced = False
+  ## form is_reduced.name = "The molecule is already in reduced form"
+  
+  Bool generate_modes = False
+  ## form generate_modes.name = "Generate harmonic modes"
+  
+  *File modes_file 
+  ## form modes_file.name = "Harmonic modes file"
+  ## form modes_file.type = "required"
+  ## form modes_file.file = "Data_ATTRACT_Modes"  
+  *File aa_modes_file 
+  ## form aa_modes_file.name = "All-atom harmonic modes file (for RMSD/collect)"
+  ## form aa_modes_file.type = "required"
+  ## form aa_modes_file.file = "Data_ATTRACT_Modes"    
+  *Integer nr_modes = 0
+  form {
+    nr_modes.name = "Number of harmonic modes to select"
+    nr_modes.type = "option"
+    nr_modes.options = list(range(0,10+1))
+    nr_modes.optiontitles = ["No modes"] + [str(v) for v in nr_modes.options[1:]]
+  }
+  ## validate if generate_modes: assert nr_modes is not None
+  ## validate if generate_modes: assert modes_file is None
+  ## validate if nr_modes not in (None, 0): assert nr_modes >= 1 and nr_modes <= 10
+  
+  *String gridname
+  ## form gridname.name = "Name of the grid to use for this molecule"
+  ## form gridname.type = "required"  
+  
+  *File ensemble_list
+  ## form ensemble_list.name = "Ensemble list file"
+  ## form ensemble_list.type = "required"
+  ## form ensemble_list.file = "Data_TXT_FileList_PDB"
+  *Integer ensemble_size
+  ## form ensemble_size.name = "Number of conformers in the ensemble"
+  ## form ensemble_size.type = "required"
+  ## validate assert ensemble_size is None or ensemble_size > 0
+  *Enum ensemblize("random","all","custom")
+  ## form ensemblize.type = "required"
+  ## form ensemblize.name = "Ensemble search"
+  ## form ensemblize.optiontitles = "Random", "All", "Custom (none)"
+  
+  Bool auto_his = True  
+  #HistidineStateArray his = []
+  Bool charged_nter = True
+  Bool charged_cter = True
+  
+  Bool deflex = False
+  ## form deflex.add_header("If you perform RMSD analysis, you may remove all flexibility (ensemble and modes) beforehand")
+  ## form deflex.name = "Remove flexibility" 
+
+  *File_PDB rmsd_pdb
+  ## form rmsd_pdb.add_header("You can specify a different PDB file to use in RMSD calculations")
+  ## form rmsd_pdb.add_header("Leave blank to use the reduced PDB instead")
+  ## form rmsd_pdb.name = "RMSD PDB file"
+  ## form rmsd_pdb.type = "required"
+  ## form rmsd_pdb.file = "Data_PDB"
+  Bool lrmsd_ca = True
+  ## form lrmsd_ca.name = "Select only C-alpha atoms for ligand RMSD calculation"
+
+  *File_PDB collect_pdb
+  ## form collect_pdb.add_header("You can specify a different PDB file to use as template for collecting the structures")
+  ## form collect_pdb.add_header("Leave blank to use the reduced PDB instead")
+  ## form collect_pdb.name = "Collect PDB file"
+  ## form collect_pdb.type = "required"
+  ## form collect_pdb.file = "Data_PDB"
+  *File collect_ensemble_list
+  ## form collect_ensemble_list.add_header("If you specified a PDB file above, you may provide an ensemble conformer list for it")
+  ## form collect_ensemble_list.name = "Collect Ensemble list file"
+  ## form collect_ensemble_list.type = "required"
+  ## form collect_ensemble_list.file = "Data_TXT_FileList_PDB"
+
+  form {
+    """
+    For now, disable advanced features
+    """
+    #r.type = None
+    moleculetype.type = None
+    auto_his.type = None
+    #his.type = None
+    #his.length = 10
+    charged_nter.type = None
+    charged_cter.type = None
+  }  
+  validate {
+    assert (ensemble_size is None) == (ensemble_list is None) == (ensemblize == None)
+    assert is_reduced == False or pdb.code is None
+  }
+}
+
+Type AttractGrid {
+  String gridname = ""
+  ## form gridname.name = "Name of this grid"
+  validate {
+    gridname = gridname.strip()
+    assert len(gridname) > 0
+    self.gridname = gridname
+    if not gridname.replace("_","").replace("-","").isalnum():
+      raise ValueError("The name of the grid may contain only letters, digits, _ and -")  
+  }
+
+  *File gridfile
+  form {
+    gridfile.type = "required"
+    gridfile.file = "Data_ATTRACT_Grid"
+    gridfile.add_header("If a grid file has been previously generated, you can specify it here")
+    gridfile.name = "Grid file"
+  }
+  ## form omp.add_header("Do you want to calculate the grid on multiple cores using OpenMP?")
+  Bool omp = False
+  ## form torque.add_header("Is the grid a torque grid?")
+  Bool torque = False
+  Bool mask_interior = False
+  ## form mask_interior.name = "Mask the protein interior before grid calculation"
+  Float plateau_distance = 10.0
+  ## form plateau_distance.name = "Plateau distance (A) for grid calculation"
+  Float neighbour_distance = 12.0 
+  ## form neighbour_distance.name = "Neighbor list cutoff (A) for grid calculation"
+  Bool calc_potentials = True
+  ## form calc_potentials.name = "Calculate long-range potentials on the grid"
+}
+
+Type AttractIteration {
+  ## form rcut.add_header("The nonbonded pairlist distance cutoff (rcut) (in A**2) during this iteration")
+  *Float rcut = 1500
+  ## form vmax.add_header("The maximum number of energy minimization steps (vmax)") 
+  *Integer vmax = 100
+  ## form traj.add_header("Trajectory mode: only minimize the first structure, and output the structure after every minimization step")
+  Bool traj = False
+  validate {
+   assert rcut is None or rcut > 0
+   assert vmax is None or vmax > 0
+  }  
+  
+  Bool mc = False
+  *Float mctemp = 3.5
+  *Float mcscalerot = 0.05
+  *Float mcscalecenter = 0.1
+  *Float mcscalemode = 0.1
+  *Float mcensprob = 0.1
+  form {
+    mc.group = "Monte Carlo"
+    mc.name = "Enable Monte Carlo mode"
+    mctemp.type = "required"
+    mctemp.group = "Monte Carlo"
+    mctemp.name = "Temperature (in kT)"
+    mcscalerot.type = "required"
+    mcscalerot.group = "Monte Carlo"
+    mcscalerot.name = "Rotation step size (in radians)"
+    mcscalecenter.type = "required"
+    mcscalecenter.group = "Monte Carlo"
+    mcscalecenter.name = "Translation step size (in angstroms)"
+    mcscalemode.type = "required"
+    mcscalemode.group = "Monte Carlo"
+    mcscalemode.name = "Mode deformation step size (in angstroms)"
+    mcensprob.type = "required"
+    mcensprob.group = "Monte Carlo"
+    mcensprob.name = "Probability to switch between ensemble conformers"
+  }
+  validate {
+    assert mctemp is None or mctemp > 0
+    assert mcensprob is None or (mcensprob >= 0 and mcensprob <= 1)
+  }  
+}
+
+Type AttractModel {
+  String runname
+  form {
+    runname.add_header("Please supply a name for your docking run (one word)")
+    runname.name = "Name"
+  }  
+  validate {
+    runname = runname.strip()
+    self.runname = runname
+    if not runname.replace("_","").replace("-","").isalnum():
+      raise ValueError("The name of your run may contain only letters, digits, _ and -")  
+  }
+  
+  AttractPartnerInterfaceArray partners
+  form {
+    partners.length = 10
+    partners.name = "Docking partners"
+    for n in range(partners.length):      
+      partners[n].name = "Docking partner % d" % (n+1)
+  }
+  AttractGridArray grids = []
+  form {
+    grids.length = 5
+    grids.group = "Grids"
+    grids.name = "Grid"
+    grids.count_from_one = True
+  }  
+  Integer nr_iterations = 1
+  AttractIterationArray iterations = []
+  form {  
+    nr_iterations.group = "Iteration parameters"
+    nr_iterations.name = "Number of iterations"
+    iterations.group = "Iteration parameters"
+    iterations.length = 5
+    iterations[0].name = "First iteration"
+    iterations[1].name = "Second iteration"
+    iterations[2].name = "Third iteration"
+    iterations[3].name = "Fourth iteration"
+    iterations[4].name = "Fifth iteration"
+  }  
+  validate {
+    assert nr_iterations >= len(iterations)
+  }
+  #***Sampling parameters***
+  Bool fix_receptor = False
+  ## form fix_receptor.name = "Fix the receptor during docking"    
+  Enum search("syst","random", "custom")
+  ## form search.name = "Docking search"
+  ## form search.optiontitles = "Systematic","Random", "Custom"
+  validate {
+    for p in partners:
+      if p.ensemblize == "custom": assert search == "custom"
+  }  
+  Integer structures = 10000
+  ## form structures.name = "Number of structures for random search"
+  *File start_structures_file
+  ## form start_structures_file.type = "required"
+  ## form start_structures_file.file = "Data_ATTRACT_Structures"
+  *File rotations_file
+  ## form rotations_file.type = "required"
+  ## form rotations_file.file = "Data_ATTRACT_Rotations"
+  *File translations_file
+  ## form translations_file.type = "required"
+  ## form translations_file.file = "Data_ATTRACT_Translations"
+  form {
+    start_structures_file.add_header("Custom search files")
+    start_structures_file.add_header("For a custom search, supply a starting structures file, OR: rotations and/or translations files")
+    start_structures_file.name = "Starting structures file for custom search"
+    rotations_file.name = "Rotations file for custom search"
+    translations_file.name = "Translations file for custom search"
+  }
+  validate {
+    if search != "custom":
+      assert rotations_file is None
+      assert translations_file is None
+      assert start_structures_file is None
+      if search == "syst": assert len(partners) == 2
+    elif start_structures_file is not None:
+      assert rotations_file is None
+      assert translations_file is None
+    else:
+      assert rotations_file is not None or \
+       translations_file is not None      
+      assert len(partners) == 2 
+  }   
+  form {
+    fix_receptor.group = "Sampling parameters"
+    search.group = "Sampling parameters"
+    structures.group = "Sampling parameters"
+    start_structures_file.group = "Sampling parameters"
+    rotations_file.group = "Sampling parameters"
+    translations_file.group = "Sampling parameters"
+  }
+  #*** 
+
+  #***Energy and interaction parameters***
+  Integer gravity
+  form {
+    gravity.name = "Gravity"
+    gravity.type = "option"
+    gravity.options = (0,1,2,3,4,5)
+    gravity.optiontitles = ("No gravity", "To global origin", "To receptor", "Between all ligands", "Cryo-EM pre-assembly stage gravity", "Cryo-EM assembly stage gravity")
+  }  
+  *Float rstk
+  form {
+    rstk.name = "Restraining force constant"
+    rstk.type = "required"
+    rstk.default = 0.2
+  }
+  
+  Enum forcefield("ATTRACT", "OPLSX") = "ATTRACT"
+  ## form forcefield.add_header("Which forcefield is to be used?")
+  ## form forcefield.name = "Forcefield"
+  Bool ghost = False
+  ## form ghost.add_header("In ghost mode, the forcefield is turned off")
+  ## form ghost.name = "Enable ghost mode"
+
+  Float epsilon = 15
+  ## form #epsilon.group = "Sampling parameters"
+  ## form epsilon.add_header("Epsilon constant for the electrostatic energy term")
+  ## form epsilon.name = "Epsilon"
+  
+  Enum dielec("cdie", "rdie") = "rdie"
+  ## form dielec.name = "Use constant (cdie) or distance-dependent (rdie) dielectric"
+  form {
+    _g = "Energy and interaction parameters"
+    gravity.group = _g
+    rstk.group = _g
+    forcefield.group = _g
+    ghost.group = _g
+    epsilon.group = _g
+    dielec.group = _g
+  }
+  #***
+  
+  *File cryoem_data
+  form {
+    cryoem_data.type = "required"
+    cryoem_data.name = "Cryo-EM fitting parameters (em.inp)"
+    cryoem_data.file = "Data_ATTRACT_CryoEM_data"
+  }  
+  
+  AttractSymmetryArray symmetries = []
+  form {
+    symmetries.length = 5
+    symmetries.name = "Symmetry"
+    symmetries.count_from_one = True
+    symmetries[None].symmetry.name = "Symmetry type"
+    symmetries[None].partners.name = "Symmetry partners"
+    symmetries[None].partners.length = 12
+    for n in range(12):
+      symmetries[None].partners[n].name = n+1
+  }  
+  
+  #**Analysis***  
+  Bool rescoring = True  
+  Float rcut_rescoring = 50.0    
+  Bool sort = True
+  Bool deredundant = True
+  Bool deredundant_ignorens = True
+  *Bool calc_lrmsd = False  
+  *Bool calc_irmsd = False
+  *Bool calc_fnat = False
+  #for now, don't calculate irmsd or fnat
+  ## form calc_irmsd.type = "none" ###TODO 
+  ## form calc_fnat.type = "none" ###TODO 
+  Bool collect = True
+  Integer nr_collect = 50
+  form {
+    rescoring.group = "Analysis"
+    rcut_rescoring.group = "Analysis"
+    sort.group = "Analysis"
+    deredundant.group = "Analysis"
+    deredundant_ignorens.group = "Analysis"
+    calc_lrmsd.group = "Analysis"
+    calc_irmsd.group = "Analysis"
+    calc_fnat.group = "Analysis"
+    collect.group = "Analysis"
+    nr_collect.group = "Analysis"
+    
+    rescoring.name = "Perform a rescoring step after docking"
+    rcut_rescoring.add_header("The nonbonded pairlist distance cutoff (rcut) (in A**2) during rescoring")
+    rcut_rescoring.name = "rcut (rescoring)"
+    sort.name = "Sort the final structures according to ATTRACT energy"
+    deredundant.name = "Remove redundant structures after docking"
+    deredundant_ignorens.name = "Ignore ensemble conformers for redundancy"
+    calc_lrmsd.name = "Calculate ligand RMSD after docking"
+    calc_irmsd.name = "Calculate interface RMSD after docking"
+    calc_fnat.name = "Calculate fraction of native contacts after docking"
+    collect.name = "Collect the structures as PDBs after docking"
+    nr_collect.name = "Number of structures to collect"
+  }
+  #***
+    
+  #***Computing and parallelization parameters***
+  Integer np = 1
+  ## form np.group = "Computing and parallelization parameters"
+  ## form np.name = "Number of processor cores"
+  Integer jobsize = 1000
+  ## form jobsize.group = "Computing and parallelization parameters"
+  ## form jobsize.name = "Number of structures in a single job"
+  
+  *String header = "#PBS -l nodes=1:ppn=12\n#PBS -l walltime=6:30:00\n#PBS -j oe\ncd $PBS_O_WORKDIR\n\nATTRACTDIR=/home/sjoerd/data/work/attract/bin\nATTRACTTOOLS=/home/sjoerd/data/work/attract/tools"
+  ## form header.group = "Computing and parallelization parameters"
+  ## form header.name = "Header for docking protocol script"
+  ## form header.type = "textarea"
+  ## form header.cols = 80
+  ## form header.rows = 50
+  
+  #***
+  
+  validate {
+    #TODO: grid alphabet
+    gridnames = set([g.gridname for g in grids])
+    for partner in partners:
+      if partner.gridname is not None:
+        assert partner.gridname in gridnames, partner.gridname     
+    #TODO: mixed-model docking (e.g. some partners coarse-grained, others all-atom)
+    
+    if calc_lrmsd: assert len(partners) == 2
+    if calc_irmsd: assert len(partners) == 2
+  }
+  
+}
+
+Method generate(AttractModel) generate

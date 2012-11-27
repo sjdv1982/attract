@@ -1,0 +1,132 @@
+#!/usr/bin/python
+
+"""
+Minimalistic ATTRACT interface file editor
+
+To edit an existing ATTRACT interface file, supply it on the command line:
+  attract-editor attract.web
+To create a new one, don't supply a second argument:
+  attract-editor
+
+The "Save" button saves the edited file (to the same file, or to new.web
+ if no file was supplied)
+
+The "Generate shell script" button generates an executable protocol
+
+
+Any exceptions will be printed on screen
+
+"""
+
+from __future__ import print_function
+
+import sys, os
+
+if len(sys.argv) == 1:
+  inp = None
+  outp = "new.web"
+elif len(sys.argv) == 2:
+  inp = sys.argv[1]
+  d,f = os.path.split(inp)
+  if len(d): os.chdir(d)
+  inp = f  
+  outp = inp
+else: 
+ raise Exception("Usage: attract-editor [file name]")
+
+import spyder
+from gi.repository import Gtk
+#sys.path.append("/home/sjoerd/data/Spyder/modules")
+import spyder.modules.atom
+#import haddock
+import attractmodel
+from spyder.gtkform import gtkview
+from Spyder import AttractModel
+
+from spyder.formtools import model, controller, comparator, mvc
+
+spydertype = AttractModel
+
+form = spydertype._form()
+form.add_button("Generate shell script", "after")
+form.add_button("Save", "after")
+
+
+#construct model, controller, comparator
+m = model(spydertype._typetree())  #or: m = model(spydertype)
+con = controller(form, m)
+com = comparator(form)
+
+#link model and comparator
+m.listen(com._set)
+
+#optional: initialize model 
+if inp is not None:
+  params = AttractModel.fromfile(inp)
+  m.set(params)
+  #print(params)
+  #print(m.get())
+  #print(m.exc)
+  #import sys;sys.exit()
+
+#build view
+xml = spyder.gtkform.xml(spydertype, form=form)
+builder = Gtk.Builder()
+builder.add_from_string(xml)
+v = gtkview.gtkview(form)
+v._wrap(builder)
+
+#construct mvc
+my_mvc = mvc(form, lambda:m, lambda: v, lambda:con, lambda:com)
+
+#bind mvc
+my_mvc.bind()
+my_mvc.sync_m2v()
+
+#register view listener 
+# (note the order, after the mvc binding! The viewupdate will now be invoked last)
+import traceback
+def format_model_exc(exc,limit=None,pat = None):
+  if exc is None: return []
+  ret = []
+  if isinstance(exc, list):
+    for e in exc:
+      ret += format_model_exc(e,limit,pat)
+  elif isinstance(exc, dict):
+    for k in exc:
+      subpat = k
+      if pat is not None: subpat = pat + "." + k
+      subret = format_model_exc(exc[k],limit,subpat)
+      if len(subret):
+        ret.append("Attribute %s:\n" % subpat)
+        for l in subret: ret.append("  " + l)
+  else:
+    ret = traceback.format_exception(exc[0],exc[1],exc[2],limit)
+  return ret
+
+#exception printing (prints *all* exceptions, also the non-fatal ones)  
+old_exc = None
+def viewupdate(*args):
+  global old_exc
+  if m.exc is None:
+    if old_exc is not None: print("No exception")
+    old_exc = None 
+  else: 
+    exc = "".join(format_model_exc(m.exc,10))
+    if exc == old_exc: return
+    print(exc)
+    old_exc = exc
+
+import attractsave
+from functools import partial
+
+v.buttons[0].listen(partial(attractsave.save, m, outp))
+v.buttons[1].listen(partial(attractsave.generate, m, outp))
+v.listen(viewupdate)
+
+#fire up application
+window = builder.get_object("window1") 
+window.connect("delete-event", Gtk.main_quit)
+window.show_all()
+Gtk.main()
+

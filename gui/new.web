@@ -1,0 +1,47 @@
+AttractModel (
+  runname = 'x',
+  partners = AttractPartnerInterfaceArray (
+    AttractPartnerInterface (
+      pdb = PDBInterface (
+        mode = 'submit',
+        chain = 'All',
+        pdbfile = File_PDB (
+          name = '/home/sjoerd/data/work/nice/attract2/hm5/xylca.pdb',
+          fileformat = Data_PDB,
+          mode = 'Read',
+          format = Data_PDB,
+        ),
+      ),
+      r = RestraintsInterface (
+        activereslist = '',
+        passivereslist = '',
+        auto_passive = False,
+      ),
+      moleculetype = 'Protein',
+      is_reduced = False,
+      generate_modes = False,
+      auto_his = True,
+      his = HistidineStateArray (
+      ),
+      charged_nter = True,
+      charged_cter = True,
+      deflex = False,
+    ),
+  ),
+  grids = AttractGridArray (
+  ),
+  nr_iterations = 1,
+  iterations = AttractIterationArray (
+  ),
+  gravity = 0,
+  fix_receptor = False,
+  epsilon = 15.0,
+  dielec = 'rdie',
+  search = 'syst',
+  structures = 10000,
+  start_structures_ensemble = False,
+  forcefield = 'ATTRACT',
+  header = '#PBS -l nodes=1:ppn=12\n#PBS -l walltime=6:30:00\n#PBS -j oe\ncd $PBS_O_WORKDIR\n\nATTRACTDIR=/home/sjoerd/data/work/attract/bin\nATTRACTTOOLS="/home/sjoerd/data/work/attract/tools"',
+  np = 1,
+  jobsize = 1000,
+)
