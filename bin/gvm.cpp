@@ -70,7 +70,7 @@ extern "C" void cartstate_f_write_pdb_(
 
 extern "C" void cartstate_f_rotdeform_(
   const int &handle,
-  int *(&nhm), int *&ieins, double *&eig, double *&pivot, double *&xb, double *&x,double *&xori, double *&xori0);
+  int *(&nhm), int *(&ieins), double *(&eig), double *(&pivot), double *(&xb), double *(&x),double *(&xori), double *(&xori0));
 
 extern "C" void cartstate_get_nlig_nhm_(const int &handle, int &nlig, int *(&nlm));
 extern "C" void cartstate_get_pivot_(const int &handle,double *&pivot);

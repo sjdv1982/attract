@@ -27,6 +27,7 @@ c     Local variables
       xnull=0.0d0
       enon=xnull
       epote=xnull
+      r2=xnull
       do 100 ik=1,nonp
       i=nonr(ik)
       j=nonl(ik)

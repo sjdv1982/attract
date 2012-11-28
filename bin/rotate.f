@@ -60,7 +60,6 @@ c     local variables
       real*8 xx,yy,zz
 
 c makes a step in orientational coordinates 
-
       do 60 i=1,natom
       ii=3*(i-1)
       

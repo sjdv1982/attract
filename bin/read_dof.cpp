@@ -13,8 +13,7 @@ extern "C" FILE *read_dof_init_(const char *f_, int nlig, int &line, double (&pi
   memcpy(f, f_, f_len);
   f[f_len] = 0;  
     
-  FILE *fil = new FILE;
-  fil = fopen(f, "r");
+  FILE *fil = fopen(f, "r");
   line = 1;
   
   //read pivot header
@@ -122,7 +121,10 @@ coors2 &locrests, dof2 &morph, modes2 &dlig, const int &nlig, const int *nhm, co
   char *currlabel = NULL;
   memset(ens, 0, MAXLIG*sizeof(int));
   while (1) {
-    if (feof(fil)) return 1;
+    if (feof(fil)) {
+      fclose(fil);
+      return 1;
+    }  
     line++;
     if (next) {
       if(!fgets(buf,100000,fil)) {

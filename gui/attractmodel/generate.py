@@ -1,35 +1,59 @@
-#TODO: shm (grids and np > 1)
 import os
 
 def generate(m):
+  if m.forcefield != "ATTRACT": raise Exception #TODO, not yet implemented
+  if m.calc_irmsd: raise Exception #TODO, not yet implemented
   ret = ""
+  #ret += "#!/bin/sh\n"
   if (m.header is not None):
     ret = m.header + "\n\n"
   ret += "if [ 1 -eq 1 ]; then ### move and change to disable parts of the protocol\n"
+  ret += "$ATTRACTDIR/shm-clean\n\n"
 
   modes_any = any((p.modes_file for p in m.partners))
+  aa_modes_any = any((p.aa_modes_file for p in m.partners))
   if modes_any:
     ret += """
 echo '**************************************************************'
 echo 'Assemble modes file...'
 echo '**************************************************************'
 cat /dev/null > hm-all.dat
-"""      
+""" 
+    if aa_modes_any:
+      hm_all_aa = "hm-all-aa.dat"
+      ret += "cat /dev/null > hm-all-aa.dat\n"
+    else: 
+      hm_all_aa = "hm-all.dat"
+    ret += "\n"  
     for p in m.partners:
-      if p.nr_modes is None:
+      if p.generate_modes: raise Exception #TODO: not yet implemented
+      if p.moleculetype != "Protein": raise Exception #TODO: not yet implemented
+      if p.nr_modes is None or p.nr_modes == 0:
         ret += "echo 0 >> hm-all.dat\n"
+        if aa_modes_any:
+          ret += "echo 0 >> hm-all-aa.dat\n"
       elif p.nr_modes == 10:
         ret += "cat %s >> hm-all.dat\n" % p.modes_file.name
+        mf = p.modes_file.name
+        if p.aa_modes_file is not None: mf = p.aa_modes_file.name
+        if aa_modes_any:
+          ret += "cat %s >> hm-all-aa.dat\n" % mf
       else:
         ret += "#select first %d modes...\n" % (p.nr_modes)
         ret += "awk 'NF == 2 && $1 == %d{exit}{print $0}' %s >> hm-all.dat\n" % \
          (p.nr_modes+1, p.modes_file.name)
+        if aa_modes_any:
+          mf = p.modes_file.name
+          if p.aa_modes_file is not None: mf = p.aa_modes_file.name
+          ret += "awk 'NF == 2 && $1 == %d{exit}{print $0}' %s >> hm-all-aa.dat\n" % \
+           (p.nr_modes+1, mf)         
     ret += "\n"    
   filenames = []
   reduce_any = False
+  reduced = set()
   for pnr,p in enumerate(m.partners):
     if p.pdb.mode == "download":
-      raise Exception("Not implemented")
+      raise Exception("TODO: not yet implemented")
     if p.is_reduced == False:
       if reduce_any == False:
         ret += """
@@ -38,13 +62,18 @@ echo 'Reduce partner PDBs...'
 echo '**************************************************************'
 """      
         reduce_any = True
-      pdbname = p.pdb.pdbfile.name  
-      ret += "$ATTRACTDIR/reduce %s >& /dev/null\n" % pdbname
-      pdbname_reduced = pdbname[:-4] + "r.pdb"
+      pdbname = p.pdb.pdbfile.name
+      pdbname2 = os.path.split(pdbname)[1]
+      pdbname_reduced = pdbname2[:-4] + "r.pdb"
+      if pdbname_reduced not in reduced:
+        if pdbname2 != pdbname:
+          ret += "cat %s > %s\n" % (pdbname, pdbname2)
+        ret += "$ATTRACTDIR/reduce %s >& /dev/null\n" % pdbname2
+        reduced.add(pdbname_reduced)
       filenames.append(pdbname_reduced)
     else:  
       filenames.append(p.pdb.pdbfile.name) 
-    #TODO: normal modes  
+    #TODO: generate normal modes  
   if reduce_any: ret += "\n"
   
   if len(m.partners) == 2:
@@ -66,19 +95,70 @@ echo %d > partners.pdb
 name=%s 
 """ % m.runname
   params = "\"$ATTRACTDIR/../parmw.par " + partnerfiles
+  gridparams = ""
   if m.fix_receptor: params += " --fix-receptor" 
   if modes_any: params += " --modes hm-all.dat"
+  gridfiles = {}
+  ret_shm = ""
+  for g in m.grids:
+    if g.gridfile is not None: 
+      v = g.gridfile.name
+      if m.np > 1:
+        v2 = v +"header"      
+        tq = "-torque" if g.torque else ""
+        ret_shm = "\n#Load %s grid into memory\n" % (g.gridname)
+        ret_shm += "$ATTRACTDIR/shm-grid%s %s %s\n" % (tq, v, v2)
+        v = v2
+    else:  
+      gheader = ""
+      if m.np > 1: gheader = "header"
+      v = g.gridname.strip() + ".grid" + gheader
+    gridfiles[g.gridname.strip()] = v
+  grid_used = {}
+  ens_any = False
+  for pnr,p in enumerate(m.partners):
+    if p.gridname is not None:
+      v = gridfiles[p.gridname.strip()]
+      if v in grid_used: 
+        v = grid_used[v]
+      else:
+        grid_used[v] = pnr+1
+      gridparams += " --grid %d %s" % (pnr+1, str(v))
+    if p.ensemble_list is not None  :
+      params += " --ens %d %s" % (pnr+1, p.ensemble_list.name)
+      ens_any = True
+  if m.ghost:
+    params += " --ghost"
+  if m.gravity:
+    params += " --gravity %d" % m.gravity
+  if m.rstk is not None and m.rstk != 0.2:
+    params += " --rstk %s" % str(m.rstk)
+    
+  for sym in m.symmetries:
+    symcode = len(sym.partners)
+    if sym.symmetry == "Dx": symcode = -4
+    partners = " ".join([str(v) for v in sym.partners])
+    params += " --sym %d %s" % (symcode, partners)
+  if m.cryoem_data:
+    params += " --em %s" % m.cryoem_data.name
   params += "\""
   ret += """
 #docking parameters
 params=%s
 """  % params
+  if len(gridparams):
+    ret += """
+#grid parameters
+gridparams="%s"
+"""  % gridparams
+  
   if m.np > 1:
     ret += """
 #parallelization parameters
 parals="--jobsize %d --np %d"
 """  % (m.jobsize, m.np)
   
+  ret += ret_shm
   if m.search == "syst" or m.search == "custom":
     if m.search == "syst" or m.start_structures_file is None:
       ret += """
@@ -89,38 +169,118 @@ echo '**************************************************************'
       rotfil = "$ATTRACTDIR/../rotation.dat"
       if m.rotations_file is not None:
         rotfil = m.rotations_file.name
-      ret += "cat %s > rotation.dat\n" % rotfil
+      if rotfil != "rotation.dat":
+        ret += "cat %s > rotation.dat\n" % rotfil
       if m.translations_file is not None:
-        ret += "cat %s > translate.dat\n" % m.translations_file.name
+        transfil = m.translations_file.name
+        if transfil != "translate.dat":
+          ret += "cat %s > translate.dat\n" % transfil
       else:
         ret += "$ATTRACTDIR/translate %s %s > translate.dat\n" % \
          (filenames[0], filenames[1])
       ret += "$ATTRACTDIR/systsearch > systsearch.dat\n"
       ret += "start=systsearch.dat\n"
+      start = "systsearch.dat"
     else:
       ret += """
 #starting structures
 start=%s 
 """ % m.start_structures_file.name
+      start = m.start_structures_file.name
   elif m.search == "random":
     ret += "python $ATTRACTTOOLS/randsearch.py %d %d > randsearch.dat\n" % \
      (len(m.partners), m.structures)
     ret += "start=randsearch.dat\n"    
+    start = randsearch.dat
   else:
     raise Exception("Unknown value")
   ret += "\n"  
+  
+  inp = "$start"
+  if any((p.ensemblize for p in m.partners if p.ensemblize not in (None,"custom"))):
+    start0 = start
+    ret += """
+echo '**************************************************************'
+echo 'ensemble search:' 
+echo ' add ensemble conformations to the starting structures'
+echo '**************************************************************'
+"""
+    for pnr, p in enumerate(m.partners):
+      if p.ensemblize in (None, "custom"): continue
+      if p.ensemblize == "all":
+        ret += """
+echo '**************************************************************'
+echo 'multiply the number of structures by the ensemble for ligand %d'
+echo '**************************************************************'
+""" % (pnr+1)
+      elif p.ensemblize == "random":
+        ret += """
+echo '**************************************************************'
+echo 'random ensemble conformation in ligand %d for each starting structure'
+echo '**************************************************************'
+""" % (pnr+1)
+      else: 
+        raise ValueError(p.ensemblize)
+      if start == start0 and start not in ("systsearch.dat", "randsearch.dat"):
+        start2 = "start-ens%d.dat" % (pnr+1)
+      else:
+        start2 = os.path.splitext(start)[0] + "-ens%d.dat" % (pnr+1)
+      ret += "python $ATTRACTTOOLS/ensemblize.py %s %d %d %s > %s\n" % \
+       (start, p.ensemble_size, pnr+1, p.ensemblize, start2)
+      start = start2
+      inp = start 
+    
+  for g in m.grids:
+    if g.gridfile is not None: continue
+    gridfile = gridfiles[g.gridname.strip()]
+    if gridfile not in grid_used: continue
+    ret += """
+echo '**************************************************************'
+echo 'calculate %s grid'
+echo '**************************************************************'
+""" % g.gridname
+    no = ""
+    if not g.mask_interior: no = "no_"
+    partner = grid_used[gridfile]-1
+    f = filenames[partner]
+    f0 = os.path.splitext(f)[0]
+    vol = "%s-%sinterior.vol" % (f0, no)
+    ret += "$ATTRACTDIR/calc_%sinterior %s %s\n" % (no, f, vol)    
+    tomp = ""
+    if g.torque: tomp += "-torque"
+    if g.omp: tomp += "-omp"
+    tail = ""
+    if m.np > 1: 
+      tail += " --shm"
+    if m.dielec == "cdie": tail += " --cdie"
+    if m.epsilon != 15: tail += " --epsilon %s" % (str(g.epsilon))
+    #TODO: non-ATTRACT forcefield
+    if g.calc_potentials == False: tail += " -calc-potentials=0"
+    if g.omp:
+      ret += "for i in `seq 1 10`; do\n\n"      
+    ret += "$ATTRACTDIR/make-grid%s %s %s $ATTRACTDIR/../parmw.par %s %s %s %s\n\n" % \
+     (tomp, f, vol, g.plateau_distance, g.neighbour_distance, gridfile, tail)
+    if g.omp:
+      ret += """
+if [ $? = 0 ]; then
+  break
+fi
+echo 'Retry grid calculation...'
+done
+"""
+  
   ret += """
 echo '**************************************************************'
 echo 'Docking'
 echo '**************************************************************'
 """
-  inp = "$start"
   ordinals = ["1st", "2nd", "3rd",] + ["%dth" % n for n in range(4,51)]
   iterations = []
-  if m.iterations is None or len(m.iterations) == 0:
-    iterations.append([None, None, False, False])
-  else:
-    for it in m.iterations:
+  for n in range(m.nr_iterations):  
+    if m.iterations is None or len(m.iterations) <= n:
+      iterations.append([None, None, False, False])
+    else:
+      it = m.iterations[n]
       newit = [it.rcut, it.vmax, it.traj, it.mc]
       if it.mc:
         mcpar = (it.mctemp, it.mcscalerot, it.mcscalecenter, it.mcscalemode, it.mcensprob)
@@ -134,7 +294,7 @@ echo '**************************************************************'
 """ % ordinals[i]
     itparams = ""
     rcut, vmax, traj, mc = it[:4]
-    if rcut is not None: itparams += " --rcut %s" % str(rcut)
+    if rcut is not None and len(grid_used) > 0: itparams += " --rcut %s" % str(rcut)
     if vmax is not None: itparams += " --vmax %s" % str(vmax)
     if traj: itparams += " --traj"
     if mc: 
@@ -154,7 +314,9 @@ echo '**************************************************************'
       outp = "out_$name.dat"
     else:  
       outp = "stage%d_$name.dat" % (i+1)  
-    ret += "%s %s $params %s %s %s\n" % (attract, inp, itparams, tail, outp)
+    gridpar = ""
+    if len(gridparams): gridpar = " $gridparams" 
+    ret += "%s %s $params%s %s %s %s\n" % (attract, inp, gridpar, itparams, tail, outp)
     inp = outp       
   ret += "\n"  
 
@@ -193,10 +355,15 @@ echo '**************************************************************'
 echo 'Remove redundant structures'
 echo '**************************************************************'
 """ 
-    ignorens = ""
-    any_ensemble = any((p.ensemble_size is not None for p in m.partners))
-    if any_ensemble and m.deredundant_ignorens: ignorens = " --ignorens"
-    ret += "python $ATTRACTTOOLS/deredundant.py %s%s > %s\n" % (result, ignorens, outp)
+    par_ens = ""
+    if ens_any:
+      par_ens = " --ens"
+      for p in m.partners:
+        ensemble_size = p.ensemble_size
+        if ensemble_size is None: ensemble_size = 1
+        par_ens += " %d" % ensemble_size
+      if m.deredundant_ignorens: par_ens += " --ignorens"
+    ret += "python $ATTRACTTOOLS/deredundant.py %s%s > %s\n" % (result, par_ens, outp)
     ret += "\n"  
     result = outp
   result0 = result
@@ -217,12 +384,15 @@ tmpf2=`mktemp`
           if p.nr_modes:           
             ret += "python $ATTRACTTOOLS/demode.py %s %d > %s\n" % \
              (result, pnr+1,outp)
+          elif p.ensemble_size:
+            ret += "python $ATTRACTTOOLS/de-ensemblize.py %s %d > %s\n" % \
+             (result, pnr+1,outp)
           else:
-            raise Exception("TODO: ensembles")  
+            continue
           result = outp
           outp, outp2 = outp2, outp
   if m.calc_lrmsd:
-    #TODO: ensembles
+    if m.fix_receptor == False: raise Exception #TODO
     any_ca = any((p.lrmsd_ca for p in m.partners[1:]))
     if any_ca:
       ret += """
@@ -235,7 +405,7 @@ echo '**************************************************************'
       filename = filenames[pnr]
       p = m.partners[pnr]
       if p.rmsd_pdb is not None:
-        filename = p.rmsd_pdb
+        filename = p.rmsd_pdb.name
         if p.lrmsd_ca:
           filename2 = os.path.splitext(filename)[0] + "ca.pdb"
           ret += "grep ' CA ' %s > %s\n" % (filename, filename2)
@@ -264,7 +434,6 @@ echo '**************************************************************'
 echo 'calculate %sligand RMSD'
 echo '**************************************************************'
 """ % ca_str   
-    #TODO: modes, ens
     lrmsd_allfilenames = []
     for f1, f2 in zip(lrmsd_filenames, lrmsd_refenames):
       lrmsd_allfilenames.append(f1)
@@ -272,16 +441,23 @@ echo '**************************************************************'
     lrmsd_allfilenames = " ".join(lrmsd_allfilenames)
     lrmsdresult = os.path.splitext(result0)[0] + ".lrmsd"
     par = ""
-    if modes_any and not deflex_any: par = " --modes hm-all.dat"
+    if modes_any and not deflex_any: 
+      if aa_modes_any:
+        par = " --modes hm-all-aa.dat"
+      else:
+        par = " --modes hm-all.dat"
+    for pnr,p in enumerate(m.partners):
+      if p.deflex == False and p.ensemble_list is not None:
+        par += " --ens %d %s" % (pnr+1,p.ensemble_list.name)
     ret += "$ATTRACTDIR/lrmsd %s %s%s > %s\n" % (result, lrmsd_allfilenames, par, lrmsdresult)
     ret += "\n"
 
   if m.calc_lrmsd or m.calc_irmsd:
     if deflex_any:
       ret += "rm -f $tmpf $tmpf2\n"
+      result = result0
 
   if m.collect:
-    #TODO: ensembles, modes
     collect_filenames = filenames
     nr = m.nr_collect
     for pnr in range(len(m.partners)):
@@ -296,7 +472,16 @@ echo '**************************************************************'
     ret += "$ATTRACTTOOLS/top %s %d > out_$name-top%d.dat\n" % (result, nr, nr)
     collect_filenames = " ".join(collect_filenames)
     par = ""
-    if modes_any: par = " --modes hm-all.dat"    
+    if modes_any: 
+      if aa_modes_any:
+        par = " --modes hm-all-aa.dat"
+      else:
+        par = " --modes hm-all.dat"    
+    for pnr,p in enumerate(m.partners):
+      if p.collect_ensemble_list is not None:
+        par += " --ens %d %s" % (pnr+1,p.collect_ensemble_list.name)    
+      elif p.ensemble_list is not None:
+        par += " --ens %d %s" % (pnr+1,p.ensemble_list.name)    
     ret += "$ATTRACTDIR/collect out_$name-top%d.dat %s%s > out_$name-top%d.pdb\n" % \
      (nr, collect_filenames, par, nr)
     ret += "\n"

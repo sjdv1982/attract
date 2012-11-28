@@ -1,5 +1,5 @@
       subroutine monte(maxatom,totmaxatom,maxres,
-     1 maxlig, maxdof, maxmode, maxmolpair,
+     1 totmaxres,maxlig, maxdof, maxmode, maxmolpair,
      2 cartstatehandle,ministatehandle,
      3 nhm, nlig, 
      4 ens, phi, ssi, rot, xa, ya, za, morph, dlig, 
@@ -15,7 +15,7 @@ c     minimizes a single structure
 c     Parameters
       integer cartstatehandle,ministatehandle
       integer maxlig,maxatom,totmaxatom,maxres,maxdof,maxmode,
-     1 maxmolpair
+     1 maxmolpair,totmaxres
       integer nlig, seed
       real*8 locrests
       dimension locrests(3,maxlig)
@@ -112,7 +112,7 @@ c intial energy evaluation
 c
       call energy(maxdof,maxmolpair,
      1 maxlig, maxatom,totmaxatom,maxmode,maxres,
-     2 cartstatehandle,ministatehandle,
+     2 totmaxres,cartstatehandle,ministatehandle,
      3 iab,iori,itra,ieig,fixre,gridmode,
      4 ens,phi,ssi,rot,xa,ya,za,morph,dlig,
      5 locrests, has_locrests, seed,
@@ -275,7 +275,7 @@ c      write (*,*),'lig',i,phi(i),ssi(i),rot(i),xa(i),ya(i),za(i)
   183 continue
       call energy(maxdof,maxmolpair,
      1 maxlig, maxatom,totmaxatom,maxmode,maxres,
-     2 cartstatehandle,ministatehandle,
+     2 totmaxres,cartstatehandle,ministatehandle,
      3 iab,iori,itra,ieig,fixre,gridmode,
      4 ens,phi,ssi,rot,xa,ya,za,morph,dlig,
      5 locrests, has_locrests, seed,

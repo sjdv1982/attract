@@ -27,17 +27,21 @@ if len(sys.argv) == 1:
   outp = "new.web"
 elif len(sys.argv) == 2:
   inp = sys.argv[1]
+  d,f = os.path.split(inp)
+  if len(d): os.chdir(d)
+  inp = f  
   outp = inp
 else: 
  raise Exception("Usage: attract-editor [file name]")
 
 try:
   import spyder
-  sys.path.append("/home/sjoerd/data/Spyder/modules") ###
+  #sys.path.append("/home/sjoerd/data/Spyder/modules") ###
   import spyder.modules.atom ###
-  import haddock
+  #import haddock
   import spyder.qtform.anyQt
 except ImportError:
+  import traceback
   traceback.print_exc()
   if sys.platform == "win32":
     time.sleep(30) 
@@ -125,28 +129,11 @@ def viewupdate(*args):
     print(exc)
     old_exc = exc
 
-def save(*args):
-  v = m.get() 
-  if v is not None:
-    v.tofile(outp)
-    print("Form object saved to %s" % outp)
-  else:
-    print("Cannot save form: does not contain a valid object")
+import attractsave
+from functools import partial
 
-def generate(*args):
-  v = m.get() 
-  if v is not None:
-    sh = os.path.splitext(outp)[0] + ".sh"
-    script = v.generate()
-    fsh = open(sh, "w")
-    fsh.write(script+"\n")
-    fsh.close()
-    print("Shell script generated: %s" % sh)
-  else:
-    print("Cannot generate shell script: form does not contain a valid object")
-
-v.buttons[0].listen(save)
-v.buttons[1].listen(generate)
+v.buttons[0].listen(partial(attractsave.save, m, outp))
+v.buttons[1].listen(partial(attractsave.generate, m, outp))
 v.listen(viewupdate)
 
 #fire up application
