@@ -1,0 +1,2 @@
+#!/bin/sh
+awk '{if ($0 == "#" (count+1)){code="";count++; next}} count < 1{print $0} {code = code $0 "\n"} END{print "#1"; print substr(code,1,length(code)-1)}' $1
