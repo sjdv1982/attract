@@ -17,7 +17,8 @@ def generate(m):
 echo '**************************************************************'
 echo 'Assemble modes file...'
 echo '**************************************************************'
-cat /dev/null > hm-all.dat""" 
+cat /dev/null > hm-all.dat
+""" 
     if aa_modes_any:
       hm_all_aa = "hm-all-aa.dat"
       ret += "cat /dev/null > hm-all-aa.dat\n"

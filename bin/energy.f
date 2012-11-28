@@ -1,17 +1,18 @@
       subroutine energy(maxdof,maxmolpair,
-     1  maxlig, maxatom,totmaxatom,maxmode,maxres,
-     2 cartstatehandle, ministatehandle,
-     3 iab,iori,itra,ieig,fixre,gridmode,
-     4 ens,phi,ssi,rot,xa,ya,za,morph,dlig,
-     5 locrests, has_locrests, seed,
-     6 e,energies,delta,deltamorph)
+     1  maxlig, maxatom,totmaxatom,maxmode,
+     2 maxres,totmaxres,
+     3 cartstatehandle, ministatehandle,
+     4 iab,iori,itra,ieig,fixre,gridmode,
+     5 ens,phi,ssi,rot,xa,ya,za,morph,dlig,
+     6 locrests, has_locrests, seed,
+     7 e,energies,delta,deltamorph)
      
       implicit none
       
 c     Parameters
       integer cartstatehandle,ministatehandle
       integer maxlig,maxdof,maxatom,totmaxatom,maxmode,maxmolpair,
-     1 maxres
+     1 maxres, totmaxres
       integer iori,itra,ieig,fixre,gridmode,seed
       real*8 energies, delta, deltamorph
       dimension energies(6), delta(maxdof),deltamorph(maxlig)
@@ -32,7 +33,7 @@ c     Parameters
       dimension morph(maxlig)
 
 c     Local variables      
-      real*8 epair
+      real*8 epair, xnull
       integer i, k, n, idr, idl,ii
       integer gridptr_dmmy
       pointer(gridptr, gridptr_dmmy)      
@@ -42,13 +43,16 @@ c     Local variables
       dimension nhm(maxlig)
       pointer(ptr_nhm,nhm)
       real*8 pairenergies,deltar, deltal
-      dimension pairenergies(6),deltar(maxdof),deltal(maxdof)
+      dimension pairenergies(6),deltar(6+maxmode),deltal(6+maxmode)
       integer jb,ju,jl,nmodes,iab,fixre2, ghost
 
 c  return values:
 c  energies is an array of double with a value for every energy type
 c  (vdw, elec, ...)
 c  delta contains all the DOF gradients
+
+      xnull = 0.0d0
+      e = xnull
 
       call ministate_ghost(ministatehandle, ghost)
       
@@ -71,18 +75,18 @@ c  all variables including lig-hm
 c  only trans or ori
       jl=3*iori*(nlig-fixre)
 
-      do 10 i=1,6
-      energies(i) = 0
-  10  continue  
+      do i=1,6
+      energies(i) = xnull
+      enddo 
       
-      do 11 i=1,maxdof
-      delta(i) = 0
-  11  continue  
+      do i=1,maxdof
+      delta(i) = xnull
+   1  enddo
              
       do i=1,maxlig
-      deltamorph(i)=0
+      deltamorph(i)= xnull
       enddo       
-      
+                  
 c  iterate over all pairs: call pairenergy...
       do 30 k=1,molpairs
       
@@ -98,15 +102,15 @@ c  iterate over all pairs: call pairenergy...
       
       if (ghost.eq.0) then
       call pairenergy(maxlig,maxatom,totmaxatom,maxmode,
-     1 maxdof,maxmolpair,maxres,
+     1 maxdof,maxmolpair,maxres,totmaxres,
      2 cartstatehandle,molpairhandle,
      3 iab,fixre2,gridptr,
      4 ens(idr+1),phi(idr+1),ssi(idr+1),rot(idr+1),
      5 xa(idr+1),ya(idr+1),za(idr+1),morph(idr+1),dlig(:,idr+1),
      6 ens(idl+1),phi(idl+1),ssi(idl+1),rot(idl+1),
      7 xa(idl+1),ya(idl+1),za(idl+1),morph(idl+1),dlig(:,idl+1),
-     8 pairenergies,deltar,deltal,deltamorphr,deltamorphl)
-     
+     8 energies, deltar, deltal, deltamorphr, deltamorphl)
+                       
 c  ...and sum up the energies and deltas            
       if ((iori.eq.1).AND.(fixre2.eq.0)) then
       ii = 3 * (idr-fixre)
@@ -120,20 +124,20 @@ c  ...and sum up the energies and deltas
       delta(ii+2) = delta(ii+2) + deltar(5)
       delta(ii+3) = delta(ii+3) + deltar(6)
       endif
-      
+                  
       if ((iori.eq.1).AND.((idl+1).gt.fixre)) then
       ii = 3 * (idl-fixre)
       delta(ii+1) = delta(ii+1) + deltal(1)
       delta(ii+2) = delta(ii+2) + deltal(2)
       delta(ii+3) = delta(ii+3) + deltal(3)
       endif
+      
       if ((itra.eq.1).AND.((idl+1).gt.fixre)) then
       ii = jl + 3 * (idl-fixre)
       delta(ii+1) = delta(ii+1) + deltal(4)
       delta(ii+2) = delta(ii+2) + deltal(5)
       delta(ii+3) = delta(ii+3) + deltal(6)
       endif
-
       
       if (ieig.eq.1) then
       ii = jb

@@ -25,6 +25,14 @@ c deformed ligand (in the orginal orientation, for ssi=0 etc.)
 c It depends on both the current Euler angles and the Cartesians in the orginal 
 c orientation  
 
+      do j=1,3
+      do k=1,3
+      do l=1,3
+      pm2(j,k,l) = 0.0d0
+      enddo
+      enddo
+      enddo
+      
       do 5 k=1,3
       delta(k)=0.0d0
       do 4 l=1,3

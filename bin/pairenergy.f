@@ -1,5 +1,5 @@
        subroutine pairenergy(maxlig,maxatom,totmaxatom,maxmode,
-     1 maxdof,maxmolpair,maxres,
+     1 maxdof,maxmolpair,maxres,totmaxres,
      2 cartstatehandle,molpairhandle,iab,fixre,gridptr,
      3 ensr, phir, ssir, rotr, xar, yar, zar, morphr, dligr, 
      4 ensl, phil, ssil, rotl, xal, yal, zal, morphl, dligl,
@@ -9,7 +9,7 @@
 
 c      Parameters
        integer maxlig,maxatom,totmaxatom,maxmode,maxmolpair,maxdof,
-     1  maxres
+     1  maxres, totmaxres
        integer cartstatehandle,molpairhandle
        integer iab, fixre
        integer gridptr_dmmy
@@ -37,8 +37,8 @@ c      Handle variables: molpair
 
 c      Handle variables: cartstate       
        real*8 xr,wer,chair,fr,pivotr
-       dimension xr(maxatom),wer(maxatom),chair(maxatom)
-       dimension fr(maxatom), pivotr(3)
+       dimension xr(3*maxatom),wer(maxatom),chair(maxatom)
+       dimension fr(3*maxatom), pivotr(3)
        integer nmaxcor,ieir,iacir,natcor,icopr
        dimension nmaxcor(maxres),ieir(maxatom),
      1 iacir(maxatom),natcor(maxres),icopr(maxatom)       
@@ -54,8 +54,8 @@ c      Handle variables: cartstate
        pointer(ptr_natcor,natcor)
 
        real*8 xl,wel,chail,fl,pivotl
-       dimension xl(maxatom),wel(maxatom),chail(maxatom)
-       dimension fl(maxatom), pivotl(3)
+       dimension xl(3*maxatom),wel(maxatom),chail(maxatom)
+       dimension fl(3*maxatom), pivotl(3)
        integer nmaxcol,ieil,iacil,natcol,icopl
        dimension nmaxcol(maxres),ieil(maxatom),
      1  iacil(maxatom),natcol(maxres),icopl(maxatom)
@@ -140,7 +140,7 @@ c     Local variables: other
       integer i, j,l,n, use_grid, rigid, true, false
       real*8 enon,epote,zero,e
       real*8 flcopy,xl0
-      dimension flcopy(maxatom),xl0(3*maxatom)
+      dimension flcopy(3*maxatom),xl0(3*maxatom)
       real*8 deltar0(maxdof)
       
       deltamorphr = 0
@@ -154,9 +154,8 @@ c     Local variables: other
       pivotnull(3) = zero
 
 c reset forces
-
       call reset_forces(cartstatehandle)
-
+      
 c Are we using a grid?
        use_grid = 0
        if (gridptr.ne.0) then
@@ -197,7 +196,7 @@ c select deformed coordinates: select non-pivotized coordinates for receptor
      1  natoml,nresl,ptr_ieil,ptr_xl,ptr_fl,pivotl,ptr_iacil,
      2  ptr_icopl,ptr_wel,ptr_chail,ptr_ncopl,
      3  ptr_nmaxcol,ptr_natcol, false)
-       xl0(:) = xl(:)
+       xl0(1:3*natoml) = xl(1:3*natoml)
      
        call cartstate_get_parameters(cartstatehandle,
      1  ptr_rbc,ptr_rc,ptr_ac,ptr_emin,ptr_rmin2,ptr_ipon,potshape,
@@ -209,7 +208,7 @@ c select deformed coordinates: select non-pivotized coordinates for receptor
        deltar(i) = xnull 
        deltar0(i)= xnull 
 10     continue  
-
+      
 c rotate ligand into receptor frame 
        call euler2rotmat(phir,ssir,rotr,rotmatr)
        call euler2rotmat(phil,ssil,rotl,rotmatl)
@@ -220,7 +219,7 @@ c rotate ligand into receptor frame
        tr(2) = yar
        tr(3) = zar
        call matinv(rotmatrinv)
-       
+              
        call matcopy(rotmatl,rotmatlinv)
        tl(1) = xal
        tl(2) = yal
@@ -232,7 +231,7 @@ c rotate ligand into receptor frame
        td0(2) = tl(2)-tr(2)
        td0(3) = tl(3)-tr(3)       
        call vecmatmult(td0,rotmatrinv,td)
-       
+              
        pivotd0(1) = pivotl(1)-pivotr(1)
        pivotd0(2) = pivotl(2)-pivotr(2)
        pivotd0(3) = pivotl(3)-pivotr(3)
@@ -240,7 +239,7 @@ c rotate ligand into receptor frame
        pivotd(1) = pivotd(1) + pivotr(1)
        pivotd(2) = pivotd(2) + pivotr(2)
        pivotd(3) = pivotd(3) + pivotr(3)
-
+       
 c calculate nonbonded energies and forces
        
        call rotate1(3*maxatom,
@@ -252,7 +251,7 @@ c       write(*,'(a2,3f8.3)'), 'P',xl(3*317+1),xl(3*317+2),xl(3*317+3)
 c       write(*,*),(xr(3*902+1)-xl(3*317+1))*(xr(3*902+1)-xl(3*317+1))
 c     1  +(xr(3*902+2)-xl(3*317+2))*(xr(3*902+2)-xl(3*317+2))+
 c     2  (xr(3*902+3)-xl(3*317+3))*(xr(3*902+3)-xl(3*317+3))
-       
+      
        if (use_grid.eq.1) then
        if (fixre.eq.0) then
        call euler2torquemat(phir,ssir,rotr,pm2)
@@ -306,14 +305,14 @@ c rotate ligand forces into ligand frame
        call rotate1(3*maxatom,
      1  rotmatd2,zero,zero,zero,
      2	 pivotnull, natoml,flcopy)
-
+       
 c calculate ligand mode deltas
        call ligmin(maxlig,maxdof,maxmode,maxatom,
      1  flcopy,natoml,idl+1,eig,nhm(idl+1),deltal) 
-
+       
        call grad_morph(flcopy,natoml,morphl,cmorphdl,
      1  deltamorphl)
-
+       
 c rotate all forces into global frame
        call rotate1(3*maxatom,
      1  rotmatr,zero,zero,zero,
@@ -329,7 +328,7 @@ c calculate rot/transl delta for receptor/ligand
      1  natomr,nresr,ptr_ieir,ptr_xr,ptr_fr,pivotr,ptr_iacir,
      2  ptr_icopr,ptr_wer,ptr_chair,ptr_ncopr,
      3  ptr_nmaxcor,ptr_natcor, false)
-
+       
        if (fixre.eq.0) then
        call euler2torquemat(phir,ssir,rotr,pm2)
        call trans(3*maxatom,maxdof,fr,deltar,natomr)
@@ -339,12 +338,13 @@ c calculate rot/transl delta for receptor/ligand
        deltar(i) = deltar(i)+deltar0(i)
 20     continue  
        endif
-       
+              
        call euler2torquemat(phil,ssil,rotl,pm2)
+      
        call rota(3*maxatom,maxdof,
      1  xl0,fl,deltal,pm2,natoml)       
        call trans(3*maxatom,maxdof,fl,deltal,natoml)       
-
+            
       e = zero
       do 990,i=1,6
       e = e + energies(i)

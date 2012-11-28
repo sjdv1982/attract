@@ -1,5 +1,5 @@
       subroutine minfor(maxatom,totmaxatom,maxres,
-     1 maxlig, maxdof, maxmode, maxmolpair,
+     1 totmaxres,maxlig, maxdof, maxmode, maxmolpair,
      2 cartstatehandle,ministatehandle,
      3 nhm, nlig, 
      4 ens, phi, ssi, rot, xa, ya, za, morph, dlig, 
@@ -15,7 +15,7 @@ c     minimizes a single structure
 c     Parameters
       integer cartstatehandle,ministatehandle
       integer maxlig,maxatom,totmaxatom,maxres,maxdof,maxmode,
-     1 maxmolpair
+     1 maxmolpair,totmaxres
       integer nlig, seed
       real*8 locrests
       dimension locrests(3,maxlig)
@@ -57,6 +57,9 @@ c     Local variables
       dimension nrens(maxlig)
       pointer(ptr_nrens,nrens)
 
+      xnull=0.0d0
+      dga=xnull
+
       call ministate_f_minfor(ministatehandle,
      1 iscore,ivmax,iori,itra,ieig,fixre,gridmode)
       call cartstate_get_nrens(cartstatehandle, ptr_nrens)
@@ -84,9 +87,19 @@ c  only trans or ori
       endif
       enddo
 
+      if (ju.gt.maxdof) then
+        write(*,*), 'ERROR: Degrees of freedom', 
+     1   ju, 'greater than MAXDOF', maxdof
+        stop
+      endif
+      
+      do i=1,ju
+       ga(i)=xnull
+       d(i)=xnull
+      enddo
+
       call ministate_calc_pairlist(ministatehandle,cartstatehandle)
      
-      xnull=0.0d0
       nfun=0
       itr=0
       np=ju+1
@@ -107,7 +120,7 @@ c     set some variables for the first iteration
 
       call energy(maxdof,maxmolpair,
      1 maxlig, maxatom,totmaxatom,maxmode,maxres,
-     2 cartstatehandle,ministatehandle,
+     2 totmaxres,cartstatehandle,ministatehandle,
      3 iab,iori,itra,ieig,fixre,gridmode,
      4 ens,phi,ssi,rot,xa,ya,za,morph,dlig,
      5 locrests, has_locrests,seed,
@@ -298,7 +311,7 @@ c      write (*,*),'lig',i,phi(i),ssi(i),rot(i),xa(i),ya(i),za(i)
       enddo
       call energy(maxdof,maxmolpair,
      1 maxlig, maxatom,totmaxatom,maxmode,maxres,
-     2 cartstatehandle,ministatehandle,
+     2 totmaxres,cartstatehandle,ministatehandle,
      3 iab,iori,itra,ieig,fixre,gridmode,
      4 ens,phi,ssi,rot,xa,ya,za,morph,dlig,
      5 locrests, has_locrests, seed,
@@ -428,7 +441,7 @@ c     at this stage the whole calculation is complete
       
       call energy(maxdof,maxmolpair,
      1 maxlig, maxatom,totmaxatom,maxmode,maxres,
-     2 cartstatehandle,ministatehandle,
+     2 totmaxres,cartstatehandle,ministatehandle,
      3 iab,iori,itra,ieig,fixre,gridmode,
      4 ens,phi,ssi,rot,xa,ya,za,morph,dlig,
      5 locrests, has_locrests, seed,

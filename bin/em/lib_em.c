@@ -13,7 +13,7 @@ double gridify (
 ) {
   double varp, mass_total;  
   int count, i;
-  double gx,gy,gz,a,b,c, w;
+  double gx,gy,gz,a,b,c, w, ai,bi,ci;
   int x0,y0,z0,x1,y1,z1;
   for (count=0;count<nvox2;count++) *(phi2+count) = 0.0;
   varp = 0.0;
@@ -26,9 +26,9 @@ double gridify (
     x0 = floor (gx); 
     y0 = floor (gy); 
     z0 = floor (gz); 
-    if (x0 > g_extx) continue;
-    if (y0 > g_exty) continue;
-    if (z0 > extz) continue;
+    if (x0 >= g_extx) continue;
+    if (y0 >= g_exty) continue;
+    if (z0 >= extz) continue;
     x1 = x0+1;
     y1 = y0+1; 
     z1 = z0+1; 
@@ -39,38 +39,44 @@ double gridify (
     a = x1-gx;
     b = y1-gy;
     c = z1-gz;
-
+    ai = 1-a;
+    if (x1 == g_extx) ai = 0;
+    bi = 1-b;
+    if (y1 == g_exty) bi = 0;        
+    ci = 1-c;
+    if (z1 == extz) ci = 0;        
+    
     w = a * b * c;
     if (w > 0) { 
-      *(phi2+g1idz(z0,y0,x0)) += w; varp += a * b * c * ((1-a)*(1-a)+(1-b)*(1-b)+(1-c)*(1-c));
+      *(phi2+g1idz(z0,y0,x0)) += w; varp += a * b * c * (ai*ai+bi*bi+ci*ci);
     }
-    w = a * b * (1-c);
+    w = a * b * ci;
     if (w > 0) {
-      *(phi2+g1idz(z1,y0,x0)) += w; varp += a * b * (1-c) * ((1-a)*(1-a)+(1-b)*(1-b)+c*c);
+      *(phi2+g1idz(z1,y0,x0)) += w; varp += a * b * ci * (ai*ai+bi*bi+c*c);
     }
-    w = a * (1-b) * c;
+    w = a * bi * c;
     if (w > 0) {
-      *(phi2+g1idz(z0,y1,x0)) += w; varp += a * (1-b) * c * ((1-a)*(1-a)+b*b+(1-c)*(1-c));
+      *(phi2+g1idz(z0,y1,x0)) += w; varp += a * bi * c * (ai*ai+b*b+ci*ci);
     }
-    w = (1-a) * b * c;
+    w = ai * b * c;
     if (w > 0) {
-      *(phi2+g1idz(z0,y0,x1)) += w; varp += (1-a) * b * c * (a*a+(1-b)*(1-b)+(1-c)*(1-c));
+      *(phi2+g1idz(z0,y0,x1)) += w; varp += ai * b * c * (a*a+bi*bi+ci*ci);
     }      
-    w = a * (1-b) * (1-c);
+    w = a * bi * ci;
     if (w > 0) {
-      *(phi2+g1idz(z1,y1,x0)) += w; varp += a * (1-b) * (1-c) * ((1-a)*(1-a)+b*b+c*c);
+      *(phi2+g1idz(z1,y1,x0)) += w; varp += a * bi * ci * (ai*ai+b*b+c*c);
     }      
-    w = (1-a) * (1-b) * c;
+    w = ai * bi * c;
     if (w > 0) {
-      *(phi2+g1idz(z0,y1,x1)) += w; varp += (1-a) * (1-b) * c * (a*a+b*b+(1-c)*(1-c));
+      *(phi2+g1idz(z0,y1,x1)) += w; varp += ai * bi * c * (a*a+b*b+ci*ci);
     }      
-    w = (1-a) * b * (1-c);
+    w = ai * b * ci;
     if (w > 0) {
-      *(phi2+g1idz(z1,y0,x1)) += w; varp += (1-a) * b * (1-c) * (a*a+(1-b)*(1-b)+c*c);
+      *(phi2+g1idz(z1,y0,x1)) += w; varp += ai * b * ci * (a*a+bi*bi+c*c);
     }      
-    w = (1-a) * (1-b) * (1-c);
+    w = ai * bi * ci;
     if (w > 0) {
-      *(phi2+g1idz(z1,y1,x1)) += w; varp += (1-a) * (1-b) * (1-c) * (a*a+b*b+c*c);
+      *(phi2+g1idz(z1,y1,x1)) += w; varp += ai * bi * ci * (a*a+b*b+c*c);
     }	
     mass_total ++;
   }

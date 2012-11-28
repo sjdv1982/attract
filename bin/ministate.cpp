@@ -13,6 +13,7 @@ int ministatesize = 0;
 extern "C" int ministate_new_() {
   MiniState *ms0 = new MiniState[1];
   MiniState &ms = *ms0;
+  memset(&ms, 0, sizeof(MiniState));
   ministates[ministatesize] = &ms;
   ministatesize++;
   //default settings
@@ -99,6 +100,7 @@ extern "C" void ministate_calc_pairlist_(const int &ministatehandle, const int  
   MiniState &ms = *ministates[ministatehandle-7770];
   CartState &cartstate = cartstate_get(cartstatehandle);
   ms.pairs = new MolPair[cartstate.nlig*(cartstate.nlig-1)]; 
+  memset(ms.pairs, 0, cartstate.nlig*(cartstate.nlig-1)*sizeof(MolPair));
   int molpairindex = 0;
   for (int i0 = 0; i0 < cartstate.nlig; i0++) {
     for (int j0 = 0; j0 < cartstate.nlig; j0++) {

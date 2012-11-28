@@ -79,7 +79,7 @@ extern "C" FILE *read_dof_init_(const char *f_, int nlig, int &line, double (&pi
 extern "C" int read_dof_(FILE *fil, int &line, int &nstruc, const char *f_, idof2 &ens, dof2 &phi, dof2 &ssi, dof2 &rot, dof2 &xa, dof2 &ya, dof2 &za, coors2 &locrests, dof2 &morph, modes2 &dlig, const int &nlig, const int *nhm, const int *nrens0, const int *morphing, const int *has_locrests, int &seed, char *&label, int f_len);
 
 extern "C" void minfor_(
-const int &maxatom, const int &totmaxatom, const int &maxres,
+const int &maxatom, const int &totmaxatom, const int &maxres,const int &totmaxres,
 const int &maxlig, const int &maxdof, const int &maxmode,const int &maxmolpair,
 const int &cartstatehandle,const int &ministatehandle, 
 int *nhm, const int &nlig, 
@@ -89,7 +89,7 @@ double *locrests, int *has_locrests,
 const int &seed, char *label, double &energy, double *energies, int &lablen);
 
 extern "C" void monte_(
-const int &maxatom, const int &totmaxatom, const int &maxres,
+const int &maxatom, const int &totmaxatom, const int &maxres,const int &totmaxres,
 const int &maxlig, const int &maxdof, const int &maxmode,const int &maxmolpair,
 const int &cartstatehandle,const int &ministatehandle, 
 int *nhm, const int &nlig, 
@@ -140,6 +140,7 @@ void usage() {
 extern "C" void cartstate_get_nlig_nhm_(const int &handle, int &nlig, int *(&nlm));
 
 int main(int argc, char *argv[]) {
+  memset(dlig, 0, sizeof(double) * MAXLIG * MAXMODE);
   int n, i;
   int argc0;
   for (argc0 = 1; argc0 < argc; argc0++) {
@@ -224,7 +225,9 @@ int main(int argc, char *argv[]) {
      morph, dlig, nlig, nhm, nrens, morphing, has_locrests,
      seed, label, strlen(argv[1])
     );
-    if (result != 0) break;
+    if (result != 0) {
+      break;
+    }  
 
     if (centered_receptor) { //...then subtract pivot from receptor
       xa[0] -= pivot[0];
@@ -269,7 +272,7 @@ int main(int argc, char *argv[]) {
     if (label != NULL) lablen = strlen(label);
     if (imc == 0) {
       minfor_(
-	MAXATOM,TOTMAXATOM,MAXRES,
+	MAXATOM,TOTMAXATOM,MAXRES,TOTMAXRES,
 	MAXLIG,MAXDOF,MAXMODE,MAXMOLPAIR,
 	cartstatehandle, ministatehandle,
 	nhm, nlig,
@@ -283,7 +286,7 @@ int main(int argc, char *argv[]) {
     }
     else {
       monte_(
-	MAXATOM,TOTMAXATOM,MAXRES,
+	MAXATOM,TOTMAXATOM,MAXRES,TOTMAXRES,
 	MAXLIG,MAXDOF,MAXMODE,MAXMOLPAIR,
 	cartstatehandle, ministatehandle,
 	nhm, nlig,
