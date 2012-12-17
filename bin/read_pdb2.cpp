@@ -32,7 +32,10 @@ void read_pdb2(
       c[1] = atof(buf+38);
       c[2] = atof(buf+46);
       coorcounter++;
-      
+      if (coorcounter > TOTMAXATOM) {
+        fprintf(stderr, "TOTMAXATOM exceeded: %d\n", TOTMAXATOM);
+        exit(1);
+      }      
       char *&s1 = pdbstrings0[stringcounter];      
       s1 = new char[31];
       memcpy(s1, buf, 30);

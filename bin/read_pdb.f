@@ -161,7 +161,7 @@ c       chai(i+1)=felec*xlai(i+1) #done later
        kai(i+1)=i+1
 c
 c this for renumbering of residues
-c and identificatin of conformational copies of side chains or loop segments
+c and identification of conformational copies of side chains or loop segments
 c
         if(iei(i+1).ne.irso) then
          irso=iei(i+1)
@@ -199,6 +199,10 @@ c max number of copies on residue irs
       ieins3(ijk)=3*i
       natom(ijk)=i
       if (ijk.ge.0) natom(ijk) = natom(ijk)-ieins(ijk-1)
+      if (natom(ijk).gt.maxatom) then
+        write (*,*), "MAXATOM exceeded:", maxatom
+        stop      
+      endif
       n3atom(ijk)=3*natom(ijk)
 c      write(*,*)'nres,ieins',ijk,nres(ijk),ieins(ijk),natom(ijk),
 c     1           ieins3(ijk),nlig

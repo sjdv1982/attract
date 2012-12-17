@@ -1,5 +1,11 @@
 import os
 
+#datamodel:
+#TODO: add check between p.modes_file and p.nr_modes
+#TODO: add check that either all interactions are grid-accelerated, or none are
+#  (and an option to disable this check; for this, adapt --rcut iteration as well)
+#TODO: a script to add energies back to deredundant output
+
 def generate(m):
   if m.forcefield != "ATTRACT": raise Exception #TODO, not yet implemented
   if m.calc_irmsd: raise Exception #TODO, not yet implemented
@@ -28,7 +34,7 @@ cat /dev/null > hm-all.dat
     for p in m.partners:
       if p.generate_modes: raise Exception #TODO: not yet implemented
       if p.moleculetype != "Protein": raise Exception #TODO: not yet implemented
-      if p.nr_modes is None or p.nr_modes == 0:
+      if p.nr_modes is None or p.nr_modes == 0 or  p.modes_file is None:
         ret += "echo 0 >> hm-all.dat\n"
         if aa_modes_any:
           ret += "echo 0 >> hm-all-aa.dat\n"
@@ -68,7 +74,7 @@ echo '**************************************************************'
       if pdbname_reduced not in reduced:
         if pdbname2 != pdbname:
           ret += "cat %s > %s\n" % (pdbname, pdbname2)
-        ret += "$ATTRACTDIR/reduce %s >& /dev/null\n" % pdbname2
+        ret += "$ATTRACTDIR/reduce %s > /dev/null\n" % pdbname2
         reduced.add(pdbname_reduced)
       filenames.append(pdbname_reduced)
     else:  
@@ -294,7 +300,7 @@ echo '**************************************************************'
 """ % ordinals[i]
     itparams = ""
     rcut, vmax, traj, mc = it[:4]
-    if rcut is not None and len(grid_used) > 0: itparams += " --rcut %s" % str(rcut)
+    if rcut is not None and len(grid_used) == 0: itparams += " --rcut %s" % str(rcut)
     if vmax is not None: itparams += " --vmax %s" % str(vmax)
     if traj: itparams += " --traj"
     if mc: 
@@ -355,15 +361,22 @@ echo '**************************************************************'
 echo 'Remove redundant structures'
 echo '**************************************************************'
 """ 
-    par_ens = ""
+    par_flex = ""
     if ens_any:
-      par_ens = " --ens"
+      par_flex += " --ens"
       for p in m.partners:
         ensemble_size = p.ensemble_size
-        if ensemble_size is None: ensemble_size = 1
-        par_ens += " %d" % ensemble_size
-      if m.deredundant_ignorens: par_ens += " --ignorens"
-    ret += "python $ATTRACTTOOLS/deredundant.py %s%s > %s\n" % (result, par_ens, outp)
+        if ensemble_size is None: ensemble_size = 0
+        par_flex += " %d" % ensemble_size
+      if m.deredundant_ignorens: par_flex += " --ignorens"
+    if modes_any:
+      par_flex += " --modes"
+      for p in m.partners:
+        nr_modes = p.nr_modes
+        if nr_modes is None: nr_modes = 0
+        par_flex += " %d" % nr_modes
+    
+    ret += "$ATTRACTDIR/deredundant %s %d%s > %s\n" % (result, len(m.partners), par_flex, outp)
     ret += "\n"  
     result = outp
   result0 = result

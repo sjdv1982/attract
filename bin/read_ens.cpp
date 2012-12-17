@@ -106,6 +106,10 @@ void read_ens(int cartstatehandle, int ligand, char *ensfile, bool strict, bool 
       Coor *coor;
       read_pdb2(fil,coor,pdbstrings,pdblayout,s2.natom[0],linecounter);
       if (s2.natom[0]) {
+        if (s2.natom[0] >= MAXATOM) {
+          fprintf(stderr, "MAXATOM exceeded: %d\n", MAXATOM);
+          exit(1);
+        }
         memcpy(xx,coor,s2.natom[0]*sizeof(Coor));
         delete [] coor;
       }

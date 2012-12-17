@@ -2,19 +2,18 @@
 #define MAX_H /* to make sure that we include only once... */
 
 const int MAXSTRUC = 100000; //only for deredundant
-const int MAXATOM = 5000;
-const int MAXRES = 1000;
-const int TOTMAXATOM = 30000;
-const int TOTMAXRES = 5000;
-const int MAXLIG = 7;
-const int MAXMODE = 5;
-/*const int MAXMOLPAIR = 25000000; //can be 5x smaller if only two-body coarse-grained docking is done*/
-const int MAXMOLPAIR = 1000000; 
-const int MAXDOF = 43; 
+const int MAXATOM = 10000;
+const int MAXRES = 3000;
+const int TOTMAXATOM = 100000;
+const int TOTMAXRES = 10000;
+const int MAXLIG = 30;
+const int MAXMODE = 10;
+const int MAXMOLPAIR = 5000000; 
+const int MAXDOF = 300; //50 ligands withouh modes
 const int MAXATOMTYPES = 99;
-const int MAXSELECTION = 1; //maximum size of selection; NOTE: a static array of MAXSELECTION*MAXSELECTION Coors+doubles is kept in memory!
-const int MAXRESTRAINTS = 1;
-const int MAXENS = 10; //maximum ensemble size
+const int MAXSELECTION = 1000; //maximum size of selection; NOTE: a static array of MAXSELECTION*MAXSELECTION Coors+doubles is kept in memory!
+const int MAXRESTRAINTS = 10000;
+const int MAXENS = 100; //maximum ensemble size
 
 typedef double dof[MAXSTRUC][MAXLIG]; //only for deredundant
 typedef double modes[MAXSTRUC][MAXLIG][MAXMODE]; //only for deredundant
