@@ -85,8 +85,8 @@ Type AttractPartnerInterface {
   ## form rmsd_pdb.name = "RMSD PDB file"
   ## form rmsd_pdb.type = "required"
   ## form rmsd_pdb.file = "Data_PDB"
-  Bool lrmsd_ca = True
-  ## form lrmsd_ca.name = "Select only C-alpha atoms for ligand RMSD calculation"
+  Bool rmsd_bb = True
+  ## form rmsd_bb.name = "Select only backbone atoms for RMSD calculation"
 
   *File_PDB collect_pdb
   ## form collect_pdb.add_header("You can specify a different PDB file to use as template for collecting the structures")
@@ -356,9 +356,6 @@ Type AttractModel {
   *Bool calc_lrmsd = False  
   *Bool calc_irmsd = False
   *Bool calc_fnat = False
-  #for now, don't calculate irmsd or fnat
-  ## form calc_irmsd.type = "none" ###TODO 
-  ## form calc_fnat.type = "none" ###TODO 
   Bool collect = True
   Integer nr_collect = 50
   form {
@@ -401,6 +398,13 @@ Type AttractModel {
   ## form header.type = "textarea"
   ## form header.cols = 80
   ## form header.rows = 50
+
+  *String footer = ""
+  ## form footer.group = "Computing and parallelization parameters"
+  ## form footer.name = "Footer for docking protocol script"
+  ## form footer.type = "textarea"
+  ## form footer.cols = 80
+  ## form footer.rows = 5
   
   #***
   
