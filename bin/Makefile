@@ -184,7 +184,7 @@ rest: read_pdb2.o
 	$(CXX) $(CFLAGS) transl.cpp read_pdb2.o -o trans
 	$(CXX) $(CFLAGS) deflate.cpp read_pdb2.o -o deflate
         
-all: attract attract-torque collect lrmsd rmsd calc_interior calc_no_interior make-grid \
+all: attract attract-torque collect collectlib lrmsd rmsd calc_interior calc_no_interior make-grid \
  make-grid-omp make-grid-torque make-grid-torque-omp shm-grid \
  shm-grid-torque shm-clean systsearch map2map fix_receptor \
  omp_threadnum deredundant matrix-lrmsd rest gvm
