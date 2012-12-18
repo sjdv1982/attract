@@ -10,7 +10,7 @@ def make_relpath(outpdir, m):
     items = list(m.__dict__.items())
     ar = False
   for k,v in items:
-    if isinstance(v, Spyder.File):
+    if isinstance(v, Spyder.File): 
       nam = v.name
       rel = os.path.relpath(nam, outpdir)
       if len(os.path.split(rel)[0]) == 0:
@@ -24,6 +24,16 @@ def make_relpath(outpdir, m):
           m[k] = vv
         else:
           setattr(m,k,vv) 
+    elif isinstance(v, Spyder.Filename):	  
+      nam = v.name
+      rel = os.path.relpath(nam, outpdir)
+      if len(os.path.split(rel)[0]) == 0:
+        vv = type(v)(rel)
+        if ar:
+          m[k] = vv
+        else:
+          setattr(m,k,vv) 
+
     elif isinstance(v, Spyder.Object):
       make_relpath(outpdir, v)      
       

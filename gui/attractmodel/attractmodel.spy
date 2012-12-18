@@ -3,7 +3,6 @@ Type Data_ATTRACT_Rotations:Data{}
 Type Data_ATTRACT_Translations:Data{}
 Type Data_ATTRACT_Modes:Data{}
 Type Data_ATTRACT_CryoEM_data:Data{}
-Type Data_ATTRACT_Grid:Data{}
 
 Type Data_TXT_FileList_PDB:Data{}
 
@@ -80,8 +79,8 @@ Type AttractPartnerInterface {
   ## form deflex.name = "Remove flexibility" 
 
   *File_PDB rmsd_pdb
-  ## form rmsd_pdb.add_header("You can specify a different PDB file to use in RMSD calculations")
-  ## form rmsd_pdb.add_header("Leave blank to use the reduced PDB instead")
+  ## form rmsd_pdb.add_header("You can specify a PDB file to use as reference in RMSD calculations")
+  ## form rmsd_pdb.add_header("Leave blank to use the docked PDB instead (bound conforation = unbound conformation)")
   ## form rmsd_pdb.name = "RMSD PDB file"
   ## form rmsd_pdb.type = "required"
   ## form rmsd_pdb.file = "Data_PDB"
@@ -129,10 +128,10 @@ Type AttractGrid {
       raise ValueError("The name of the grid may contain only letters, digits, _ and -")  
   }
 
-  *File gridfile
+  Filename gridfile
   form {
-    gridfile.type = "required"
-    gridfile.file = "Data_ATTRACT_Grid"
+    gridfile.type = "file"
+    gridfile.file = "Data"
     gridfile.add_header("If a grid file has been previously generated, you can specify it here")
     gridfile.name = "Grid file"
   }

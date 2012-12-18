@@ -411,32 +411,48 @@ echo '**************************************************************'
 echo 'Select backbone atoms'
 echo '**************************************************************'
 """ 
+    rmsd_filenames = []
+    for pnr in range(len(m.partners)):
+      filename = filenames[pnr]
+      p = m.partners[pnr]
+      if p.rmsd_bb:
+        filename2 = os.path.splitext(filename)[0] + "-bb.pdb"
+        ret += "$ATTRACTTOOLS/backbone %s > %s\n" % (filename, filename2)
+        filename = filename2                
+      rmsd_filenames.append(filename)
     if m.calc_irmsd or m.calc_fnat:
-      irmsd_filenames = filenames[:]
+      irmsd_filenames = rmsd_filenames[:]
+      irmsd_refenames = rmsd_filenames[:]
       for pnr in range(len(m.partners)):
 	filename = filenames[pnr]
 	p = m.partners[pnr]
-	if p.rmsd_bb:
-          filename2 = os.path.splitext(filename)[0] + "bb.pdb"
-          ret += "$ATTRACTTOOLS/backbone %s > %s\n" % (filename, filename2)
-          filename = filename2
-	irmsd_filenames[pnr-1] = filename
+	if p.rmsd_pdb is not None:
+          filename = p.rmsd_pdb.name
+          if p.rmsd_bb:
+            filename2 = os.path.splitext(filename)[0] + "-bb.pdb"
+            ret += "$ATTRACTTOOLS/backbone %s > %s\n" % (filename, filename2)
+            filename = filename2                
+	elif p.rmsd_bb:
+          filename2 = os.path.splitext(filename)[0] + "-bb.pdb"
+          filename = filename2          
+	irmsd_refenames[pnr] = filename
     if m.calc_lrmsd:
+      lrmsd_filenames = rmsd_filenames[1:]
       if m.calc_irmsd or m.calc_fnat:
         lrmsd_refenames = irmsd_refenames[1:]
       else:
-	lrmsd_refenames = filenames[1:]
+        lrmsd_refenames = rmsd_refenames[1:]
 	for pnr in range(1, len(m.partners)):
 	  filename = filenames[pnr]
 	  p = m.partners[pnr]
 	  if p.rmsd_pdb is not None:
             filename = p.rmsd_pdb.name
             if p.rmsd_bb:
-              filename2 = os.path.splitext(filename)[0] + "bb.pdb"
+              filename2 = os.path.splitext(filename)[0] + "-bb.pdb"
               ret += "$ATTRACTTOOLS/backbone %s > %s\n" % (filename, filename2)
               filename = filename2                
 	  elif p.rmsd_bb:
-            filename2 = os.path.splitext(filename)[0] + "bb.pdb"
+            filename2 = os.path.splitext(filename)[0] + "-bb.pdb"
             filename = filename2          
 	  lrmsd_refenames[pnr-1] = filename
     if any_bb:  
