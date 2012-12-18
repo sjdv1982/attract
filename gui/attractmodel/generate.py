@@ -8,7 +8,6 @@ import os
 
 def generate(m):
   if m.forcefield != "ATTRACT": raise Exception #TODO, not yet implemented
-  if m.calc_irmsd: raise Exception #TODO, not yet implemented
   ret = ""
   #ret += "#!/bin/sh\n"
   if (m.header is not None):
@@ -404,71 +403,132 @@ tmpf2=`mktemp`
             continue
           result = outp
           outp, outp2 = outp2, outp
-  if m.calc_lrmsd:
-    if m.fix_receptor == False: raise Exception #TODO
-    any_ca = any((p.lrmsd_ca for p in m.partners[1:]))
-    if any_ca:
+  if m.calc_lrmsd or m.calc_irmsd:    
+    any_bb = any((p.rmsd_bb for p in m.partners[1:]))
+    if any_bb:
       ret += """
 echo '**************************************************************'
-echo 'Select CA atoms'
+echo 'Select backbone atoms'
 echo '**************************************************************'
 """ 
-    lrmsd_refenames = filenames[1:]
-    for pnr in range(1, len(m.partners)):
+    rmsd_filenames = []
+    for pnr in range(len(m.partners)):
       filename = filenames[pnr]
       p = m.partners[pnr]
-      if p.rmsd_pdb is not None:
-        filename = p.rmsd_pdb.name
-        if p.lrmsd_ca:
-          filename2 = os.path.splitext(filename)[0] + "ca.pdb"
-          ret += "grep ' CA ' %s > %s\n" % (filename, filename2)
-          filename = filename2                
-      elif p.lrmsd_ca:
-        filename2 = os.path.splitext(filename)[0] + "ca.pdb"
-        filename = filename2          
-      lrmsd_refenames[pnr-1] = filename
-  
-    lrmsd_filenames = filenames[1:]
-    for pnr in range(1, len(m.partners)):
-      filename = filenames[pnr]
-      p = m.partners[pnr]
-      if p.lrmsd_ca:
-        filename2 = os.path.splitext(filename)[0] + "ca.pdb"
-        ret += "grep ' CA ' %s > %s\n" % (filename, filename2)
-        filename = filename2
-      lrmsd_filenames[pnr-1] = filename
-    if any_ca:  
+      if p.rmsd_bb:
+        filename2 = os.path.splitext(filename)[0] + "-bb.pdb"
+        ret += "$ATTRACTTOOLS/backbone %s > %s\n" % (filename, filename2)
+        filename = filename2                
+      rmsd_filenames.append(filename)
+    if m.calc_irmsd or m.calc_fnat:
+      irmsd_filenames = rmsd_filenames[:]
+      irmsd_refenames = rmsd_filenames[:]
+      for pnr in range(len(m.partners)):
+	filename = filenames[pnr]
+	p = m.partners[pnr]
+	if p.rmsd_pdb is not None:
+          filename = p.rmsd_pdb.name
+          if p.rmsd_bb:
+            filename2 = os.path.splitext(filename)[0] + "-bb.pdb"
+            ret += "$ATTRACTTOOLS/backbone %s > %s\n" % (filename, filename2)
+            filename = filename2                
+	elif p.rmsd_bb:
+          filename2 = os.path.splitext(filename)[0] + "-bb.pdb"
+          filename = filename2          
+	irmsd_refenames[pnr] = filename
+    if m.calc_lrmsd:
+      lrmsd_filenames = rmsd_filenames[1:]
+      if m.calc_irmsd or m.calc_fnat:
+        lrmsd_refenames = irmsd_refenames[1:]
+      else:
+        lrmsd_refenames = rmsd_refenames[1:]
+	for pnr in range(1, len(m.partners)):
+	  filename = filenames[pnr]
+	  p = m.partners[pnr]
+	  if p.rmsd_pdb is not None:
+            filename = p.rmsd_pdb.name
+            if p.rmsd_bb:
+              filename2 = os.path.splitext(filename)[0] + "-bb.pdb"
+              ret += "$ATTRACTTOOLS/backbone %s > %s\n" % (filename, filename2)
+              filename = filename2                
+	  elif p.rmsd_bb:
+            filename2 = os.path.splitext(filename)[0] + "-bb.pdb"
+            filename = filename2          
+	  lrmsd_refenames[pnr-1] = filename
+    if any_bb:  
       ret += "\n"
-      ca_str = "CA "
+      bb_str = "backbone "
     else:
-      ca_str = ""
+      bb_str = ""
+  if m.calc_lrmsd or m.calc_irmsd or m.calc_fnat: 
+    flexpar = ""
+    if modes_any and not deflex_any: 
+      if aa_modes_any:
+        flexpar = " --modes hm-all-aa.dat"
+      else:
+        flexpar = " --modes hm-all.dat"
+    for pnr,p in enumerate(m.partners):
+      if p.deflex == False and p.ensemble_list is not None:
+        flexpar += " --ens %d %s" % (pnr+1,p.ensemble_list.name)
+  if m.calc_lrmsd:      
     ret += """
 echo '**************************************************************'
 echo 'calculate %sligand RMSD'
 echo '**************************************************************'
-""" % ca_str   
+""" % bb_str      
+	
+    fixresult = None 
+    if m.fix_receptor == False: 
+      fixresult = result + "-fixre"
+      ret += "$ATTRACTDIR/fix_receptor %s %d%s > %s\n" % (result, len(m.partners), flexpar, result2)
+      result = fixresult
+	
     lrmsd_allfilenames = []
     for f1, f2 in zip(lrmsd_filenames, lrmsd_refenames):
       lrmsd_allfilenames.append(f1)
       lrmsd_allfilenames.append(f2)
     lrmsd_allfilenames = " ".join(lrmsd_allfilenames)
     lrmsdresult = os.path.splitext(result0)[0] + ".lrmsd"
-    par = ""
-    if modes_any and not deflex_any: 
-      if aa_modes_any:
-        par = " --modes hm-all-aa.dat"
-      else:
-        par = " --modes hm-all.dat"
-    for pnr,p in enumerate(m.partners):
-      if p.deflex == False and p.ensemble_list is not None:
-        par += " --ens %d %s" % (pnr+1,p.ensemble_list.name)
-    ret += "$ATTRACTDIR/lrmsd %s %s%s > %s\n" % (result, lrmsd_allfilenames, par, lrmsdresult)
+    ret += "$ATTRACTDIR/lrmsd %s %s%s > %s\n" % (result, lrmsd_allfilenames, flexpar, lrmsdresult)
+    ret += "\n"
+
+  if m.calc_irmsd:      
+    ret += """
+echo '**************************************************************'
+echo 'calculate %sinterface RMSD'
+echo '**************************************************************'
+""" % bb_str      
+		
+    irmsd_allfilenames = []
+    for f1, f2 in zip(irmsd_filenames, irmsd_refenames):
+      irmsd_allfilenames.append(f1)
+      irmsd_allfilenames.append(f2)
+    irmsd_allfilenames = " ".join(irmsd_allfilenames)
+    irmsdresult = os.path.splitext(result0)[0] + ".irmsd"
+    ret += "python $ATTRACTDIR/irmsd.py %s %s%s > %s\n" % (result, irmsd_allfilenames, flexpar, irmsdresult)
     ret += "\n"
 
   if m.calc_lrmsd or m.calc_irmsd:
     if deflex_any:
       ret += "rm -f $tmpf $tmpf2\n"
       result = result0
+    if m.fix_receptor == False:
+      ret += "rm -f %s\n" % fixresult
+
+  if m.calc_fnat:      
+    ret += """
+echo '**************************************************************'
+echo 'calculate fraction of native contacts'
+echo '**************************************************************'
+"""		
+    fnat_allfilenames = []
+    for f1, f2 in zip(irmsd_filenames, irmsd_refenames):
+      fnat_allfilenames.append(f1)
+      fnat_allfilenames.append(f2)
+    fnat_allfilenames = " ".join(fnat_allfilenames)
+    fnatresult = os.path.splitext(result0)[0] + ".fnat"
+    ret += "python $ATTRACTDIR/fnat.py %s 5 %s%s > %s\n" % (result, fnat_allfilenames, flexpar, fnatresult)
+    ret += "\n"
 
   if m.collect:
     collect_filenames = filenames
@@ -484,19 +544,19 @@ echo '**************************************************************'
 """ % nr
     ret += "$ATTRACTTOOLS/top %s %d > out_$name-top%d.dat\n" % (result, nr, nr)
     collect_filenames = " ".join(collect_filenames)
-    par = ""
+    flexpar_aa = ""
     if modes_any: 
       if aa_modes_any:
-        par = " --modes hm-all-aa.dat"
+        flexpar_aa = " --modes hm-all-aa.dat"
       else:
-        par = " --modes hm-all.dat"    
+        flexpar_aa = " --modes hm-all.dat"    
     for pnr,p in enumerate(m.partners):
       if p.collect_ensemble_list is not None:
-        par += " --ens %d %s" % (pnr+1,p.collect_ensemble_list.name)    
+        flexpar_aa += " --ens %d %s" % (pnr+1,p.collect_ensemble_list.name)    
       elif p.ensemble_list is not None:
-        par += " --ens %d %s" % (pnr+1,p.ensemble_list.name)    
+        flexpar_aa += " --ens %d %s" % (pnr+1,p.ensemble_list.name)    
     ret += "$ATTRACTDIR/collect out_$name-top%d.dat %s%s > out_$name-top%d.pdb\n" % \
-     (nr, collect_filenames, par, nr)
+     (nr, collect_filenames, flexpar_aa, nr)
     ret += "\n"
   
     
@@ -505,99 +565,3 @@ echo '**************************************************************'
   ret = ret.replace("\n\n\n","\n\n")
   return ret
 
-#raise Exception("Not implemented")
-"""
-def generate(m):
-  ret = ""
-  if (m.header is not None):
-    ret = m.header + "\n\n"
-    
-  ret += "$ATTRACTDIR/bin/shm-clean\n\n"
-        
-  npart = len(m.partners)  
-  
-  if m.search == "Random":
-    ret += "python $ATTRACTDIR/tools/randsearch.py %d %d > start.dat\n\n" % (npart, m.structures)
-  else:
-    raise Exception("TODO")
-    
-  if m.use_grids:
-    ngrid = npart
-    if npart == 2 and m.fix_receptor:
-      ngrid = 1
-    elif m.grid_torque:
-      ngrid -= 1  
-    if m.grid_mask_interior:
-      calc_interior = "$ATTRACTDIR/bin/calc_interior"
-    else:
-      calc_interior = "$ATTRACTDIR/bin/calc_no_interior"
-    for pnr in range(ngrid):
-      part = "partner-%d" % (pnr+1)
-      ret += calc_interior + " %s.pdb %s-interior.vol\n" % (part, part)
-    ret += "\n"
-
-    if m.forcefield == "ATTRACT":
-      for pnr in range(npart):    
-        part = "partner-%d" % (pnr+1)
-        s = "$ATTRACTDIR/bin/reduce %s.pdb > /dev/null" % part
-        ret += s + "\n"
-      if npart == 2:
-        pdbfiles = "partner-1r.pdb partner-2r.pdb"
-      else:
-        ret += "echo %d > partners.pdb\n" % npart
-        for pnr in range(npart):
-          ret += "grep ATOM partner-%dr.pdb >> partners.pdb\n" % (pnr+1)
-          ret += "echo TER >> partners.pdb\n" 
-        ret += "echo END >> partners.pdb\n"
-        pdbfiles = "partners.pdb"
-      ret += "\n"  
-          
-    else:
-      raise Exception("TODO")
-       
-    make_grid = "$ATTRACTDIR/bin/make-grid"
-    shm_grid = "$ATTRACTDIR/bin/shm-grid" 
-    if m.grid_torque:
-      make_grid += "-torque"    
-      shm_grid += "-torque"  
-    if m.grid_omp:
-      make_grid += "-omp"
-    for pnr in range(npart):    
-      part = "partner-%d" % (pnr+1)
-      s = "%s %sr.pdb %s-interior.vol" % (make_grid, part, part)
-      s += " $ATTRACTDIR/parmu.par"
-      s += " %f %f" % (m.grid_plateau_distance, m.grid_neighbour_distance)
-      s += " %s.grid" % part
-      if m.dielec == "cdie": s += " --cdie"
-      ep = int(10000*m.epsilon)/10000.0
-      if ep != 15:
-        s += " --epsilon %f" % ep
-      if not m.grid_potentials: s += " calc-potentials=0"
-      ret += s + "\n"
-      ret += shm_grid + " %s.grid %s.gridheader\n" % (part,part)
-    ret += "\n"
-    
-    dock = "python $ATTRACTDIR/protocols/attract.py start.dat"
-    dock += " $ATTRACTDIR/parmu.par"
-    dock += " " + pdbfiles
-    if m.use_grids:
-      for n in range(ngrid):
-        dock += " --grid %d partner-%d.gridheader" % (n+1, n+1)
-        #TODO: homodimers etc.
-
-    if m.gravity:
-      dock += " --gravity 1"    #TODO 
-    dock += " --rstk %f" % m.rstk
-    if m.dielec == "cdie": dock += " --cdie"
-    ep = int(10000*m.epsilon)/10000.0
-    if ep != 15:
-      dock += " --epsilon %f" % ep
-    dock += " --jobsize %d" % m.jobsize  
-    dock += " --np %d" % m.threads
-    dock += " --output dock.dat"
-    ret += "\n" + dock + "\n\n"
-    
-    ret += "$ATTRACTDIR/bin/shm-clean\n\n"
-    
-  return ret  
-"""

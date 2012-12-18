@@ -3,7 +3,6 @@ Type Data_ATTRACT_Rotations:Data{}
 Type Data_ATTRACT_Translations:Data{}
 Type Data_ATTRACT_Modes:Data{}
 Type Data_ATTRACT_CryoEM_data:Data{}
-Type Data_ATTRACT_Grid:Data{}
 
 Type Data_TXT_FileList_PDB:Data{}
 
@@ -80,13 +79,13 @@ Type AttractPartnerInterface {
   ## form deflex.name = "Remove flexibility" 
 
   *File_PDB rmsd_pdb
-  ## form rmsd_pdb.add_header("You can specify a different PDB file to use in RMSD calculations")
-  ## form rmsd_pdb.add_header("Leave blank to use the reduced PDB instead")
+  ## form rmsd_pdb.add_header("You can specify a PDB file to use as reference in RMSD calculations")
+  ## form rmsd_pdb.add_header("Leave blank to use the docked PDB instead (bound conforation = unbound conformation)")
   ## form rmsd_pdb.name = "RMSD PDB file"
   ## form rmsd_pdb.type = "required"
   ## form rmsd_pdb.file = "Data_PDB"
-  Bool lrmsd_ca = True
-  ## form lrmsd_ca.name = "Select only C-alpha atoms for ligand RMSD calculation"
+  Bool rmsd_bb = True
+  ## form rmsd_bb.name = "Select only backbone atoms for RMSD calculation"
 
   *File_PDB collect_pdb
   ## form collect_pdb.add_header("You can specify a different PDB file to use as template for collecting the structures")
@@ -129,10 +128,10 @@ Type AttractGrid {
       raise ValueError("The name of the grid may contain only letters, digits, _ and -")  
   }
 
-  *File gridfile
+  Filename gridfile
   form {
-    gridfile.type = "required"
-    gridfile.file = "Data_ATTRACT_Grid"
+    gridfile.type = "file"
+    gridfile.file = "Data"
     gridfile.add_header("If a grid file has been previously generated, you can specify it here")
     gridfile.name = "Grid file"
   }
@@ -356,9 +355,6 @@ Type AttractModel {
   *Bool calc_lrmsd = False  
   *Bool calc_irmsd = False
   *Bool calc_fnat = False
-  #for now, don't calculate irmsd or fnat
-  ## form calc_irmsd.type = "none" ###TODO 
-  ## form calc_fnat.type = "none" ###TODO 
   Bool collect = True
   Integer nr_collect = 50
   form {
@@ -401,6 +397,13 @@ Type AttractModel {
   ## form header.type = "textarea"
   ## form header.cols = 80
   ## form header.rows = 50
+
+  *String footer = ""
+  ## form footer.group = "Computing and parallelization parameters"
+  ## form footer.name = "Footer for docking protocol script"
+  ## form footer.type = "textarea"
+  ## form footer.cols = 80
+  ## form footer.rows = 5
   
   #***
   

@@ -1,0 +1,2 @@
+#!/bin/sh
+awk '/ATOM/{atom = substr($0,14,4); if (atom == "CA  " || atom == "C   " || atom == "O   " || atom == "N   "){print $0}}' $1
