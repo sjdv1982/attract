@@ -147,7 +147,7 @@ extern "C" void read_hm_(const char *hmfile_, const char *hmword_, const int &nl
 
 extern "C" void read_one_pdb_(
    const int &maxlig, const int &totmaxres, const int &totmaxatom,
-   const char *pdbfile,
+   const int &maxatom, const char *pdbfile,
    intarr kai,codearr tyi,codearr rgi,
    intarr iei, dbl3arr x,
    intarr iaci,dblarr xlai,
@@ -161,7 +161,7 @@ extern "C" void read_one_pdb_(
 
 extern "C" void read_single_pdb_(
    const int &maxlig, const int &totmaxres, const int &totmaxatom,
-   const char *pdbfile,
+   const int &maxatom, const char *pdbfile,
    intarr kai,codearr tyi,codearr rgi,
    intarr iei, dbl3arr x,
    intarr iaci,dblarr xlai,
@@ -176,7 +176,7 @@ extern "C" void read_single_pdb_(
 
 extern "C" void read_two_pdbs_(
    const int &maxlig, const int &totmaxres, const int &totmaxatom,
-   const char *pdbfile1,const char *pdbfile2,
+   const int &maxatom, const char *pdbfile1,const char *pdbfile2,
    intarr kai,codearr tyi,codearr rgi,
    intarr iei, dbl3arr x,
    intarr iaci,dblarr xlai,
