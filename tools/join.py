@@ -1,9 +1,15 @@
 import sys, glob
 from _read_struc import read_struc
 
-if len(sys.argv) < 2:
-  print >> sys.stderr, "Usage: join.py <file pattern>"
+if len(sys.argv) < 2 or len(sys.argv) > 3:
+  print >> sys.stderr, "Usage: join.py <file pattern> [--score]"
   sys.exit()
+score = False
+if len(sys.argv) == 3:
+  if sys.argv[2] != "--score":
+    print >> sys.stderr, "Usage: join.py <file pattern> [--score]"
+    sys.exit()
+  score = True
 
 files = glob.glob(sys.argv[1]+"-*")
 nrsplit = 0
@@ -14,6 +20,13 @@ while 1:
 
 if nrsplit == 0: 
   print >> sys.stderr, "Pattern not found"
+  sys.exit()
+
+if score:
+  for n in range(nrsplit):
+    fnam = "%s-%d" % (sys.argv[1], n+1)
+    for l in open(fnam).readlines(): 
+      print l,
   sys.exit()
 
 allstructures = {}
