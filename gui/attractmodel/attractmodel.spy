@@ -387,9 +387,6 @@ Type AttractModel {
   Integer np = 1
   ## form np.group = "Computing and parallelization parameters"
   ## form np.name = "Number of processor cores"
-  Integer jobsize = 1000
-  ## form jobsize.group = "Computing and parallelization parameters"
-  ## form jobsize.name = "Number of structures in a single job"
   
   *String header = "#PBS -l nodes=1:ppn=12\n#PBS -l walltime=6:30:00\n#PBS -j oe\ncd $PBS_O_WORKDIR\n\nATTRACTDIR=/home/sjoerd/data/work/attract/bin\nATTRACTTOOLS=/home/sjoerd/data/work/attract/tools"
   ## form header.group = "Computing and parallelization parameters"

@@ -3,6 +3,14 @@ jobsize = 2000 #structures per job
 import sys, random, os, time
 from math import *
 
+def get_energy(f):
+  if not os.path.exists(f): return 0
+  ret = 0
+  f0 = open(f)
+  for l in f0.readlines():
+    if l.lstrip().startswith("Energy:"): ret += 1
+  return ret
+    
 def get_struc(f):  
   if not os.path.exists(f): return 0
   ret = 0
@@ -18,7 +26,10 @@ def get_struc(f):
   return ret
 
 def finished(f, nstruc):
-  fstruc = get_struc(f)
+  if scoremode:
+    fstruc = get_energy(f)
+  else:
+    fstruc = get_struc(f)
   return fstruc == nstruc
 
 def run(command):
@@ -30,6 +41,8 @@ output = None
 anr = 0
 torque = ""
 existing = None
+jobsize = None
+chunks = None
 while 1:
   anr += 1
 
@@ -67,6 +80,15 @@ while 1:
     sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
     anr -= 1
     continue
+  if arg == "-chunks" or arg == "--chunks":
+    try:
+      chunks = int(nextarg)
+      if chunks <= 0: raise ValueError
+    except ValueError: 
+      raise ValueError("Invalid chunks: %s" % nextarg)
+    sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
+    anr -= 1
+    continue
   if arg == "--output":
     output = nextarg
     sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
@@ -85,11 +107,18 @@ attractdir = attractdir0 + "/../bin"
 attract = attractdir + "/attract" + torque
 strucfile = sys.argv[1]
 
+if jobsize is None and chunks is None:
+  raise ValueError("You must specify --jobsize <value> or --chunks <value>")
+if jobsize is not None and chunks is not None:
+  raise ValueError("You must specify --jobsize <value> OR --chunks <value>, not both!")
+
 totstruc = get_struc(strucfile)
-chunks = ceil(totstruc/float(jobsize))
+if jobsize is not None:
+  chunks = ceil(totstruc/float(jobsize))
 if not chunks: sys.exit()
 
 args = sys.argv[2:]
+scoremode = "--score" in args
 while 1:
   pat = "tmp%d" % random.randint(1,99999)
   pat2 = "tmp%d" % random.randint(1,99999)
@@ -133,7 +162,11 @@ try:
   o = open(output, "w")
   print >> o, "## Command line arguments: " + " ".join([attract,strucfile]+args)
   o.close()
-  com = "python %s/join.py %s >> %s" % (tooldir, pat2, output); run(com)
+  score = ""
+  if scoremode:
+    score = "--score"  
+  com = "python %s/join.py %s %s >> %s" % (tooldir, pat2, score, output) 
+  run(com)
 finally:
   com = "rm %s-*" % pat; run(com)
   com = "rm %s-*" % pat2; run(com)
