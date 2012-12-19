@@ -3,6 +3,14 @@ jobsize = 2000 #structures per job
 import sys, random, os, time
 from math import *
 
+def get_energy(f):
+  if not os.path.exists(f): return 0
+  ret = 0
+  f0 = open(f)
+  for l in f0.readlines():
+    if l.lstrip().startswith("Energy:"): ret += 1
+  return ret
+    
 def get_struc(f):  
   if not os.path.exists(f): return 0
   ret = 0
@@ -18,7 +26,10 @@ def get_struc(f):
   return ret
 
 def finished(f, nstruc):
-  fstruc = get_struc(f)
+  if scoremode:
+    fstruc = get_energy(f)
+  else:
+    fstruc = get_struc(f)
   return fstruc == nstruc
 
 def run(command):
@@ -107,6 +118,7 @@ if jobsize is not None:
 if not chunks: sys.exit()
 
 args = sys.argv[2:]
+scoremode = "--score" in args
 while 1:
   pat = "tmp%d" % random.randint(1,99999)
   pat2 = "tmp%d" % random.randint(1,99999)
@@ -151,7 +163,7 @@ try:
   print >> o, "## Command line arguments: " + " ".join([attract,strucfile]+args)
   o.close()
   score = ""
-  if "--score" in args:
+  if scoremode:
     score = "--score"  
   com = "python %s/join.py %s %s >> %s" % (tooldir, pat2, score, output) 
   run(com)
