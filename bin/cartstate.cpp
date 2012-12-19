@@ -44,7 +44,7 @@ s.swi_on, s.swi_off, strlen(argv[0]));
       s.nlig = 1;
       int dmmy=0,dmmy2=0;
       read_single_pdb_(
-       MAXLIG, TOTMAXRES, TOTMAXATOM,
+       MAXLIG, TOTMAXRES, TOTMAXATOM, MAXATOM,
        argv[1],s.kai,s.tyi,s.rgi,s.iei,s.x,s.iaci,s.xlai,
        s.icop,s.we,s.chai,s.ncop,s.nmaxco,s.natco,
        s.nlig,s.nres,s.natom,s.n3atom,s.nall,s.nall3,s.ieins,s.ieins3,
@@ -55,7 +55,7 @@ s.swi_on, s.swi_off, strlen(argv[0]));
     else if (argc == 3) {
       s.nlig = 2;
       read_two_pdbs_(
-       MAXLIG, TOTMAXRES, TOTMAXATOM,
+       MAXLIG, TOTMAXRES, TOTMAXATOM, MAXATOM,
        argv[1],argv[2],s.kai,s.tyi,s.rgi,s.iei,s.x,s.iaci,s.xlai,
        s.icop,s.we,s.chai,s.ncop,s.nmaxco,s.natco,
        s.nres,s.natom,s.n3atom,s.nall,s.nall3,s.ieins,s.ieins3,
@@ -64,7 +64,7 @@ s.swi_on, s.swi_off, strlen(argv[0]));
     }
     else {  
       read_one_pdb_(
-       MAXLIG, TOTMAXRES, TOTMAXATOM,
+       MAXLIG, TOTMAXRES, TOTMAXATOM, MAXATOM,
        argv[1],s.kai,s.tyi,s.rgi,s.iei,s.x,s.iaci,s.xlai,
        s.icop,s.we,s.chai,s.ncop,s.nmaxco,s.natco,
        s.nlig,s.nres,s.natom,s.n3atom,s.nall,s.nall3,s.ieins,s.ieins3,

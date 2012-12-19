@@ -4,7 +4,7 @@ c     Changed variables: nlig => natom, n3l => n3atom, ntotlig => nlig,
 c       nresl => nres, nalllig => nall, nalllig3 => nall3
 
       subroutine read_one_pdb(maxlig, totmaxres, totmaxatom,
-     1 pdbfile,kai,tyi,rgi,iei,x,iaci,xlai,
+     1 maxatom, pdbfile,kai,tyi,rgi,iei,x,iaci,xlai,
      2 icop,we,chai,ncop,nmaxco,natco,
      3 nlig, nres, natom, n3atom, nall, nall3, ieins, ieins3)
       
@@ -18,7 +18,7 @@ c
       implicit real*8 (a-h,o-z)
       implicit integer*4 (i-n)      
       character*100 pdbfile
-      integer totmaxatom, totmaxres, maxlig
+      integer maxatom, totmaxatom, totmaxres, maxlig
       dimension kai(totmaxatom),
      1 iei(totmaxatom), x(totmaxatom), iaci(totmaxatom),
      2 xlai(totmaxatom), icop(totmaxatom), we(totmaxatom),
@@ -36,10 +36,11 @@ c
       open(42,file=pdbfile)
       read(42,*) nlig
       do 60 ijk=0,nlig-1            
-      call read_pdb(42, maxlig, totmaxatom, totmaxres, ijk,nlig,
-     1 kai,tyi,rgi,iei,x,iaci,xlai,
-     2 icop,we,chai,ncop,nmaxco,natco,
-     3 nres, natom, n3atom, i, irs, ieins, ieins3)
+      call read_pdb(42, maxlig, totmaxatom, totmaxres, maxatom, 
+     1 ijk,nlig,
+     2 kai,tyi,rgi,iei,x,iaci,xlai,
+     3 icop,we,chai,ncop,nmaxco,natco,
+     4 nres, natom, n3atom, i, irs, ieins, ieins3)
    60 continue
       close(42)
       nall=i
@@ -48,14 +49,14 @@ c     write(*,*)'all ligand atoms',nall,(natom(j),j=0,nlig-1)
       end
 
       subroutine read_single_pdb(maxlig, totmaxres, totmaxatom,
-     1 pdbfile,kai,tyi,rgi,iei,x,iaci,xlai,
+     1 maxatom, pdbfile,kai,tyi,rgi,iei,x,iaci,xlai,
      2 icop,we,chai,ncop,nmaxco,natco,
      3 nlig, nres, natom, n3atom, nall, nall3, ieins, ieins3,i,irs)
       
       implicit real*8 (a-h,o-z)
       implicit integer*4 (i-n)      
       character*100 pdbfile
-      integer totmaxatom, totmaxres, maxlig
+      integer maxatom, totmaxatom, totmaxres, maxlig
       dimension kai(totmaxatom),
      1 iei(totmaxatom), x(totmaxatom), iaci(totmaxatom),
      2 xlai(totmaxatom), icop(totmaxatom), we(totmaxatom),
@@ -68,10 +69,11 @@ c     write(*,*)'all ligand atoms',nall,(natom(j),j=0,nlig-1)
       character*4 tyi(totmaxatom),rgi(totmaxatom)
 
       open(42,file=pdbfile)
-      call read_pdb(42, maxlig, totmaxatom, totmaxres, 0,nlig,
-     1 kai,tyi,rgi,iei,x,iaci,xlai,
-     2 icop,we,chai,ncop,nmaxco,natco,
-     3 nres, natom, n3atom, i, irs, ieins, ieins3)
+      call read_pdb(42, maxlig, totmaxatom, totmaxres, maxatom,
+     1 0,nlig,
+     2 kai,tyi,rgi,iei,x,iaci,xlai,
+     3 icop,we,chai,ncop,nmaxco,natco,
+     4 nres, natom, n3atom, i, irs, ieins, ieins3)
       close(42)
       nall=i
       nall3=3*i    
@@ -79,14 +81,14 @@ c     write(*,*)'all ligand atoms',nall,(natom(j),j=0,nlig-1)
       end
 
       subroutine read_two_pdbs(maxlig, totmaxres, totmaxatom,
-     1 pdbfile1,pdbfile2,kai,tyi,rgi,iei,x,iaci,xlai,
+     1 maxatom, pdbfile1,pdbfile2,kai,tyi,rgi,iei,x,iaci,xlai,
      2 icop,we,chai,ncop,nmaxco,natco,
      3 nres, natom, n3atom, nall, nall3, ieins, ieins3)
       
       implicit real*8 (a-h,o-z)
       implicit integer*4 (i-n)      
       character*100 pdbfile1,pdbfile2
-      integer totmaxatom, totmaxres, maxlig
+      integer maxatom, totmaxatom, totmaxres, maxlig
       dimension kai(totmaxatom),
      1 iei(totmaxatom), x(totmaxatom), iaci(totmaxatom),
      2 xlai(totmaxatom), icop(totmaxatom), we(totmaxatom),
@@ -104,13 +106,13 @@ c     write(*,*)'all ligand atoms',nall,(natom(j),j=0,nlig-1)
       irs=0
 
       open(42,file=pdbfile1)
-      call read_pdb(42, maxlig, totmaxatom, totmaxres, 0,2,
+      call read_pdb(42, maxlig, totmaxatom, totmaxres, maxatom, 0,2,
      1 kai,tyi,rgi,iei,x,iaci,xlai,
      2 icop,we,chai,ncop,nmaxco,natco,
      3 nres, natom, n3atom, i, irs, ieins, ieins3)
       close(42)
       open(42,file=pdbfile2)
-      call read_pdb(42, maxlig, totmaxatom, totmaxres, 1,2,
+      call read_pdb(42, maxlig, totmaxatom, totmaxres, maxatom, 1,2,
      1 kai,tyi,rgi,iei,x,iaci,xlai,
      2 icop,we,chai,ncop,nmaxco,natco,
      3 nres, natom, n3atom, i, irs, ieins, ieins3)
@@ -121,14 +123,14 @@ c      write(*,*)'all ligand atoms',nall,(natom(j),j=0,2-1)
       end
             
       subroutine read_pdb(filehandle,maxlig,totmaxatom,totmaxres,      
-     1 ijk,nlig,kai,tyi,rgi, iei,x,iaci,xlai,
+     1 maxatom, ijk,nlig,kai,tyi,rgi, iei,x,iaci,xlai,
      2 icop,we,chai,ncop,nmaxco,natco,
      3 nres, natom, n3atom, i, irs, ieins, ieins3)
 
       implicit real*8 (a-h,o-z)
       implicit integer*4 (i-n)      
       character*100 b
-      integer maxlig, totmaxatom, totmaxres, filehandle
+      integer maxlig, maxatom, totmaxatom, totmaxres, filehandle
       character*4 at, tyi(totmaxatom),rgi(totmaxatom)
       dimension kai(totmaxatom),
      1 iei(totmaxatom), x(totmaxatom), iaci(totmaxatom),
