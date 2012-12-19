@@ -559,6 +559,8 @@ echo '**************************************************************'
      (nr, collect_filenames, flexpar_aa, nr)
     ret += "\n"
   
+  if (m.footer is not None):
+    ret += m.footer + "\n\n"
     
   ret += "fi ### move to disable parts of the protocol\n"
   ret = ret.replace("\n\n\n","\n\n")
