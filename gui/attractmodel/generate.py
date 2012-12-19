@@ -160,8 +160,8 @@ gridparams="%s"
   if m.np > 1:
     ret += """
 #parallelization parameters
-parals="--jobsize %d --np %d"
-"""  % (m.jobsize, m.np)
+parals="--np %d --chunks %d"
+"""  % (m.np, m.np)
   
   ret += ret_shm
   if m.search == "syst" or m.search == "custom":
@@ -332,8 +332,14 @@ echo '**************************************************************'
 echo 'Final rescoring'
 echo '**************************************************************'
 """
-    ret += "$ATTRACTDIR/attract %s $params --rcut %s --score > out_$name.score\n" \
-     % (result, str(m.rcut_rescoring))
+    if m.np > 1:
+      attract = "python $ATTRACTDIR/../protocols/attract.py"
+      tail = "$parals --output"  
+    else:
+      attract = "$ATTRACTDIR/attract"
+      tail = ">"  
+    ret += "%s %s $params --rcut %s --score %s out_$name.score\n" \
+     % (attract, result, str(m.rcut_rescoring), tail)
     ret += """     
 echo '**************************************************************'
 echo 'Merge the scores with the structures'
