@@ -1,15 +1,30 @@
 import os
 
-#datamodel:
+#datamodel: see TODOs
 #TODO: add check between p.modes_file and p.nr_modes
 #TODO: add check that either all interactions are grid-accelerated, or none are
 #  (and an option to disable this check; for this, adapt --rcut iteration as well)
 #TODO: a script to add energies back to deredundant output
 
 def generate(m):
-  if m.forcefield != "ATTRACT": raise Exception #TODO, not yet implemented
+  if m.forcefield != "ATTRACT": 
+    reduced_all = all((p.is_reduced for p in m.partners))
+    if not reduced_all:
+      #TODO?
+      raise ValueError(
+"""
+When not using the ATTRACT forcefield, the 'reduce' program may easily give errors
+Therefore, you can only define docking partners that are already in the reduced form
+"""
+      ) 
+  
+  if m.forcefield == "ATTRACT":
+    ffpar = "$ATTRACTDIR/../parmw.par"
+  elif m.forcefield == "OPLSX":  
+    ffpar = "$ATTRACTDIR/../allatom/allatom.par"
+
   ret = ""
-  #ret += "#!/bin/sh\n"
+  cleanupfiles = []
   if (m.header is not None):
     ret = m.header + "\n\n"
   ret += "if [ 1 -eq 1 ]; then ### move and change to disable parts of the protocol\n"
@@ -31,7 +46,8 @@ cat /dev/null > hm-all.dat
       hm_all_aa = "hm-all.dat"
     ret += "\n"  
     for p in m.partners:
-      if p.generate_modes: raise Exception #TODO: not yet implemented
+      if p.generate_modes: 
+        raise ValueError("Generating modes must currently be done manually") #TODO?
       if p.moleculetype != "Protein": raise Exception #TODO: not yet implemented
       if p.nr_modes is None or p.nr_modes == 0 or  p.modes_file is None:
         ret += "echo 0 >> hm-all.dat\n"
@@ -78,7 +94,7 @@ echo '**************************************************************'
       filenames.append(pdbname_reduced)
     else:  
       filenames.append(p.pdb.pdbfile.name) 
-    #TODO: generate normal modes  
+    #TODO?: generate normal modes  
   if reduce_any: ret += "\n"
   
   if len(m.partners) == 2:
@@ -99,7 +115,7 @@ echo %d > partners.pdb
 #name of the run
 name=%s 
 """ % m.runname
-  params = "\"$ATTRACTDIR/../parmw.par " + partnerfiles
+  params = "\"" + ffpar + " " + partnerfiles
   gridparams = ""
   if m.fix_receptor: params += " --fix-receptor" 
   if modes_any: params += " --modes hm-all.dat"
@@ -110,6 +126,7 @@ name=%s
       v = g.gridfile.name
       if m.np > 1:
         v2 = v +"header"      
+        cleanupfiles.append(v2)
         tq = "-torque" if g.torque else ""
         ret_shm = "\n#Load %s grid into memory\n" % (g.gridname)
         ret_shm += "$ATTRACTDIR/shm-grid%s %s %s\n" % (tq, v, v2)
@@ -138,6 +155,8 @@ name=%s
     params += " --gravity %d" % m.gravity
   if m.rstk is not None and m.rstk != 0.2:
     params += " --rstk %s" % str(m.rstk)
+  if m.dielec == "cdie": params += " --cdie"  
+  if m.epsilon != 15: params += " --epsilon %s" % (str(m.epsilon))    
     
   for sym in m.symmetries:
     symcode = len(sym.partners)
@@ -158,10 +177,14 @@ gridparams="%s"
 """  % gridparams
   
   if m.np > 1:
+    if m.jobsize in (0, None):
+      parals = "--np %d --chunks %d" % (m.np, m.np)
+    else:
+      parals = "--np %d --jobsize %d" % (m.np, m.jobsize)
     ret += """
 #parallelization parameters
-parals="--np %d --chunks %d"
-"""  % (m.np, m.np)
+parals="%s"
+"""  % (parals)
   
   ret += ret_shm
   if m.search == "syst" or m.search == "custom":
@@ -257,14 +280,15 @@ echo '**************************************************************'
     tail = ""
     if m.np > 1: 
       tail += " --shm"
+    if m.forcefield == "OPLSX":  
+      tail += " --alphabet $ATTRACTDIR/../allatom/oplsx.trans"
     if m.dielec == "cdie": tail += " --cdie"
-    if m.epsilon != 15: tail += " --epsilon %s" % (str(g.epsilon))
-    #TODO: non-ATTRACT forcefield
+    if m.epsilon != 15: tail += " --epsilon %s" % (str(m.epsilon))    
     if g.calc_potentials == False: tail += " -calc-potentials=0"
     if g.omp:
       ret += "for i in `seq 1 10`; do\n\n"      
-    ret += "$ATTRACTDIR/make-grid%s %s %s $ATTRACTDIR/../parmw.par %s %s %s %s\n\n" % \
-     (tomp, f, vol, g.plateau_distance, g.neighbour_distance, gridfile, tail)
+    ret += "$ATTRACTDIR/make-grid%s %s %s %s %s %s %s %s\n\n" % \
+     (tomp, f, vol, ffpar, g.plateau_distance, g.neighbour_distance, gridfile, tail)
     if g.omp:
       ret += """
 if [ $? = 0 ]; then
@@ -564,7 +588,8 @@ echo '**************************************************************'
     ret += "$ATTRACTDIR/collect out_$name-top%d.dat %s%s > out_$name-top%d.pdb\n" % \
      (nr, collect_filenames, flexpar_aa, nr)
     ret += "\n"
-  
+  if len(cleanupfiles):  
+    ret += "\nrm -f " + " ".join(cleanupfiles) + "\n"
   if (m.footer is not None):
     ret += m.footer + "\n\n"
     

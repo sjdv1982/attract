@@ -96,7 +96,7 @@ extern "C" FILE *read_dof_init_(const char *f_, int nlig, int &line, double (&pi
 }
 
 extern "C" int read_dof_(FILE *fil, int &line, int &nstruc, const char *f_, idof2 &ens, dof2 &phi, dof2 &ssi, dof2 &rot, dof2 &xa, dof2 &ya, dof2 &za,
-coors2 &locrests, dof2 &morph, modes2 &dlig, const int &nlig, const int *nhm, const int *nrens0, const int *morphing, const int *has_locrests, int &seed, char *&label, int f_len) {
+coors2 &locrests, dof2 &morph, modes2 &dlig, const int &nlig, const int *nhm, const int *nrens0, const int *morphing, const int *has_locrests, int &seed, char *&label, const int &all_labels, int f_len) {
   int nrens00[MAXLIG];
   memset(nrens00,0,MAXLIG*sizeof(int));
   
@@ -159,14 +159,26 @@ coors2 &locrests, dof2 &morph, modes2 &dlig, const int &nlig, const int *nhm, co
        && !strncmp(buf,seedstr,strlen(seedstr))) {	
 	continue;
       }
-      if (strlen(buf) >= 3 && buf[0] == '#' && buf[1] == '#' && buf[2] == '#') {
-        if (currlabel == NULL) { 
-	  currlabel = new char[10000];
-	  currlabel[0] = 0;               
-	}
-	strcat(currlabel, buf);
-      }
-      if (buf[0] == '#' && buf[1] == '#') continue;
+      if (all_labels) {
+        if (strlen(buf) >= 3 && buf[0] == '#' && buf[1] == '#') {
+          if (currlabel == NULL) { 
+	    currlabel = new char[10000];
+	    currlabel[0] = 0;               
+	  }
+	  strcat(currlabel, buf);
+          continue;
+        }
+      }  
+      else {
+        if (strlen(buf) >= 3 && buf[0] == '#' && buf[1] == '#' && buf[2] == '#') {
+          if (currlabel == NULL) { 
+	    currlabel = new char[10000];
+	    currlabel[0] = 0;               
+	  }
+	  strcat(currlabel, buf);
+        }
+        if (buf[0] == '#' && buf[1] == '#') continue;
+      }  
       if (buf[0] == '#') {
         fprintf(stderr, "Reading error in %s, line %d: expecting data\n", f, line);
 	exit(1);
