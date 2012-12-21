@@ -116,9 +116,13 @@ echo %d > partners.pdb
 name=%s 
 """ % m.runname
   params = "\"" + ffpar + " " + partnerfiles
+  scoreparams = params + " --score --fix-receptor"
   gridparams = ""
   if m.fix_receptor: params += " --fix-receptor" 
-  if modes_any: params += " --modes hm-all.dat"
+  if modes_any: 
+    ps = " --modes hm-all.dat"
+    params += ps
+    scoreparams += ps
   gridfiles = {}
   ret_shm = ""
   for g in m.grids:
@@ -147,7 +151,9 @@ name=%s
         grid_used[v] = pnr+1
       gridparams += " --grid %d %s" % (pnr+1, str(v))
     if p.ensemble_list is not None  :
-      params += " --ens %d %s" % (pnr+1, p.ensemble_list.name)
+      ps = " --ens %d %s" % (pnr+1, p.ensemble_list.name)
+      params += ps
+      scoreparams += ps
       ens_any = True
   if m.ghost:
     params += " --ghost"
@@ -155,8 +161,14 @@ name=%s
     params += " --gravity %d" % m.gravity
   if m.rstk is not None and m.rstk != 0.2:
     params += " --rstk %s" % str(m.rstk)
-  if m.dielec == "cdie": params += " --cdie"  
-  if m.epsilon != 15: params += " --epsilon %s" % (str(m.epsilon))    
+  if m.dielec == "cdie": 
+    ps = " --cdie"
+    params += ps  
+    scoreparams += ps  
+  if m.epsilon != 15: 
+    ps = " --epsilon %s" % (str(m.epsilon))
+    params += ps
+    scoreparams += ps  
     
   for sym in m.symmetries:
     symcode = len(sym.partners)
@@ -166,10 +178,12 @@ name=%s
   if m.cryoem_data:
     params += " --em %s" % m.cryoem_data.name
   params += "\""
+  scoreparams += "\""
   ret += """
 #docking parameters
 params=%s
-"""  % params
+scoreparams=%s
+"""  % (params, scoreparams)
   if len(gridparams):
     ret += """
 #grid parameters
@@ -362,7 +376,7 @@ echo '**************************************************************'
     else:
       attract = "$ATTRACTDIR/attract"
       tail = ">"  
-    ret += "%s %s $params --rcut %s --score %s out_$name.score\n" \
+    ret += "%s %s $scoreparams --rcut %s %s out_$name.score\n" \
      % (attract, result, str(m.rcut_rescoring), tail)
     ret += """     
 echo '**************************************************************'
