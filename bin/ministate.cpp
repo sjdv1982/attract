@@ -1,3 +1,4 @@
+#include "axsym.h"
 #include "state.h"
 #include <cstdio>
 #include <cstring>
@@ -294,3 +295,12 @@ extern "C" void ministate_check_parameters_(const int &ministatehandle, const in
   }
 }
 
+extern "C" void axsym_fold_grads_(
+ const int &ministatehandle,
+ const int &cartstatehandle, 
+ double *grads0, double *grads, double *morphgrads
+) {
+  MiniState &ms = *ministates[ministatehandle-7770];
+  CartState &cartstate = cartstate_get(cartstatehandle);
+  axsym_fold_grads(ms, cartstate, grads0, grads, morphgrads);
+}

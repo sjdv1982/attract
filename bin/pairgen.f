@@ -116,7 +116,7 @@ c Atom code 32 is a universal code for 'dummy'
        if(iactl(j).eq.1.and.iacil(j).ne.0.and.iacil(j).ne.32) then
        jjj=3*(j-1)
        jt=iacil(j)
-
+       
 c      TODO: use rcut or rcut1? use rcut for now....
 c       rcut1=(rcut0+rbc(it,jt))**2 
 

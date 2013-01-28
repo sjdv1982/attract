@@ -44,16 +44,29 @@ c     Local variables
       pointer(ptr_nhm,nhm)
       real*8 pairenergies,deltar, deltal
       dimension pairenergies(6),deltar(6+maxmode),deltal(6+maxmode)
-      integer jb,ju,jl,nmodes,iab,fixre2, ghost
+      integer jb,jl,iab,fixre2, ghost
+
+      real*8 ff, frot
+      dimension ff(maxlig)
+      dimension frot(9,maxlig)      
+      pointer(ptr_ff, ff)
+      pointer(ptr_frot, frot)
+
+      real*8 delta0
+      dimension delta0(maxdof)
 
 c  return values:
 c  energies is an array of double with a value for every energy type
 c  (vdw, elec, ...)
-c  delta contains all the DOF gradients
+c  delta0 contains all the preliminary DOF gradients
+c  it will be folded into delta by axsym_fold_grads
 
       xnull = 0.0d0
       e = xnull
 
+      call apply_axsym(cartstatehandle, morph, ens, 
+     1 phi, ssi, rot, xa, ya, za, dlig, locrests)
+           
       call ministate_ghost(ministatehandle, ghost)
       
       call ministate_get_molpairhandles(
@@ -61,17 +74,13 @@ c  delta contains all the DOF gradients
 
       call cartstate_get_nlig_nhm(cartstatehandle,
      1 nlig,ptr_nhm)
+ 
+      call cartstate_get_forcerot(cartstatehandle,ptr_ff,ptr_frot)
 
 c
 c  all variables without lig-hm
 c
       jb=3*iori*(nlig-fixre)+3*itra*(nlig-fixre)
-c  all variables including lig-hm
-      nmodes = 0
-      do 5 i=1, nlig
-      nmodes = nmodes + nhm(i)
-5     continue
-      ju=jb+ieig*nmodes
 c  only trans or ori
       jl=3*iori*(nlig-fixre)
 
@@ -80,6 +89,7 @@ c  only trans or ori
       enddo 
       
       do i=1,maxdof
+      delta0(i) = xnull
       delta(i) = xnull
    1  enddo
              
@@ -105,38 +115,39 @@ c  iterate over all pairs: call pairenergy...
      1 maxdof,maxmolpair,maxres,totmaxres,
      2 cartstatehandle,molpairhandle,
      3 iab,fixre2,gridptr,
-     4 ens(idr+1),phi(idr+1),ssi(idr+1),rot(idr+1),
-     5 xa(idr+1),ya(idr+1),za(idr+1),morph(idr+1),dlig(:,idr+1),
-     6 ens(idl+1),phi(idl+1),ssi(idl+1),rot(idl+1),
-     7 xa(idl+1),ya(idl+1),za(idl+1),morph(idl+1),dlig(:,idl+1),
-     8 energies, deltar, deltal, deltamorphr, deltamorphl)
+     4 ff(idr+1),frot(:,idr+1),ff(idl+1),frot(:,idl+1),
+     5 ens(idr+1),phi(idr+1),ssi(idr+1),rot(idr+1),
+     6 xa(idr+1),ya(idr+1),za(idr+1),morph(idr+1),dlig(:,idr+1),
+     7 ens(idl+1),phi(idl+1),ssi(idl+1),rot(idl+1),
+     8 xa(idl+1),ya(idl+1),za(idl+1),morph(idl+1),dlig(:,idl+1),
+     9 energies, deltar, deltal, deltamorphr, deltamorphl)
                        
 c  ...and sum up the energies and deltas            
       if ((iori.eq.1).AND.(fixre2.eq.0)) then
       ii = 3 * (idr-fixre)
-      delta(ii+1) = delta(ii+1) + deltar(1)
-      delta(ii+2) = delta(ii+2) + deltar(2)
-      delta(ii+3) = delta(ii+3) + deltar(3)
+      delta0(ii+1) = delta0(ii+1) + deltar(1)
+      delta0(ii+2) = delta0(ii+2) + deltar(2)
+      delta0(ii+3) = delta0(ii+3) + deltar(3)
       endif
       if ((itra.eq.1).AND.(fixre2.eq.0)) then
       ii = jl + 3 * (idr-fixre)
-      delta(ii+1) = delta(ii+1) + deltar(4)
-      delta(ii+2) = delta(ii+2) + deltar(5)
-      delta(ii+3) = delta(ii+3) + deltar(6)
+      delta0(ii+1) = delta0(ii+1) + deltar(4)
+      delta0(ii+2) = delta0(ii+2) + deltar(5)
+      delta0(ii+3) = delta0(ii+3) + deltar(6)
       endif
                   
       if ((iori.eq.1).AND.((idl+1).gt.fixre)) then
       ii = 3 * (idl-fixre)
-      delta(ii+1) = delta(ii+1) + deltal(1)
-      delta(ii+2) = delta(ii+2) + deltal(2)
-      delta(ii+3) = delta(ii+3) + deltal(3)
+      delta0(ii+1) = delta0(ii+1) + deltal(1)
+      delta0(ii+2) = delta0(ii+2) + deltal(2)
+      delta0(ii+3) = delta0(ii+3) + deltal(3)
       endif
       
       if ((itra.eq.1).AND.((idl+1).gt.fixre)) then
       ii = jl + 3 * (idl-fixre)
-      delta(ii+1) = delta(ii+1) + deltal(4)
-      delta(ii+2) = delta(ii+2) + deltal(5)
-      delta(ii+3) = delta(ii+3) + deltal(6)
+      delta0(ii+1) = delta0(ii+1) + deltal(4)
+      delta0(ii+2) = delta0(ii+2) + deltal(5)
+      delta0(ii+3) = delta0(ii+3) + deltal(6)
       endif
       
       if (ieig.eq.1) then
@@ -145,7 +156,7 @@ c  ...and sum up the energies and deltas
       ii = ii + nhm(n)
 13    continue  
       do 14 n=1,nhm(idr+1)  
-      delta(ii+n) = delta(ii+n) + deltar(6+n)
+      delta0(ii+n) = delta0(ii+n) + deltar(6+n)
 14    continue
 
       ii = jb
@@ -153,7 +164,7 @@ c  ...and sum up the energies and deltas
       ii = ii + nhm(n)
 15    continue  
       do 16 n=1,nhm(idl+1)  
-      delta(ii+n) = delta(ii+n) + deltal(6+n)
+      delta0(ii+n) = delta0(ii+n) + deltal(6+n)
 16    continue
       endif
 
@@ -183,12 +194,16 @@ c     endif ghost.eq.0
      3  ens,phi,ssi,rot,xa,ya,za,morph,dlig,
      4  locrests, has_locrests, seed,
      5  iab,iori,itra,ieig,fixre, 
-     6  energies, delta, deltamorph)
+     6  energies, delta0, deltamorph)
       
       e = 0
       do 990,i=1,6
       e = e + energies(i)
 990   continue  
+
+      call axsym_fold_grads(ministatehandle, cartstatehandle, 
+     1 delta0, delta, deltamorph)
+      
 c      write(*,*), 'ENERGY', e,
 c     1  delta(1),delta(2),delta(3),delta(4),delta(5),delta(6),
 c     2  delta(7),delta(8),delta(9),delta(10),delta(11),delta(12),

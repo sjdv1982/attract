@@ -3,6 +3,7 @@
 #include <cstdlib>
 
 #include "state.h"
+#include "axsym.h"
 
 extern "C" void read_parameters_(char *paramfile, double *rbc, 
  double *rc,double *ac,double *emin,double *rmin2,int *ipon,int *haspar, int &potshape, float &swi_on, float &swi_off,
@@ -41,19 +42,19 @@ s.swi_on, s.swi_off, strlen(argv[0]));
   }
   if (argv[1] != NULL) {
     if (single) {
-      s.nlig = 1;
+      s.nlig0 = 1;
       int dmmy=0,dmmy2=0;
       read_single_pdb_(
        MAXLIG, TOTMAXRES, TOTMAXATOM, MAXATOM,
        argv[1],s.kai,s.tyi,s.rgi,s.iei,s.x,s.iaci,s.xlai,
        s.icop,s.we,s.chai,s.ncop,s.nmaxco,s.natco,
-       s.nlig,s.nres,s.natom,s.n3atom,s.nall,s.nall3,s.ieins,s.ieins3,
+       s.nlig0,s.nres,s.natom,s.n3atom,s.nall,s.nall3,s.ieins,s.ieins3,
        dmmy, dmmy2,
        strlen(argv[1])
       );
     }
     else if (argc == 3) {
-      s.nlig = 2;
+      s.nlig0 = 2;
       read_two_pdbs_(
        MAXLIG, TOTMAXRES, TOTMAXATOM, MAXATOM,
        argv[1],argv[2],s.kai,s.tyi,s.rgi,s.iei,s.x,s.iaci,s.xlai,
@@ -63,18 +64,30 @@ s.swi_on, s.swi_off, strlen(argv[0]));
       );
     }
     else {  
+      s.nlig0 = 0;
       read_one_pdb_(
        MAXLIG, TOTMAXRES, TOTMAXATOM, MAXATOM,
        argv[1],s.kai,s.tyi,s.rgi,s.iei,s.x,s.iaci,s.xlai,
        s.icop,s.we,s.chai,s.ncop,s.nmaxco,s.natco,
-       s.nlig,s.nres,s.natom,s.n3atom,s.nall,s.nall3,s.ieins,s.ieins3,
+       s.nlig0,s.nres,s.natom,s.n3atom,s.nall,s.nall3,s.ieins,s.ieins3,
        strlen(argv[1])
       );
     } 
+    s.nlig = s.nlig0;
     memcpy(s.xori0, s.x, 3*TOTMAXATOM*sizeof(double)); 
+    for (int n = 0; n < MAXLIG; n++) {
+      double *fr = s.forcerotation[n];
+      fr[0] = 1;
+      fr[4] = 1;
+      fr[8] = 1;
+    }
   }
     
-  for (i=0;i<MAXLIG;i++) s.nhm[i]=0;
+  for (i=0;i<MAXLIG;i++) {
+    s.nhm[i]=0;
+    s.nr_symcopies[i]=1;
+    s.symcopies[i][0] = i;
+  }  
   memset(s.grids, 0, MAXLIG*sizeof(Grid *));
   return cartstatehandle;
 }
@@ -126,6 +139,14 @@ extern "C" void cartstate_get_nlig_nhm_(const int &handle,int &nlig, int *&nhm) 
  
   nhm = &(cartstate.nhm[0]);
   nlig = cartstate.nlig;
+}
+
+extern "C" void cartstate_get_forcerot_(const int &handle,double *&forcefactor, double *&forcerotation) {
+  CartState &cartstate = *cartstates[handle-9990];
+ 
+  forcefactor = &(cartstate.forcefactor[0]);
+  forcerotation = &(cartstate.forcerotation[0][0]);
+  
 }
 
 extern "C" void cartstate_get_forces_(const int &handle,double *&f, int &nall3) {
@@ -395,3 +416,39 @@ bool exists(const char *f) {
   }
 }
 
+extern "C" void cartstate_prepare_axsym_(const int &cartstatehandle) {
+  CartState &c = cartstate_get(cartstatehandle);
+  prepare_axsym_cartstate(c);
+}
+extern "C" void apply_axsym_(
+ const int &cartstatehandle, 
+ double *morph, 
+ int *ens, 
+ double *phi,
+ double *ssi,
+ double *rot,
+ double *xa,
+ double *ya,
+ double *za,
+ modes2 &dlig, 
+ coors2 &locrests
+)
+{
+  CartState &c = cartstate_get(cartstatehandle);
+  apply_axsym(
+   c.nr_symtrans,
+   c.symtrans,
+
+   morph, 
+   ens, 
+   phi,
+   ssi,
+   rot,
+   xa,
+   ya,
+   za,
+   dlig, 
+   c.has_locrests,
+   locrests
+  ); 
+}

@@ -37,6 +37,7 @@ extern "C" void cartstate_translate_atomtypes_(const int &handle);
 extern bool exists(const char *);
 
 extern "C" void cartstate_translate_atomtypes_(const int &handle);
+extern "C" void cartstate_prepare_axsym_(const int &cartstatehandle);
 
 extern void parse_options(int ministatehandle, int cartstatehandle, int nlig, int argc, char *argv[]);
 
@@ -214,11 +215,12 @@ int main(int argc, char *argv[]) {
     printf("\n");
     for (i = 0; i < nlig; i++) {
       printf("#pivot %d %.3f %.3f %.3f\n", 
-	i+1, pivot[i], pivot[MAXLIG+i], pivot[2*MAXLIG+i]);
-    }   	   
+        i+1, pivot[i], pivot[MAXLIG+i], pivot[2*MAXLIG+i]);
+    }              
     printf("#centered receptor: false\n");
     printf("#centered ligands: false\n");
   }
+  cartstate_prepare_axsym_(cartstatehandle);
   while (1) {
     int result = read_dof_(fil, line, nstruc, argv[1], ens, phi, ssi, rot, 
      xa, ya, za, locrests, 
@@ -239,8 +241,8 @@ int main(int argc, char *argv[]) {
     if (centered_ligands) { //...then subtract pivot from all (other) ligands 
       for (i = 1; i < nlig; i++) {
         xa[i] -= pivot[i];
-	ya[i] -= pivot[MAXLIG+i];
-	za[i] -= pivot[2*MAXLIG+i];
+        ya[i] -= pivot[MAXLIG+i];
+        za[i] -= pivot[2*MAXLIG+i];
       }
     }          
 
@@ -253,7 +255,7 @@ int main(int argc, char *argv[]) {
       double *cmorphdp;
       cartstate_get_ensd_(cartstatehandle, l, ens[l], ensdp,
       morph[l],cmorph, cmorphdp);
-            	    
+                        
       //Apply harmonic modes
       double (&dligp)[MAXMODE] = dlig[l];
       deform_(MAXLIG, 3*MAXATOM, 3*TOTMAXATOM, MAXATOM,MAXMODE, 
@@ -272,30 +274,30 @@ int main(int argc, char *argv[]) {
     if (label != NULL) lablen = strlen(label);
     if (imc == 0) {
       minfor_(
-	MAXATOM,TOTMAXATOM,MAXRES,TOTMAXRES,
-	MAXLIG,MAXDOF,MAXMODE,MAXMOLPAIR,
-	cartstatehandle, ministatehandle,
-	nhm, nlig,
-	&ens[0], &phi[0], &ssi[0], &rot[0], 
-	&xa[0], &ya[0], &za[0], 
+        MAXATOM,TOTMAXATOM,MAXRES,TOTMAXRES,
+        MAXLIG,MAXDOF,MAXMODE,MAXMOLPAIR,
+        cartstatehandle, ministatehandle,
+        nhm, nlig,
+        &ens[0], &phi[0], &ssi[0], &rot[0], 
+        &xa[0], &ya[0], &za[0], 
         &morph[0], &dlig[0][0],
         &locrests[0][0], has_locrests,
-	seed, label,
-	energy, energies, lablen
+        seed, label,
+        energy, energies, lablen
       );
     }
     else {
       monte_(
-	MAXATOM,TOTMAXATOM,MAXRES,TOTMAXRES,
-	MAXLIG,MAXDOF,MAXMODE,MAXMOLPAIR,
-	cartstatehandle, ministatehandle,
-	nhm, nlig,
-	&ens[0], &phi[0], &ssi[0], &rot[0], 
-	&xa[0], &ya[0], &za[0], 
+        MAXATOM,TOTMAXATOM,MAXRES,TOTMAXRES,
+        MAXLIG,MAXDOF,MAXMODE,MAXMOLPAIR,
+        cartstatehandle, ministatehandle,
+        nhm, nlig,
+        &ens[0], &phi[0], &ssi[0], &rot[0], 
+        &xa[0], &ya[0], &za[0], 
         &morph[0], &dlig[0][0],
         &locrests[0][0], has_locrests,
-	seed, label,
-	energy, energies, lablen
+        seed, label,
+        energy, energies, lablen
       );
     }
     if (iscore == 1) continue;

@@ -37,6 +37,7 @@ c      Handle variables: cartstate ligand
 c      Handle variables: full coordinates and modes
        integer nlig,nall,nall3
        real*8 xb,xold,x,xori,xori0,f,eig, val,pivot
+       real*8 ff, frot
        real*8 morph_fconstant
        integer ieins,nhm,natom,iaci_old
        dimension xb(3*totmaxatom),x(3*totmaxatom),f(3*totmaxatom)
@@ -46,6 +47,8 @@ c      Handle variables: full coordinates and modes
        dimension val(maxlig,maxmode)
        dimension ieins(maxlig),nhm(maxlig)
        dimension pivot(maxlig,3)
+       dimension ff(maxlig)
+       dimension frot(9,maxlig)
        dimension natom(maxlig)
        dimension iaci_old(maxlig)
        pointer(ptr_xb,xb)
@@ -58,6 +61,8 @@ c      Handle variables: full coordinates and modes
        pointer(ptr_ieins,ieins)
        pointer(ptr_nhm,nhm)
        pointer(ptr_pivot,pivot)
+       pointer(ptr_ff, ff)
+       pointer(ptr_frot, frot)
        pointer(ptr_natom,natom)
        pointer(ptr_iaci_old,iaci_old)
        real*8 ensd
@@ -75,7 +80,7 @@ c      Local variables
        real*8 dmmy4
        real*8 emorph       
        integer has_globalenergy
-       
+              
        dmmy3 = -1.0d0
        
 c      Is global energy used at all?
@@ -90,7 +95,8 @@ c get parameters
        call cartstate_f_globalenergy(cartstatehandle,
      1  nlig, nall, nall3, morph_fconstant, ptr_nhm,ptr_ieins,
      2  ptr_eig, ptr_val, ptr_xb, ptr_x, ptr_xori, ptr_xori0, 
-     3  ptr_f,ptr_pivot, ptr_natom, ptr_iaci_old)      
+     3  ptr_f,ptr_pivot, ptr_natom, ptr_iaci_old)  
+       call cartstate_get_forcerot(cartstatehandle,ptr_ff,ptr_frot)
       
        jl=3*iori*(nlig-fixre)
        jb=3*iori*(nlig-fixre)+3*itra*(nlig-fixre)
@@ -124,7 +130,8 @@ c       stop
 
        call restrain(ministatehandle,cartstatehandle,seed,
      1  iab,energies(3))
-       call emenergy(energies(6),nall,x,iaci_old,f,iab)
+       call emenergy(energies(6),nall,x,xori,iaci_old,
+     1  nlig,natom,f,iab)
        call sym(cartstatehandle, iab, energies(3))
 
        x(1:nall3) = xold(1:nall3)
@@ -139,7 +146,10 @@ c calculate DOF deltas
 2      continue  
        
        call cartstate_select_ligand2(cartstatehandle,i-1,ptr_xl,ptr_fl)  
-          
+
+       call forcerotscale(3*maxatom,
+     1  ff(i),frot(:,i),natom(i),f(i))
+       
        if ((iori.eq.1).AND.(i.gt.fixre)) then
 c       write(*,'(a4,i3,f8.3,f8.3,f8.3,f8.3,f8.3,f8.3)'),
 c     1  'DOFS',i,phi(i),ssi(i),rot(i),xa(i),ya(i),za(i)

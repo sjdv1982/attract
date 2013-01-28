@@ -32,6 +32,10 @@ void sym_usage() {
   exit(1); 
 }
 
+void axsym_usage() {
+  fprintf(stderr, "--axsym option usage: --axsym <ligand> <symmetry>\n  <axis x> <axis y> <axis z>\n  <origin x> <origin y> <origin z>\n");
+  exit(1);
+}
 
 void mctemp_usage() {
  fprintf(stderr, "--mctemp option usage: --mctemp <temperature in KT>\n");
@@ -271,6 +275,20 @@ void parse_options(int ministatehandle, int cartstatehandle, int nlig, int argc,
       c.nsym++;
       ms.has_globalenergy = 1;
       n += 1+nrsym;
+    }
+    else if (!strcmp(arg,"--axsym")) {
+      if (argc-n < 3) axsym_usage();
+      AxSymmetry &sym = c.axsyms[c.nr_axsyms];  
+      sym.ligand = atoi(argv[n+1]);
+      sym.symtype = atoi(argv[n+2]);
+      sym.axis[0] = atof(argv[n+3]);
+      sym.axis[1] = atof(argv[n+4]);
+      sym.axis[2] = atof(argv[n+5]);
+      sym.origin[0] = atof(argv[n+6]);
+      sym.origin[1] = atof(argv[n+7]);
+      sym.origin[2] = atof(argv[n+8]);  
+      c.nr_axsyms++;
+      n += 8;
     }
     else if (!strcmp(arg,"--ens") || (!strcmp(arg,"--ensemble"))) {
       if (argc-n < 3) ens_usage();

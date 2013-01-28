@@ -1,9 +1,10 @@
        subroutine pairenergy(maxlig,maxatom,totmaxatom,maxmode,
      1 maxdof,maxmolpair,maxres,totmaxres,
      2 cartstatehandle,molpairhandle,iab,fixre,gridptr,
-     3 ensr, phir, ssir, rotr, xar, yar, zar, morphr, dligr, 
-     4 ensl, phil, ssil, rotl, xal, yal, zal, morphl, dligl,
-     5 energies, deltar, deltal, deltamorphr, deltamorphl)
+     3 ffr, frotr, ffl, frotl,
+     4 ensr, phir, ssir, rotr, xar, yar, zar, morphr, dligr, 
+     5 ensl, phil, ssil, rotl, xal, yal, zal, morphl, dligl,
+     6 energies, deltar, deltal, deltamorphr, deltamorphl)
 
        implicit none
 
@@ -15,6 +16,8 @@ c      Parameters
        integer gridptr_dmmy
        pointer(gridptr, gridptr_dmmy)
        integer ensl, ensr
+       real*8 ffr, frotr, ffl, frotl
+       dimension frotr(9), frotl(9)
        real*8 phir, ssir, rotr, xar, yar, zar, morphr, dligr
        real*8 phil, ssil, rotl, xal, yal, zal, morphl, dligl
        dimension dligr(maxmode), dligl(maxmode)
@@ -127,7 +130,9 @@ c      Local variables: matrices
        dimension tr(3),tl(3),td(3),td0(3)
        real*8 pivotd,pivotd0,pivotnull
        dimension pivotd(3),pivotd0(3),pivotnull(3)
-       real*8 pm2(3,3,3), pm20(3,3,3), mat(9)
+       real*8 pm2(3,3,3), pm20(3,3,3), pm2a(3,3,3), mat(9)
+       real*8 frotrinv, frotlinv
+       dimension frotrinv(9), frotlinv(9)
 
 c  energies is an array of double with a value for every energy type
 c  (vdw, elec, ...) for this pair
@@ -141,7 +146,7 @@ c     Local variables: other
       real*8 enon,epote,zero,e
       real*8 flcopy,xl0
       dimension flcopy(3*maxatom),xl0(3*maxatom)
-      real*8 deltar0(maxdof)
+      real*8 deltar0(6+maxmode)
       
       deltamorphr = 0
       deltamorphl = 0
@@ -259,8 +264,8 @@ c      our pm2 matrix is correct for global frame forces; however, our forces
 c       will be in the receptor frame
 c      therefore, we must rotate the pm2 matrix
        pm20 = pm2
-       do 110 j=1,3
-       do 120 l=1,3
+       do j=1,3
+       do l=1,3
        mat = rotmatrinv
        pm2(1,j,l) = mat(1)*pm20(1,j,l)+mat(2)*pm20(2,j,l)
      1  + mat(3)*pm20(3,j,l)
@@ -268,8 +273,8 @@ c      therefore, we must rotate the pm2 matrix
      1  + mat(6)*pm20(3,j,l)
        pm2(3,j,l) = mat(7)*pm20(1,j,l)+mat(8)*pm20(2,j,l)
      1  + mat(9)*pm20(3,j,l)
-120    continue
-110    continue       
+       enddo
+       enddo
        endif
        
        call nonbon_grid(gridptr,rigid,iab,fixre,xl,xr,pivotr,tr,
@@ -317,11 +322,15 @@ c rotate all forces into global frame
        call rotate1(3*maxatom,
      1  rotmatr,zero,zero,zero,
      2	 pivotnull, natomr,fr)
+       call forcerotscale(3*maxatom,
+     1  ffr,frotr,natomr,fr)
 
        call rotate1(3*maxatom,
      1  rotmatr,zero,zero,zero,
      2	 pivotnull, natoml,fl)
-
+       call forcerotscale(3*maxatom,
+     1  ffl,frotl,natoml,fl)
+       
 c calculate rot/transl delta for receptor/ligand
 
        call cartstate_select_ligand(cartstatehandle,idr,
@@ -331,18 +340,47 @@ c calculate rot/transl delta for receptor/ligand
        
        if (fixre.eq.0) then
        call euler2torquemat(phir,ssir,rotr,pm2)
+c      multiply the torque matrix with the inverse axsym force rotation matrix
+       frotrinv(:) = frotr(:)
+       call matinv(frotrinv)
+       mat = frotrinv
+       do j=1,3
+       do l=1,3
+       pm2a(1,j,l) = mat(1)*pm2(1,j,l)+mat(2)*pm2(2,j,l)
+     1  + mat(3)*pm2(3,j,l)
+       pm2a(2,j,l) = mat(4)*pm2(1,j,l)+mat(5)*pm2(2,j,l)
+     1  + mat(6)*pm2(3,j,l)
+       pm2a(3,j,l) = mat(7)*pm2(1,j,l)+mat(8)*pm2(2,j,l)
+     1  + mat(9)*pm2(3,j,l)
+       enddo
+       enddo
+       
        call trans(3*maxatom,maxdof,fr,deltar,natomr)
        call rota(3*maxatom,maxdof,
-     1  xr,fr,deltar,pm2,natomr)
-       do 20 i=1,maxdof
+     1  xr,fr,deltar,pm2a,natomr)
+       do 20 i=1,6+maxmode
        deltar(i) = deltar(i)+deltar0(i)
 20     continue  
        endif
               
-       call euler2torquemat(phil,ssil,rotl,pm2)
-      
+       call euler2torquemat(phil,ssil,rotl,pm2)      
+c      multiply the torque matrix with the inverse axsym force rotation matrix
+       frotlinv(:) = frotl(:)
+       call matinv(frotlinv)
+       mat = frotlinv
+       do j=1,3
+       do l=1,3
+       pm2a(1,j,l) = mat(1)*pm2(1,j,l)+mat(2)*pm2(2,j,l)
+     1  + mat(3)*pm2(3,j,l)
+       pm2a(2,j,l) = mat(4)*pm2(1,j,l)+mat(5)*pm2(2,j,l)
+     1  + mat(6)*pm2(3,j,l)
+       pm2a(3,j,l) = mat(7)*pm2(1,j,l)+mat(8)*pm2(2,j,l)
+     1  + mat(9)*pm2(3,j,l)
+       enddo
+       enddo
+
        call rota(3*maxatom,maxdof,
-     1  xl0,fl,deltal,pm2,natoml)       
+     1  xl0,fl,deltal,pm2a,natoml)       
        call trans(3*maxatom,maxdof,fl,deltal,natoml)       
             
       e = zero

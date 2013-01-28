@@ -40,10 +40,6 @@ extern "C" int read_dof_(FILE *fil, int &line, int &nstruc, const char *f_, idof
 
 extern "C" void euler2rotmat_(const double &phi,const double &ssi, const double &rot, double (&rotmat)[9]);
 
-extern "C" void rotate_(const int &maxlig,const int &max3atom,double (&rotmat)[9],const double &xa,const double &ya,const double &za,
-double *pivot,
-int &ijk,int *ieins, double *x);
-
 /* DOFs */
 static int nrens[MAXLIG];
 static int ens[MAXLIG];
@@ -215,7 +211,7 @@ int main(int argc, char *argv[]) {
       rot[i] = atan2(-rotmatd[7],-rotmatd[6]);       
       
       if (fabs(rotmatd[8]) >= 0.9999) { //gimbal lock
-	phi[i] = 0;
+        phi[i] = 0;
         if (fabs(rotmatd[0]) >= 0.9999) {
           ssi[i] = 0;	
           rot[i] = 0;
@@ -226,7 +222,7 @@ int main(int argc, char *argv[]) {
             rot[i] = -acos(-rotmatd[0]);
           }
           else {
-  	    ssi[i] = 0;	
+            ssi[i] = 0;	
             rot[i] = acos(rotmatd[0]);
           }
         }

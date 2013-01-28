@@ -4,9 +4,24 @@
 #include "max.h"
 #include "grid.h"
 
+struct AxSymmetry {
+  int ligand;
+  int symtype;
+  double axis[3];
+  double origin[3];
+};
+
+struct SymTrans {
+  int ligand;
+  int targetligand;
+  double rotmatsym[9];
+  double origin[3];
+};
+
 struct CartState {
   /* atom limits */
-  int nlig;
+  int nlig0; //number of ligands before axsym application
+  int nlig; //number of ligands after axsym application
   
   int natom[MAXLIG], n3atom[MAXLIG], nres[MAXLIG];
   int ieins[MAXLIG], ieins3[MAXLIG];
@@ -55,8 +70,7 @@ struct CartState {
   float swi_off;  //end (A) of switching
 
   /* grid representations */
-  Grid *grids[MAXLIG];
-  
+  Grid *grids[MAXLIG];  
   
   /* translation table */
   int *transtable;
@@ -75,6 +89,17 @@ struct CartState {
   int nsym;
   int symtypes[MAXLIG];
   int sym[MAXLIG][MAXLIG];
+
+  /*axis symmetries*/
+  int nr_axsyms;
+  AxSymmetry axsyms[MAXLIG];
+  int nr_symcopies[MAXLIG];
+  int symcopies[MAXLIG][24*MAXLIG];
+  int nr_symtrans;
+  SymTrans symtrans[24*MAXLIG];
+  double forcefactor[MAXLIG]; //if 0: no forcerotation
+  double forcerotation[MAXLIG][9]; //initialized to the identity matrix
+  
 
   /*location restraints*/
   int has_locrests[MAXLIG];
@@ -193,7 +218,5 @@ extern "C" void apply_permi_(
   const int &nall,
   dblarr chai,
   const double &permi
-);
-
-  
+);  
 #endif

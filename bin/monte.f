@@ -69,8 +69,6 @@ c     integer dseed,i,ii,j,jj,k,kk,itr,nfun
       call ministate_f_monte(ministatehandle,
      1 iscore,ivmax,iori,itra,ieig,fixre,gridmode,mctemp,
      2 scalerot,scalecenter,scalemode,ensprob)
-      call cartstate_get_nrens(cartstatehandle, ptr_nrens)
-
      
 c     always calculate only energies
       iab = 0
@@ -97,6 +95,7 @@ c  only trans or ori
       jl=3*iori*(nlig-fixre)
 
       call ministate_calc_pairlist(ministatehandle,cartstatehandle)
+      call cartstate_get_nrens(cartstatehandle, ptr_nrens)      
      
       xnull=0.0d0
 c     dseed=seed
