@@ -5,7 +5,7 @@
 
 extern bool exists(const char *);
 extern void parse_restraintfile(MiniState &ms, const char *restfile);
-extern "C" void read_densitymaps_(char *densitymapsfile0, int len_densitymapsfile);
+extern "C" void read_densitymaps_(char *densitymap0, float resolution, int len_densitymap);
 
 extern void read_ens(int cartstatehandle, int ligand, char *ensfile, bool strict, bool morphing);
 
@@ -114,7 +114,7 @@ void modes_usage() {
 }
 
 void em_usage() {
- fprintf(stderr, "--em option usage: --em <EM map definition file>\n");
+ fprintf(stderr, "--em option usage: --em <EM map> <resolution>\n");
   exit(1);
 }
 
@@ -432,15 +432,16 @@ void parse_options(int ministatehandle, int cartstatehandle, int nlig, int argc,
       ms.has_globalenergy = 1; //because of val forces => moderest
     }
     else if (!strcmp(arg,"--em")) {
-      if (argc-n < 2) em_usage();    
+      if (argc-n < 3) em_usage();    
       char *emf = argv[n+1];
       if (!exists(emf)) {
-        fprintf(stderr, "EM definition file %s does not exist\n", emf);
+        fprintf(stderr, "EM map file %s does not exist\n", emf);
 	em_usage();
       }
-      read_densitymaps_(emf,strlen(emf));
+      float resolution = atof(argv[n+2]);
+      read_densitymaps_(emf,resolution,strlen(emf));
       ms.has_globalenergy = 1;
-      n += 1;
+      n += 2;
     }
     else {
       fprintf(stderr, "Unknown option %s\n", arg);

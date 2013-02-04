@@ -61,7 +61,7 @@ extern void axsym_fold_grads(
     }  
   }
 }
-extern void prepare_axsym_cartstate(CartState &c) {
+extern void prepare_axsym_cartstate(CartState &c) { 
   int nlig_dof = prepare_axsym_dof(
    c.nr_axsyms,
    c.axsyms,
@@ -80,14 +80,15 @@ extern void prepare_axsym_cartstate(CartState &c) {
    c.forcerotation
   );
   int nlig = c.nlig0;
-  int copcount[MAXLIG];
-  for (int nn = 0; nn < nlig; nn++) {
-    copcount[nn] = 1;
-  }
-  for (int n = 0; n < c.nr_axsyms; n++) {
-    AxSymmetry &sym = c.axsyms[n];
-    int nrsym = sym.symtype;
-    int l = sym.ligand - 1;
+  for (int n = 0; n < c.nr_symtrans; n++) {
+    SymTrans &sym = c.symtrans[n];
+    int l = sym.ligand;
+    int target = sym.targetligand;
+    if (l == target) continue;
+    if (target != nlig) {
+      fprintf(stderr, "AssertionError axsym.cpp, target: %d, nlig: %d\n", target, nlig);
+      exit(1);
+    }
     
     int natoml = c.natom[l];
     int n3atoml = c.n3atom[l];
@@ -103,52 +104,46 @@ extern void prepare_axsym_cartstate(CartState &c) {
     int cnall3 = c.nall3;
     int nresall = 0;    
     
-    for (int nn = 0; nn < nlig; nn++) nresall += c.nres[nn];
-    for (int cop = 0; cop < copcount[l]; cop++) {
-      for (int nn = 1; nn < nrsym; nn++) {
+    memcpy(&c.iei[cnall], &c.iei[pos], natoml*sizeof(int)); 
+    memcpy(&c.x[cnall3], &c.x[pos3], n3atoml*sizeof(double)); 
+    c.pivot[0][nlig] = c.pivot[0][l];
+    c.pivot[1][nlig] = c.pivot[1][l];
+    c.pivot[2][nlig] = c.pivot[2][l];
+    memcpy(&c.xb[cnall3], &c.xb[pos3], n3atoml*sizeof(double)); 
+    memcpy(&c.xori0[cnall3], &c.xori0[pos3], n3atoml*sizeof(double)); 
+    memcpy(&c.xori[cnall3], &c.xori[pos3], n3atoml*sizeof(double)); 
+    memcpy(&c.iaci[cnall], &c.iaci[pos], natoml*sizeof(int)); 
+    memcpy(&c.iaci_old[cnall], &c.iaci_old[pos], natoml*sizeof(int)); 
+    memcpy(&c.xlai[cnall], &c.xlai[pos], natoml*sizeof(double)); 
+    memcpy(&c.icop[cnall], &c.icop[pos], natoml*sizeof(int)); 
+    memcpy(&c.we[cnall], &c.we[pos], natoml*sizeof(double)); 
+    memcpy(&c.chai[cnall], &c.chai[pos], natoml*sizeof(double)); 
 
-        memcpy(&c.iei[cnall], &c.iei[pos], natoml*sizeof(int)); 
-        memcpy(&c.x[cnall3], &c.x[pos3], n3atoml*sizeof(double)); 
-        c.pivot[0][nlig] = c.pivot[0][l];
-        c.pivot[1][nlig] = c.pivot[1][l];
-        c.pivot[2][nlig] = c.pivot[2][l];
-        memcpy(&c.xb[cnall3], &c.xb[pos3], n3atoml*sizeof(double)); 
-        memcpy(&c.xori0[cnall3], &c.xori0[pos3], n3atoml*sizeof(double)); 
-        memcpy(&c.xori[cnall3], &c.xori[pos3], n3atoml*sizeof(double)); 
-        memcpy(&c.iaci[cnall], &c.iaci[pos], natoml*sizeof(int)); 
-        memcpy(&c.iaci_old[cnall], &c.iaci_old[pos], natoml*sizeof(int)); 
-        memcpy(&c.xlai[cnall], &c.xlai[pos], natoml*sizeof(double)); 
-        memcpy(&c.icop[cnall], &c.icop[pos], natoml*sizeof(int)); 
-        memcpy(&c.we[cnall], &c.we[pos], natoml*sizeof(double)); 
-        memcpy(&c.chai[cnall], &c.chai[pos], natoml*sizeof(double)); 
+    for (int i = 0; i < c.nhm[l]; i++) {
+      c.val[i][nlig] = c.val[i][l];
+    }
+    for (int j = 0; j < n3atoml; j++) {      
+      for (int i = 0; i < c.nhm[l]; i++) {
+        c.eig[j][i][nlig] = c.eig[j][i][l];
+      }
+    }
 
-        for (int i = 0; i < c.nhm[l]; i++) {
-          c.val[i][nlig] = c.val[i][l];
-        }
-        for (int j = 0; j < n3atoml; j++) {      
-          for (int i = 0; i < c.nhm[l]; i++) {
-            c.eig[j][i][nlig] = c.eig[j][i][l];
-          }
-        }
+    memcpy(&c.ncop[nresall], &c.ncop[posres], nresl*21*11*sizeof(int)); 
+    memcpy(&c.nmaxco[nresall], &c.nmaxco[posres], nresl*sizeof(int)); 
+    memcpy(&c.natco[nresall], &c.natco[posres], nresl*sizeof(int)); 
+    c.grids[nlig] = c.grids[l];
+    memcpy(c.ensd[nlig], c.ensd[l], c.nrens[l] * sizeof(double *));
+    memcpy(c.morphd[nlig], c.morphd[l], c.nrens[l] * sizeof(double *));
+    c.ensw[nlig] = c.ensw[l];
+    cnall += natoml;
+    cnall3 += n3atoml;
+    nresall += nresl;
+    c.natom[nlig] = natoml;
+    c.n3atom[nlig] = n3atoml;
+    c.ieins[nlig] = cnall;
+    c.ieins3[nlig] = cnall3;                
+    nlig++;
 
-        memcpy(&c.ncop[nresall], &c.ncop[posres], nresl*21*11*sizeof(int)); 
-        memcpy(&c.nmaxco[nresall], &c.nmaxco[posres], nresl*sizeof(int)); 
-        memcpy(&c.natco[nresall], &c.natco[posres], nresl*sizeof(int)); 
-        c.grids[nlig] = c.grids[l];
-        memcpy(c.ensd[nlig], c.ensd[l], c.nrens[l] * sizeof(double *));
-        memcpy(c.morphd[nlig], c.morphd[l], c.nrens[l] * sizeof(double *));
-        c.ensw[nlig] = c.ensw[l];
-        cnall += natoml;
-        cnall3 += n3atoml;
-        nresall += nresl;
-        c.natom[nlig] = natoml;
-        c.n3atom[nlig] = n3atoml;
-        c.ieins[nlig] = cnall;
-        c.ieins3[nlig] = cnall3;                
-        nlig++;
-      }      
-    }  
-    copcount[l] *= nrsym;
     c.nall = cnall;
     c.nall3 = cnall3;
   }

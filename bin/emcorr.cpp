@@ -15,6 +15,12 @@
 #include <cstring>
 #include <cstdlib>
 
+extern void read_pdb2(
+  FILE *fil, Coor *&x, 
+  char **&pdbstrings, bool *&pdblayout,
+  int &coorcounter, int &linecounter
+);
+
 extern "C" void read_vol(char *vol_file, double *width, double *origx, double *origy, double *origz, unsigned *extx, unsigned *exty, unsigned *extz, double **phi);
 
 extern int cartstate_new(int argc, char *argv[],bool single=0);
@@ -29,7 +35,7 @@ extern "C" void cartstate_f_write_pdb_(
 
 extern "C" void cartstate_f_rotdeform_(
   const int &handle,
-  int *(&nhm), int *&ieins, double *&eig, double *&pivot, double *&xb, double *&x,double *&xori, double *&xori0);
+  int *(&nhm), int *(&ieins), double *(&eig), double *(&pivot), double *(&xb), double *(&x),double *(&xori), double *(&xori0));
 
 extern "C" void cartstate_get_nlig_nhm_(const int &handle, int &nlig, int *(&nlm));
 extern "C" void cartstate_get_pivot_(const int &handle,double *&pivot);
@@ -149,22 +155,46 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  int fargs[] = {1,4,5}; 
-  for (i = 0; i < 3; i++) {
-    if (!exists(argv[fargs[i]])) {
-      fprintf(stderr, "File %s does not exist\n", argv[fargs[i]]);
+  for (i = 1; i < argc; i++) {
+    if (i == 2 || i == 3) continue;
+    if (!exists(argv[i])) {
+      fprintf(stderr, "File %s does not exist\n", argv[i]);
       exit(1);
     }
   }
 
+  char **pdbstrings[MAXLIG]; bool *pdblayout[MAXLIG]; int linecounter[MAXLIG];
   //load the Cartesian parameters and get a handle to it
-  int cartstatehandle;
-  if (argc != 6) {
-    fprintf(stderr, "Wrong number of arguments (%d, expected 5)\n", argc);
-    usage();
+  int cartstatehandle;  
+  if (argc == 6) { //one PDB, reduced or non-reduced
+    char *argv0[] = {NULL, argv[5]};
+    cartstatehandle = cartstate_new(2, argv0);
   }
-  char *argv0[] = {NULL, argv[5]};
-  cartstatehandle = cartstate_new(2, argv0);
+  else {
+    /*support for non-reduced PDBs*/
+    char *argv0[] = {NULL, NULL};
+    cartstatehandle = cartstate_new(2, argv0);
+
+    CartState &cs = cartstate_get(cartstatehandle);
+    cs.nlig = argc - 5;
+    Coor *xx = (Coor *) &cs.x[0];
+    int pos = 0;
+    cs.ieins[0] = 0;
+    for (i = 0; i < cs.nlig; i++) {
+      FILE *fil = fopen(argv[i+5], "r");
+      Coor *coor;
+      read_pdb2(fil,coor,pdbstrings[i],pdblayout[i],cs.natom[i],linecounter[i]);
+      if (cs.natom[i]) {
+        memcpy(xx,coor,cs.natom[i]*sizeof(Coor));
+        delete [] coor;      
+        xx += cs.natom[i];	
+	pos += cs.natom[i];
+      }
+      cs.ieins[i] = pos;
+    }
+    cs.nall = pos;
+    memcpy(cs.xori0,cs.x,TOTMAXATOM*3*sizeof(double));
+  }
 
   CartState &cs = cartstate_get(cartstatehandle);  
   memcpy(cs.xori,cs.xori0,TOTMAXATOM*3*sizeof(double));  

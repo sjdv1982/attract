@@ -164,7 +164,8 @@ int main(int argc, char *argv[]) {
    forcefactor,
    forcerotation
   );
-  
+
+  /*  
   for (int i = 0; i < nlig; i++) {
     printf("%d: forcefactor: %.4f\n", i, forcefactor[i]);
     double *m = forcerotation[i];
@@ -172,6 +173,7 @@ int main(int argc, char *argv[]) {
     printf("%.4f %.4f %.4f\n", m[3], m[4], m[5]);
     printf("%.4f %.4f %.4f\n\n", m[6], m[7], m[8]);
   }
+  */
   double newpivot[3][MAXLIG];
   for (int i = 0; i < nlig0; i++) {
     for (int ii = 0; ii < nr_symcopies[i]; ii++)  {

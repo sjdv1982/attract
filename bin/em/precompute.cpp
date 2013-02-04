@@ -3,16 +3,22 @@
 #include <cmath>
 #include <memory.h>
 
-inline void calc_overlap(double dissq, double base, double fac, double dx, double dy, double dz, double &totoverlap, double density, double &gradx, double &grady, double &gradz) {
+inline void calc_overlap(double dissq, double base, double fac, double sigma, double dx, double dy, double dz, double &totoverlap, double density, double &gradx, double &grady, double &gradz) {
   double overlap = density*pow(base, -dissq);
   totoverlap += overlap;
-  double fgrad = fac * -2 * overlap;
+  /*
+  double dis = sqrt(dissq); //in sigma!
+  double grad = fac * -2 * dis * overlap; /gives the gradient per sigma unit!
+  double gradang = grad / sigma; //gradient per angstrom unit
+  double fgrad = gradang / dis;  //(gradx = dx/dis * gradang; dx/dis is the same in Angstroms or in Sigma)
+  */  
+  double fgrad = fac * -2 * overlap / sigma;
   gradx += dx*fgrad;
   grady += dy*fgrad;
   gradz += dz*fgrad; 
 }
 
-void calc_emdensity(double voxels_per_sigma, double base, double fac,
+void calc_emdensity(double voxels_per_sigma, double base, double fac, double sigma,
 int dimx, int dimy, int dimz,
 double *densities,
 double ax, double ay, double az, 
@@ -85,7 +91,7 @@ double &totoverlap, double &gradx, double &grady, double &gradz)
         //dsqxyz is the actual distance squared
 
         double density = densities[dimx*dimy*z+dimx*y+x];
-        calc_overlap(dsqxyz, base,fac, dx,dy,dz,totoverlap, density,gradx,grady,gradz);
+        calc_overlap(dsqxyz, base,fac,sigma,dx,dy,dz,totoverlap, density,gradx,grady,gradz);
 
         //increment positive z loop
         dsqxyz += dsqfac * (2 * dz + 1);
@@ -100,7 +106,7 @@ double &totoverlap, double &gradx, double &grady, double &gradz)
         //dsqxyz is the actual distance squared
 
         double density = densities[dimx*dimy*z+dimx*y+x];
-        calc_overlap(dsqxyz, base,fac, dx,dy,-dz,totoverlap, density,gradx,grady,gradz);
+        calc_overlap(dsqxyz, base,fac,sigma, dx,dy,-dz,totoverlap, density,gradx,grady,gradz);
 
         //increment negative z loop
         dsqxyz += dsqfac * (2 * dz + 1);
@@ -128,7 +134,7 @@ double &totoverlap, double &gradx, double &grady, double &gradz)
         //dsqxyz is the actual distance squared
 
         double density = densities[dimx*dimy*z+dimx*y+x];
-        calc_overlap(dsqxyz, base,fac, dx,-dy,dz,totoverlap, density,gradx,grady,gradz);
+        calc_overlap(dsqxyz, base,fac,sigma, dx,-dy,dz,totoverlap, density,gradx,grady,gradz);
 
         //increment positive z loop
         dsqxyz += dsqfac * (2 * dz + 1);
@@ -143,7 +149,7 @@ double &totoverlap, double &gradx, double &grady, double &gradz)
         //dsqxyz is the actual distance squared
 
         double density = densities[dimx*dimy*z+dimx*y+x];
-        calc_overlap(dsqxyz, base,fac, dx,-dy,-dz,totoverlap, density,gradx,grady,gradz);
+        calc_overlap(dsqxyz, base,fac,sigma, dx,-dy,-dz,totoverlap, density,gradx,grady,gradz);
 
         //increment negative z loop
         dsqxyz += dsqfac * (2 * dz + 1);
@@ -183,7 +189,7 @@ double &totoverlap, double &gradx, double &grady, double &gradz)
         //dsqxyz is the actual distance squared
 
         double density = densities[dimx*dimy*z+dimx*y+x];
-        calc_overlap(dsqxyz, base,fac, -dx,dy,dz,totoverlap, density,gradx,grady,gradz);
+        calc_overlap(dsqxyz, base,fac,sigma, -dx,dy,dz,totoverlap, density,gradx,grady,gradz);
 
         //increment positive z loop
         dsqxyz += dsqfac * (2 * dz + 1);
@@ -198,7 +204,7 @@ double &totoverlap, double &gradx, double &grady, double &gradz)
         //dsqxyz is the actual distance squared
 
         double density = densities[dimx*dimy*z+dimx*y+x];
-        calc_overlap(dsqxyz, base,fac, -dx,dy,-dz,totoverlap, density,gradx,grady,gradz);
+        calc_overlap(dsqxyz, base,fac,sigma, -dx,dy,-dz,totoverlap, density,gradx,grady,gradz);
 
         //increment negative z loop
         dsqxyz += dsqfac * (2 * dz + 1);
@@ -226,7 +232,7 @@ double &totoverlap, double &gradx, double &grady, double &gradz)
         //dsqxyz is the actual distance squared
 
         double density = densities[dimx*dimy*z+dimx*y+x];
-        calc_overlap(dsqxyz, base,fac, -dx,-dy,dz,totoverlap, density,gradx,grady,gradz);
+        calc_overlap(dsqxyz, base,fac,sigma, -dx,-dy,dz,totoverlap, density,gradx,grady,gradz);
 
         //increment positive z loop
         dsqxyz += dsqfac * (2 * dz + 1);
@@ -241,7 +247,7 @@ double &totoverlap, double &gradx, double &grady, double &gradz)
         //dsqxyz is the actual distance squared
 
         double density = densities[dimx*dimy*z+dimx*y+x];
-        calc_overlap(dsqxyz, base,fac, -dx,-dy,-dz,totoverlap, density,gradx,grady,gradz);
+        calc_overlap(dsqxyz, base,fac,sigma, -dx,-dy,-dz,totoverlap, density,gradx,grady,gradz);
 
         //increment negative z loop
         dsqxyz += dsqfac * (2 * dz + 1);
@@ -282,7 +288,7 @@ void precompute(Map &m, int sampling) {
         double &overlap = m.precomp_overlap[pos];
         double *grad = &m.precomp_grad[3*pos];
                 
-        calc_emdensity(voxels_per_sigma, m.base,m.fac,
+        calc_emdensity(voxels_per_sigma, m.base,m.fac,m.sigma,
          m.dimx, m.dimy, m.dimz, m.densities,
          xx,yy,zz, 
          overlap, grad[0], grad[1], grad[2]);

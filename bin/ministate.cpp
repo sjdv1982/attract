@@ -111,40 +111,40 @@ extern "C" void ministate_calc_pairlist_(const int &ministatehandle, const int  
       
       if (ms.gridmode == 1) {
         if (ms.fixre) {
-	  if (i == 0) {
-	    if (cartstate.grids[i] != NULL) is_grid = 1;
-	  }
-	  else if (j == 0 && cartstate.nhm[j] == 0) {
-	    continue;
-	  }
-	  else if (cartstate.grids[i] != NULL && cartstate.grids[j] != NULL) {
-	    is_grid = 1;
-	  }
-	  else {
-	    if (j < i) continue;
-	  }	   	  
-	}
-	else {
-	  if (cartstate.grids[i] != NULL && cartstate.grids[j] != NULL) {
-	    is_grid = 1;
-	  }
-	  else {
-	    if (j < i) continue;
-	  }
-	}
+          if (i == 0) {
+            if (cartstate.grids[i] != NULL) is_grid = 1;
+          }
+          else if (j == 0 && cartstate.nhm[j] == 0) {
+            continue;
+          }
+          else if (cartstate.grids[i] != NULL && cartstate.grids[j] != NULL) {
+            is_grid = 1;
+          }
+          else {
+            if (j < i) continue;
+          }                     
+        }
+        else {
+          if (cartstate.grids[i] != NULL && cartstate.grids[j] != NULL) {
+            is_grid = 1;
+          }
+          else {
+            if (j < i) continue;
+          }
+        }
       }
       else if (ms.gridmode == 2) {
         if (j < i) continue; 
-	//if the receptor has a grid, use it
-	if (cartstate.grids[i] != NULL) {
+        //if the receptor has a grid, use it
+        if (cartstate.grids[i] != NULL) {
           is_grid = 1;
-	}      
-	//else if the ligand has a grid, swap receptor and ligand and use it
-	else if (cartstate.grids[j] != NULL) {
+        }      
+        //else if the ligand has a grid, swap receptor and ligand and use it
+        else if (cartstate.grids[j] != NULL) {
           i = j0;
-	  j = i0;
+          j = i0;
           is_grid = 1;
-	}
+        }
       }  
       //printf("PAIR %d %d %d %d %d %d\n", i,j, is_grid, ms.gridmode, cartstate.grids[i],cartstate.grids[j]);          
       MolPair &mp = ms.pairs[molpairindex];
@@ -166,6 +166,11 @@ extern "C" void ministate_calc_pairlist_(const int &ministatehandle, const int  
 
 extern "C" void ministate_free_pairlist_(const int &handle) {
   MiniState &ms = *ministates[handle-7770];
+  for (int n = 0; n < ms.npairs; n++) {
+    MolPair &mp = ms.pairs[n];
+    delete[] mp.nonl;
+    delete[] mp.nonr;
+  }
   delete[] ms.pairs;
 }
 
@@ -242,6 +247,8 @@ extern "C" void molpair_pairgen_(
   MiniState &ms = *ministates[ministatehandle-7770]; 
   MolPair &mp = ms.pairs[molpairhandle-1000*ministatehandle-1];
   if (!mp.pairgen_done) {
+    mp.nonr = new int[MAXMOLPAIR];
+    mp.nonl = new int[MAXMOLPAIR];
     select_(MAXATOM, MAXRES, MAXMOLPAIR, 
       molpairhandle, cartstatehandle, ms.rcut);       
     pairgen_(MAXATOM, MAXRES, MAXMOLPAIR,
@@ -285,11 +292,11 @@ extern "C" void ministate_check_parameters_(const int &ministatehandle, const in
       if (!used1[i]) continue; 
       for (int ii = 0; ii < MAXATOMTYPES; ii++) {
         if (!used2[ii]) continue;
-	if (!cartstate.haspar[i][ii]) {
-	  fprintf(stderr, 
-	    "Atom type %d in molecule %d can interact with atom type %d in molecule %d, but no parameters are available\n", i+1,p.receptor+1,ii+i,p.ligand+1);
-	  exit(1);
-	}
+        if (!cartstate.haspar[i][ii]) {
+          fprintf(stderr, 
+            "Atom type %d in molecule %d can interact with atom type %d in molecule %d, but no parameters are available\n", i+1,p.receptor+1,ii+i,p.ligand+1);
+          exit(1);
+        }
       }
     }
   }

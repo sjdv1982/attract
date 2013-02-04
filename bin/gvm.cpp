@@ -1,4 +1,4 @@
-//Calculates EM cross-correlation
+//Calculates Gradient Vector Matching score on an ATTRACT .DAT file
 
 //usage: ./gvm map.vol <gradient threshold> structures.dat receptor.pdb [ligand.pdb] [...] [...] [--modes <modefile>] [--ens/--morph <ligand nr> <ensemble file>]
 //  if no ligand.pdb, receptor.pdb is a multi-ligand PDB file 
@@ -14,6 +14,12 @@
 #include <cstdio>
 #include <cstring>
 #include <cstdlib>
+
+extern void read_pdb2(
+  FILE *fil, Coor *&x, 
+  char **&pdbstrings, bool *&pdblayout,
+  int &coorcounter, int &linecounter
+);
 
 const double p = -1.0f; //sign swaps, because we are *convoluting* with a kernel; an atom at X=10 means a negative X gradient at X=11!
 const double gvm_kernel_x[] = {
@@ -199,22 +205,46 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  int fargs[] = {1,3,4}; 
-  for (i = 0; i < 3; i++) {
-    if (!exists(argv[fargs[i]])) {
-      fprintf(stderr, "File %s does not exist\n", argv[fargs[i]]);
+  for (i = 1; i < argc; i++) {
+    if (i == 2) continue;
+    if (!exists(argv[i])) {
+      fprintf(stderr, "File %s does not exist\n", argv[i]);
       exit(1);
     }
   }
 
+  char **pdbstrings[MAXLIG]; bool *pdblayout[MAXLIG]; int linecounter[MAXLIG];
   //load the Cartesian parameters and get a handle to it
-  int cartstatehandle;
-  if (argc != 5) {
-    fprintf(stderr, "Wrong number of arguments (%d, expected 5)\n", argc);
-    usage();
+  int cartstatehandle;  
+  if (argc == 5) { //one PDB, reduced or non-reduced
+    char *argv0[] = {NULL, argv[4]};
+    cartstatehandle = cartstate_new(2, argv0);
   }
-  char *argv0[] = {NULL, argv[4]};
-  cartstatehandle = cartstate_new(2, argv0);
+  else {
+    /*support for non-reduced PDBs*/
+    char *argv0[] = {NULL, NULL};
+    cartstatehandle = cartstate_new(2, argv0);
+
+    CartState &cs = cartstate_get(cartstatehandle);
+    cs.nlig = argc - 4;
+    Coor *xx = (Coor *) &cs.x[0];
+    int pos = 0;
+    cs.ieins[0] = 0;
+    for (i = 0; i < cs.nlig; i++) {
+      FILE *fil = fopen(argv[i+4], "r");
+      Coor *coor;
+      read_pdb2(fil,coor,pdbstrings[i],pdblayout[i],cs.natom[i],linecounter[i]);
+      if (cs.natom[i]) {
+        memcpy(xx,coor,cs.natom[i]*sizeof(Coor));
+        delete [] coor;      
+        xx += cs.natom[i];	
+	pos += cs.natom[i];
+      }
+      cs.ieins[i] = pos;
+    }
+    cs.nall = pos;
+    memcpy(cs.xori0,cs.x,TOTMAXATOM*3*sizeof(double));
+  }
 
   CartState &cs = cartstate_get(cartstatehandle);  
   memcpy(cs.xori,cs.xori0,TOTMAXATOM*3*sizeof(double));  

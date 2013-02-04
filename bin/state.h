@@ -112,8 +112,8 @@ struct MolPair {
   int iactr[MAXATOM];
   int iactl[MAXATOM];
   int nonp;              //pairlist: number of pairs
-  int nonr[MAXMOLPAIR];  //pairlist: receptor atom
-  int nonl[MAXMOLPAIR];  //pairlist: ligand atom
+  int *nonr; //nonr[MAXMOLPAIR]  //pairlist: receptor atom
+  int *nonl; //nonl[MAXMOLPAIR]  //pairlist: ligand atom
   Grid *grid;
   int pairgen_done;
 };

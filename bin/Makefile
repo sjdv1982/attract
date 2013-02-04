@@ -33,13 +33,18 @@ collect: collect.o read_parameters.o read_pdb.o read_pdb2.o read_dof.o \
 emcorr: emcorr.o read_parameters.o read_pdb.o read_pdb2.o read_dof.o \
   cartstate.o euler2rotmat.o deform.o rotate.o read_hm.o memcpy.o write_pdb.o \
   read_ens.o em/lib_em.o em/lib_corr.o em/situs/lib_vio.o em/situs/lib_pio.o em/situs/lib_err.o \
-  state.h
+  axsym.o matinv.o matmult.o state.h
 	$(CXX) $(CFLAGS)  $^ -lgfortran -o $@
 
 gvm: gvm.o read_parameters.o read_pdb.o read_pdb2.o read_dof.o \
   cartstate.o euler2rotmat.o deform.o rotate.o read_hm.o memcpy.o write_pdb.o \
   read_ens.o em/lib_em.o em/lib_corr.o em/situs/lib_vio.o em/situs/lib_pio.o em/situs/lib_err.o \
   axsym.o matinv.o matmult.o state.h
+	$(CXX) $(CFLAGS)  $^ -lgfortran -o $@
+
+gvm-pdb: gvm-pdb.o read_pdb2.o memcpy.o em/lib_em.o \
+  em/lib_corr.o em/situs/lib_vio.o em/situs/lib_pio.o em/situs/lib_err.o \
+  state.h
 	$(CXX) $(CFLAGS)  $^ -lgfortran -o $@
 
 matrix-lrmsd: matrix-lrmsd.o read_parameters.o read_pdb.o read_pdb2.o read_dof.o \
@@ -130,7 +135,7 @@ omp_threadnum: omp_threadnum.o
 collectlib.so: collectlib-pic.o read_parameters-pic.o read_pdb-pic.o \
   read_pdb2-pic.o read_dof-pic.o cartstate-pic.o euler2rotmat-pic.o \
   deform-pic.o rotate-pic.o read_hm-pic.o memcpy-pic.o write_pdb-pic.o \
-  read_ens-pic.o state.h
+  read_ens-pic.o axsym-pic.o matmult-pic.o state.h
 	$(CXX) $(CFLAGS) -Wall -shared -fPIC $^ -lgfortran -lm -o $@ 
 
 collectlib: collectlib.so
@@ -175,5 +180,5 @@ rest: read_pdb2.o
 all: attract attract-torque collect collectlib lrmsd rmsd calc_interior calc_no_interior make-grid \
  make-grid-omp make-grid-torque make-grid-torque-omp shm-grid \
  shm-grid-torque shm-clean systsearch map2map fix_receptor \
- omp_threadnum deredundant matrix-lrmsd rest gvm
+ omp_threadnum deredundant matrix-lrmsd rest emcorr gvm
 

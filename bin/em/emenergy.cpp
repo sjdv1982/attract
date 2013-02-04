@@ -143,7 +143,7 @@ inline void trilin(Map &m, Applyfunc apply, double ax, double ay, double az, dou
 }
 
 
-extern "C" void read_densitymaps_(char *densitymap0, int len_densitymap) {
+extern "C" void read_densitymaps_(char *densitymap0, float resolution, int len_densitymap) {
   char *densitymap = new char[len_densitymap+1];
   densitymap[len_densitymap] = 0;
   memcpy(densitymap, densitymap0, len_densitymap);
@@ -162,7 +162,7 @@ extern "C" void read_densitymaps_(char *densitymap0, int len_densitymap) {
   Map &m = maps[nrmaps];
   memcpy(&m,  &maps[nrmaps+1], sizeof(Map)); //copy the clash map
   m.mode = EM_MAPMODE_OVERLAP_AND_WEIGHT;
-  m.resolution = 320.0;
+  m.resolution = resolution * 8;
   m.sigma = 0.5 * m.resolution / sqrt(3);  
   m.nrmaxatoms = 0;
   m.emweight = 10000000;
@@ -176,7 +176,7 @@ extern "C" void read_densitymaps_(char *densitymap0, int len_densitymap) {
   {
   Map &m = maps[nrmaps]; 
   memcpy(&m,  &maps[nrmaps-2], sizeof(Map)); //copy the overlap+weight map
-  m.resolution = 160.0;
+  m.resolution = resolution * 4;
   m.sigma = 0.5 * m.resolution / sqrt(3); 
   m.emweight = 1000000;
   m.overlapmargin = 1.0;
@@ -188,7 +188,7 @@ extern "C" void read_densitymaps_(char *densitymap0, int len_densitymap) {
   {
   Map &m = maps[nrmaps]; 
   memcpy(&m,  &maps[nrmaps-1], sizeof(Map));  //copy the previous overlap map
-  m.resolution = 100.0;
+  m.resolution = resolution * 2.5;
   m.sigma = 0.5 * m.resolution / sqrt(3); 
   m.emweight = 100000;
   m.overlapmargin = 0.85;
@@ -200,7 +200,7 @@ extern "C" void read_densitymaps_(char *densitymap0, int len_densitymap) {
   {
   Map &m = maps[nrmaps]; 
   memcpy(&m,  &maps[nrmaps-1], sizeof(Map));  //copy the previous overlap map
-  m.resolution = 80.0;
+  m.resolution = resolution * 2;
   m.sigma = 0.5 * m.resolution / sqrt(3); 
   m.emweight = 100000;
   m.overlapmargin = 0.85;
@@ -212,7 +212,7 @@ extern "C" void read_densitymaps_(char *densitymap0, int len_densitymap) {
   {
   Map &m = maps[nrmaps]; 
   memcpy(&m,  &maps[nrmaps-1], sizeof(Map));  //copy the previous overlap map
-  m.resolution = 60.0;
+  m.resolution = resolution * 1.5;
   m.sigma = 0.5 * m.resolution / sqrt(3); 
   m.emweight = 100000;  
   m.overlapmargin = 0.85;
