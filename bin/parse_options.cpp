@@ -12,6 +12,11 @@ extern void read_ens(int cartstatehandle, int ligand, char *ensfile, bool strict
 extern CartState &cartstate_get(int handle);
 extern MiniState &ministate_get(int handle);
 
+void lambda_usage() {
+ fprintf(stderr, "--lambda option usage: --lambda <value between 0 (ultra-course-grained) and 1 (coarse-grained)\n");
+  exit(1);
+}
+
 void grid_usage() {
  fprintf(stderr, "--grid option usage: --grid <ligand nr> <file name/ligand number>\n");
   exit(1);
@@ -143,8 +148,16 @@ void parse_options(int ministatehandle, int cartstatehandle, int nlig, int argc,
     if (!strcmp(arg,"--mc")) {
       ms.imc = 1;
     }
+    else if (!strcmp(arg,"--lambda")) {
+      if (argc-n < 2) lambda_usage();    
+      double lambda = atof(argv[n+1]);
+      if (lambda < 0 || lambda > 1) lambda_usage();
+      c.use_lambda = 1;
+      c.lambda = lambda;
+      n += 1;
+    }        
     else if (!strcmp(arg,"--morph-fconstant")) {
-      if (argc-n < 2) epsilon_usage();    
+      if (argc-n < 2) morph_fconstant_usage();    
       double morph_fconstant = atof(argv[n+1]);
       if (morph_fconstant < 0) morph_fconstant_usage();
       c.morph_fconstant = morph_fconstant;

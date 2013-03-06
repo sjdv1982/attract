@@ -5,7 +5,7 @@ c       nresl => nres, nalllig => nall, nalllig3 => nall3
 
       subroutine read_one_pdb(maxlig, totmaxres, totmaxatom,
      1 maxatom, pdbfile,kai,tyi,rgi,iei,x,iaci,xlai,
-     2 icop,we,chai,ncop,nmaxco,natco,
+     2 icop,we,we0,chai,ncop,nmaxco,natco,
      3 nlig, nres, natom, n3atom, nall, nall3, ieins, ieins3)
       
 c      
@@ -22,7 +22,7 @@ c
       dimension kai(totmaxatom),
      1 iei(totmaxatom), x(totmaxatom), iaci(totmaxatom),
      2 xlai(totmaxatom), icop(totmaxatom), we(totmaxatom),
-     3 chai(totmaxatom)
+     3 we0(totmaxatom), chai(totmaxatom)
       dimension ncop(0:10,0:20,totmaxres),nmaxco(totmaxres),
      1 natco(totmaxres)
       dimension ieins(0:maxlig-1),ieins3(0:maxlig-1),
@@ -39,7 +39,7 @@ c
       call read_pdb(42, maxlig, totmaxatom, totmaxres, maxatom, 
      1 ijk,nlig,
      2 kai,tyi,rgi,iei,x,iaci,xlai,
-     3 icop,we,chai,ncop,nmaxco,natco,
+     3 icop,we,we0,chai,ncop,nmaxco,natco,
      4 nres, natom, n3atom, i, irs, ieins, ieins3)
    60 continue
       close(42)
@@ -50,7 +50,7 @@ c     write(*,*)'all ligand atoms',nall,(natom(j),j=0,nlig-1)
 
       subroutine read_single_pdb(maxlig, totmaxres, totmaxatom,
      1 maxatom, pdbfile,kai,tyi,rgi,iei,x,iaci,xlai,
-     2 icop,we,chai,ncop,nmaxco,natco,
+     2 icop,we,we0,chai,ncop,nmaxco,natco,
      3 nlig, nres, natom, n3atom, nall, nall3, ieins, ieins3,i,irs)
       
       implicit real*8 (a-h,o-z)
@@ -60,7 +60,7 @@ c     write(*,*)'all ligand atoms',nall,(natom(j),j=0,nlig-1)
       dimension kai(totmaxatom),
      1 iei(totmaxatom), x(totmaxatom), iaci(totmaxatom),
      2 xlai(totmaxatom), icop(totmaxatom), we(totmaxatom),
-     3 chai(totmaxatom)
+     3 we0(totmaxatom), chai(totmaxatom)
       dimension ncop(0:10,0:20,totmaxres),nmaxco(totmaxres),
      1 natco(totmaxres)
       dimension ieins(0:maxlig-1),ieins3(0:maxlig-1),
@@ -72,7 +72,7 @@ c     write(*,*)'all ligand atoms',nall,(natom(j),j=0,nlig-1)
       call read_pdb(42, maxlig, totmaxatom, totmaxres, maxatom,
      1 0,nlig,
      2 kai,tyi,rgi,iei,x,iaci,xlai,
-     3 icop,we,chai,ncop,nmaxco,natco,
+     3 icop,we,we0,chai,ncop,nmaxco,natco,
      4 nres, natom, n3atom, i, irs, ieins, ieins3)
       close(42)
       nall=i
@@ -82,7 +82,7 @@ c     write(*,*)'all ligand atoms',nall,(natom(j),j=0,nlig-1)
 
       subroutine read_two_pdbs(maxlig, totmaxres, totmaxatom,
      1 maxatom, pdbfile1,pdbfile2,kai,tyi,rgi,iei,x,iaci,xlai,
-     2 icop,we,chai,ncop,nmaxco,natco,
+     2 icop,we,we0,chai,ncop,nmaxco,natco,
      3 nres, natom, n3atom, nall, nall3, ieins, ieins3)
       
       implicit real*8 (a-h,o-z)
@@ -92,7 +92,7 @@ c     write(*,*)'all ligand atoms',nall,(natom(j),j=0,nlig-1)
       dimension kai(totmaxatom),
      1 iei(totmaxatom), x(totmaxatom), iaci(totmaxatom),
      2 xlai(totmaxatom), icop(totmaxatom), we(totmaxatom),
-     3 chai(totmaxatom)
+     3 we0(totmaxatom), chai(totmaxatom)
       dimension ncop(0:10,0:20,totmaxres),nmaxco(totmaxres),
      1 natco(totmaxres)
       dimension ieins(0:maxlig-1),ieins3(0:maxlig-1),
@@ -108,13 +108,13 @@ c     write(*,*)'all ligand atoms',nall,(natom(j),j=0,nlig-1)
       open(42,file=pdbfile1)
       call read_pdb(42, maxlig, totmaxatom, totmaxres, maxatom, 0,2,
      1 kai,tyi,rgi,iei,x,iaci,xlai,
-     2 icop,we,chai,ncop,nmaxco,natco,
+     2 icop,we,we0,chai,ncop,nmaxco,natco,
      3 nres, natom, n3atom, i, irs, ieins, ieins3)
       close(42)
       open(42,file=pdbfile2)
       call read_pdb(42, maxlig, totmaxatom, totmaxres, maxatom, 1,2,
      1 kai,tyi,rgi,iei,x,iaci,xlai,
-     2 icop,we,chai,ncop,nmaxco,natco,
+     2 icop,we,we0,chai,ncop,nmaxco,natco,
      3 nres, natom, n3atom, i, irs, ieins, ieins3)
       close(42)
       nall=i
@@ -124,7 +124,7 @@ c      write(*,*)'all ligand atoms',nall,(natom(j),j=0,2-1)
             
       subroutine read_pdb(filehandle,maxlig,totmaxatom,totmaxres,      
      1 maxatom, ijk,nlig,kai,tyi,rgi, iei,x,iaci,xlai,
-     2 icop,we,chai,ncop,nmaxco,natco,
+     2 icop,we,we0,chai,ncop,nmaxco,natco,
      3 nres, natom, n3atom, i, irs, ieins, ieins3)
 
       implicit real*8 (a-h,o-z)
@@ -135,7 +135,7 @@ c      write(*,*)'all ligand atoms',nall,(natom(j),j=0,2-1)
       dimension kai(totmaxatom),
      1 iei(totmaxatom), x(totmaxatom), iaci(totmaxatom),
      2 xlai(totmaxatom), icop(totmaxatom), we(totmaxatom),
-     3 chai(totmaxatom)
+     3 we0(totmaxatom), chai(totmaxatom)
       dimension ncop(0:10,0:20,totmaxres),nmaxco(totmaxres),
      1 natco(totmaxres)
       dimension ieins(0:maxlig-1),ieins3(0:maxlig-1),
@@ -157,8 +157,9 @@ c open and read ligand protein file
          stop
        endif
        read(b,26) at,kai(i+1),tyi(i+1),rgi(i+1),iei(i+1),x(ii+1),
-     1  x(ii+2),x(ii+3),iaci(i+1),xlai(i+1),icop(i+1),we(i+1)
+     1  x(ii+2),x(ii+3),iaci(i+1),xlai(i+1),icop(i+1),we0(i+1)
 c       chai(i+1)=felec*xlai(i+1) #done later
+       we0(i+1) = we(i+1)
        chai(i+1) = xlai(i+1)
        kai(i+1)=i+1
 c
