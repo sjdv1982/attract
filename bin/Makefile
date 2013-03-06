@@ -30,6 +30,11 @@ collect: collect.o read_parameters.o read_pdb.o read_pdb2.o read_dof.o \
   read_ens.o axsym.o matinv.o matmult.o state.h
 	$(CXX) $(CFLAGS)  $^ -lgfortran -o $@
 
+score-deform: score-deform.o deformscore.o read_parameters.o read_pdb.o read_pdb2.o read_dof.o \
+  cartstate.o euler2rotmat.o deform.o rotate.o read_hm.o memcpy.o write_pdb.o \
+  read_ens.o axsym.o matinv.o matmult.o state.h
+	$(CXX) $(CFLAGS)  $^ -lgfortran -o $@
+
 emcorr: emcorr.o read_parameters.o read_pdb.o read_pdb2.o read_dof.o \
   cartstate.o euler2rotmat.o deform.o rotate.o read_hm.o memcpy.o write_pdb.o \
   read_ens.o em/lib_em.o em/lib_corr.o em/situs/lib_vio.o em/situs/lib_pio.o em/situs/lib_err.o \
