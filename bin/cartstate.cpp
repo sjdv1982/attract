@@ -47,7 +47,7 @@ s.swi_on, s.swi_off, strlen(argv[0]));
       read_single_pdb_(
        MAXLIG, TOTMAXRES, TOTMAXATOM, MAXATOM,
        argv[1],s.kai,s.tyi,s.rgi,s.iei,s.x,s.iaci,s.xlai,
-       s.icop,s.we,s.chai,s.ncop,s.nmaxco,s.natco,
+       s.icop,s.we,s.we0,s.chai,s.ncop,s.nmaxco,s.natco,
        s.nlig0,s.nres,s.natom,s.n3atom,s.nall,s.nall3,s.ieins,s.ieins3,
        dmmy, dmmy2,
        strlen(argv[1])
@@ -58,7 +58,7 @@ s.swi_on, s.swi_off, strlen(argv[0]));
       read_two_pdbs_(
        MAXLIG, TOTMAXRES, TOTMAXATOM, MAXATOM,
        argv[1],argv[2],s.kai,s.tyi,s.rgi,s.iei,s.x,s.iaci,s.xlai,
-       s.icop,s.we,s.chai,s.ncop,s.nmaxco,s.natco,
+       s.icop,s.we,s.we0,s.chai,s.ncop,s.nmaxco,s.natco,
        s.nres,s.natom,s.n3atom,s.nall,s.nall3,s.ieins,s.ieins3,
        strlen(argv[1]),strlen(argv[2])
       );
@@ -68,7 +68,7 @@ s.swi_on, s.swi_off, strlen(argv[0]));
       read_one_pdb_(
        MAXLIG, TOTMAXRES, TOTMAXATOM, MAXATOM,
        argv[1],s.kai,s.tyi,s.rgi,s.iei,s.x,s.iaci,s.xlai,
-       s.icop,s.we,s.chai,s.ncop,s.nmaxco,s.natco,
+       s.icop,s.we,s.we0,s.chai,s.ncop,s.nmaxco,s.natco,
        s.nlig0,s.nres,s.natom,s.n3atom,s.nall,s.nall3,s.ieins,s.ieins3,
        strlen(argv[1])
       );
@@ -401,6 +401,18 @@ extern "C" void cartstate_translate_atomtypes_(const int &handle) {
     cartstate.iaci[n] = transtable[res-1];
   }  
 }
+extern "C" void cartstate_apply_lambda_(const int  &cartstatehandle) {
+  CartState &cartstate = cartstate_get(cartstatehandle);
+  if (cartstate.use_lambda) {
+    for (int n = 0; n < cartstate.nall; n++) {
+      int atomtype = cartstate.iaci[n];
+      double f = cartstate.lambda;
+      if (atomtype >= 90) f = 1 - cartstate.lambda;
+      cartstate.we[n] = cartstate.we0[n] * f;
+    }
+  }
+}
+
 
 extern "C" void cartstate_apply_epsilon_(const int  &cartstatehandle) {
   CartState &cartstate = cartstate_get(cartstatehandle);

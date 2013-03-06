@@ -74,6 +74,7 @@ extern "C" int ministate_new_();
 extern "C" void ministate_iscore_imc_(const int &handle, int &iscore, int &imc);
 
 extern "C" void cartstate_apply_epsilon_(const int  &cartstatehandle);
+extern "C" void cartstate_apply_lambda_(const int  &cartstatehandle);
 
 extern "C" FILE *read_dof_init_(const char *f_, int nlig, int &line, double (&pivot)[3][MAXLIG], int &auto_pivot, int &centered_receptor, int &centered_ligands, int f_len);
 
@@ -177,6 +178,8 @@ int main(int argc, char *argv[]) {
   int ministatehandle = ministate_new_();  
   parse_options(ministatehandle, cartstatehandle, nlig, argc-argc0,argv+argc0);
     
+
+  cartstate_apply_lambda_(cartstatehandle);
   cartstate_translate_atomtypes_(cartstatehandle);
   cartstate_apply_epsilon_(cartstatehandle);
     

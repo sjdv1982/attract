@@ -92,7 +92,7 @@ void read_ens(int cartstatehandle, int ligand, char *ensfile, bool strict, bool 
       read_single_pdb_(
         MAXLIG, TOTMAXRES, TOTMAXATOM, MAXATOM,
         fn,s2.kai,s2.tyi,s2.rgi,s2.iei,s2.x,s2.iaci,s2.xlai,
-        s2.icop,s2.we,s2.chai,s2.ncop,s2.nmaxco,s2.natco,
+        s2.icop,s2.we,s2.we0,s2.chai,s2.ncop,s2.nmaxco,s2.natco,
         s2.nlig,s2.nres,s2.natom,s2.n3atom,s2.nall,s2.nall3,s2.ieins,s2.ieins3,
         dmmy, dmmy2,
         strlen(fn)
