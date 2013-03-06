@@ -128,7 +128,7 @@ Type AttractGrid {
       raise ValueError("The name of the grid may contain only letters, digits, _ and -")  
   }
 
-  Filename gridfile
+  *Filename gridfile
   form {
     gridfile.type = "file"
     gridfile.file = "Data"
