@@ -151,7 +151,7 @@ extern "C" void read_densitymaps_(char *densitymap0, float resolution, int len_d
   {
   Map &m = maps[nrmaps+1];
   m.mode = EM_MAPMODE_CLASH;
-  m.clash_threshold = 16;
+  m.clash_threshold = 16 * m.situs_width * m.situs_width * m.situs_width / 1000;
   m.clash_weight = 0.1;
   read_vol(densitymap, &m.situs_width, &m.situs_origx,&m.situs_origy,&m.situs_origz,&m.dimx,&m.dimy,&m.dimz,&m.densities);          
   int gridsize = m.dimx * m.dimy * m.dimz;  
