@@ -176,7 +176,7 @@ name=%s
     partners = " ".join([str(v) for v in sym.partners])
     params += " --sym %d %s" % (symcode, partners)
   if m.cryoem_data:
-    params += " --em %s" % m.cryoem_data.name
+    params += " --em %s %.3f" % (m.cryoem_data.name, m.cryoem_resolution)
   params += "\""
   scoreparams += "\""
   ret += """
