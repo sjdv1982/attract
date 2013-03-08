@@ -121,6 +121,8 @@ c      Handle variables: full coordinates and modes
        pointer(ptr_eig,eig)
        pointer(ptr_ieins,ieins)
        pointer(ptr_nhm,nhm)
+       integer dmmy
+       pointer(ptr_dmmy, dmmy)
 
 c      Local variables: matrices
        real*8 rotmatr,rotmatl,rotmatd,rotmatd2,rotmatrinv,rotmatlinv
@@ -170,8 +172,7 @@ c Are we using a grid?
 
 c get molpair 
 
-       call molpair_get_values(molpairhandle,idr,idl,
-     1  ptr_iactr,ptr_iactl,nonp,ptr_nonr,ptr_nonl)
+       call molpair_get_rl(molpairhandle,idr,idl,ptr_dmmy)
 
 c get full coordinates and normal modes
 
@@ -288,6 +289,8 @@ c      rotate delta-translate back into global frame
      2	 pivotnull, 1,deltar0(4))     
        else  
        call molpair_pairgen(molpairhandle,cartstatehandle,nonp)
+       call molpair_get_values(molpairhandle,idr,idl,
+     1  ptr_iactr,ptr_iactl,nonp,ptr_nonr,ptr_nonl)       
        call nonbon8(maxatom,maxmolpair,
      1  iab,xl,xr,fl,fr,wel,wer,chair,chail,ac,rc,
      2  emin,rmin2,iacir,iacil,nonr,nonl,ipon,nonp,
