@@ -84,7 +84,7 @@ while 1:
     continue
 
 if len(sys.argv) !=  3:
-  raise Exception("Please supply an two PDB files")
+  raise Exception("Please supply two PDB files")
 
 
 def read_pdb(f):
