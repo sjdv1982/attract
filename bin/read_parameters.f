@@ -42,14 +42,20 @@ c     write(*,*)(abc(i,j),j=1,maxpar)
       haspar(i,j) = 1
       rc(i,j)=abc(i,j)*rbc(i,j)**potshape
       ac(i,j)=abc(i,j)*rbc(i,j)**6
+      emin(i,j)= 0.0d0
+      rmin2(i,j)= 0.0d0
+      ipon(i,j)= 1.0d0       
       if (potshape.eq.8) then
-       emin(i,j)=-27.0d0*ac(i,j)**4/(256.0d0*rc(i,j)**3)
-       rmin2(i,j)=4.0d0*rc(i,j)/(3.0d0*ac(i,j))
+       if (ac(i,j).gt.0.and.rc(i,j).gt.0) then
+        emin(i,j)=-27.0d0*ac(i,j)**4/(256.0d0*rc(i,j)**3)
+        rmin2(i,j)=4.0d0*rc(i,j)/(3.0d0*ac(i,j))
+       endif 
        ipon(i,j)=iflo(i,j)
       elseif (potshape.eq.12) then
-       emin(i,j)= 0.0d0
-       rmin2(i,j)= 0.0d0
-       ipon(i,j)= 1.0d0
+       ipon(i,j)= 1.0d0       
+      else
+        write(*,*), 'Unknown potential shape', potshape
+        stop 
       endif            
   448 continue
   450 continue

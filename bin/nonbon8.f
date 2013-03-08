@@ -23,6 +23,7 @@ c     Local variables
       real*8 fswi, r, shapedelta
       integer k,ik,i,j,ii,jj,it,jt,ivor
       dimension dx(3)
+      real*8 e_min
       
       xnull=0.0d0
       enon=xnull
@@ -37,6 +38,7 @@ c     Local variables
       jj=3*(j-1)
       alen=wel(j)*wer(i)*ac(it,jt)
       rlen=wel(j)*wer(i)*rc(it,jt)
+      e_min=wel(j)*wer(i)*emin(it,jt)
       ivor=ipon(it,jt)
       charge=wel(j)*wer(i)*chair(i)*chail(j)
       r2=xnull
@@ -104,8 +106,10 @@ c      (cap all distances at 50 A)
       rep=rlen*rrd
       vlj=(rep-alen)*rr23
       if(r2.lt.rmin2(it,jt)) then
-      enon=enon+fswi*(vlj+(ivor-1)*emin(it,jt))
-c      write(*,*)'pair',i,j,it,jt,r2,vlj+(ivor-1)*emin(it,jt),et
+      enon=enon+fswi*(vlj+(ivor-1)*e_min)
+!       write(*,*)'pair',i,j,it,jt,r2,vlj+(ivor-1)*e_min,e_min
+c      write(*,*)'pair',i,j,it,jt,r2,vlj+(ivor-1)*emin(it,jt),et,
+c     1 emin(it,jt)
       if(iab.eq.1) then
       fb=6.0D0*vlj+shapedelta*(rep*rr23)
       do 135 k=1,3
@@ -116,7 +120,9 @@ c      write(*,*)'pair',i,j,it,jt,r2,vlj+(ivor-1)*emin(it,jt),et
       endif
       else
       enon=enon+fswi*ivor*vlj
-c      write(*,*)'pair',i,j,it,jt,r2,ivor*vlj,et
+!       write(*,*)'pair',i,j,it,jt,r2,ivor*vlj,e_min
+c      write(*,*)'pair',i,j,it,jt,r2,ivor*vlj,et,
+c     1 emin(it,jt)
       if(iab.eq.1) then
       fb=6.0D0*vlj+shapedelta*(rep*rr23)
 

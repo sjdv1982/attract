@@ -47,45 +47,45 @@ extern "C" int ministate_new_() {
   //ms.rstk = 0.015; //for second order restraints...; too much?
   ms.rstk = 0.2; //for harmonic restraints...
   ms.ghost = 0;
-  return ministatesize-1+7770; 
+  return ministatesize-1; 
 
 }
 
 MiniState &ministate_get(int handle) {
-  return *ministates[handle-7770];
+  return *ministates[handle];
 }
 
 extern "C" void ministate_ghost_(const int &handle, int &ghost) {
-  MiniState &ms = *ministates[handle-7770];
+  MiniState &ms = *ministates[handle];
   ghost = ms.ghost;
 }
 
 extern "C" void ministate_iscore_imc_(const int &handle, int &iscore, int &imc) {
-  MiniState &ms = *ministates[handle-7770];
+  MiniState &ms = *ministates[handle];
   iscore = ms.iscore;
   imc = ms.imc;
 }
 
 extern "C" void ministate_f_minfor_(const int &handle, int &iscore, int &ivmax, int &iori, int &itra, int &ieig, int &fixre, int &gridmode) {
-  MiniState &ms = *ministates[handle-7770];
+  MiniState &ms = *ministates[handle];
   iscore=ms.iscore; ivmax = ms.ivmax;iori = ms.iori;itra = ms.itra;ieig = ms.ieig; fixre = ms.fixre; gridmode = ms.gridmode;
 }
 
 extern "C" void ministate_f_monte_(const int &handle, int &iscore, int &ivmax, int &iori, int &itra, int &ieig, int &fixre, int &gridmode, double &mctemp, double &mcscalerot, double &mcscalecenter, double &mcscalemode, double &mcensprob) {
-  MiniState &ms = *ministates[handle-7770];
+  MiniState &ms = *ministates[handle];
   iscore=ms.iscore; ivmax = ms.ivmax;iori = ms.iori;itra = ms.itra;ieig = ms.ieig; 
   fixre = ms.fixre; gridmode = ms.gridmode; 
   mctemp = ms.mctemp; mcscalerot = ms.mcscalerot; mcscalecenter = ms.mcscalecenter; mcscalemode = ms.mcscalemode; mcensprob = ms.mcensprob;
 }
 
 extern "C" void ministate_f_disre_(const int &handle, int &gravity, double &rstk) {
-  MiniState &ms = *ministates[handle-7770];
+  MiniState &ms = *ministates[handle];
   gravity = ms.gravity;
   rstk = ms.rstk;
 }
 
 extern "C" void ministate_has_globalenergy_(const int &handle, int &has_globalenergy) {
-  MiniState &ms = *ministates[handle-7770];
+  MiniState &ms = *ministates[handle];
   has_globalenergy=ms.has_globalenergy;
 }
 
@@ -98,7 +98,7 @@ extern "C" void pairgen_(const int &maxatom, const int &maxres, const int &maxmo
   const double &rcut);
 
 extern "C" void ministate_calc_pairlist_(const int &ministatehandle, const int  &cartstatehandle) {
-  MiniState &ms = *ministates[ministatehandle-7770];
+  MiniState &ms = *ministates[ministatehandle];
   CartState &cartstate = cartstate_get(cartstatehandle);
   ms.pairs = new MolPair[cartstate.nlig*(cartstate.nlig-1)]; 
   memset(ms.pairs, 0, cartstate.nlig*(cartstate.nlig-1)*sizeof(MolPair));
@@ -150,7 +150,7 @@ extern "C" void ministate_calc_pairlist_(const int &ministatehandle, const int  
       MolPair &mp = ms.pairs[molpairindex];
       mp.receptor = i;
       mp.ligand = j;      
-      //int molpairhandle = 1000 * ministatehandle + molpairindex + 1;
+      //int molpairhandle = MAXMOLPAIR * (ministatehandle) + molpairindex + 1;
       if (is_grid) {
         mp.grid = cartstate.grids[i];
       }
@@ -165,7 +165,7 @@ extern "C" void ministate_calc_pairlist_(const int &ministatehandle, const int  
 }
 
 extern "C" void ministate_free_pairlist_(const int &handle) {
-  MiniState &ms = *ministates[handle-7770];
+  MiniState &ms = *ministates[handle];
   for (int n = 0; n < ms.npairs; n++) {
     MolPair &mp = ms.pairs[n];
     delete[] mp.nonl;
@@ -176,10 +176,10 @@ extern "C" void ministate_free_pairlist_(const int &handle) {
 
 extern "C" void ministate_get_molpairhandles_(const int &handle,
  int *mphandles, int &npairs) {
-  MiniState &ms = *ministates[handle-7770];
+  MiniState &ms = *ministates[handle];
   npairs = ms.npairs;
   for (int n = 0; n < npairs;n++) {
-    mphandles[n] = 1000 * handle + n + 1;
+    mphandles[n] = MAXMOLPAIR * (handle) + n + 1;
   }
 }
 extern "C" void ministate_get_molpairhandle_(const int &ministatehandle,
@@ -187,11 +187,11 @@ extern "C" void ministate_get_molpairhandle_(const int &ministatehandle,
  int &molpairhandle) {
   molpairhandle = -1;
 
-  MiniState &ms = *ministates[ministatehandle-7770]; 
+  MiniState &ms = *ministates[ministatehandle]; 
   for (int n = 0; n < ms.npairs; n++) {
     MolPair &mp = ms.pairs[n];
     if (mp.receptor == receptor && mp.ligand == ligand) {
-      molpairhandle = 1000 * ministatehandle + n + 1;
+      molpairhandle = MAXMOLPAIR * (ministatehandle) + n + 1;
       return;
     }
   }
@@ -201,9 +201,9 @@ extern "C" void molpair_get_rl_(
  const int &molpairhandle,
  int &receptor,int &ligand,Grid *&gridptr
 ) {
-  int ministatehandle = int(molpairhandle/1000); //rounds down...
-  MiniState &ms = *ministates[ministatehandle-7770]; 
-  MolPair &mp = ms.pairs[molpairhandle-1000*ministatehandle-1];
+  int ministatehandle = int(molpairhandle/MAXMOLPAIR); //rounds down...
+  MiniState &ms = *ministates[ministatehandle]; 
+  MolPair &mp = ms.pairs[molpairhandle-MAXMOLPAIR*ministatehandle-1];
   receptor = mp.receptor;
   ligand = mp.ligand;
   gridptr = mp.grid;
@@ -214,9 +214,9 @@ extern "C" void molpair_get_values_(
  int &receptor,int &ligand,
  int *&iactr,int *&iactl,
  int &nonp, int *&nonr,int *&nonl) {
-  int ministatehandle = molpairhandle/1000; //rounds down...
-  MiniState &ms = *ministates[ministatehandle-7770]; 
-  MolPair &mp = ms.pairs[molpairhandle-1000*ministatehandle-1];
+  int ministatehandle = molpairhandle/MAXMOLPAIR; //rounds down...
+  MiniState &ms = *ministates[ministatehandle]; 
+  MolPair &mp = ms.pairs[molpairhandle-MAXMOLPAIR*ministatehandle-1];
   receptor = mp.receptor;
   ligand = mp.ligand;
   iactr = &(mp.iactr[0]);
@@ -229,9 +229,9 @@ extern "C" void molpair_get_values_(
 extern "C" void molpair_set_nonp_(
  const int &molpairhandle,
  const int &nonp) {
-  int ministatehandle = molpairhandle/1000; //rounds down...
-  MiniState &ms = *ministates[ministatehandle-7770]; 
-  MolPair &mp = ms.pairs[molpairhandle-1000*ministatehandle-1];
+  int ministatehandle = molpairhandle/MAXMOLPAIR; //rounds down...
+  MiniState &ms = *ministates[ministatehandle]; 
+  MolPair &mp = ms.pairs[molpairhandle-MAXMOLPAIR*ministatehandle-1];
   mp.nonp = nonp;
 }
 
@@ -243,9 +243,9 @@ extern "C" void molpair_pairgen_(
   
   //Will generate nonbonded atom pairs, if not already done
  
-  int ministatehandle = molpairhandle/1000; //rounds down...
-  MiniState &ms = *ministates[ministatehandle-7770]; 
-  MolPair &mp = ms.pairs[molpairhandle-1000*ministatehandle-1];
+  int ministatehandle = molpairhandle/MAXMOLPAIR; //rounds down...
+  MiniState &ms = *ministates[ministatehandle]; 
+  MolPair &mp = ms.pairs[molpairhandle-MAXMOLPAIR*ministatehandle-1];
   if (!mp.pairgen_done) {
     mp.nonr = new int[MAXMOLPAIR];
     mp.nonl = new int[MAXMOLPAIR];
@@ -261,7 +261,7 @@ extern "C" void molpair_pairgen_(
 
 
 extern "C" void ministate_check_parameters_(const int &ministatehandle, const int  &cartstatehandle) {
-  MiniState &ms = *ministates[ministatehandle-7770];
+  MiniState &ms = *ministates[ministatehandle];
   CartState &cartstate = cartstate_get(cartstatehandle);
 
   //determine if we have all the parameter we need
@@ -307,7 +307,7 @@ extern "C" void axsym_fold_grads_(
  const int &cartstatehandle, 
  double *grads0, double *grads, double *morphgrads
 ) {
-  MiniState &ms = *ministates[ministatehandle-7770];
+  MiniState &ms = *ministates[ministatehandle];
   CartState &cartstate = cartstate_get(cartstatehandle);
   axsym_fold_grads(ms, cartstate, grads0, grads, morphgrads);
 }
