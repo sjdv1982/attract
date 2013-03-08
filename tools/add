@@ -2,6 +2,7 @@
 import sys
 from _read_struc import read_struc
 import random
+import itertools
 from math import *
 header,structures = read_struc(sys.argv[1])
 header2,structures2 = read_struc(sys.argv[2])
@@ -12,7 +13,7 @@ if header != header2: raise Exception("Headers are not the same")
 print "## add.py:"
 for h in header: print h
 stnr = 0
-for s in structures + structures2:
+for s in itertools.chain(structures, structures2):
   stnr += 1
   l1,l2 = s
   print "#"+str(stnr)

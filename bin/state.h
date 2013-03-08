@@ -42,7 +42,8 @@ struct CartState {
   int iaci_old[TOTMAXATOM];     //original bead code; only used in EM data
   double xlai[TOTMAXATOM];  //charge; not used directly in calculations
   int icop[TOTMAXATOM];    //copy counter
-  double we[TOTMAXATOM];   //occupancy/weight
+  double we[TOTMAXATOM];   //occupancy/weight (current, after lambda)
+  double we0[TOTMAXATOM];   //occupancy/weight (original)
   double chai[TOTMAXATOM];  //charge * occupancy
 
   /* modes */
@@ -84,6 +85,10 @@ struct CartState {
   int morphing[MAXLIG];
   double *morphd[MAXLIG][MAXENS];   //morphing inter-delta coordinates
   double morph_fconstant;
+  
+  /*lambda morphing*/
+  bool use_lambda;
+  double lambda;
   
   /*symmetries*/
   int nsym;
@@ -176,7 +181,7 @@ extern "C" void read_one_pdb_(
    intarr kai,codearr tyi,codearr rgi,
    intarr iei, dbl3arr x,
    intarr iaci,dblarr xlai,
-   intarr icop, dblarr we,dblarr chai,
+   intarr icop, dblarr we,dblarr we0,dblarr chai,
    ncopligtype ncoplig, copyarr nmaxco,copyarr natco,
    int &nlig, limitarr nres, limitarr natom, limitarr n3atom,
    int &nall,int &nall3,
@@ -190,7 +195,7 @@ extern "C" void read_single_pdb_(
    intarr kai,codearr tyi,codearr rgi,
    intarr iei, dbl3arr x,
    intarr iaci,dblarr xlai,
-   intarr icop, dblarr we,dblarr chai,
+   intarr icop, dblarr we,dblarr we0,dblarr chai,
    ncopligtype ncoplig, copyarr nmaxco,copyarr natco,
    int &nlig, limitarr nres, limitarr natom, limitarr n3atom,
    int &nall,int &nall3,
@@ -205,7 +210,7 @@ extern "C" void read_two_pdbs_(
    intarr kai,codearr tyi,codearr rgi,
    intarr iei, dbl3arr x,
    intarr iaci,dblarr xlai,
-   intarr icop, dblarr we,dblarr chai,
+   intarr icop, dblarr we,dblarr we0,dblarr chai,
    ncopligtype ncoplig, copyarr nmaxco,copyarr natco,
    limitarr nres, limitarr natom, limitarr n3atom,
    int &nall,int &nall3,
