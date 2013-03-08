@@ -75,7 +75,7 @@ m.listen(com._set)
 if inp is not None:
   params = AttractModel.fromfile(inp)
   m.set(params)
-
+  
 #build view
 xml = spyder.qtform.xml(spydertype, form=form)
 app = QApplication(sys.argv)

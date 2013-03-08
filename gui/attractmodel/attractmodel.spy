@@ -7,11 +7,33 @@ Type Data_ATTRACT_CryoEM_data:Data{}
 Type Data_TXT_FileList_PDB:Data{}
 
 Type AttractSymmetry {
+  *Coordinate symmetry_axis
+  *Coordinate symmetry_origin
+  form {
+    symmetry_axis.add_header("You can use generative symmetry or distance-restrained symmetry")
+    symmetry_axis.add_header("If you want to use generative symmetry:")
+    symmetry_axis.add_header(" - Provide an explicit symmetry axis and origin")    
+    symmetry_axis.add_header(" - Specify a single reference symmetry partner")
+    symmetry_axis.add_header(" - In the Docking Partner section, only define the reference partner structure")    
+    symmetry_axis.add_header("If you want to use distance-restrained symmetry:")
+    symmetry_axis.add_header(" - Do not provide explicit symmetry axis and origin")    
+    symmetry_axis.add_header(" - Specify all symmetry partners that are to be restrained")    
+    symmetry_axis.add_header(" - In the Docking Partner section, specify all partner structures, which must be identical")
+    symmetry_axis.type = "required"
+    symmetry_axis.name = "Generative symmetry axis"
+    symmetry_origin.type = "required"
+    symmetry_origin.name = "Origin for generative symmetry axis"
+  }
   Enum symmetry("Cx","Dx") = "Cx"
+  validate {
+    if symmetry_origin is not None: assert symmetry_axis is not None
+  }
   IntegerArray partners = []
   validate {
-    assert len(partners) > 1
-    if symmetry == "Dx": assert len(partners) == 4
+    if symmetry_axis is not None: assert len(partners) == 1
+    else:
+      assert len(partners) > 1
+      if symmetry == "Dx": assert len(partners) == 4
   }
 }
 
@@ -219,6 +241,8 @@ Type AttractModel {
     grids.name = "Grid"
     grids.count_from_one = True
   }  
+  
+  #***Iteration parameters***  
   Integer nr_iterations = 1
   AttractIterationArray iterations = []
   form {  
@@ -233,7 +257,49 @@ Type AttractModel {
     iterations[4].name = "Fifth iteration"
   }  
   validate {
+    assert nr_iterations > 0
     assert nr_iterations >= len(iterations)
+  }
+  *Bool zoom = False  
+  *Integer zoom_select = 1000
+  *Integer zoom_clone = 20
+  *Float zoom_ori = 0.25
+  *Float zoom_trans = 5
+  *AttractIteration zoom_it_initial
+  *AttractIteration zoom_it_subsequent  
+  form {
+    zoom.group = "Iteration parameters"
+    zoom.add_header("Do you want to use a zoom-in protocol?")
+    zoom.add_header("Note that a zoom-in protocol ignores the parameters for the individual iterations")
+    zoom.name = "Use zoom-in protocol"      
+    zoom_it_initial.type = "required"
+    zoom_it_subsequent.type = "required"
+    
+    zoom_select.group = "Iteration parameters"
+    zoom_select.name = "Zoom-in protocol: number of structures to select after each iteration"
+    zoom_clone.group = "Iteration parameters"
+    zoom_clone.name = "Zoom-in protocol: cloning factor"
+    zoom_ori.group = "Iteration parameters"
+    zoom_ori.name = "Zoom-in protocol: rotational displacement (radians)"
+    zoom_trans.group = "Iteration parameters"
+    zoom_trans.name = "Zoom-in protocol: translation displacement (angstroms)"
+    zoom_it_initial.group = "Iteration parameters"
+    zoom_it_initial.name = "Zoom-in protocol: first iteration"
+    zoom_it_subsequent.group = "Iteration parameters"
+    zoom_it_subsequent.name = "Zoom-in protocol: subsequent iterations"
+    
+
+  }
+  validate {
+    if zoom is not None: assert zoom_select is not None
+    if zoom is not None: assert zoom_clone is not None
+    assert zoom_clone is None or zoom_clone > 1
+    if zoom is not None: assert zoom_ori is not None
+    if zoom is not None: assert zoom_trans is not None
+    if zoom is not None: assert zoom_it_initial is not None
+    if zoom_it_initial is not None: assert zoom_it_initial.traj == False
+    if zoom is not None and nr_iterations > 1: assert zoom_it_subsequent is not None
+    if zoom_it_subsequent is not None: assert zoom_it_subsequent.traj == False
   }
   #***Sampling parameters***
   Bool fix_receptor = False
@@ -295,11 +361,10 @@ Type AttractModel {
     gravity.options = (0,1,2,3,4,5)
     gravity.optiontitles = ("No gravity", "To global origin", "To receptor", "Between all ligands", "Cryo-EM pre-assembly stage gravity", "Cryo-EM assembly stage gravity")
   }  
-  *Float rstk
+  *Float rstk = 0.2
   form {
     rstk.name = "Restraining force constant"
     rstk.type = "required"
-    rstk.default = 0.2
     rstk.digits = 4
   }
   
@@ -310,7 +375,7 @@ Type AttractModel {
   ## form ghost.add_header("In ghost mode, the forcefield is turned off")
   ## form ghost.name = "Enable ghost mode"
 
-  Float epsilon = 15
+  *Float epsilon = 15
   ## form #epsilon.group = "Sampling parameters"
   ## form epsilon.add_header("Epsilon constant for the electrostatic energy term")
   ## form epsilon.name = "Epsilon"
@@ -330,10 +395,49 @@ Type AttractModel {
   
   *File cryoem_data
   form {
+    cryoem_data.group = "Cryo-EM data"
     cryoem_data.type = "required"
-    cryoem_data.name = "Cryo-EM fitting parameters (em.inp)"
+    cryoem_data.name = "Cryo-EM density map (SITUS format)"
     cryoem_data.file = "Data_ATTRACT_CryoEM_data"
   }  
+  *Float cryoem_resolution
+  form {
+    cryoem_resolution.group = "Cryo-EM data"
+    cryoem_resolution.type = "required"
+    cryoem_resolution.name = "Cryo-EM density map resolution (in angstroms)"
+  }  
+  validate {
+    if cryoem_data is not None: assert cryoem_resolution is not None
+    if cryoem_data is None: assert cryoem_resolution is None
+  }
+
+  Enum cryoem_scoring_mode("no","attract","gvm","cc") = "no"
+  form {
+    cryoem_scoring_mode.group = "Cryo-EM data"
+    cryoem_scoring_mode.name = "Cryo-EM scoring criterion"
+    cryoem_scoring_mode.optiontitles = ("No separate scoring step with a higher-resolution map", "ATTRACT energy", "GVM score", "cross-correlation")
+  }
+  *File cryoem_scoring_data
+  form {
+    cryoem_scoring_data.group = "Cryo-EM data"
+    cryoem_scoring_data.type = "required"
+    cryoem_scoring_data.name = "Cryo-EM density map used in scoring (SITUS format)"
+    cryoem_scoring_data.file = "Data_ATTRACT_CryoEM_data"
+  }  
+  *Float cryoem_scoring_resolution
+  form {
+    cryoem_scoring_resolution.group = "Cryo-EM data"
+    cryoem_scoring_resolution.type = "required"
+    cryoem_scoring_resolution.name = "Cryo-EM scoring density map resolution (in angstroms)"
+  }  
+  validate {
+    if cryoem_scoring_mode == "no": assert cryoem_scoring_data is None
+    if cryoem_scoring_mode != "no": assert cryoem_scoring_data is not None
+    if cryoem_scoring_data is not None: assert cryoem_scoring_resolution is not None
+    if cryoem_scoring_data is None: assert cryoem_scoring_resolution is None
+    if cryoem_scoring_data is not None: assert cryoem_data is not None
+    if cryoem_scoring_resolution is not None: assert cryoem_scoring_resolution <= cryoem_resolution    
+  }
   
   AttractSymmetryArray symmetries = []
   form {
@@ -349,7 +453,7 @@ Type AttractModel {
   
   #**Analysis***  
   Bool rescoring = True  
-  Float rcut_rescoring = 50.0    
+  *Float rcut_rescoring = 50.0    
   Bool sort = True
   Bool deredundant = True
   Bool deredundant_ignorens = True
@@ -392,9 +496,10 @@ Type AttractModel {
   ## form jobsize.group = "Computing and parallelization parameters"
   ## form jobsize.name = "Number of structures in a single job (leave blank to divide all structures equally over the cores)"
   
-  *String header = "#PBS -l nodes=1:ppn=12\n#PBS -l walltime=6:30:00\n#PBS -j oe\ncd $PBS_O_WORKDIR\n\nATTRACTDIR=/home/sjoerd/data/work/attract/bin\nATTRACTTOOLS=/home/sjoerd/data/work/attract/tools"
+  *String header = ""
   ## form header.group = "Computing and parallelization parameters"
   ## form header.name = "Header for docking protocol script"
+  ## form header.default = "#PBS -l nodes=1:ppn=12\n#PBS -l walltime=6:30:00\n#PBS -j oe\ncd $PBS_O_WORKDIR\n\nATTRACTDIR=/home/sjoerd/data/work/attract/bin\nATTRACTTOOLS=/home/sjoerd/data/work/attract/tools"
   ## form header.type = "textarea"
   ## form header.cols = 80
   ## form header.rows = 50

@@ -49,15 +49,15 @@ cat /dev/null > hm-all.dat
       if p.generate_modes: 
         raise ValueError("Generating modes must currently be done manually") #TODO?
       if p.moleculetype != "Protein": raise Exception #TODO: not yet implemented
-      if p.nr_modes is None or p.nr_modes == 0 or  p.modes_file is None:
+      if p.nr_modes in (None, 0) or  p.modes_file is None:
         ret += "echo 0 >> hm-all.dat\n"
         if aa_modes_any:
           ret += "echo 0 >> hm-all-aa.dat\n"
       elif p.nr_modes == 10:
-        ret += "cat %s >> hm-all.dat\n" % p.modes_file.name
-        mf = p.modes_file.name
-        if p.aa_modes_file is not None: mf = p.aa_modes_file.name
+        ret += "cat %s >> hm-all.dat\n" % p.modes_file.name        
         if aa_modes_any:
+          mf = p.modes_file.name
+          if p.aa_modes_file is not None: mf = p.aa_modes_file.name        
           ret += "cat %s >> hm-all-aa.dat\n" % mf
       else:
         ret += "#select first %d modes...\n" % (p.nr_modes)
@@ -150,7 +150,7 @@ name=%s
       else:
         grid_used[v] = pnr+1
       gridparams += " --grid %d %s" % (pnr+1, str(v))
-    if p.ensemble_list is not None  :
+    if p.ensemble_list is not None:
       ps = " --ens %d %s" % (pnr+1, p.ensemble_list.name)
       params += ps
       scoreparams += ps
@@ -159,13 +159,13 @@ name=%s
     params += " --ghost"
   if m.gravity:
     params += " --gravity %d" % m.gravity
-  if m.rstk is not None and m.rstk != 0.2:
+  if m.rstk is not None:
     params += " --rstk %s" % str(m.rstk)
   if m.dielec == "cdie": 
     ps = " --cdie"
     params += ps  
     scoreparams += ps  
-  if m.epsilon != 15: 
+  if m.epsilon is not None: 
     ps = " --epsilon %s" % (str(m.epsilon))
     params += ps
     scoreparams += ps  
@@ -176,7 +176,7 @@ name=%s
     partners = " ".join([str(v) for v in sym.partners])
     params += " --sym %d %s" % (symcode, partners)
   if m.cryoem_data:
-    params += " --em %s" % m.cryoem_data.name
+    params += " --em %s %.3f" % (m.cryoem_data.name, m.cryoem_resolution)
   params += "\""
   scoreparams += "\""
   ret += """
@@ -233,7 +233,7 @@ start=%s
     ret += "python $ATTRACTTOOLS/randsearch.py %d %d > randsearch.dat\n" % \
      (len(m.partners), m.structures)
     ret += "start=randsearch.dat\n"    
-    start = randsearch.dat
+    start = "randsearch.dat"
   else:
     raise Exception("Unknown value")
   ret += "\n"  
@@ -297,7 +297,7 @@ echo '**************************************************************'
     if m.forcefield == "OPLSX":  
       tail += " --alphabet $ATTRACTDIR/../allatom/oplsx.trans"
     if m.dielec == "cdie": tail += " --cdie"
-    if m.epsilon != 15: tail += " --epsilon %s" % (str(m.epsilon))    
+    if m.epsilon not in (None, 15): tail += " --epsilon %s" % (str(m.epsilon))    
     if g.calc_potentials == False: tail += " -calc-potentials=0"
     if g.omp:
       ret += "for i in `seq 1 10`; do\n\n"      
@@ -376,8 +376,12 @@ echo '**************************************************************'
     else:
       attract = "$ATTRACTDIR/attract"
       tail = ">"  
-    ret += "%s %s $scoreparams --rcut %s %s out_$name.score\n" \
-     % (attract, result, str(m.rcut_rescoring), tail)
+    if m.rcut_rescoring is None: 
+      rcutsc = "--rcut 50.0"
+    else:    
+      rcutsc = "--rcut %s" % str(m.rcut_rescoring)
+    ret += "%s %s $scoreparams %s %s out_$name.score\n" \
+     % (attract, result, rcutsc, tail)
     ret += """     
 echo '**************************************************************'
 echo 'Merge the scores with the structures'
@@ -447,58 +451,70 @@ tmpf2=`mktemp`
             continue
           result = outp
           outp, outp2 = outp2, outp
-  if m.calc_lrmsd or m.calc_irmsd:    
-    any_bb = any((p.rmsd_bb for p in m.partners[1:]))
-    if any_bb:
-      ret += """
+  if m.calc_lrmsd or m.calc_irmsd or m.calc_fnat:    
+    any_bb = False
+    rmsd_filenames = []
+    for pnr in range(len(m.partners)):      
+      filename = filenames[pnr]
+      p = m.partners[pnr]
+      if (m.calc_lrmsd or m.calc_irmsd) and p.rmsd_bb:
+        if pnr > 0 or m.calc_irmsd:
+          if not any_bb:  
+            any_bb = True
+            ret += """
 echo '**************************************************************'
 echo 'Select backbone atoms'
 echo '**************************************************************'
-""" 
-    rmsd_filenames = []
-    for pnr in range(len(m.partners)):
-      filename = filenames[pnr]
-      p = m.partners[pnr]
-      if p.rmsd_bb:
-        filename2 = os.path.splitext(filename)[0] + "-bb.pdb"
-        ret += "$ATTRACTTOOLS/backbone %s > %s\n" % (filename, filename2)
-        filename = filename2                
+"""           
+          filename2 = os.path.splitext(filename)[0] + "-bb.pdb"
+          ret += "$ATTRACTTOOLS/backbone %s > %s\n" % (filename, filename2)
+          filename = filename2
       rmsd_filenames.append(filename)
-    if m.calc_irmsd or m.calc_fnat:
+    if m.calc_irmsd:
       irmsd_filenames = rmsd_filenames[:]
-      irmsd_refenames = rmsd_filenames[:]
+      irmsd_refenames = [None] * len(m.partners)
       for pnr in range(len(m.partners)):
-	filename = filenames[pnr]
-	p = m.partners[pnr]
-	if p.rmsd_pdb is not None:
+        filename = filenames[pnr]
+        p = m.partners[pnr]
+        if p.rmsd_pdb is not None:
           filename = p.rmsd_pdb.name
           if p.rmsd_bb:
             filename2 = os.path.splitext(filename)[0] + "-bb.pdb"
             ret += "$ATTRACTTOOLS/backbone %s > %s\n" % (filename, filename2)
             filename = filename2                
-	elif p.rmsd_bb:
+        elif p.rmsd_bb:
           filename2 = os.path.splitext(filename)[0] + "-bb.pdb"
           filename = filename2          
-	irmsd_refenames[pnr] = filename
+        irmsd_refenames[pnr] = filename
+    if m.calc_fnat:
+      fnat_filenames = filenames[:]
+      fnat_refenames = [None] * len(m.partners)
+      for pnr in range(len(m.partners)):
+        filename = filenames[pnr]
+        p = m.partners[pnr]
+        if p.rmsd_pdb is not None:
+          filename = p.rmsd_pdb.name
+        fnat_refenames[pnr] = filename
     if m.calc_lrmsd:
       lrmsd_filenames = rmsd_filenames[1:]
-      if m.calc_irmsd or m.calc_fnat:
+      lrmsd_refenames = [None] * (len(m.partners)-1)
+      if m.calc_irmsd:
         lrmsd_refenames = irmsd_refenames[1:]
       else:
-        lrmsd_refenames = rmsd_refenames[1:]
-	for pnr in range(1, len(m.partners)):
-	  filename = filenames[pnr]
-	  p = m.partners[pnr]
-	  if p.rmsd_pdb is not None:
+        for pnr in range(1,len(m.partners)):
+          filename = filenames[pnr]
+          p = m.partners[pnr]
+          if p.rmsd_pdb is not None:
             filename = p.rmsd_pdb.name
             if p.rmsd_bb:
               filename2 = os.path.splitext(filename)[0] + "-bb.pdb"
               ret += "$ATTRACTTOOLS/backbone %s > %s\n" % (filename, filename2)
               filename = filename2                
-	  elif p.rmsd_bb:
+          elif p.rmsd_bb:
             filename2 = os.path.splitext(filename)[0] + "-bb.pdb"
             filename = filename2          
-	  lrmsd_refenames[pnr-1] = filename
+          lrmsd_refenames[pnr-1] = filename
+        
     if any_bb:  
       ret += "\n"
       bb_str = "backbone "
@@ -520,13 +536,13 @@ echo '**************************************************************'
 echo 'calculate %sligand RMSD'
 echo '**************************************************************'
 """ % bb_str      
-	
+  
     fixresult = None 
     if m.fix_receptor == False: 
       fixresult = result + "-fixre"
-      ret += "$ATTRACTDIR/fix_receptor %s %d%s > %s\n" % (result, len(m.partners), flexpar, result2)
+      ret += "$ATTRACTDIR/fix_receptor %s %d%s > %s\n" % (result, len(m.partners), flexpar, fixresult)
       result = fixresult
-	
+  
     lrmsd_allfilenames = []
     for f1, f2 in zip(lrmsd_filenames, lrmsd_refenames):
       lrmsd_allfilenames.append(f1)
@@ -542,7 +558,7 @@ echo '**************************************************************'
 echo 'calculate %sinterface RMSD'
 echo '**************************************************************'
 """ % bb_str      
-		
+    
     irmsd_allfilenames = []
     for f1, f2 in zip(irmsd_filenames, irmsd_refenames):
       irmsd_allfilenames.append(f1)
@@ -564,9 +580,9 @@ echo '**************************************************************'
 echo '**************************************************************'
 echo 'calculate fraction of native contacts'
 echo '**************************************************************'
-"""		
+"""    
     fnat_allfilenames = []
-    for f1, f2 in zip(irmsd_filenames, irmsd_refenames):
+    for f1, f2 in zip(fnat_filenames, fnat_refenames):
       fnat_allfilenames.append(f1)
       fnat_allfilenames.append(f2)
     fnat_allfilenames = " ".join(fnat_allfilenames)
