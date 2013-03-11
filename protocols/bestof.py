@@ -38,9 +38,8 @@ np = 1
 output = None
 anr = 0
 torque = ""
-existing = None
 jobsize = None
-chunks = None
+strucs = None
 while 1:
   anr += 1
 
@@ -55,11 +54,6 @@ while 1:
   if anr >= len(sys.argv)-1: break
   arg, nextarg = sys.argv[anr],sys.argv[anr+1]
 
-  if arg.startswith("--exist"):
-    existing = nextarg
-    sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
-    anr -= 1
-    continue
   if arg == "-np" or arg == "--np":
     try:
       np = int(nextarg)
@@ -78,12 +72,12 @@ while 1:
     sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
     anr -= 1
     continue
-  if arg == "-chunks" or arg == "--chunks":
+  if arg == "-strucs" or arg == "--strucs" or arg == "-struc" or arg == "--struc":
     try:
-      chunks = int(nextarg)
-      if chunks <= 0: raise ValueError
+      strucs = int(nextarg)
+      if strucs <= 0: raise ValueError
     except ValueError: 
-      raise ValueError("Invalid chunks: %s" % nextarg)
+      raise ValueError("Invalid strucs: %s" % nextarg)
     sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
     anr -= 1
     continue
@@ -96,24 +90,18 @@ if output is None:
   raise ValueError("You must specify an output file with --output")
 
 queue = [None for n in range(np)]
-nstrucs = [None for n in range(np)]
 
 attractdir0 = os.path.split(sys.argv[0])[0]
 tooldir = attractdir0 + "/../tools"
 attractdir = attractdir0 + "/../bin"
 
 attract = attractdir + "/attract" + torque
-strucfile = sys.argv[1]
+strucgen = sys.argv[1]
 
-if jobsize is None and chunks is None:
-  raise ValueError("You must specify --jobsize <value> or --chunks <value>")
-if jobsize is not None and chunks is not None:
-  raise ValueError("You must specify --jobsize <value> OR --chunks <value>, not both!")
-
-totstruc = get_struc(strucfile)
-if jobsize is not None:
-  chunks = ceil(totstruc/float(jobsize))
-if not chunks: sys.exit()
+if jobsize is None:
+  raise ValueError("You must specify --jobsize <value>")
+if strucs is None:
+  raise ValueError("You must specify --strucs <value>")
 
 args = sys.argv[2:]
 scoremode = "--score" in args
@@ -126,39 +114,34 @@ while 1:
   break  
 
 try:
-  com = "python %s/split.py %s %s %d" % (tooldir, strucfile, pat, chunks); run(com)
   done = 0
   current = 1
   while 1:
     for vnr in range(np):
       v = queue[vnr]
       if v is None: continue
-      if finished(v, nstrucs[vnr]): 
+      if finished(v[1], jobsize): 
+        com = "python %s/../tools/sort.py %s-%d | %s/../tools/top /dev/stdin 1 | sed 's/^#1$/#1\\n### SPLIT %d/' > %s-%d" % (attractdir0, pat,  v[0], attractdir0,  v[0], pat2,  v[0])
+        run(com)
 	done += 1
-	if done == chunks: break
+	if done == strucs: break
 	queue[vnr] = None
-    if done == chunks: break
+    if done == strucs: break
 
     free = [n for n,v in enumerate(queue) if v is None]
-    if len(free) == 0 or current == chunks+1:
-      time.sleep(2)
+    if len(free) == 0 or current == strucs+1:
+      time.sleep(0.5)
       continue
 
     q = free[0]
-    inp = "%s-%d" % (pat, current)
-    outp = "%s-%d" % (pat2, current)
-    queue[q] = outp
-    nstrucs[q] = get_struc(inp)
-    com = " ".join([attract,inp]+args) + " > %s &" % outp
-    if existing is not None:
-      ef = "%s-%d" % (existing, current)
-      if os.path.exists(ef):
-        com = "cp %s %s" % (ef, outp)
+    outp = "%s-%d" % (pat, current)
+    queue[q] = current, outp
+    com = " ".join([strucgen + " %d |" % jobsize, attract, "/dev/stdin"]+args) + " > %s &" % outp
     run(com)
     current += 1
 
   o = open(output, "w")
-  print >> o, "## Command line arguments: " + " ".join([attract,strucfile]+args)
+  print >> o, "## Command line arguments: " + " ".join([attract,"<%s %d>" % (strucgen,jobsize)]+args)
   o.close()
   score = ""
   if scoremode:
@@ -167,4 +150,3 @@ try:
   run(com)
 finally:
   com = "rm %s-*" % pat; run(com)
-  com = "rm %s-*" % pat2; run(com)

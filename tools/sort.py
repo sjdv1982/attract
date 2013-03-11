@@ -27,6 +27,9 @@ for st in strucs:
   l1,l2 = s
   print "#"+str(stnr)
   print "##"+str(r) + " => sort"
-  for l in l1: print l
-  for l in l2: print l
+  try:
+    for l in l1: print l
+    for l in l2: print l
+  except IOError:  
+    sys.exit()
 
