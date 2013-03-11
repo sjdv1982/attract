@@ -107,10 +107,7 @@ args = sys.argv[2:]
 scoremode = "--score" in args
 while 1:
   pat = "tmp%d" % random.randint(1,99999)
-  pat2 = "tmp%d" % random.randint(1,99999)
-  if (pat == pat2): continue
   if os.path.exists("%s-1" % pat): continue
-  if os.path.exists("%s-1" % pat2): continue
   break  
 
 try:
@@ -120,9 +117,7 @@ try:
     for vnr in range(np):
       v = queue[vnr]
       if v is None: continue
-      if finished(v[1], jobsize): 
-        com = "python %s/../tools/sort.py %s-%d | %s/../tools/top /dev/stdin 1 | sed 's/^#1$/#1\\n### SPLIT %d/' > %s-%d" % (attractdir0, pat,  v[0], attractdir0,  v[0], pat2,  v[0])
-        run(com)
+      if finished(v, 1):         
 	done += 1
 	if done == strucs: break
 	queue[vnr] = None
@@ -135,9 +130,10 @@ try:
 
     q = free[0]
     outp = "%s-%d" % (pat, current)
-    queue[q] = current, outp
-    com = " ".join([strucgen + " %d |" % jobsize, attract, "/dev/stdin"]+args) + " > %s &" % outp
-    run(com)
+    queue[q] = outp
+    com = " ".join([strucgen + " %d |" % jobsize, attract, "/dev/stdin"]+args)
+    com2 = "python %s/../tools/sort.py /dev/stdin | %s/../tools/top /dev/stdin 1 | sed 's/^#1$/#1\\n### SPLIT %d/' > %s-%d" % (attractdir0, attractdir0,  current, pat,  current)
+    run(com + "|" + com2 + "&")
     current += 1
 
   o = open(output, "w")
@@ -146,7 +142,7 @@ try:
   score = ""
   if scoremode:
     score = "--score"  
-  com = "python %s/join.py %s %s >> %s" % (tooldir, pat2, score, output) 
+  com = "python %s/join.py %s %s >> %s" % (tooldir, pat, score, output) 
   run(com)
 finally:
   com = "rm %s-*" % pat; run(com)
