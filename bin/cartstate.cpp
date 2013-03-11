@@ -377,10 +377,10 @@ extern "C" void cartstate_translate_atomtypes_(const int &handle) {
   int *transtable = cartstate.transtable;
   int transtable0[MAXATOMTYPES];
   if (transtable == NULL) {
-    transtable = &transtable0[0];
+    bool has_32 = 0;
+	 transtable = &transtable0[0];
     for (int n = 0; n < MAXATOMTYPES; n++) transtable[n]=n+1;
     transtable[MAXATOMTYPES-1] = 0;
-    bool has_32 = 0;
     for (int j = 0; j < MAXATOMTYPES; j++) {
       if (cartstate.haspar[32-1][j]) {
         has_32 = 1;
@@ -389,6 +389,15 @@ extern "C" void cartstate_translate_atomtypes_(const int &handle) {
     }
     if (!has_32) transtable[32-1] = 0;
   }
+
+  /*
+  for (int n = 85; n < 98; n++){
+    for (int nn = 0; nn < 98; nn++){
+      printf("%d %d %.3f %.3f\n", n+1,nn+1,cartstate.ac[n][nn], cartstate.rc[n][nn]);
+    }
+  }
+  exit(0);
+  */
 
   //make the translation
   for (int n = 0; n < cartstate.nall; n++) {

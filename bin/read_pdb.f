@@ -157,7 +157,7 @@ c open and read ligand protein file
          stop
        endif
        read(b,26) at,kai(i+1),tyi(i+1),rgi(i+1),iei(i+1),x(ii+1),
-     1  x(ii+2),x(ii+3),iaci(i+1),xlai(i+1),icop(i+1),we0(i+1)
+     1  x(ii+2),x(ii+3),iaci(i+1),xlai(i+1),icop(i+1),we(i+1)
 c       chai(i+1)=felec*xlai(i+1) #done later
        we0(i+1) = we(i+1)
        chai(i+1) = xlai(i+1)

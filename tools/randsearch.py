@@ -18,7 +18,8 @@ structures = int(sys.argv[2])
 seed = 1
 if len(sys.argv) > 3: seed = int(sys.argv[3])
 import random
-random.seed(seed)
+if seed != -1:
+  random.seed(seed)
 
 rsq = 75 * 75
 from math import *
