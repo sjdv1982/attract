@@ -457,8 +457,8 @@ tmpf2=`mktemp`
     for pnr in range(len(m.partners)):      
       filename = filenames[pnr]
       p = m.partners[pnr]
-      if (m.calc_lrmsd or m.calc_irmsd) and p.rmsd_bb:
-        if pnr > 0 or m.calc_irmsd:
+      if m.calc_lrmsd and p.rmsd_bb:
+        if pnr > 0:
           if not any_bb:  
             any_bb = True
             ret += """
@@ -478,13 +478,6 @@ echo '**************************************************************'
         p = m.partners[pnr]
         if p.rmsd_pdb is not None:
           filename = p.rmsd_pdb.name
-          if p.rmsd_bb:
-            filename2 = os.path.splitext(filename)[0] + "-bb.pdb"
-            ret += "$ATTRACTTOOLS/backbone %s > %s\n" % (filename, filename2)
-            filename = filename2                
-        elif p.rmsd_bb:
-          filename2 = os.path.splitext(filename)[0] + "-bb.pdb"
-          filename = filename2          
         irmsd_refenames[pnr] = filename
     if m.calc_fnat:
       fnat_filenames = filenames[:]
@@ -498,22 +491,19 @@ echo '**************************************************************'
     if m.calc_lrmsd:
       lrmsd_filenames = rmsd_filenames[1:]
       lrmsd_refenames = [None] * (len(m.partners)-1)
-      if m.calc_irmsd:
-        lrmsd_refenames = irmsd_refenames[1:]
-      else:
-        for pnr in range(1,len(m.partners)):
-          filename = filenames[pnr]
-          p = m.partners[pnr]
-          if p.rmsd_pdb is not None:
-            filename = p.rmsd_pdb.name
-            if p.rmsd_bb:
-              filename2 = os.path.splitext(filename)[0] + "-bb.pdb"
-              ret += "$ATTRACTTOOLS/backbone %s > %s\n" % (filename, filename2)
-              filename = filename2                
-          elif p.rmsd_bb:
+      for pnr in range(1,len(m.partners)):
+        filename = filenames[pnr]
+        p = m.partners[pnr]
+        if p.rmsd_pdb is not None:
+          filename = p.rmsd_pdb.name
+          if p.rmsd_bb:
             filename2 = os.path.splitext(filename)[0] + "-bb.pdb"
-            filename = filename2          
-          lrmsd_refenames[pnr-1] = filename
+            ret += "$ATTRACTTOOLS/backbone %s > %s\n" % (filename, filename2)
+            filename = filename2                
+        elif p.rmsd_bb:
+          filename2 = os.path.splitext(filename)[0] + "-bb.pdb"
+          filename = filename2          
+        lrmsd_refenames[pnr-1] = filename
         
     if any_bb:  
       ret += "\n"
@@ -565,7 +555,8 @@ echo '**************************************************************'
       irmsd_allfilenames.append(f2)
     irmsd_allfilenames = " ".join(irmsd_allfilenames)
     irmsdresult = os.path.splitext(result0)[0] + ".irmsd"
-    ret += "python $ATTRACTDIR/irmsd.py %s %s%s > %s\n" % (result, irmsd_allfilenames, flexpar, irmsdresult)
+    bbo = "" if any_bb else "--allatoms"
+    ret += "python $ATTRACTDIR/irmsd.py %s %s%s %s > %s\n" % (result, irmsd_allfilenames, flexpar, bbo, irmsdresult)
     ret += "\n"
 
   if m.calc_lrmsd or m.calc_irmsd:

@@ -1,7 +1,111 @@
+"""
+Calculate interface RMSD
+usage: python irmsd.py <DAT file> \
+ <unbound PDB 1> <bound PDB 1> [<unbound PDB 2> <bound PDB 2>] [...]
+ [--allatoms] [--allresidues]
+
+--allatoms: use all atoms rather than backbone atoms
+--allresidues: use also the residues outside the 10 A interface region 
+
+"""
+
+thresh = 10.0
+threshsq = thresh * thresh
+
 import sys
 
 import numpy
 import collectlibpy as collectlib
+
+def get_interface(boundatoms):
+  
+  res = []
+  pos = 0
+  for p in boundatoms:
+    cres = []
+    ccres = []
+    resid = None
+    for a,c in zip(p[1],p[0]):
+      pos += 1
+      cresid = a[21:26]
+      #print resid, cresid
+      if resid is not None: 
+        if cresid != resid:
+          cres.append(ccres)
+          ccres = []
+      ccres.append((pos,a,c))
+      resid = cresid   
+    cres.append(ccres)
+    res.append(cres)
+  
+  ret = []
+  def add_res(l, r, pnr):
+    for pos, a, c in r:
+      v = (pos, a, c, pnr)
+      if v not in l:
+        l.append(v)
+  def dsq(c1,c2):
+    dx = c1[0]-c2[0]
+    dy = c1[1]-c2[1]
+    dz = c1[2]-c2[2]
+    return dx**2+dy**2+dz**2
+    
+  for pnr,p in enumerate(res):
+    ret0 = []
+    for r in p:
+      ok = False                  
+
+      #check if close to the existing interface
+      for pos,a,c1 in r:        
+        for pos2,a2,c2,ppnr in ret:
+          if ppnr == pnr: continue
+          if dsq(c1,c2) < threshsq:
+            ok = True
+            break
+        if ok: break   
+      if ok: 
+        add_res(ret, r, pnr)
+        continue
+      
+      #if not, check if close to subsequent residues
+      for pos,a,c1 in r:        
+        for ppnr,pp in enumerate(res[pnr+1:]):
+          for rr in pp:     
+            for pos2,a2,c2 in rr:
+              if dsq(c1,c2) < threshsq:
+                ok = True
+                break              
+            if ok: break     
+          if ok: break     
+        if ok: break     
+      if ok: 
+        add_res(ret,r,pnr)
+        add_res(ret,rr,pnr+1+ppnr)
+    ret += ret0
+                  
+  ret.sort(key=lambda v: v[0])
+  ret = [(v[0],v[1]) for v in ret]
+  return ret
+  
+def get_selection(boundatoms):
+  
+  allatoms = []
+  for b in boundatoms: allatoms += b[1]
+  if not opt_allresidues:
+    selatoms = get_interface(boundatoms)
+  else:
+    selatoms = [(n+1,a[1]) for n,a in enumerate(allatoms)]
+      
+  if not opt_allatoms:
+    selatoms = [(n,a) for n,a in selatoms if a[13:15] in ("CA","C ","O ","N ")]
+  selected = set([n for n,a in selatoms])
+
+  mask = []
+  for n in range(len(allatoms)):
+    mask.append((n+1) in selected)
+
+  mask = numpy.array(mask)
+  return mask
 
 def irmsd(atoms1, atoms2):
   # adapted from QKabsch.py by Jason Vertrees. 
@@ -47,12 +151,27 @@ def irmsd(atoms1, atoms2):
 
 ensfiles = []
 modefile = None
+opt_allatoms = False
+opt_allresidues = False
+
 anr = 0
 while 1:
   anr += 1
-
+      
   if anr > len(sys.argv)-1: break  
   arg = sys.argv[anr]
+
+  if arg == "--allatoms": 
+    sys.argv = sys.argv[:anr] + sys.argv[anr+1:]
+    opt_allatoms = True
+    anr -= 1
+    continue
+  
+  if arg == "--allresidues": 
+    sys.argv = sys.argv[:anr] + sys.argv[anr+1:]
+    opt_allresidues = True
+    anr -= 1
+    continue  
   
   if anr <= len(sys.argv)-3 and arg == "--ens":
     ensfiles.append((sys.argv[anr+1],sys.argv[anr+2]))
@@ -65,6 +184,8 @@ while 1:
     sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
     anr -= 2
     continue
+  if arg.startswith("--"): raise Exception("Unknown option '%s'" % arg)
+    
 
 if len(sys.argv) < 4 or len(sys.argv) % 2:
   raise Exception("Please supply an even number of PDB files (unbound, bound)")
@@ -73,16 +194,21 @@ unbounds = []
 bounds = []
 
 def read_pdb(f):
-  ret = []
+  ret1 = []
+  ret2 = []
   for l in open(f):
     if not l.startswith("ATOM"): continue
     x,y,z = (float(f) for f in (l[30:38],l[38:46],l[46:54]))
-    ret.append((x,y,z))
-  return ret
+    ret1.append((x,y,z))
+    ret2.append(l)
+  return ret1, ret2
   
 for n in range(2, len(sys.argv), 2):
   unbounds.append(sys.argv[n])
   bounds.append(sys.argv[n+1])
+
+if len(bounds) == 1 and opt_allresidues == False:
+  raise Exception("Cannot determine the interface for a single PDB")
 
 initargs = [sys.argv[1]] + unbounds
 if modefile: initargs += ["--modes", modefile]
@@ -95,7 +221,7 @@ boundatoms = []
 for b in bounds:
   boundatoms.append(read_pdb(b))
 
-boundsizes = [len(b) for b in boundatoms]
+boundsizes = [len(b[1]) for b in boundatoms]
 unboundsizes = []
 start = 0
 for i in collectlib.ieins[:len(unbounds)]:
@@ -107,8 +233,10 @@ for bname, ubname, bsize, ubsize in zip(bounds,unbounds,boundsizes,unboundsizes)
     raise Exception("Different atom numbers: %s: %d, %s: %d" % (ubname, ubsize, bname, bsize))
 
 allboundatoms = []
-for b in boundatoms: allboundatoms += b
+for b in boundatoms: allboundatoms += b[0]
+sel = get_selection(boundatoms)
 allboundatoms = numpy.array(allboundatoms)
+fboundatoms = allboundatoms[sel]
 
 nstruc = 0
 while 1:
@@ -117,5 +245,6 @@ while 1:
   nstruc += 1
   coor = collectlib.collect_all_coor()
   coor = numpy.array(coor)
-  print nstruc, "%.3f" % irmsd(allboundatoms,coor)
+  fcoor = coor[sel]
+  print nstruc, "%.3f" % irmsd(fboundatoms,fcoor)
   #for co in coor: print co[0], co[-1]
