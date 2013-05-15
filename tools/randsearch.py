@@ -35,9 +35,9 @@ for n in range(structures):
   print "#"+str(n+1)
   p = []
   for nn in range(bodies):
-    x = random.random()-1 
-    y = random.random()-1
-    z = random.random()-1
+    x = 2*random.random()-1 
+    y = 2*random.random()-1
+    z = 2*random.random()-1
     x,y,z = adjust(x,y,z)
     p.append((x,y,z))
   if bodies == 2:
@@ -72,4 +72,4 @@ for n in range(structures):
       if fast or delta < 0.001*bodies: break
   for i in range(bodies):
     x,y,z = p[i]
-    print 2*(random.random()-1)*pi,2*(random.random()-1)*pi,2*(random.random()-1)*pi,x,y,z
+    print 2*(2*random.random()-1)*pi,2*(2*random.random()-1)*pi,2*(2*random.random()-1)*pi,x,y,z

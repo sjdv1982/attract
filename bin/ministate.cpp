@@ -99,7 +99,12 @@ extern "C" void pairgen_(const int &maxatom, const int &maxres, const int &maxmo
 
 extern "C" void ministate_calc_pairlist_(const int &ministatehandle, const int  &cartstatehandle) {
   MiniState &ms = *ministates[ministatehandle];
+  
   CartState &cartstate = cartstate_get(cartstatehandle);
+  if (ms.pairs != NULL) {
+    fprintf(stderr, "Memory leak, ms.pairs is not NULL!");
+    exit(1);
+  }
   ms.pairs = new MolPair[cartstate.nlig*(cartstate.nlig-1)]; 
   memset(ms.pairs, 0, cartstate.nlig*(cartstate.nlig-1)*sizeof(MolPair));
   int molpairindex = 0;
@@ -168,10 +173,13 @@ extern "C" void ministate_free_pairlist_(const int &handle) {
   MiniState &ms = *ministates[handle];
   for (int n = 0; n < ms.npairs; n++) {
     MolPair &mp = ms.pairs[n];
+    delete[] mp.iactl;
+    delete[] mp.iactr;
     delete[] mp.nonl;
     delete[] mp.nonr;
   }
   delete[] ms.pairs;
+  ms.pairs = NULL;
 }
 
 extern "C" void ministate_get_molpairhandles_(const int &handle,
@@ -247,6 +255,8 @@ extern "C" void molpair_pairgen_(
   MiniState &ms = *ministates[ministatehandle]; 
   MolPair &mp = ms.pairs[molpairhandle-MAXMOLPAIR*ministatehandle-1];
   if (!mp.pairgen_done) {
+    mp.iactl = new int[MAXATOM];
+    mp.iactr = new int[MAXATOM];
     mp.nonr = new int[MAXMOLPAIR];
     mp.nonl = new int[MAXMOLPAIR];
     select_(MAXATOM, MAXRES, MAXMOLPAIR, 
