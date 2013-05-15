@@ -120,7 +120,7 @@ c  iterate over all pairs: call pairenergy...
      6 xa(idr+1),ya(idr+1),za(idr+1),morph(idr+1),dlig(:,idr+1),
      7 ens(idl+1),phi(idl+1),ssi(idl+1),rot(idl+1),
      8 xa(idl+1),ya(idl+1),za(idl+1),morph(idl+1),dlig(:,idl+1),
-     9 energies, deltar, deltal, deltamorphr, deltamorphl)
+     9 pairenergies, deltar, deltal, deltamorphr, deltamorphl)
                        
 c  ...and sum up the energies and deltas            
       if ((iori.eq.1).AND.(fixre2.eq.0)) then
@@ -135,7 +135,7 @@ c  ...and sum up the energies and deltas
       delta0(ii+2) = delta0(ii+2) + deltar(5)
       delta0(ii+3) = delta0(ii+3) + deltar(6)
       endif
-                  
+      
       if ((iori.eq.1).AND.((idl+1).gt.fixre)) then
       ii = 3 * (idl-fixre)
       delta0(ii+1) = delta0(ii+1) + deltal(1)
