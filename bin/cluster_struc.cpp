@@ -19,7 +19,7 @@ using namespace std;
   if the option -f is set, full linkage is applied
 */
 
-#define MAX_STRUC 10000
+#define MAX_STRUC 50000
 
 void full_link(bool **neighbor , int currstrucnr, int nrstruc, bool *linked_neighbor, bool *done) {
   /*finds all neigbors of neighbors (and their neighbors etc.)

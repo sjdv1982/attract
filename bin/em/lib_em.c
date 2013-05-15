@@ -37,8 +37,11 @@ double gridify (
     if (z1 < 0) continue;
     /* interpolate */
     a = x1-gx;
+    if (x0 < 0) a = 0;
     b = y1-gy;
+    if (y0 < 0) b = 0;
     c = z1-gz;
+    if (z0 < 0) c = 0;
     ai = 1-a;
     if (x1 == g_extx) ai = 0;
     bi = 1-b;
