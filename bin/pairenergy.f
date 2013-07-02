@@ -308,7 +308,7 @@ c calculate receptor mode deltas
      1  deltamorphr)       
        
 c rotate ligand forces into ligand frame
-       call matmult(rotmatrinv,rotmatl,rotmatd2)
+       call matmult(rotmatr,rotmatlinv,rotmatd2)
        flcopy(:) = fl(:)
        call rotate1(3*maxatom,
      1  rotmatd2,zero,zero,zero,

@@ -122,6 +122,19 @@ int main(int argc, char *argv[]) {
   char *ens_files[MAXLIG];
   int morphing[MAXLIG];
   memset(morphing,0,MAXLIG*sizeof(int));
+  bool single = 0;
+
+  for (int n = 1; n < argc; n++) {
+    if (!strcmp(argv[n],"--single")) {
+      single = 1;
+      char **argv2 = new char *[argc-1];
+      if (n > 0) memcpy(argv2, argv,n*sizeof(char*));
+      if (n+1 < argc) memcpy(argv2+n,argv+n+1,(argc-n-1)*sizeof(char*));
+      argv = argv2;
+      argc -= 1;
+      break;
+    }
+  }
   for (int n = 1; n < argc-1; n++) {
     if (!strcmp(argv[n],"--modes")) {
       modefile = argv[n+1];
@@ -176,7 +189,7 @@ int main(int argc, char *argv[]) {
 
   //load the Cartesian parameters and get a handle to it
   int cartstatehandle;
-  if (argc == 3) { //one PDB, reduced or non-reduced
+  if (argc == 3 && single == 0) { //one PDB, reduced
     char *argv0[] = {NULL, argv[2]};
     cartstatehandle = cartstate_new(2, argv0);
   }
@@ -305,7 +318,7 @@ int main(int argc, char *argv[]) {
 
     }
     //Write out PDB
-    if (argc == 3) {
+    if (argc == 3 && single == 0) {
       write_pdb_(TOTMAXATOM,MAXLIG, nlig,
        kai,tyi,rgi,iei,x,iaci,xlai,icop,we, ieins);
     }

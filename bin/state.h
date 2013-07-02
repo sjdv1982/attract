@@ -114,8 +114,8 @@ struct CartState {
 struct MolPair {
   int receptor;
   int ligand;
-  int iactr[MAXATOM];
-  int iactl[MAXATOM];
+  int *iactr; //iactr[MAXATOM];
+  int *iactl; //iactl[MAXATOM];
   int nonp;              //pairlist: number of pairs
   int *nonr; //nonr[MAXMOLPAIR]  //pairlist: receptor atom
   int *nonl; //nonl[MAXMOLPAIR]  //pairlist: ligand atom
