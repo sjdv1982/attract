@@ -22,11 +22,12 @@ from __future__ import print_function
 
 import sys, os
 
-if len(sys.argv) == 1:
+argv = [a for a in sys.argv if not a.startswith("--")]
+if len(argv) == 1:
   inp = None
   outp = "new.web"
-elif len(sys.argv) == 2:
-  inp = sys.argv[1]
+elif len(argv) == 2:
+  inp = argv[1]
   d,f = os.path.split(inp)
   if len(d): os.chdir(d)
   inp = f  
@@ -78,7 +79,7 @@ if inp is not None:
   
 #build view
 xml = spyder.qtform.xml(spydertype, form=form)
-app = QApplication(sys.argv)
+app = QApplication(argv)
 loader = QUiLoader()
 buf = QBuffer()
 buf.open(QBuffer.ReadWrite)
