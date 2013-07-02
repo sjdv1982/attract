@@ -171,6 +171,7 @@ cluster_struc: cluster_struc.o
 	
 rest: read_pdb2.o
 	$(FF) $(FLAG) reduce.f -o reduce
+	$(FF) $(FLAG) reduce_rna.f -o reduce_rna
 	$(FF) $(FLAG) translate.f -o translate 
 	$(FF) $(FLAG) rotam.f -o rotam 
 	$(FF) $(FLAG) modes.f -o modes 
@@ -181,7 +182,7 @@ rest: read_pdb2.o
 	$(CXX) $(CFLAGS) center.cpp read_pdb2.o -o center
 	$(CXX) $(CFLAGS) transl.cpp read_pdb2.o -o trans
 	$(CXX) $(CFLAGS) deflate.cpp read_pdb2.o -o deflate
-        
+
 all: attract attract-torque collect collectlib lrmsd rmsd calc_interior calc_no_interior make-grid \
  make-grid-omp make-grid-torque make-grid-torque-omp shm-grid \
  shm-grid-torque shm-clean systsearch map2map fix_receptor \
