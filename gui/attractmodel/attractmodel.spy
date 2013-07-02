@@ -301,6 +301,11 @@ Type AttractModel {
     if zoom is not None and nr_iterations > 1: assert zoom_it_subsequent is not None
     if zoom_it_subsequent is not None: assert zoom_it_subsequent.traj == False
   }
+  Integer some_new_parameter = 43
+  form {
+    some_new_parameter.group = "Iteration parameters"
+    some_new_parameter.name = "Some new parameter"
+  }
   #***Sampling parameters***
   Bool fix_receptor = False
   ## form fix_receptor.name = "Fix the receptor during docking"    
