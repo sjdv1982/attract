@@ -74,15 +74,23 @@ c      Local variables
        real*8 cdelta(6+maxmode), rotmat(9)
        real*8 enligl,xnull
        real*8 pm2(3,3,3)
+       real*8 rotmatinv(9)
+       real*8 flcopy
+       dimension flcopy(3*maxatom)
        real*8 dmmy1 
        integer dmmy2
        real*8 dmmy3
        real*8 dmmy4
+       real*8 zero
+       real*8 pivotnull
+       dimension pivotnull(3)
        real*8 emorph       
        integer has_globalenergy
-              
        dmmy3 = -1.0d0
-       
+       zero=0.0d0
+       pivotnull(1) = zero
+       pivotnull(2) = zero
+       pivotnull(3) = zero
 c      Is global energy used at all?
        call ministate_has_globalenergy(ministatehandle, 
      1  has_globalenergy)
@@ -115,6 +123,7 @@ c apply symmetry restraints
        xold(1:nall3) = x(1:nall3)
 c       call memcpy(xold,x,nall3*8)
        
+c      rotate to the global frame
        do 6 i=1, nlig
        call euler2rotmat(phi(i),ssi(i),rot(i),rotmat)
        call rotate(maxlig,3*totmaxatom,rotmat,xa(i),ya(i),za(i),pivot,
@@ -163,19 +172,26 @@ c     1  'DOFS',i,phi(i),ssi(i),rot(i),xa(i),ya(i),za(i)
        endif             
 
        if ((itra.eq.1).AND.(i.gt.fixre)) then
-       call trans(3*maxatom,maxdof,fl,cdelta,natom(i))       
+       call trans(3*maxatom,maxdof,fl,cdelta,natom(i))
        ii = jl + 3 * (i-fixre-1)
        delta(ii+1) = delta(ii+1) + cdelta(4)
        delta(ii+2) = delta(ii+2) + cdelta(5)
        delta(ii+3) = delta(ii+3) + cdelta(6)
        endif
        
-       if (ieig.eq.1) then       
-
+       if (ieig.eq.1) then
+c      rotate forces into ligand frame
+       call euler2rotmat(phi(i),ssi(i),rot(i),rotmat)
+       call matcopy(rotmat, rotmatinv)
+       call matinv(rotmatinv)
+       flcopy(:) = fl(:)
+       call rotate1(3*maxatom,
+     1  rotmatinv,zero,zero,zero,
+     2   pivotnull, natom(i),flcopy)
        call ligmin(maxlig,maxdof,maxmode,maxatom,
-     1  fl,natom(i),i,eig,nhm(i),cdelta)
-               
-       call moderest(maxdof,maxmode,dlig(:,i),nhm(i),val(i,:),
+     1  flcopy,natom(i),i,eig,nhm(i),cdelta)
+
+      call moderest(maxdof,maxmode,dlig(:,i),nhm(i),val(i,:),
      1  cdelta, energies(3))
        	
        ii = jb
