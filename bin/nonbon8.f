@@ -86,9 +86,17 @@ c      (cap all distances at 50 A)
       if(iab.eq.1) then
       do 130 k=1,3
       if (cdie.eq.1) then
-      fdb=fswi*et*dx(k)
+      if (rr1.le.0) then
+      fdb = fswi * et * dx(k)
       else
+      fdb=fswi*charge*(rr1+1.0/50.0)*dx(k)
+      endif
+      else
+      if (rr2a.le.0) then
       fdb=fswi*2.0d0*et*dx(k)
+      else
+      fdb = fswi * 2.0d0 *charge *rr2 * dx(k)
+      endif
       endif
       fl(jj+k)=fl(jj+k)+fdb
       fr(ii+k)=fr(ii+k)-fdb

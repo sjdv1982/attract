@@ -98,6 +98,11 @@ extern "C" void pairgen_(const int &maxatom, const int &maxres, const int &maxmo
   const double &rcut);
 
 extern "C" void ministate_calc_pairlist_(const int &ministatehandle, const int  &cartstatehandle) {
+  /*
+   * This routine creates molpairs (partner-partner interactions)
+   * It checks that all molpairs are grid-accellerated (or none are)
+   * It also checks for inconsistencies like receptor modes + torque grids 
+   */
   MiniState &ms = *ministates[ministatehandle];
   
   CartState &cartstate = cartstate_get(cartstatehandle);
@@ -108,61 +113,75 @@ extern "C" void ministate_calc_pairlist_(const int &ministatehandle, const int  
   ms.pairs = new MolPair[cartstate.nlig*(cartstate.nlig-1)]; 
   memset(ms.pairs, 0, cartstate.nlig*(cartstate.nlig-1)*sizeof(MolPair));
   int molpairindex = 0;
-  for (int i0 = 0; i0 < cartstate.nlig; i0++) {
-    for (int j0 = 0; j0 < cartstate.nlig; j0++) {
-      if (i0 == j0) continue;
-      int i = i0, j = j0;
-      bool is_grid = 0;
+  /*
+   * For every partner-partner interaction, we have to create one or two molpairs
+   * The second molpair is only to get the forces on the "receptor" (= the first molecule)
+   * Secondary molpairs are only ever created for standard grids (gridmode == 1)
+   *  if we are not using grids (or if we are using torque grids), the receptor forces are already taken care of
+   *  if we are using Monte Carlo, we don't care about forces and we never create a secondary molpair
+   */
+  for (int i = 0; i < cartstate.nlig; i++) {
+    for (int j = i+1; j < cartstate.nlig; j++) {
+      bool two_molpairs = 0;
       
-      if (ms.gridmode == 1) {
+      if (ms.gridmode == 1 && ms.imc == 0) { /*use normal grids, no Monte Carlo*/
+	two_molpairs = 1;
         if (ms.fixre) {
-          if (i == 0) {
-            if (cartstate.grids[i] != NULL) is_grid = 1;
-          }
-          else if (j == 0 && cartstate.nhm[j] == 0) {
-            continue;
-          }
-          else if (cartstate.grids[i] != NULL && cartstate.grids[j] != NULL) {
-            is_grid = 1;
-          }
-          else {
-            if (j < i) continue;
-          }                     
-        }
-        else {
-          if (cartstate.grids[i] != NULL && cartstate.grids[j] != NULL) {
-            is_grid = 1;
-          }
-          else {
-            if (j < i) continue;
+          if (i == 0 && (cartstate.nhm[i] == 0 || !ms.ieig) ) {
+            two_molpairs = 0;
           }
         }
       }
-      else if (ms.gridmode == 2) {
-        if (j < i) continue; 
-        //if the receptor has a grid, use it
-        if (cartstate.grids[i] != NULL) {
-          is_grid = 1;
-        }      
-        //else if the ligand has a grid, swap receptor and ligand and use it
-        else if (cartstate.grids[j] != NULL) {
-          i = j0;
-          j = i0;
-          is_grid = 1;
-        }
-      }  
+      else if (ms.gridmode == 2 || (ms.gridmode == 1 && ms.imc) ) { /*use torque grids OR Monte Carlo (we don't care about forces)*/
+	two_molpairs = 0;
+	/* If you use torque grids, then any partner with modes must be matched by a grid on the other partner */
+	if (!ms.imc && ms.ieig && cartstate.nhm[i] && cartstate.nhm[j]) two_molpairs = 1;
+      }
+      else { /*use no grids at all*/
+	two_molpairs = 0;
+      }
+      
+      int m1 = i, m2 = j;      
+      if (ms.gridmode) {
+	int error = 0;
+	if (two_molpairs)
+	  if (cartstate.grids[i] == NULL || cartstate.grids[j] == NULL) error = 1;
+	else {
+	  error = 1;
+	  if (cartstate.grids[i] != NULL && (ms.imc || !ms.ieig  || cartstate.nhm[i] == 0) ) { 	    
+	    error = 0;
+	  }  
+	  else if (cartstate.grids[j] != NULL && (ms.imc || !ms.ieig || cartstate.nhm[j] == 0) ) {
+	    m1 = j;
+	    m2 = i;
+	    error = 0;	    
+	  }
+	  if (cartstate.nhm[m1]) error = 2;
+	}  	
+	//TODO: error checking....
+      }
+      
       //printf("PAIR %d %d %d %d %d %d\n", i,j, is_grid, ms.gridmode, cartstate.grids[i],cartstate.grids[j]);          
       MolPair &mp = ms.pairs[molpairindex];
-      mp.receptor = i;
-      mp.ligand = j;      
-      //int molpairhandle = MAXMOLPAIR * (ministatehandle) + molpairindex + 1;
-      if (is_grid) {
-        mp.grid = cartstate.grids[i];
+      mp.use_energy = 1;
+      mp.receptor = m1;
+      mp.ligand = m2;      
+      if (ms.gridmode) {
+        mp.grid = cartstate.grids[m1];
       }
       else {
          mp.pairgen_done = 0;
       }
       molpairindex++;
+      
+      if (two_molpairs) { 
+	MolPair &mp = ms.pairs[molpairindex];
+	mp.use_energy = 0;
+	mp.receptor = m2;
+	mp.ligand = m1;      
+        mp.grid = cartstate.grids[m2];
+	molpairindex++;	
+      }
     }
   }
   ms.npairs = molpairindex;
@@ -207,7 +226,7 @@ extern "C" void ministate_get_molpairhandle_(const int &ministatehandle,
 
 extern "C" void molpair_get_rl_(
  const int &molpairhandle,
- int &receptor,int &ligand,Grid *&gridptr
+ int &receptor,int &ligand,Grid *&gridptr, int &use_energy
 ) {
   int ministatehandle = int(molpairhandle/MAXMOLPAIR); //rounds down...
   MiniState &ms = *ministates[ministatehandle]; 
@@ -215,6 +234,7 @@ extern "C" void molpair_get_rl_(
   receptor = mp.receptor;
   ligand = mp.ligand;
   gridptr = mp.grid;
+  use_energy = mp.use_energy;
 }
 
 extern "C" void molpair_get_values_(

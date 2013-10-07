@@ -121,6 +121,7 @@ struct MolPair {
   int *nonl; //nonl[MAXMOLPAIR]  //pairlist: ligand atom
   Grid *grid;
   int pairgen_done;
+  int use_energy; //Only calculate energy for the first molpair
 };
 
 struct Restraint {
@@ -149,7 +150,7 @@ struct MiniState {
   int ivmax; //max steps
   int iori;  //enable orientations
   int itra;  //enable translations
-  int ieig;  //enable modes
+  int ieig;  //enable mode displacement
   int irst;  //enable CoM restraints
   int fixre; //fix receptor
   double rcut;  //square of distance cutoff

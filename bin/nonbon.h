@@ -1,5 +1,6 @@
 #include "grid.h"
 #include <cmath>
+#include <iostream>
 
 inline void nonbon(int iab, double welwel, double rc, double ac, double emin, double rmin2, int ivor, double dsq, double rr2, double dx, double dy, double dz, int potshape, double fswi,
 double &energy, Coor &grad) 
@@ -80,14 +81,40 @@ double &energy, Coor &grad) {
   energy = et;
   if (iab) {
     if (cdie) {
-      grad[0] = et * dx;
-      grad[1] = et * dy;
-      grad[2] = et * dz;
+      if (dd <= 0){
+	grad[0] = 0;
+	grad[1] = 0;
+	grad[2] = 0;
+      }
+      else{
+	double et2;
+	et2 = fswi * charge * sqrt(rr2);
+	grad[0] = et2 * dx;
+	grad[1] = et2 * dy;
+	grad[2] = et2 * dz;
+      }
+      double h=0.00000001;
+      double testgrad = -fswi*charge*((1.0/((1.0/sqrt(rr2))+h))-sqrt(rr2))/h;
+      double norm;
+      if (grad[0] == 0) norm = 0;
+      else norm = fswi * charge * rr2;
+      if (norm - testgrad > 10*h) {
+	std::cerr << "ERROR in Gradient: " << testgrad << "\t" << norm <<"\t" << et<< "\n";
+      }
     }
     else {
-      grad[0] = 2 * et * dx;
-      grad[1] = 2 * et * dy;
-      grad[2] = 2 * et * dz;
+      if (dd <= 0){
+      grad[0] = 0;
+      grad[1] = 0;
+      grad[2] = 0;
+      }
+      else{
+	double et2;
+	et2 = fswi * charge * rr2;
+	grad[0] = 2 * et2 * dx;
+	grad[1] = 2 * et2 * dy;
+	grad[2] = 2 * et2 * dz;
+      }
     }
   }
 }

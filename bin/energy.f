@@ -38,6 +38,7 @@ c     Local variables
       integer gridptr_dmmy
       pointer(gridptr, gridptr_dmmy)      
       integer nlig, molpairs, molpairhandle,molpairhandles
+      integer use_energy
       dimension molpairhandles(maxmolpair)
       integer nhm
       dimension nhm(maxlig)
@@ -101,7 +102,7 @@ c  iterate over all pairs: call pairenergy...
       do 30 k=1,molpairs
       
       molpairhandle = molpairhandles(k)
-      call molpair_get_rl(molpairhandle,idr,idl,gridptr)
+      call molpair_get_rl(molpairhandle,idr,idl,gridptr,use_energy)
 
       if (gridmode.eq.1.and.gridptr.ne.0) then
       fixre2 = 1
@@ -172,11 +173,7 @@ c  ...and sum up the energies and deltas
       deltamorph(idr+1) = deltamorph(idr+1) + deltamorphr
       
       epair = 0
-      if (idr.lt.idl.OR.gridmode.eq.2.OR.(fixre.eq.1.and.idl.eq.0)) then
-c     In case of grids, the receptor forces must be calculated using
-c      an additional molpair, with receptor and ligands swapped
-c      (unless gridmode is 2)
-c      in that case, we are only interested in the forces, not the energies
+      if (use_energy) then
       do 20 i=1,6
       energies(i) = energies(i) + pairenergies(i)
       epair = epair + pairenergies(i)
