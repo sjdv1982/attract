@@ -145,6 +145,7 @@ c deltar/deltar is an array of 6 + nhm[ligand]/nhm[receptor]
 
 c     Local variables: other      
       integer i, j,l,n, use_grid, rigid, true, false
+      integer dummy2
       real*8 enon,epote,zero,e
       real*8 flcopy,xl0
       dimension flcopy(3*maxatom),xl0(3*maxatom)
@@ -172,7 +173,7 @@ c Are we using a grid?
 
 c get molpair 
 
-       call molpair_get_rl(molpairhandle,idr,idl,ptr_dmmy)
+       call molpair_get_rl(molpairhandle,idr,idl,ptr_dmmy,dummy2)
 
 c get full coordinates and normal modes
 
