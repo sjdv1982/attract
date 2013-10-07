@@ -173,7 +173,7 @@ c  ...and sum up the energies and deltas
       deltamorph(idr+1) = deltamorph(idr+1) + deltamorphr
       
       epair = 0
-      if (use_energy) then
+      if (use_energy.gt.0) then
       do 20 i=1,6
       energies(i) = energies(i) + pairenergies(i)
       epair = epair + pairenergies(i)
