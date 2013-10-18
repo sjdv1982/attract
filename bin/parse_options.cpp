@@ -238,6 +238,11 @@ void parse_options(int ministatehandle, int cartstatehandle, int nlig, int argc,
       int lig = atoi(argv[n+1]);
       if (lig < 1 || lig > nlig) grid_usage();
       char *gridf = argv[n+2];
+      #ifdef TORQUEGRID
+      ms.gridmode = 2;
+      #else 
+      ms.gridmode = 1;
+      #endif
       if (!exists(gridf)) {
         char *endptr;
         int lig_old = strtol(gridf,&endptr, 0);

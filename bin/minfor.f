@@ -56,6 +56,7 @@ c     Local variables
       integer nrens
       dimension nrens(maxlig)
       pointer(ptr_nrens,nrens)
+      integer, parameter:: ERROR_UNIT = 0
 
       xnull=0.0d0
       dga=xnull
@@ -498,5 +499,6 @@ c     branch if the rank of the new matrix is deficient
 c     begin another iteration
       dff=fa-fb
       fa=fb
+c      write(ERROR_UNIT,*) "New Energy", fa, dff
       go to 135
       end

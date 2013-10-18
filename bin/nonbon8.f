@@ -24,6 +24,7 @@ c     Local variables
       integer k,ik,i,j,ii,jj,it,jt,ivor
       dimension dx(3)
       real*8 e_min
+      integer, parameter:: ERROR_UNIT = 0
       
       xnull=0.0d0
       enon=xnull
@@ -142,5 +143,7 @@ c     1 emin(it,jt)
       endif
       endif
   100 continue
+c      write(ERROR_UNIT, *) "nonbon8 ", enon, epote
+
       return
       end

@@ -55,7 +55,7 @@ c     Local variables
 
       real*8 delta0
       dimension delta0(maxdof)
-
+      integer, parameter :: ERROR_UNIT = 0
 c  return values:
 c  energies is an array of double with a value for every energy type
 c  (vdw, elec, ...)
@@ -175,6 +175,7 @@ c  ...and sum up the energies and deltas
       epair = 0
       if (use_energy.gt.0) then
       do 20 i=1,6
+c      write(ERROR_UNIT, *) "Pair energy:", pairenergies(i)
       energies(i) = energies(i) + pairenergies(i)
       epair = epair + pairenergies(i)
 20    continue  
@@ -195,13 +196,14 @@ c     endif ghost.eq.0
       
       e = 0
       do 990,i=1,6
+c      write(ERROR_UNIT, *) "Global energy:", energies(i)
       e = e + energies(i)
 990   continue  
 
       call axsym_fold_grads(ministatehandle, cartstatehandle, 
      1 delta0, delta, deltamorph)
       
-c      write(*,*), 'ENERGY', e,
+c      write(ERROR_UNIT,*), 'Final ENERGY', e
 c     1  delta(1),delta(2),delta(3),delta(4),delta(5),delta(6),
 c     2  delta(7),delta(8),delta(9),delta(10),delta(11),delta(12),
 c     3  delta(13)

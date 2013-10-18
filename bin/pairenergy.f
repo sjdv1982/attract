@@ -150,6 +150,7 @@ c     Local variables: other
       real*8 flcopy,xl0
       dimension flcopy(3*maxatom),xl0(3*maxatom)
       real*8 deltar0(6+maxmode)
+      integer, parameter :: ERROR_UNIT = 0
       
       deltamorphr = 0
       deltamorphl = 0
@@ -278,20 +279,22 @@ c      therefore, we must rotate the pm2 matrix
        enddo
        enddo
        endif
-       
+c       write(ERROR_UNIT,*), xl(3*1+1:3*1+3), xr(3*1704+1:3*1704+3)
        call nonbon_grid(gridptr,rigid,iab,fixre,xl,xr,pivotr,tr,
      1  wel,wer,chail,chair,iacil,iacir,natoml,natomr,
      2  rc,ac,emin,rmin2,ipon,potshape,cdie,epsilon,
      3  swi_on, swi_off,
      4  fl,enon,epote,fr,pm2,deltar0) 
 c      rotate delta-translate back into global frame
+c       write(ERROR_UNIT,*), xl(3*2003+1:3*2003+3)
        call rotate1(3*maxatom,
      1  rotmatr,zero,zero,zero,
      2	 pivotnull, 1,deltar0(4))     
        else  
        call molpair_pairgen(molpairhandle,cartstatehandle,nonp)
        call molpair_get_values(molpairhandle,idr,idl,
-     1  ptr_iactr,ptr_iactl,nonp,ptr_nonr,ptr_nonl)       
+     1  ptr_iactr,ptr_iactl,nonp,ptr_nonr,ptr_nonl) 
+c       write(ERROR_UNIT,*), xl(3*132+1:3*132+3), xr(3*1704+1:3*1704+3)
        call nonbon8(maxatom,maxmolpair,
      1  iab,xl,xr,fl,fr,wel,wer,chair,chail,ac,rc,
      2  emin,rmin2,iacir,iacil,nonr,nonl,ipon,nonp,

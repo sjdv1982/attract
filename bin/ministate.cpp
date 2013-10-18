@@ -36,12 +36,7 @@ extern "C" int ministate_new_() {
   ms.proxlim = 0;
   ms.proxmax = 200;
   ms.proxmaxtype = 31;
-  ms.nr_restraints = 0;
-#ifdef TORQUEGRID
-  ms.gridmode = 2;
-#else 
-  ms.gridmode = 1;
-#endif   
+  ms.nr_restraints = 0;   
   ms.has_globalenergy = 0;
   ms.gravity = 0;
   //ms.rstk = 0.015; //for second order restraints...; too much?
