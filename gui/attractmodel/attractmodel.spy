@@ -37,20 +37,36 @@ Type AttractSymmetry {
   }
 }
 
+
 Type AttractPartnerInterface {
-  ## form pdb.name = "Structure definition"
-  PDBInterface pdb
+  ## form pdbfile.type = "required"
+  ## form pdbfile.file = "Data_PDB"
+  ## form pdbfile.name = "Structure file"
+  *File_PDB pdbfile
   
+  ## form code.length = 4  
+  ## form code.type = "required"
+  ## form code.name = "Or define?"
+  *PDBCode code
+
+  *String gridname
+  ## form gridname.name = "Name of the grid to use for this molecule"
+  ## form gridname.type = "required"  
+  
+  ## form chain.name = "Which chain of the structure must be used?"
+  ## form chain.options = "All", "A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"
+  String chain
+        
   #RestraintsInterface r = RestraintsInterface()
   ## #form r.name = "Restraint definition"
   ## #form r.type = "required"
-    
-  Enum moleculetype("Protein", "DNA", "RNA") = "Protein"
-  ## form moleculetype.name = "What kind of molecule are you docking?"
-  ## form moleculetype.optiontitles = "Protein/peptide/small ligand", "DNA", "RNA"
-  
+      
   Bool is_reduced = False
   ## form is_reduced.name = "The molecule is already in reduced form"
+
+  Enum moleculetype("Protein", "DNA", "RNA") = "Protein"
+  ## form moleculetype.name = "What kind of molecule are you docking?"
+  ## form moleculetype.optiontitles = "Protein/peptide", "DNA", "RNA"
   
   Bool generate_modes = False
   ## form generate_modes.name = "Generate harmonic modes"
@@ -73,11 +89,8 @@ Type AttractPartnerInterface {
   ## validate if generate_modes: assert nr_modes is not None
   ## validate if generate_modes: assert modes_file is None
   ## validate if nr_modes not in (None, 0): assert nr_modes >= 1 and nr_modes <= 10
-  
-  *String gridname
-  ## form gridname.name = "Name of the grid to use for this molecule"
-  ## form gridname.type = "required"  
-  
+    
+  Bool ensemble = False
   *File ensemble_list
   ## form ensemble_list.name = "Ensemble list file"
   ## form ensemble_list.type = "required"
@@ -117,7 +130,7 @@ Type AttractPartnerInterface {
   ## form collect_pdb.file = "Data_PDB"
   *File collect_ensemble_list
   ## form collect_ensemble_list.add_header("If you specified a PDB file above, you may provide an ensemble conformer list for it")
-  ## form collect_ensemble_list.name = "Collect Ensemble list file"
+  ## form collect_ensemble_list.name = "Collect ensemble list file"
   ## form collect_ensemble_list.type = "required"
   ## form collect_ensemble_list.file = "Data_TXT_FileList_PDB"
 
@@ -134,8 +147,14 @@ Type AttractPartnerInterface {
     charged_cter.type = None
   }  
   validate {
+    if (pdbfile is None and code is None):
+       raise spyder.core.ValidationError("Please upload a PDB file or provide a PDB code")
+    if (pdbfile is not None and code is not None):
+       raise spyder.core.ValidationError("Please upload a PDB file or provide a PDB code, not both")
+    if chain not in ("All", "A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"):
+       raise spyder.core.ValidationError("Please provide a chain")  
     assert (ensemble_size is None) == (ensemble_list is None) == (ensemblize == None)
-    assert is_reduced == False or pdb.code is None
+    assert is_reduced == False or code is None
   }
 }
 
@@ -215,10 +234,11 @@ Type AttractIteration {
 }
 
 Type AttractModel {
-  String runname
+  *String runname
   form {
     runname.add_header("Please supply a name for your docking run (one word)")
     runname.name = "Name"
+    runname.type = "required"
   }  
   validate {
     runname = runname.strip()
@@ -231,8 +251,9 @@ Type AttractModel {
   form {
     partners.length = 10
     partners.name = "Docking partners"
-    for n in range(partners.length):      
-      partners[n].name = "Docking partner % d" % (n+1)
+    partners.group = "Docking partners"
+    for n in range(10):
+      partners[n].name = "Docking partner %d" % (n+1)
   }
   AttractGridArray grids = []
   form {
@@ -243,9 +264,11 @@ Type AttractModel {
   }  
   
   #***Iteration parameters***  
-  Integer nr_iterations = 1
+  *Integer nr_iterations
   AttractIterationArray iterations = []
   form {  
+    nr_iterations.type = "required"
+    nr_iterations.default = 1
     nr_iterations.group = "Iteration parameters"
     nr_iterations.name = "Number of iterations"
     iterations.group = "Iteration parameters"
@@ -257,8 +280,9 @@ Type AttractModel {
     iterations[4].name = "Fifth iteration"
   }  
   validate {
-    assert nr_iterations > 0
-    assert nr_iterations >= len(iterations)
+    if nr_iterations is not None:
+      assert nr_iterations > 0
+      assert nr_iterations >= len(iterations)
   }
   *Bool zoom = False  
   *Integer zoom_select = 1000
@@ -284,7 +308,7 @@ Type AttractModel {
     zoom_trans.group = "Iteration parameters"
     zoom_trans.name = "Zoom-in protocol: translation displacement (angstroms)"
     zoom_it_initial.group = "Iteration parameters"
-    zoom_it_initial.name = "Zoom-in protocol: first iteration"
+    zoom_it_initial.name = "Zoom-in protocol: First iteration"
     zoom_it_subsequent.group = "Iteration parameters"
     zoom_it_subsequent.name = "Zoom-in protocol: subsequent iterations"
     
@@ -300,11 +324,6 @@ Type AttractModel {
     if zoom_it_initial is not None: assert zoom_it_initial.traj == False
     if zoom is not None and nr_iterations > 1: assert zoom_it_subsequent is not None
     if zoom_it_subsequent is not None: assert zoom_it_subsequent.traj == False
-  }
-  Integer some_new_parameter = 43
-  form {
-    some_new_parameter.group = "Iteration parameters"
-    some_new_parameter.name = "Some new parameter"
   }
   #***Sampling parameters***
   Bool fix_receptor = False
@@ -504,7 +523,7 @@ Type AttractModel {
   *String header = ""
   ## form header.group = "Computing and parallelization parameters"
   ## form header.name = "Header for docking protocol script"
-  ## form header.default = "#PBS -l nodes=1:ppn=12\n#PBS -l walltime=6:30:00\n#PBS -j oe\ncd $PBS_O_WORKDIR\n\nATTRACTDIR=/home/sjoerd/data/work/attract/bin\nATTRACTTOOLS=/home/sjoerd/data/work/attract/tools"
+  ## form header.default = "#PBS -l nodes=1:ppn=12\n#PBS -l walltime=6:30:00\n#PBS -j oe\ncd $PBS_O_WORKDIR\n\nATTRACTDIR=/home/sjoerd/data/work/attract/bin\nATTRACTTOOLS=/home/sjoerd/data/work/attract/tools\n"
   ## form header.type = "textarea"
   ## form header.cols = 80
   ## form header.rows = 50
