@@ -36,9 +36,7 @@ else:
 
 import spyder
 from gi.repository import Gtk
-#sys.path.append("/home/sjoerd/data/Spyder/modules")
 import spyder.modules.atom
-#import haddock
 import attractmodel
 from spyder.gtkform import gtkview
 from Spyder import AttractModel
