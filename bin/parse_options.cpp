@@ -118,6 +118,13 @@ void modes_usage() {
   exit(1);
 }
 
+void indexmodes_usage() {
+	fprintf(stderr, "--indexmodes option usage: --indexmodes <index modes file>\n");
+	fprintf(stderr, "Use for flexible interface residues/ loops\n");
+	  exit(1);
+
+}
+
 void em_usage() {
  fprintf(stderr, "--em option usage: --em <EM map> <resolution>\n");
   exit(1);
@@ -448,6 +455,19 @@ void parse_options(int ministatehandle, int cartstatehandle, int nlig, int argc,
       n += 1;
       ms.ieig = 1;
       ms.has_globalenergy = 1; //because of val forces => moderest
+    }
+    else if (!strcmp(arg,"--indexmodes")) {
+      if (argc-n < 2) modes_usage();
+      char *hmf = argv[n+1];
+      if (!exists(hmf)) {
+        fprintf(stderr, "Index modes file %s does not exist\n", hmf);
+	modes_usage();
+      }
+      const int multi = 1;
+      read_indexmode_(hmf, "ligand", c.nlig, c.nihm, (double *) c.index_eig, (double *) c.index_val, multi, strlen(hmf), strlen("ligand"));
+      n += 1;
+      ms.iindex = 1;
+      ms.has_globalenergy = 1; //because of restraint forces to secure secondary structure
     }
     else if (!strcmp(arg,"--em")) {
       if (argc-n < 3) em_usage();    

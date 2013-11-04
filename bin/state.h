@@ -51,6 +51,11 @@ struct CartState {
   double val[MAXMODE][MAXLIG];  //force constant per mode
   double eig[3*MAXATOM][MAXMODE][MAXLIG];  //modes
 
+  /* index modes */
+  int nihm[MAXLIG];        //number of index modes per ligand
+  double index_eig[MAXLENINDEXMODE][MAXINDEXMODE][MAXLIG]; //index modes: position of nonzero mode entries
+  double index_val[MAXLENINDEXMODE][MAXINDEXMODE][MAXLIG]; //index modes: values of nonzero mode entries
+
   /* copies */
   int ncop[TOTMAXRES][21][11];
   int nmaxco[TOTMAXRES];
@@ -151,6 +156,7 @@ struct MiniState {
   int iori;  //enable orientations
   int itra;  //enable translations
   int ieig;  //enable mode displacement
+  int iindex; //enable index mode displacement
   int irst;  //enable CoM restraints
   int fixre; //fix receptor
   double rcut;  //square of distance cutoff

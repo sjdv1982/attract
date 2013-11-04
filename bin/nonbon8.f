@@ -1,7 +1,7 @@
       subroutine nonbon8(maxatom,maxmolpair,
      1 iab,xl,xr,fl,fr,wel,wer,chair,chail,ac,rc,       
      2 emin,rmin2,iacir,iacil,nonr,nonl,ipon,nonp,
-     3 potshape, cdie, swi_on,swi_off, enon,epote)
+     3 potshape, cdie, swi_on,swi_off, enon,epote,natomr, natoml)
       implicit none
 
 c     Parameters      
@@ -11,6 +11,7 @@ c     Parameters
       real*8 xl,xr,fl,fr,wel,wer,chair,chail,ac,rc
       real*8 emin,rmin2,enon,epote      
       integer iacir,iacil,ipon,nonl,nonr
+      integer natomr, natoml
       dimension nonr(maxmolpair),nonl(maxmolpair),ipon(99,99),
      1  iacir(maxatom), iacil(maxatom)
       dimension chair(maxatom),chail(maxatom),wer(maxatom),wel(maxatom),
