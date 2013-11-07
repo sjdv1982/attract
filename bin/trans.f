@@ -1,9 +1,11 @@
-      subroutine trans(maxatom,maxdof,f,delta,natom)
+      subroutine trans(f,delta,natom)
       implicit none
 c     Parameters
-      integer maxatom,maxdof,natom
+      include 'max.f'
+      integer natom
       real*8 f,delta
-      dimension f(maxatom),delta(maxdof)
+      integer, parameter :: max3atom = 3*maxatom
+      dimension f(max3atom),delta(maxdof)
       
 c     Local variables
       real*8 flim,ftr1,ftr2,ftr3,fbetr

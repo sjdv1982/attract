@@ -40,10 +40,14 @@ typedef double (*eigptr_multi)[MAX3ATOM][MAXMODE][MAXLIG];
 typedef double (&eigref_multi)[MAX3ATOM][MAXMODE][MAXLIG];
 typedef double (*eigptr_mono)[MAX3ATOM][MAXMODE];
 typedef double (&eigref_mono)[MAX3ATOM][MAXMODE];
-typedef double (*index_eigptr_multi)[MAXLENINDEXMODE][MAXMODE][MAXLIG];
+typedef double (*index_eigptr_multi)[MAXLENINDEXMODE][MAXINDEXMODE][MAXLIG];
 typedef double (&index_eigref_multi)[MAXLENINDEXMODE][MAXINDEXMODE][MAXLIG];
 typedef double (*index_eigptr_mono)[MAXLENINDEXMODE][MAXINDEXMODE];
 typedef double (&index_eigref_mono)[MAXLENINDEXMODE][MAXINDEXMODE];
+typedef int (*index_eigptr_multi2)[MAXLENINDEXMODE][MAXINDEXMODE][MAXLIG];
+typedef int (&index_eigref_multi2)[MAXLENINDEXMODE][MAXINDEXMODE][MAXLIG];
+typedef int (*index_eigptr_mono2)[MAXLENINDEXMODE][MAXINDEXMODE];
+typedef int (&index_eigref_mono2)[MAXLENINDEXMODE][MAXINDEXMODE];
 
 
 inline void check_hm(const char *hmfile, const int *natom, int line, int currlig, int currmode, int currpos, double *eigl, int multi) {
@@ -201,30 +205,31 @@ extern "C" void read_hm_(const char *hmfile_, const char *hmword_, const int &nl
   
 }
 
-extern "C" void read_indexmode_(const char *hmfile_, const char *hmword_, const int &nlig, int *nhm, double *eigl, double *val_eigl, const int &multi, int hmfile_len, int hmword_len) {
+extern "C" void read_indexmode_(const char *hmfile_, const char *hmword_, const int &nlig, int *nhm, int *eigl, double *val_eigl, const int &multi, int hmfile_len, int hmword_len) {
   char hmfile[1000];
   memcpy(hmfile, hmfile_, hmfile_len);
   hmfile[hmfile_len] = 0;
   char hmword[1000];
   memcpy(hmword, hmword_, hmword_len);
   hmword[hmword_len] = 0;
+  int count = 0;
 
-  index_eigref_multi eigl_multi = *((index_eigptr_multi)(eigl));
-  index_eigref_mono eigl_mono = *((index_eigptr_mono)(eigl));
+  index_eigref_multi2 eigl_multi = *((index_eigptr_multi2)(eigl));
+  index_eigref_mono2 eigl_mono = *((index_eigptr_mono2)(eigl));
   index_eigref_multi val_eigl_multi = *((index_eigptr_multi)(val_eigl));
   index_eigref_mono val_eigl_mono = *((index_eigptr_mono)(val_eigl));
   //printf("%s %d %d %d %d %d %d\n", hmfile, nlig, *natom, *nhm, multi, hmfile_len, hmword_len);
   if (nlig > MAXLIG) {
-    fprintf(stderr, "Error in read_hm: number of %ss is larger than %d\n",hmword, MAXLIG);
+    fprintf(stderr, "Error in read_indexmode: number of %ss is larger than %d\n",hmword, MAXLIG);
     exit(1);
   }
   if (multi == 0 && nlig != 1) {
-    fprintf(stderr, "Error in read_hm: if multi is false, nlig must be 1\n");
+    fprintf(stderr, "Error in read_indexmode: if multi is false, nlig must be 1\n");
     exit(1);
   }
   FILE *fil = fopen(hmfile, "r");
   if (fil == NULL) {
-    fprintf(stderr, "Error in read_hm: cannot open %s\n" , hmfile);
+    fprintf(stderr, "Error in read_indexmode: cannot open %s\n" , hmfile);
     exit(1);
   }
   char buf[100000];
@@ -274,6 +279,18 @@ extern "C" void read_indexmode_(const char *hmfile_, const char *hmword_, const 
       }
       currpos=0;
       reading = 1;
+      count = 0;
+      // Initialize index mode
+      for (int c=0; c< MAXLENINDEXMODE; c++){
+      	if (multi){
+      		eigl_multi[c][currmode-1][currlig-1] = -1;
+      		val_eigl_multi[c][currmode-1][currlig-1] = 0;
+      	}
+      	else{
+      		eigl_mono[c][currmode-1] = -1;
+      		val_eigl_mono[c][currmode-1] = 0;
+      	}
+      }
       continue;
     }
     if (nf == 2 && fields[0] == 1) {
@@ -293,6 +310,18 @@ extern "C" void read_indexmode_(const char *hmfile_, const char *hmword_, const 
       currmode = 1;
       currpos = 0;
       reading = 1;
+      count = 0;
+      // Initialize index mode
+      for (int c=0; c< MAXLENINDEXMODE; c++){
+         if (multi){
+           	eigl_multi[c][currmode-1][currlig-1] = -1;
+           	val_eigl_multi[c][currmode-1][currlig-1] = 0;
+          	}
+         else{
+           	eigl_mono[c][currmode-1] = -1;
+           	val_eigl_mono[c][currmode-1] = 0;
+           	}
+      }
       continue;
     }
 
@@ -303,23 +332,13 @@ extern "C" void read_indexmode_(const char *hmfile_, const char *hmword_, const 
     if (currpos + nf >= MAX3ATOM) {
       fprintf(stderr, "Reading error in %s, line %d: %s %d, mode %d: More than %d values specified\n", hmfile, line, hmword, currlig, currmode, MAX3ATOM);
     }
-    int count = 0;
-    for (int c=0; c< MAXLENINDEXMODE; c++){
-    	if (multi){
-    		eigl_multi[c][currmode-1][currlig-1] = -1;
-    		val_eigl_multi[c][currmode-1][currlig-1] = 0;
-    	}
-    	else{
-    		eigl_mono[c][currmode-1] = -1;
-    		val_eigl_mono[c][currmode-1] = 0;
-    	}
-    }
     for (int n = 0; n < nf; n++) {
       if (multi) {
-    	  if ( fields[n] != 0 ){
+    	  if ( fields[n] != 0.0 ){
     		  if ( count < MAXLENINDEXMODE ){
     		  eigl_multi[count][currmode-1][currlig-1] = currpos+n;
     		  val_eigl_multi[count][currmode-1][currlig-1] = fields[n];
+    	//	  fprintf(stderr,"Nonzero %i %i %i %f\n", currlig-1, currmode-1, currpos+n, fields[n]);
     		  count ++;
     		  }
     		  else{
@@ -330,7 +349,7 @@ extern "C" void read_indexmode_(const char *hmfile_, const char *hmword_, const 
 
       }
       else {
-    	  if (fields[n] != 0){
+    	  if (fields[n] != 0.0){
     		  if ( count < MAXLENINDEXMODE ){
     		  eigl_mono[count][currmode-1] = currpos+n;
     		  val_eigl_mono[count][currmode-1] = fields[n];
@@ -343,10 +362,13 @@ extern "C" void read_indexmode_(const char *hmfile_, const char *hmword_, const 
     	  }
       }
     }
+ /*   for (int c=0; c< MAXLENINDEXMODE; c++){
+    	fprintf(stderr,"%i %i %i %f\n", currlig-1, currmode-1, eigl_multi[c][currmode-1][currlig-1],val_eigl_multi[c][currmode-1][currlig-1]);
+    }*/
     currpos += nf;
   }
 
-  fprintf(stderr,"%d modes read for %s %d\n", currmode, hmword, currlig);
+  fprintf(stderr,"%d index modes read for %s %d\n", currmode, hmword, currlig);
   nhm[currlig-1] = currmode;
   if (currlig != nlig) {
     fprintf(stderr, "Reading error in %s, line %d: Read %d %ss, expected %d ligands\n", hmfile, line, currlig, hmword, nlig);

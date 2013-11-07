@@ -8,25 +8,21 @@ if not len(currdir): currdir = "."
 sys.path = [currdir]
 import reduce
 sys.path = oldsyspath
-
 pdb = sys.argv[1]
 transfile = sys.argv[2]
 topfile = sys.argv[3]
 
 pqrhandle, pqrfile = tempfile.mkstemp()
-
 mapf = StringIO.StringIO()   
 pdbf = StringIO.StringIO()   
 pdblines = open(pdb).readlines()
 reduce.run(pdblines, topfile, transfile, pdbf, mapf, [])
-
 tmphandle, tmpfile = tempfile.mkstemp()
 tmpf = open(tmpfile, "w")
 for l in pdbf.getvalue().split("\n"):
   if l.find("XXX") == -1:
     print >> tmpf, l
 tmpf.close()
-
 args = [pdb2pqr.__file__, "--ff=charmm", tmpfile, pqrfile]
 if pdb2pqr.PACKAGE_PATH != "":
   sys.path.extend(pdb2pqr.PACKAGE_PATH.split(":"))
@@ -38,7 +34,6 @@ pqr = os.fdopen(pqrhandle)
 pqrlines = pqr.readlines()
 pqr.close()
 os.remove(pqrfile)
-
 pdblines = []
 his = {}
 

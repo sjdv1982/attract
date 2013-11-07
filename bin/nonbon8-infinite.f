@@ -1,11 +1,11 @@
-      subroutine nonbon8(maxatom,maxmolpair,
-     1 iab,xl,xr,fl,fr,wel,wer,chair,chail,ac,rc,       
-     2 emin,rmin2,iacir,iacil,nonr,nonl,ipon,nonp,
-     3 potshape, cdie, swi_on,swi_off, enon,epote,natomr, natoml)
+      subroutine nonbon8(iab,xl,xr,fl,fr,wel,wer,chair,chail,ac,rc,
+     1 emin,rmin2,iacir,iacil,nonr,nonl,ipon,nonp,
+     2 potshape, cdie, swi_on,swi_off, enon,epote,natomr, natoml)
       implicit none
 
-c     Parameters      
-      integer maxatom, maxmolpair,iab,nonp,potshape
+c     Parameters
+      include 'max.f'
+      integer iab,nonp,potshape
       integer natomr, natoml
       integer cdie
       real swi_on, swi_off

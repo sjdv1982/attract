@@ -1,11 +1,11 @@
-      subroutine rota(max3atom,maxdof,
-     1 x,f,delta,pm2, natom)
+      subroutine rota(x,f,delta,pm2, natom)
 
       implicit none
 
 c     Parameters
-      integer max3atom,maxdof      
+      include 'max.f'
       integer natom
+      integer, parameter :: max3atom = 3*maxatom
       real*8 x,f,delta
       dimension x(max3atom),f(max3atom),delta(maxdof)
       real*8 pm2

@@ -96,7 +96,7 @@ extern "C" FILE *read_dof_init_(const char *f_, int nlig, int &line, double (&pi
 }
 
 extern "C" int read_dof_(FILE *fil, int &line, int &nstruc, const char *f_, idof2 &ens, dof2 &phi, dof2 &ssi, dof2 &rot, dof2 &xa, dof2 &ya, dof2 &za,
-coors2 &locrests, dof2 &morph, modes2 &dlig, const int &nlig, const int *nhm, const int *nrens0, const int *morphing, const int *has_locrests, int &seed, char *&label, const int &all_labels, int f_len) {
+coors2 &locrests, dof2 &morph, modes2 &dlig, const int &nlig, const int *nhm,const int *nihm, const int *nrens0, const int *morphing, const int *has_locrests, int &seed, char *&label, const int &all_labels, int f_len) {
   int nrens00[MAXLIG];
   memset(nrens00,0,MAXLIG*sizeof(int));
   
@@ -202,9 +202,9 @@ coors2 &locrests, dof2 &morph, modes2 &dlig, const int &nlig, const int *nhm, co
       if (nrens[clig]) has_ens = 1;
       int has_locrest = has_locrests[clig];
       int min = has_ens + 6 + 3 * has_locrest;
-      if (nf < min || nf > min + nhm[clig]) {
-   	  if (nhm[clig] > 0) 
-            fprintf(stderr, "Reading error in %s, line %d: read %d values, expected %d-%d values\n", f, line, nf, min, min + nhm[clig]);
+      if (nf < min || nf > min + nhm[clig] + nihm[clig]) {
+   	  if (nhm[clig] > 0 || nihm[clig] > 0)
+            fprintf(stderr, "Reading error in %s, line %d: read %d values, expected %d-%d values\n", f, line, nf, min, min + nhm[clig] + nihm[clig]);
 	  else 
             fprintf(stderr, "Reading error in %s, line %d: read %d values, expected %d values\n", f, line, nf, min);
           exit(1);
@@ -248,7 +248,16 @@ coors2 &locrests, dof2 &morph, modes2 &dlig, const int &nlig, const int *nhm, co
 	else 
 	  dlig[clig][n] = 0;
       }
-      
+      ini += nhm[clig];
+      for (int n=0;n<nihm[clig];n++) {
+              if (ini+n < nf) {
+                dlig[clig][ini+n] = fields[ini+n];
+      	}
+      	else{
+      	  dlig[clig][ini+n] = 0;
+      	}
+            }
+
       clig++;
       if (clig == nlig) {        
         mode = 0;

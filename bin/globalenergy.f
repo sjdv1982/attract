@@ -1,17 +1,16 @@
        subroutine globalenergy(
-     1  maxlig,maxatom,totmaxatom,maxmode,maxdof,
-     2	cartstatehandle, ministatehandle,
-     3  ens,phi,ssi,rot,xa,ya,za,morph,dlig,
-     4  locrests, has_locrests, seed,
-     5  iab,iori,itra,ieig,fixre,
-     6  energies, delta, deltamorph)
+     1	cartstatehandle, ministatehandle,
+     2  ens,phi,ssi,rot,xa,ya,za,morph,dlig,
+     3  locrests, has_locrests, seed,
+     4  iab,iori,itra,ieig,iindex,fixre,
+     5  energies, delta, deltamorph)
 
        implicit none
        
 c      Parameters
-       integer maxlig,maxatom,totmaxatom,maxmode,maxdof
+       include 'max.f'
        integer cartstatehandle,ministatehandle
-       integer iab,iori,itra,ieig,fixre,seed
+       integer iab,iori,itra,ieig,iindex,fixre,seed
        real*8 energies(6)
        real*8 delta(maxdof)
 
@@ -24,7 +23,7 @@ c      Parameters
        dimension ens(maxlig)
        real*8 phi, ssi, rot, morph, dlig, xa, ya, za
        dimension phi(maxlig), ssi(maxlig), rot(maxlig)
-       dimension dlig(maxmode, maxlig)
+       dimension dlig(maxmode+maxindexmode, maxlig)
        dimension xa(maxlig), ya(maxlig), za(maxlig)
        dimension morph(maxlig)
        real*8 deltamorph(maxlig)       
@@ -37,15 +36,19 @@ c      Handle variables: cartstate ligand
 c      Handle variables: full coordinates and modes
        integer nlig,nall,nall3
        real*8 xb,xold,x,xori,xori0,f,eig, val,pivot
+       integer index_eig
+       real*8 index_val
        real*8 ff, frot
        real*8 morph_fconstant
-       integer ieins,nhm,natom,iaci_old
+       integer ieins,nhm,nihm,natom,iaci_old
        dimension xb(3*totmaxatom),x(3*totmaxatom),f(3*totmaxatom)
        dimension xold(3*totmaxatom)
        dimension xori(3*totmaxatom),xori0(3*totmaxatom)
        dimension eig(maxlig,maxmode,3*maxatom)
+       dimension index_eig(maxlig,maxindexmode,maxlenindexmode)
+       dimension index_val(maxlig,maxindexmode,maxlenindexmode)
        dimension val(maxlig,maxmode)
-       dimension ieins(maxlig),nhm(maxlig)
+       dimension ieins(maxlig),nhm(maxlig), nihm(maxlig)
        dimension pivot(maxlig,3)
        dimension ff(maxlig)
        dimension frot(9,maxlig)
@@ -58,8 +61,11 @@ c      Handle variables: full coordinates and modes
        pointer(ptr_f, f)
        pointer(ptr_eig,eig)
        pointer(ptr_val,val)
+       pointer(ptr_index_eig,index_eig)
+       pointer(ptr_index_val,index_val)
        pointer(ptr_ieins,ieins)
        pointer(ptr_nhm,nhm)
+       pointer(ptr_nihm,nihm)
        pointer(ptr_pivot,pivot)
        pointer(ptr_ff, ff)
        pointer(ptr_frot, frot)
@@ -70,8 +76,8 @@ c      Handle variables: full coordinates and modes
        pointer(ptr_ensd, ensd)
        
 c      Local variables   
-       integer i,ii,n,jl,jb  
-       real*8 cdelta(6+maxmode), rotmat(9)
+       integer i,ii,n,jl,jb, jn
+       real*8 cdelta(6+maxmode+maxindexmode), rotmat(9)
        real*8 enligl,xnull
        real*8 pm2(3,3,3)
        real*8 rotmatinv(9)
@@ -101,22 +107,24 @@ c reset forces
   
 c get parameters      
        call cartstate_f_globalenergy(cartstatehandle,
-     1  nlig, nall, nall3, morph_fconstant, ptr_nhm,ptr_ieins,
-     2  ptr_eig, ptr_val, ptr_xb, ptr_x, ptr_xori, ptr_xori0, 
-     3  ptr_f,ptr_pivot, ptr_natom, ptr_iaci_old)  
+     1  nlig, nall, nall3, morph_fconstant, ptr_nhm,ptr_nihm,ptr_ieins,
+     2  ptr_eig, ptr_val, ptr_index_eig, ptr_index_val,
+     3  ptr_xb, ptr_x, ptr_xori, ptr_xori0,
+     4  ptr_f,ptr_pivot, ptr_natom, ptr_iaci_old)
        call cartstate_get_forcerot(cartstatehandle,ptr_ff,ptr_frot)
       
        jl=3*iori*(nlig-fixre)
        jb=3*iori*(nlig-fixre)+3*itra*(nlig-fixre)
+       jn=3*iori*(nlig-fixre)+3*itra*(nlig-fixre)+maxmode
 
-c apply ensemble/normal mode deformations
+c apply ensemble/normal mode/index mode deformations
        do 5 i=1, nlig
        call cartstate_get_ensd(cartstatehandle,i-1,ens(i),ptr_ensd,
      1  -1.0d0,dmmy1,dmmy2)
-       call deform(maxlig,3*maxatom,3*totmaxatom,maxatom,maxmode,
-     1  ens(i),ensd,dmmy3,dmmy4,dlig(:,i),
-     2  nhm,i-1,ieins,eig,xb,x,xori,xori0,0)
+       call deform(ens(i),ensd,dmmy3,dmmy4,dlig(:,i),
+     1  nhm,nihm,i-1,ieins,eig,index_eig, index_val,xb,x,xori,xori0,0)
 5      continue
+c TODO Add index modes
 c apply symmetry restraints
 
        
@@ -150,7 +158,7 @@ c calculate DOF deltas
        do 10 i=1, nlig
 
        xnull = 0.0d0   
-       do 2 ii=1,6+maxmode
+       do 2 ii=1,6+maxmode+maxindexmode
        cdelta(ii) = xnull
 2      continue  
        
@@ -163,8 +171,7 @@ c calculate DOF deltas
 c       write(*,'(a4,i3,f8.3,f8.3,f8.3,f8.3,f8.3,f8.3)'),
 c     1  'DOFS',i,phi(i),ssi(i),rot(i),xa(i),ya(i),za(i)
        call euler2torquemat(phi(i),ssi(i),rot(i),pm2)
-       call rota(3*maxatom,maxdof,
-     1  xl,fl,cdelta,pm2,natom(i))       
+       call rota(xl,fl,cdelta,pm2,natom(i))
        ii = 3 * (i-fixre-1)
        delta(ii+1) = delta(ii+1) + cdelta(1)
        delta(ii+2) = delta(ii+2) + cdelta(2)
@@ -172,7 +179,7 @@ c     1  'DOFS',i,phi(i),ssi(i),rot(i),xa(i),ya(i),za(i)
        endif             
 
        if ((itra.eq.1).AND.(i.gt.fixre)) then
-       call trans(3*maxatom,maxdof,fl,cdelta,natom(i))
+       call trans(fl,cdelta,natom(i))
        ii = jl + 3 * (i-fixre-1)
        delta(ii+1) = delta(ii+1) + cdelta(4)
        delta(ii+2) = delta(ii+2) + cdelta(5)
@@ -188,21 +195,44 @@ c      rotate forces into ligand frame
        call rotate1(3*maxatom,
      1  rotmatinv,zero,zero,zero,
      2   pivotnull, natom(i),flcopy)
-       call ligmin(maxlig,maxdof,maxmode,maxatom,
-     1  flcopy,natom(i),i,eig,nhm(i),cdelta)
+       call ligmin(flcopy,natom(i),i,eig,nhm(i),cdelta)
 
       call moderest(maxdof,maxmode,dlig(:,i),nhm(i),val(i,:),
      1  cdelta, energies(3))
        	
        ii = jb
-       do 13 n=1,i-1
+       do 23 n=1,i-1
        ii = ii + nhm(n)
-13     continue  
-       do 14 n=1,nhm(i)  
+       ii = ii + nihm(n)
+23     continue
+       do 24 n=1,nhm(i)
        delta(ii+n) = delta(ii+n) + cdelta(6+n)
-14     continue
+24     continue
        endif
 
+       if (iindex.eq.1) then
+c      rotate forces into ligand frame
+       call euler2rotmat(phi(i),ssi(i),rot(i),rotmat)
+       call matcopy(rotmat, rotmatinv)
+       call matinv(rotmatinv)
+       flcopy(:) = fl(:)
+       call rotate1(3*maxatom,
+     1  rotmatinv,zero,zero,zero,
+     2   pivotnull, natom(i),flcopy)
+       call ligmin_index(flcopy,natom(i),i,index_eig,index_val,
+     1                    nhm(i),nihm(i),cdelta)
+
+
+       ii = jn
+       do 13 n=1,i-1
+       ii = ii + nihm(n)
+       ii = ii + nhm(n)
+13     continue
+       ii = ii + nhm(i)
+       do 14 n=1,nihm(i)
+       delta(ii+n) = delta(ii+n) + cdelta(6+nhm(i)+n)
+14     continue
+       endif
        
 10     continue      
 c      end if (has_globalenergy)

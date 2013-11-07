@@ -464,7 +464,7 @@ void parse_options(int ministatehandle, int cartstatehandle, int nlig, int argc,
 	modes_usage();
       }
       const int multi = 1;
-      read_indexmode_(hmf, "ligand", c.nlig, c.nihm, (double *) c.index_eig, (double *) c.index_val, multi, strlen(hmf), strlen("ligand"));
+      read_indexmode_(hmf, "ligand", c.nlig, c.nihm, (int *) c.index_eig, (double *) c.index_val, multi, strlen(hmf), strlen("ligand"));
       n += 1;
       ms.iindex = 1;
       ms.has_globalenergy = 1; //because of restraint forces to secure secondary structure

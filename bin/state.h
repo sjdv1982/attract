@@ -53,7 +53,7 @@ struct CartState {
 
   /* index modes */
   int nihm[MAXLIG];        //number of index modes per ligand
-  double index_eig[MAXLENINDEXMODE][MAXINDEXMODE][MAXLIG]; //index modes: position of nonzero mode entries
+  int index_eig[MAXLENINDEXMODE][MAXINDEXMODE][MAXLIG]; //index modes: position of nonzero mode entries
   double index_val[MAXLENINDEXMODE][MAXINDEXMODE][MAXLIG]; //index modes: values of nonzero mode entries
 
   /* copies */
@@ -181,6 +181,8 @@ typedef int (&limitarr)[MAXLIG];
 
 
 extern "C" void read_hm_(const char *hmfile_, const char *hmword_, const int &nlig, const int *natom, int *nhm, double (&vall)[MAXMODE][MAXLIG], double *eigl, const int &multi, int hmfile_len, int hmword_len);
+
+extern "C" void read_indexmode_(const char *hmfile_, const char *hmword_, const int &nlig, int *nhm, int *eigl, double *eigl_val, const int &multi, int hmfile_len, int hmword_len);
 
 extern "C" void read_one_pdb_(
    const int &maxlig, const int &totmaxres, const int &totmaxatom,

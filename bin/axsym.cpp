@@ -19,6 +19,14 @@ extern void axsym_fold_grads(
   int jb = 3*m.iori*(c.nlig-m.fixre)+3*m.itra*(c.nlig-m.fixre);
   int jl0=3*m.iori*(c.nlig0-m.fixre);
   int jl=3*m.iori*(c.nlig-m.fixre);
+  int ju = jb;
+  int ju0 = jb0;
+  for (int idl1 =0; idl1 < c.nlig0; idl1++){
+	  ju0 += c.nhm[idl1];
+  }
+  for (int idl1 =0; idl1 < c.nlig; idl1++){
+  	  ju += c.nhm[idl1];
+    }
   //printf("NLIG0 JB0 JL0 IORI ITRA FIXRE %d %d %d %d %d %d\n", c.nlig0, jb0, jl0, m.iori, m.itra, m.fixre);
   //printf("NLIG JB JL IORI ITRA FIXRE %d %d %d %d %d %d\n", c.nlig, jb, jl, m.iori, m.itra, m.fixre);
   for (int idl1 = 0; idl1 < c.nlig0; idl1++) {
@@ -56,6 +64,19 @@ extern void axsym_fold_grads(
           grads[pos1+nn] = grads0[pos2+nn];
         }
       }
+      if (m.iindex) {
+    	  int pos1 = ju0;
+    	  for (int nn = 0; nn < idl1; nn++) {
+    	      pos1 += c.nihm[nn];
+    	  }
+    	  int pos2 = ju;
+    	  for (int nn = 0; nn < idl2; nn++) {
+    	      pos2 += c.nihm[nn];
+    	   }
+    	   for (int nn = 0; nn < c.nihm[idl1]; nn++) {
+    	      grads[pos1+nn] = grads0[pos2+nn];
+    	   }
+      }
 
       morphgrads[idl1] = morphgrads[idl2];
     }  
@@ -67,6 +88,7 @@ extern void prepare_axsym_cartstate(CartState &c) {
    c.axsyms,
    c.nlig0,
    c.nhm,
+   c.nihm,
    c.nrens,
    c.morphing,
    c.has_locrests,
@@ -127,7 +149,12 @@ extern void prepare_axsym_cartstate(CartState &c) {
         c.eig[j][i][nlig] = c.eig[j][i][l];
       }
     }
-
+    for (int i = 0; i < c.nihm[l]; i++) {
+    	for (int j=0; j < MAXLENINDEXMODE; j++){
+    		c.index_eig[j][i][nlig] = c.index_eig[j][i][l];
+    		c.index_val[j][i][nlig] = c.index_val[j][i][l];
+    	}
+    }
     memcpy(&c.ncop[nresall], &c.ncop[posres], nresl*21*11*sizeof(int)); 
     memcpy(&c.nmaxco[nresall], &c.nmaxco[posres], nresl*sizeof(int)); 
     memcpy(&c.natco[nresall], &c.natco[posres], nresl*sizeof(int)); 
@@ -160,6 +187,7 @@ int prepare_axsym_dof(
  int nlig0,
 
  int *nhm,
+ int *nihm,
  int *nrens,
  int *morphing,
  int *has_locrests,
@@ -192,7 +220,8 @@ int prepare_axsym_dof(
       for (int nn = 1; nn < nrsym; nn++) {
 
         //Copy DOF descriptors from the original
-        nhm[nlig] = nhm[l],
+        nhm[nlig] = nhm[l];
+        nihm[nlig] = nihm[l];
         nrens[nlig] = nrens[l]; 
         morphing[nlig] = morphing[l],      
         has_locrests[nlig] = has_locrests[l];            

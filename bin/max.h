@@ -6,10 +6,10 @@ const int MAXATOM = 10000;
 const int MAXRES = 3000;
 const int TOTMAXATOM = 100000;
 const int TOTMAXRES = 10000;
-const int MAXLIG = 100;
-const int MAXMODE = 10;
+const int MAXLIG = 10;
+const int MAXMODE = 1000;
 const int MAXMOLPAIR = 20000000; 
-const int MAXDOF = 610; //100 ligands with modes, use 2 ligands for index modes only
+const int MAXDOF = 1610; //100 ligands with modes and index modes, use 2 ligands for index modes only
 const int MAXATOMTYPES = 99;
 const int MAXSELECTION = 1000; //maximum size of selection; NOTE: a static array of MAXSELECTION*MAXSELECTION Coors+doubles is kept in memory!
 const int MAXRESTRAINTS = 10000;
@@ -25,7 +25,7 @@ typedef char char4[4];
 typedef double dof2[MAXLIG];
 typedef int idof2[MAXLIG];
 typedef double coors2[MAXLIG][3];
-typedef double modes2[MAXLIG][MAXMODE];
+typedef double modes2[MAXLIG][MAXMODE+MAXINDEXMODE];
 
 typedef double Parameters[MAXATOMTYPES][MAXATOMTYPES];
 typedef int iParameters[MAXATOMTYPES][MAXATOMTYPES];
