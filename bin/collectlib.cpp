@@ -158,7 +158,7 @@ extern "C" void collect_init(int argc00, char *argv00[]) {
   }
   char *indexmodefile = NULL;
   for (int n = 1; n < argc-1; n++) {
-    if (!strcmp(argv[n],"--indexmodes")) {
+    if (!strcmp(argv[n],"--imodes")) {
       indexmodefile = argv[n+1];
       char **argv2 = new char *[argc-1];
       if (n > 0) memcpy(argv2, argv,n*sizeof(char*));

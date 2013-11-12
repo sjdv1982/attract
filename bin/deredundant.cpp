@@ -75,7 +75,7 @@ static char *label;
 #include <cstdlib>
 
 void usage() {
-  fprintf(stderr, "usage: $path/deredundant structures.dat <number of ligands> [--modes <mode file>] [--ens <ensemble size for each ligand>] [--ignorens]\n");
+  fprintf(stderr, "usage: $path/deredundant structures.dat <number of ligands> [--modes <mode file>] [--imodes <indexmode file>] [--ens <ensemble size for each ligand>] [--ignorens]\n");
   exit(1);
 }
 
@@ -122,7 +122,7 @@ int main(int argc, char *argv[]) {
       argc--;
       continue;          
     }
-    if (!strcmp(argv[3],"--indexmodes")) {
+    if (!strcmp(argv[3],"--imodes")) {
       int count = 0;
       while (argc > 4) {
         memmove(argv+3, argv+4, sizeof(char*) * (argc-3));

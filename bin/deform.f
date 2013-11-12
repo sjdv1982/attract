@@ -10,7 +10,7 @@ c      for this ligand
       implicit none
 
 c     parameters
-      include 'max.f'
+      include 'max.fin'
       integer,parameter :: max3atom = 3*maxatom
       integer,parameter :: totmax3atom = 3*totmaxatom
       integer ijk, ens
@@ -88,7 +88,7 @@ c      write(ERROR_UNIT,*) "Contribution",ii+3, eig(ijk,n,ii+3),dligp(n)
 c      endif
       hmdeform(ii+1) = hmdeform(ii+1) + dligp(n) * eig(ijk,n,ii+1)
       hmdeform(ii+2) = hmdeform(ii+2) + dligp(n) * eig(ijk,n,ii+2)
-      hmdeform(ii+3) = hmdeform(ii+3) + dligp(n) * eig(ijk,n,ii+3)      
+      hmdeform(ii+3) = hmdeform(ii+3) + dligp(n) * eig(ijk,n,ii+3)
    50 continue 
    55 continue
 c      write(ERROR_UNIT,*) "Index modes:", nihm(ijk)
@@ -99,7 +99,7 @@ c      write(ERROR_UNIT,*) "Index modes:", nihm(ijk)
       if (ii.ne.-1) then
 c      write(ERROR_UNIT,*) ii+1,index_val(ijk,n,i),dligp(6+nhm(ijk)+n)
       hmdeform(ii+1)=hmdeform(ii+1)+
-     1 dligp(6+nhm(ijk)+n)*index_val(ijk,n,i)
+     1 dligp(nhm(ijk)+n)*index_val(ijk,n,i)
       else
       exit
       endif

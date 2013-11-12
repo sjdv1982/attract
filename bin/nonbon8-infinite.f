@@ -4,7 +4,7 @@
       implicit none
 
 c     Parameters
-      include 'max.f'
+      include 'max.fin'
       integer iab,nonp,potshape
       integer natomr, natoml
       integer cdie
@@ -131,6 +131,12 @@ c     1 emin(it,jt)
       endif
       else
       enon=enon+fswi*ivor*vlj
+c      if (vlj.gt.0.1) then
+c       write(ERROR_UNIT,*)'large pair',i,j,it,jt,r2,ivor*vlj,enon
+c       do k=1,3
+c       write(ERROR_UNIT,*) ii,jj,xr(ii+k), xl(jj+k)
+c       enddo
+c       endif
 !       write(*,*)'pair',i,j,it,jt,r2,ivor*vlj,e_min
 c      write(*,*)'pair',i,j,it,jt,r2,ivor*vlj,et,
 c     1 emin(it,jt)

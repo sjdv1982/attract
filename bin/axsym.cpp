@@ -337,7 +337,7 @@ void apply_axsym(
 
     //Copy other DOFs from the original
     morph[target] = morph[l];
-    memcpy(dlig[target], dlig[l], MAXMODE*sizeof(double)); 
+    memcpy(dlig[target], dlig[l], (MAXMODE+MAXINDEXMODE)*sizeof(double));
     if (has_locrests[l]) {
       memcpy(locrests[target], locrests[l], 3*sizeof(double)); 
     }  

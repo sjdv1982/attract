@@ -12,7 +12,7 @@ c     minimizes a single structure
 
 c     Parameters
       integer cartstatehandle,ministatehandle
-      include 'max.f'
+      include 'max.fin'
       integer nlig, seed
       real*8 locrests
       dimension locrests(3,maxlig)

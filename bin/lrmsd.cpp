@@ -85,7 +85,7 @@ static char *label;
 #include <cstdlib>
 
 void usage() {
-  fprintf(stderr, "usage: $path/lrmsd structures.dat ligand-unbound.pdb ligand-bound.pdb [ligand2-unbound.pdb ligand2-bound.pdb] [...] [...] [--modes <modefile>] [--ens <ligand nr> <ensemble file>]\n");
+  fprintf(stderr, "usage: $path/lrmsd structures.dat ligand-unbound.pdb ligand-bound.pdb [ligand2-unbound.pdb ligand2-bound.pdb] [...] [...] [--modes <modefile>] [--imodes <indexmodefile>] [--ens <ligand nr> <ensemble file>]\n");
   exit(1);
 }
 
@@ -191,7 +191,7 @@ int main(int argc, char **argv) {
     }
   }
   for (int n = 1; n < argc-1; n++) {
-      if (!strcmp(argv[n],"--indexmodes")) {
+      if (!strcmp(argv[n],"--imodes")) {
         indexmodefile = argv[n+1];
         char **argv2 = new char *[argc-1];
         if (n > 0) memcpy(argv2, argv,n*sizeof(char*));

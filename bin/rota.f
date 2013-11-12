@@ -3,7 +3,7 @@
       implicit none
 
 c     Parameters
-      include 'max.f'
+      include 'max.fin'
       integer natom
       integer, parameter :: max3atom = 3*maxatom
       real*8 x,f,delta

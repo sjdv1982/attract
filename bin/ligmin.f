@@ -2,7 +2,7 @@
       implicit none
       
 c     Parameters
-      include 'max.f'
+      include 'max.fin'
       integer natom,ijk
       real*8 f,eig,delta
       integer nhm

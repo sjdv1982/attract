@@ -328,5 +328,6 @@ int main(int argc, char *argv[]) {
   extern char *shmlinks[100];
   extern int shmlinkcount;
   for (n = 0; n < shmlinkcount; n++) shm_unlink(shmlinks[n]);
+  delete[] label;
   return 0;
 }

@@ -1,20 +1,20 @@
 OBJ0= read_hm.o read_dof.o read_parameters.o read_pdb.o write_pdb.o print_struc.o \
   cartstate.o euler2rotmat.o rotate.o forcerotscale.o deform.o minfor.o monte.o \
   mc11a.o GGUBS.o parse_options.o select.o pairgen.o pairenergy.o energy.o \
-  globalenergy.o matmult.o matinv.o prox.o reset_forces.o nonbon8.o ligmin.o \
+  globalenergy.o matmult.o matinv.o prox.o reset_forces.o ligmin.o \
   ligmin_index.o rota.o trans.o em/situs/lib_vio.o em/situs/lib_pio.o em/situs/lib_err.o \
   parse_restraints.o restrain.o read_ens.o read_pdb2.cpp\
   axisrot.o crand.o sym.o enstrans.o ene_morph.cpp \
   euler2torquemat.o memcpy.o disre.o moderest.o \
   em/em.h em/emenergy.o em/maxoverlap.cpp em/precompute.cpp \
-  axsym.h axsym.o max.f
+  axsym.h axsym.o
 
 OBJ= $(OBJ0) nonbon8.o
  
   
 FLAG= -g -p -O3 -fno-automatic -ffast-math -fcray-pointer
 #FLAG= -g -p -O0 -fno-automatic -ffast-math -fcray-pointer
-H=state.h max.h grid.h nonbon.h makegrid.h prox.h
+H=state.h max.h grid.h nonbon.h makegrid.h prox.h max.fin
 FF=gfortran
 
 CXX        = g++
@@ -146,13 +146,11 @@ omp_threadnum: omp_threadnum.o
 collectlib.so: collectlib-pic.o read_parameters-pic.o read_pdb-pic.o \
   read_pdb2-pic.o read_dof-pic.o cartstate-pic.o euler2rotmat-pic.o \
   deform-pic.o rotate-pic.o read_hm-pic.o memcpy-pic.o write_pdb-pic.o \
-  read_ens-pic.o axsym-pic.o matmult-pic.o state.h
+  read_ens-pic.o axsym-pic.o matmult-pic.o state.h max.h
 	$(CXX) $(CFLAGS) -Wall -shared -fPIC $^ -lgfortran -lm -o $@ 
 
 collectlib: collectlib.so
 
-max.f: max.h
-	python make-max.py max.h > max.f
 
 %.o: %.cpp $(H)
 	$(CXX) $(CFLAGS) -c $< -o $@

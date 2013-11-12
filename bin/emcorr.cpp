@@ -82,7 +82,7 @@ static int seed;
 static char *label;
 
 void usage() {
-  fprintf(stderr, "usage: emcoor map.vol <resolution> <map threshold> structures.dat receptor.pdb [...] [...] [--modes <modefile>] [--ens/--morph <ligand nr> <ensemble file>]");
+  fprintf(stderr, "usage: emcoor map.vol <resolution> <map threshold> structures.dat receptor.pdb [...] [...] [--modes <modefile>] [--imodes <indexmodefile>] [--ens/--morph <ligand nr> <ensemble file>]");
   exit(1);
 }
 
@@ -117,7 +117,7 @@ int main(int argc, char *argv[]) {
     }
   }
   for (int n = 1; n < argc-1; n++) {
-    if (!strcmp(argv[n],"--indexmodes")) {
+    if (!strcmp(argv[n],"--imodes")) {
       indexmodefile = argv[n+1];
       char **argv2 = new char *[argc-1];
       if (n > 0) memcpy(argv2, argv,n*sizeof(char*));

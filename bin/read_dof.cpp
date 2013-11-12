@@ -251,10 +251,10 @@ coors2 &locrests, dof2 &morph, modes2 &dlig, const int &nlig, const int *nhm,con
       ini += nhm[clig];
       for (int n=0;n<nihm[clig];n++) {
               if (ini+n < nf) {
-                dlig[clig][ini+n] = fields[ini+n];
+                dlig[clig][nhm[clig]+n] = fields[ini+n];
       	}
       	else{
-      	  dlig[clig][ini+n] = 0;
+      	  dlig[clig][nhm[clig]+n] = 0;
       	}
             }
 
@@ -264,6 +264,7 @@ coors2 &locrests, dof2 &morph, modes2 &dlig, const int &nlig, const int *nhm,con
 	if (currlabel != NULL) {
 	  label = new char[strlen(currlabel)+1];
 	  strcpy(label, currlabel);
+	  delete[] currlabel;
 	}
 	return 0;
       }

@@ -4,7 +4,7 @@
       implicit none
 
 c     Parameters
-      include 'max.f'
+      include 'max.fin'
       integer iab,nonp,potshape
       integer cdie
       real swi_on, swi_off
@@ -130,7 +130,12 @@ c     1 emin(it,jt)
       endif
       else
       enon=enon+fswi*ivor*vlj
-!       write(*,*)'pair',i,j,it,jt,r2,ivor*vlj,e_min
+      if (vlj.gt.0.1) then
+       write(ERROR_UNIT,*)'large pair',i,j,it,jt,r2,ivor*vlj,enon
+       do k=1,3
+       write(ERROR_UNIT,*) ii,jj,xr(ii+k), xl(jj+k)
+       enddo
+       endif
 c      write(*,*)'pair',i,j,it,jt,r2,ivor*vlj,et,
 c     1 emin(it,jt)
       if(iab.eq.1) then

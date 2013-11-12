@@ -8,7 +8,7 @@
        implicit none
 
 c      Parameters
-       include 'max.f'
+       include 'max.fin'
        integer cartstatehandle,molpairhandle
        integer iab, fixre
        integer gridptr_dmmy
@@ -308,14 +308,15 @@ c       write(ERROR_UNIT,*), xl(3*132+1:3*132+3), xr(3*1704+1:3*1704+3)
        
        energies(1) = enon
        energies(2) = epote
-       
+       write(ERROR_UNIT,*) "Pair", energies(1), energies(2)
 c calculate receptor harmonic mode deltas
        call ligmin(fr,natomr,idr+1,eig,nhm(idr+1),deltar)
+       write(ERROR_UNIT,*)'deltar',(deltar(i),i=1,12)
 
 c calculate receptor index mode deltas
        call ligmin_index(fr,natomr,idr+1,index_eig,index_val,
      1  nhm(idr+1),nihm(idr+1),deltar)
-
+       write(ERROR_UNIT,*)'deltar',(deltar(i),i=1,12)
        call grad_morph(fr,natomr,morphr,cmorphdr,
      1  deltamorphr)       
        
@@ -328,11 +329,11 @@ c rotate ligand forces into ligand frame
        
 c calculate ligand harmonic mode deltas
        call ligmin(flcopy,natoml,idl+1,eig,nhm(idl+1),deltal)
-       
+       write(ERROR_UNIT,*)'deltal',(deltal(i),i=1,12)
 c calculate ligand index mode deltas
        call ligmin_index(flcopy,natoml,idl+1,index_eig,index_val,
      1  nhm(idl+1),nihm(idl+1),deltal)
-
+       write(ERROR_UNIT,*)'deltal',(deltal(i),i=1,12)
        call grad_morph(flcopy,natoml,morphl,cmorphdl,
      1  deltamorphl)
        
@@ -398,7 +399,8 @@ c      multiply the torque matrix with the inverse axsym force rotation matrix
 
        call rota(xl0,fl,deltal,pm2a,natoml)
        call trans(fl,deltal,natoml)
-            
+       write(ERROR_UNIT,*)'deltar',(deltar(i),i=1,12)
+          write(ERROR_UNIT,*)'deltal',(deltal(i),i=1,12)
       e = zero
       do 990,i=1,6
       e = e + energies(i)

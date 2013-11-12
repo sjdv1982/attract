@@ -118,8 +118,8 @@ void modes_usage() {
   exit(1);
 }
 
-void indexmodes_usage() {
-	fprintf(stderr, "--indexmodes option usage: --indexmodes <index modes file>\n");
+void imodes_usage() {
+	fprintf(stderr, "--imodes option usage: --imodes <index modes file>\n");
 	fprintf(stderr, "Use for flexible interface residues/ loops\n");
 	  exit(1);
 
@@ -456,12 +456,12 @@ void parse_options(int ministatehandle, int cartstatehandle, int nlig, int argc,
       ms.ieig = 1;
       ms.has_globalenergy = 1; //because of val forces => moderest
     }
-    else if (!strcmp(arg,"--indexmodes")) {
+    else if (!strcmp(arg,"--imodes")) {
       if (argc-n < 2) modes_usage();
       char *hmf = argv[n+1];
       if (!exists(hmf)) {
         fprintf(stderr, "Index modes file %s does not exist\n", hmf);
-	modes_usage();
+	imodes_usage();
       }
       const int multi = 1;
       read_indexmode_(hmf, "ligand", c.nlig, c.nihm, (int *) c.index_eig, (double *) c.index_val, multi, strlen(hmf), strlen("ligand"));

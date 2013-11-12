@@ -8,7 +8,7 @@
        implicit none
        
 c      Parameters
-       include 'max.f'
+       include 'max.fin'
        integer cartstatehandle,ministatehandle
        integer iab,iori,itra,ieig,iindex,fixre,seed
        real*8 energies(6)
@@ -76,7 +76,7 @@ c      Handle variables: full coordinates and modes
        pointer(ptr_ensd, ensd)
        
 c      Local variables   
-       integer i,ii,n,jl,jb, jn
+       integer i,ii,n,jl,jb, ju, jn
        real*8 cdelta(6+maxmode+maxindexmode), rotmat(9)
        real*8 enligl,xnull
        real*8 pm2(3,3,3)
@@ -92,6 +92,8 @@ c      Local variables
        dimension pivotnull(3)
        real*8 emorph       
        integer has_globalenergy
+       integer nmodes, nimodes
+       integer, parameter :: ERROR_UNIT = 0
        dmmy3 = -1.0d0
        zero=0.0d0
        pivotnull(1) = zero
@@ -115,8 +117,14 @@ c get parameters
       
        jl=3*iori*(nlig-fixre)
        jb=3*iori*(nlig-fixre)+3*itra*(nlig-fixre)
-       jn=3*iori*(nlig-fixre)+3*itra*(nlig-fixre)+maxmode
-
+       nmodes = 0
+       nimodes = 0
+       do i=1,nlig
+       nmodes = nmodes + nhm(i)
+       nimodes = nimodes + nihm(i)
+       enddo
+       ju = jb + ieig*nmodes
+       jn = ju + iindex*nimodes
 c apply ensemble/normal mode/index mode deformations
        do 5 i=1, nlig
        call cartstate_get_ensd(cartstatehandle,i-1,ens(i),ptr_ensd,
@@ -147,6 +155,7 @@ c       stop
 
        call restrain(ministatehandle,cartstatehandle,seed,
      1  iab,energies(3))
+c      WRITE(ERROR_UNIT,*) "Restrain energy", energies(3)
        call emenergy(energies(6),nall,x,xori,iaci_old,
      1  nlig,natom,f,iab)
        call sym(cartstatehandle, iab, energies(3))
@@ -199,11 +208,11 @@ c      rotate forces into ligand frame
 
       call moderest(maxdof,maxmode,dlig(:,i),nhm(i),val(i,:),
      1  cdelta, energies(3))
+c      WRITE(ERROR_UNIT,*) "Moderest energy", energies(3)
        	
        ii = jb
        do 23 n=1,i-1
        ii = ii + nhm(n)
-       ii = ii + nihm(n)
 23     continue
        do 24 n=1,nhm(i)
        delta(ii+n) = delta(ii+n) + cdelta(6+n)
@@ -223,12 +232,10 @@ c      rotate forces into ligand frame
      1                    nhm(i),nihm(i),cdelta)
 
 
-       ii = jn
+       ii = ju
        do 13 n=1,i-1
        ii = ii + nihm(n)
-       ii = ii + nhm(n)
 13     continue
-       ii = ii + nhm(i)
        do 14 n=1,nihm(i)
        delta(ii+n) = delta(ii+n) + cdelta(6+nhm(i)+n)
 14     continue
