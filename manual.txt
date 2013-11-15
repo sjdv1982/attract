@@ -232,6 +232,19 @@ Note: normal modes are for small scale deformations, up to an angstrom or two. F
 
 Coding issue/TODO: Perhaps it would be better to switch to per-molecule normal mode files, specified in the same way as grids (e.g. --modes 1 hm1.dat --modes 2 hm2.dat ...)
 
+*******************************************************************************
+Index modes/ Cartesian modes
+*******************************************************************************
+--imodes <modes file>
+The file format is the same as for normal modes, however there can only be a limited number of nonzero entries. These modes are internally processed differently to speed up calculations and save memory. They can be
+used for making certain atoms or residues flexible (or when using super coarse grained particles). For those atoms appropriate restraints have to be calculated to preserve secondary structure.
+
+They can be used together with global modes to include flexibility on different scale.
+TODO: test using global modes and index modes together
+
+- The cartmode.py tool
+This tool generates index modes based on a residue list as input (one integer per line). Run cartmode.py to get its precise command line syntax.
+
 ********************************************************************************
 Restraints
 ********************************************************************************
@@ -256,6 +269,10 @@ PDB: atom 321-326 are Ser 19B
 => active residue 20 is translated into the selection 321-326
 
 You can give a ninth parameter to indicate the chance that a restraint is not used. Default is 0.5 (HADDOCK default). Unlike HADDOCK, you can adjust this parameter for every restraint separately. 
+
+- The get_restraints.py tool
+This is a convenience tool to generate appropriate restraints files to preserve the secondary strutcure of flexible residues. It needs a residue list (one integer per line), run without any argument to get its precise command line syntax.
+It uses the topology file in allatom (see topology.py in tools) to determine appropriate restraints including check for disulphide bridges.
 
 ********************************************************************************
 Gravity
