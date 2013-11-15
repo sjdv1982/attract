@@ -8,7 +8,7 @@
        implicit none
        
 c      Parameters
-       include 'max.fin'
+       include "max.fin"
        integer cartstatehandle,ministatehandle
        integer iab,iori,itra,ieig,iindex,fixre,seed
        real*8 energies(6)

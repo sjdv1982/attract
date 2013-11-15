@@ -185,7 +185,7 @@ c     set some variables for the first iteration
       isfv=1
 c store forces, Euler angle, position and ligand and receptor coordinates
 c     write(*,*)'nlig,ju,jl,jb',nlig,ju,jl,jb
-      write(ERROR_UNIT,*)'delta',(delta(i),i=1,jn)
+c      write(ERROR_UNIT,*)'delta',(delta(i),i=1,jn)
       do i=1,jn
        g(i)=-delta(i)
        ga(i)=g(i)
@@ -258,7 +258,7 @@ c     and the initial directional derivative
       do i=1,jn
       c=max(c,abs(d(i)))
       dga=dga+ga(i)*d(i)
-      write(ERROR_UNIT,*)'ga(i),d(i),dga,c',ga(i),d(i),dga,c
+c      write(ERROR_UNIT,*)'ga(i),d(i),dga,c',ga(i),d(i),dga,c
       enddo
 c     test if the search direction is downhill
       if (dga.ge.xnull) go to 240
@@ -272,7 +272,7 @@ c     set the initial step-length of the line search
       if (dff.le.xnull) step=min(step,1.0d0/c)
       if (dff.gt.xnull) step=min(step,(dff+dff)/(-dga))
 170   c=stmin+step
-      write(ERROR_UNIT,*) "step",dff,dga,stmin,step,c,nfun,ivmax
+c      write(ERROR_UNIT,*) "step",dff,dga,stmin,step,c,nfun,ivmax
 c     test whether func has been called ivmax times
       if (nfun.ge.ivmax) go to 220
       nfun=nfun+1
@@ -306,8 +306,6 @@ c make a move in HM direction and update x, y(1,i) and y(2,i) and dlig(j)
        do k=1,nlig
         do i=1,nhm(k)
          dlig(i,k)=xaa(i+jb+kk)-d(i+jb+kk)*c
-      write(ERROR_UNIT,*) dlig(i,k),d(i+jb+kk),xaa(i+jb+kk),
-     1   c
         enddo
         kk = kk + nhm(k)
        enddo
@@ -319,8 +317,6 @@ c make a move in index mode directions
        do k=1,nlig
         do i=1,nihm(k)
          dlig(nhm(k)+i,k)=xaa(i+ju0+kk)-d(i+ju0+kk)*c
-         write(ERROR_UNIT,*) dlig(nhm(k)+i,k),d(i+ju0+kk),xaa(i+ju0+kk),
-     1   c
         enddo
         kk = kk + nihm(k)
        enddo
@@ -365,7 +361,7 @@ c      write(ERROR_UNIT,*) "Call other energy"
        dnorm=dnorm+delta(i)**2
       enddo
       dnorm=sqrt(dnorm)
-      write (ERROR_UNIT,*),'Energy2', fb,dnorm
+c      write (ERROR_UNIT,*),'Energy2', fb,dnorm
       
       do i=1,jn
       gb(i)=-delta(i)
@@ -553,6 +549,6 @@ c     branch if the rank of the new matrix is deficient
 c     begin another iteration
       dff=fa-fb
       fa=fb
-      write(ERROR_UNIT,*) "New Energy", fa, dff
+c     write(ERROR_UNIT,*) "New Energy", fa, dff
       go to 135
       end

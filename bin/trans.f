@@ -1,7 +1,7 @@
       subroutine trans(f,delta,natom)
       implicit none
 c     Parameters
-      include 'max.fin'
+      include "max.fin"
       integer natom
       real*8 f,delta
       integer, parameter :: max3atom = 3*maxatom

@@ -10,7 +10,7 @@ c      for this ligand
       implicit none
 
 c     parameters
-      include 'max.fin'
+      include "max.fin"
       integer,parameter :: max3atom = 3*maxatom
       integer,parameter :: totmax3atom = 3*totmaxatom
       integer ijk, ens

@@ -27,7 +27,7 @@ extern "C" void cartstate_f_rotdeform_(
   int *(&nhm), int *(&nihm), int *&ieins, double *&eig, int *&index_eig, double *&index_val,
   double *&pivot, double *&xb, double *&x,double *&xori, double *&xori0);
 
-extern "C" void cartstate_get_nlig_nhm_(const int &handle, int &nlig, int *(&nlm), int *(nihm));
+extern "C" void cartstate_get_nlig_nhm_(const int &handle, int &nlig, int *(&nlm), int *(&nihm));
 extern "C" void cartstate_get_pivot_(const int &handle,double *&pivot);
 extern "C" void cartstate_get_nrens_(const int &handle,int *&nrens);
 
@@ -258,7 +258,6 @@ extern "C" void collect_init(int argc00, char *argv00[]) {
       
   //retrieve the parameters needed to read the DOFs
   cartstate_get_nlig_nhm_(cartstatehandle, nlig,nhm, nihm);
-  
   nrdof = 6 * nlig;
   for (int n = 0; n < nlig; n++) {
 	  nrdof += nhm[n];

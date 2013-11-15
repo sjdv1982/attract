@@ -4,7 +4,7 @@
       implicit none
 
 c     Parameters
-      include 'max.fin'
+      include "max.fin"
       integer iab,nonp,potshape
       integer natomr, natoml
       integer cdie

@@ -4,7 +4,7 @@
       implicit none
 
 c     Parameters
-      include 'max.fin'
+      include "max.fin"
       integer iab,nonp,potshape
       integer cdie
       real swi_on, swi_off

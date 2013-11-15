@@ -14,7 +14,7 @@ OBJ= $(OBJ0) nonbon8.o
   
 FLAG= -g -p -O3 -fno-automatic -ffast-math -fcray-pointer
 #FLAG= -g -p -O0 -fno-automatic -ffast-math -fcray-pointer
-H=state.h max.h grid.h nonbon.h makegrid.h prox.h max.fin
+H=state.h max.h grid.h nonbon.h makegrid.h prox.h
 FF=gfortran
 
 CXX        = g++
@@ -149,8 +149,10 @@ collectlib.so: collectlib-pic.o read_parameters-pic.o read_pdb-pic.o \
   read_ens-pic.o axsym-pic.o matmult-pic.o state.h max.h
 	$(CXX) $(CFLAGS) -Wall -shared -fPIC $^ -lgfortran -lm -o $@ 
 
-collectlib: collectlib.so
-
+max.fin: max.h
+	python make_max.py max.h > max.fin
+	
+#collectlib: collectlib.so
 
 %.o: %.cpp $(H)
 	$(CXX) $(CFLAGS) -c $< -o $@
@@ -160,6 +162,30 @@ collectlib: collectlib.so
 
 %.o: %.f
 	$(FF) $(FLAG) -c $< -o $@
+	
+deform.o: max.fin
+
+minfor.o: max.fin
+
+monte.o: max.fin
+
+energy.o: max.fin
+
+globalenergy.o: max.fin
+
+ligmin_index.o: max.fin
+
+ligmin.o: max.fin
+
+nonbon8-infinite.o: max.fin
+
+nonbon8.o: max.fin
+
+pairenergy.o: max.fin
+
+rota.o: max.fin
+
+trans.o: max.fin
 
 %-pic.o: %.cpp $(H)
 	$(CXX) $(CFLAGS) -c -fPIC $< -o $@
@@ -191,7 +217,7 @@ rest: read_pdb2.o
 	$(CXX) $(CFLAGS) transl.cpp read_pdb2.o -o trans
 	$(CXX) $(CFLAGS) deflate.cpp read_pdb2.o -o deflate
 
-all: attract attract-torque attract-infinite collect collectlib lrmsd rmsd calc_interior calc_no_interior make-grid \
+all: max.fin attract attract-torque attract-infinite collect collectlib.so lrmsd rmsd calc_interior calc_no_interior make-grid \
  make-grid-omp make-grid-torque make-grid-torque-omp shm-grid \
  shm-grid-torque shm-clean systsearch map2map fix_receptor \
  omp_threadnum deredundant matrix-lrmsd rest emcorr gvm gvm-pdb axsymmetry

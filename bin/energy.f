@@ -8,7 +8,7 @@
       
 c     Parameters
       integer cartstatehandle,ministatehandle
-      include 'max.fin'
+      include "max.fin"
       integer iori,itra,ieig,iindex,fixre,gridmode,seed
       real*8 energies, delta, deltamorph
       dimension energies(6), delta(maxdof),deltamorph(maxlig)
@@ -129,8 +129,8 @@ c  iterate over all pairs: call pairenergy...
      5 ens(idl+1),phi(idl+1),ssi(idl+1),rot(idl+1),
      6 xa(idl+1),ya(idl+1),za(idl+1),morph(idl+1),dlig(:,idl+1),
      7 pairenergies, deltar, deltal, deltamorphr, deltamorphl)
-      write(ERROR_UNIT,*)'deltar',(deltar(i),i=1,jn)
-      write(ERROR_UNIT,*)'deltal',(deltal(i),i=1,jn)
+c      write(ERROR_UNIT,*)'deltar',(deltar(i),i=1,jn)
+c      write(ERROR_UNIT,*)'deltal',(deltal(i),i=1,jn)
 c  ...and sum up the energies and deltas            
       if ((iori.eq.1).AND.(fixre2.eq.0)) then
       ii = 3 * (idr-fixre)
@@ -207,7 +207,7 @@ c     write(ERROR_UNIT, *) "Pair energy:", pairenergies(i)
 
       endif 
 c     endif ghost.eq.0
-       write(ERROR_UNIT,*)'delta0',(delta0(i),i=1,jn)
+c       write(ERROR_UNIT,*)'delta0',(delta0(i),i=1,jn)
 30    continue
       call globalenergy(
      1	cartstatehandle, ministatehandle,
@@ -215,7 +215,7 @@ c     endif ghost.eq.0
      3  locrests, has_locrests, seed,
      4  iab,iori,itra,ieig,iindex,fixre,
      5  energies, delta0, deltamorph)
-      write(ERROR_UNIT,*)'delta0',(delta0(i),i=1,jn)
+c      write(ERROR_UNIT,*)'delta0',(delta0(i),i=1,jn)
       e = 0
       do 990,i=1,6
 c      write(ERROR_UNIT, *) "Global energy:", energies(i)
@@ -223,7 +223,7 @@ c      write(ERROR_UNIT, *) "Global energy:", energies(i)
 990   continue  
       call axsym_fold_grads(ministatehandle, cartstatehandle, 
      1 delta0, delta, deltamorph)
-      write(ERROR_UNIT,*)'delta',(delta(i),i=1,jn)
+c      write(ERROR_UNIT,*)'delta',(delta(i),i=1,jn)
 c      write(ERROR_UNIT,*), 'Final ENERGY', e
 c     1  delta(1),delta(2),delta(3),delta(4),delta(5),delta(6),
 c     2  delta(7),delta(8),delta(9),delta(10),delta(11),delta(12),
