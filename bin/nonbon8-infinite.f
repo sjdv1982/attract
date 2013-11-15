@@ -14,8 +14,9 @@ c     Parameters
       integer iacir,iacil,ipon,nonl,nonr
       dimension nonr(maxmolpair),nonl(maxmolpair),ipon(99,99),
      1  iacir(maxatom), iacil(maxatom)
-      dimension chair(maxatom),chail(maxatom),wer(maxatom),wel(maxatom),
-     1  fl(maxatom),fr(maxatom),ac(99,99),rc(99,99),rmin2(99,99)
+      dimension chair(maxatom),chail(maxatom),wer(maxatom),
+     1 wel(maxatom),fl(maxatom),fr(maxatom),ac(99,99),rc(99,99),
+     2 rmin2(99,99)
       dimension xl(maxatom),xr(maxatom),emin(99,99)
 
 c     Local variables
