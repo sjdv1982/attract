@@ -22,7 +22,8 @@ def serve_upload():
   os.chdir(mydir)
   model.tofile(fname)
   
-  for p in model.partners: p.rmsd = None #"virtual" form attribute defined in form.webform
+  for p in model.partners: 
+    p.rmsd, p.use_modes = None, None #"virtual" form attributes defined in form.webform
   f = attractmodel.AttractModel._form()
   f = form.webform(f, model)
   header = form.header.replace("<head>", "<head>\n        <base href=\"%s\" target=\"_blank\">" % webdir, 1)
