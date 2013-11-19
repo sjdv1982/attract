@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-webdir = "http://localhost/services/attractcgi/"
-cgidir = "http://localhost/cgi/services/attractcgi/"
-localdir = "/home/sjoerd/services/attractcgi/html/"
+webdir = "http://www.attract.ph.tum.de/services/ATTRACT/"
+cgidir = "http://www.attract.ph.tum.de/cgi/services/ATTRACT/"
+localdir = "/home/server/services/ATTRACT/html/"
 resultdir = "results/"
 cgiscript = "attractserver.py"
 
