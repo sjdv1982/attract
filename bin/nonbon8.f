@@ -1,6 +1,6 @@
       subroutine nonbon8(iab,xl,xr,fl,fr,wel,wer,chair,chail,ac,rc,
      1 emin,rmin2,iacir,iacil,nonr,nonl,ipon,nonp,
-     2 potshape, cdie, swi_on,swi_off, enon,epote,natomr, natoml)
+     2 potshape, cdie, swi_on,swi_off, enon,epote)
       implicit none
 
 c     Parameters
@@ -11,7 +11,6 @@ c     Parameters
       real*8 xl,xr,fl,fr,wel,wer,chair,chail,ac,rc
       real*8 emin,rmin2,enon,epote      
       integer iacir,iacil,ipon,nonl,nonr
-      integer natomr, natoml
       dimension nonr(maxmolpair),nonl(maxmolpair),ipon(99,99),
      1  iacir(maxatom), iacil(maxatom)
       dimension chair(maxatom),chail(maxatom),wer(maxatom),
@@ -26,7 +25,6 @@ c     Local variables
       integer k,ik,i,j,ii,jj,it,jt,ivor
       dimension dx(3)
       real*8 e_min
-      integer, parameter:: ERROR_UNIT = 0
       
       xnull=0.0d0
       enon=xnull
@@ -131,12 +129,6 @@ c     1 emin(it,jt)
       endif
       else
       enon=enon+fswi*ivor*vlj
-      if (vlj.gt.0.1) then
-       write(ERROR_UNIT,*)'large pair',i,j,it,jt,r2,ivor*vlj,enon
-       do k=1,3
-       write(ERROR_UNIT,*) ii,jj,xr(ii+k), xl(jj+k)
-       enddo
-       endif
 c      write(*,*)'pair',i,j,it,jt,r2,ivor*vlj,et,
 c     1 emin(it,jt)
       if(iab.eq.1) then

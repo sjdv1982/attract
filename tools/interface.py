@@ -8,7 +8,8 @@ Created on Wed Jun 12 13:14:50 2013
 def read_file(file1):
     atomlist = []
     for line in open(file1):
-        list = line.split()
+        tmp = line.replace('-',' -')
+        list = tmp.split()
         if len(list) > 0 and list[0] == 'ATOM':
             atomlist.append((int(list[1]),int(list[4]),float(list[5]),float(list[6]),float(list[7])))
             
@@ -19,7 +20,8 @@ def read_struc(file1):
     atomlistb = []
     count = 0
     for line in open(file1):
-        list = line.split()
+        tmp = line.replace('-',' -')
+        list = tmp.split()
         if len(list) > 0 and list[0] == 'ATOM' and count < int(list[1]):
             atomlista.append((int(list[1]),int(list[4]),float(list[5]),float(list[6]),float(list[7])))
             count += 1
@@ -35,7 +37,7 @@ def get_interface(a1, a2, output,output2,rcut):
     ilist1 = []
     ilist2 = []
     rcutsqrt = math.sqrt(rcut)
-    while len(ilist1) < 10 or len(ilist2) < 10:
+    while len(ilist1) < 8 or len(ilist2) < 8:
         for atom1 in a1:
             for atom2 in a2:
                     dist = (atom1[2]-atom2[2])**2+(atom1[3]-atom2[3])**2+(atom1[4]-atom2[4])**2
@@ -98,7 +100,7 @@ def get_interface2(a1, a2, output,ouput2,rcut):
             
         out.close()
     
-def make_interfacelist(file1, file2, directory,rcut=9.0,name1='rlist',name2='llist'):
+def make_interfacelist(file1, file2, directory,rcut=3.0,name1='rlist',name2='llist'):
     a1 = read_file(file1)
     a2 = read_file(file2)
     get_interface(a1, a2, directory+'/'+name1+'.txt',directory+'/'+name2+'.txt',rcut*rcut)

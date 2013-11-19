@@ -16,7 +16,8 @@ def make_interfacelist(ilist, pdb):
     receptor = []
     receptorid = []
     for line in open(pdb):
-        list = line.split()
+        tmp = line.replace('-',' -')
+        list = tmp.split()
         if len(list) > 0 and list[0] == 'ATOM':
             receptor.append((int(list[1]),int(list[4]),float(list[5]),float(list[6]),float(list[7])))
             receptorid.append((list[3],list[4],list[2],list[1]))

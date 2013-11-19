@@ -1,6 +1,6 @@
 OBJ0= read_hm.o read_dof.o read_parameters.o read_pdb.o write_pdb.o print_struc.o \
   cartstate.o euler2rotmat.o rotate.o forcerotscale.o deform.o minfor.o monte.o \
-  mc11a.o GGUBS.o parse_options.o select.o pairgen.o pairenergy.o energy.o \
+  mc11a.o GGUBS.o parse_options.o select.o pairgen.o  pairenergy.o energy.o \
   globalenergy.o matmult.o matinv.o prox.o reset_forces.o ligmin.o \
   ligmin_index.o rota.o trans.o em/situs/lib_vio.o em/situs/lib_pio.o em/situs/lib_err.o \
   parse_restraints.o restrain.o read_ens.o read_pdb2.cpp\
@@ -14,7 +14,7 @@ OBJ= $(OBJ0) nonbon8.o
   
 FLAG= -g -p -O3 -fno-automatic -ffast-math -fcray-pointer
 #FLAG= -g -p -O0 -fno-automatic -ffast-math -fcray-pointer
-H=state.h max.h grid.h nonbon.h makegrid.h prox.h
+H=state.h max.h grid.h nonbon.h makegrid.h prox.h max.fin
 FF=gfortran
 
 CXX        = g++
@@ -28,7 +28,7 @@ attract: attract.o grid.o ministate.o $(OBJ)
 attract-torque: attract.o grid-torque.o ministate-torque.o $(OBJ) 
 	$(CXX) $(CFLAGS)  $^ -lgfortran -lrt -o $@
 	
-attract-infinite: attract.o grid.o nonbon8-infinite.o ministate.o $(OBJ0)
+attract-infinite: attract.o grid.o nonbon8-infinite.o ministate-infinite.o $(OBJ0)
 	$(CXX) $(CFLAGS)  $^ -lgfortran -lrt -o $@
 
 collect: collect.o read_parameters.o read_pdb.o read_pdb2.o read_dof.o \
@@ -142,6 +142,10 @@ omp_threadnum: omp_threadnum.o
 
 %-omp.o: %.cpp $(H)
 	$(CXX) $(CFLAGS) -fopenmp -c $< -o $@ 
+	
+%-infinite.o: %.cpp $(H)
+	$(CXX) $(CFLAGS) -DINFINITE -c $< -o $@
+	
 
 collectlib.so: collectlib-pic.o read_parameters-pic.o read_pdb-pic.o \
   read_pdb2-pic.o read_dof-pic.o cartstate-pic.o euler2rotmat-pic.o \
@@ -160,32 +164,9 @@ max.fin: max.h
 %.o: %.c $(H)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-%.o: %.f
+%.o: %.f max.fin
 	$(FF) $(FLAG) -c $< -o $@
 	
-deform.o: max.fin
-
-minfor.o: max.fin
-
-monte.o: max.fin
-
-energy.o: max.fin
-
-globalenergy.o: max.fin
-
-ligmin_index.o: max.fin
-
-ligmin.o: max.fin
-
-nonbon8-infinite.o: max.fin
-
-nonbon8.o: max.fin
-
-pairenergy.o: max.fin
-
-rota.o: max.fin
-
-trans.o: max.fin
 
 %-pic.o: %.cpp $(H)
 	$(CXX) $(CFLAGS) -c -fPIC $< -o $@

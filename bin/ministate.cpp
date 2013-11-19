@@ -263,7 +263,7 @@ extern "C" void molpair_set_nonp_(
  const int &molpairhandle,
  const int &nonp) {
   int ministatehandle = molpairhandle/MAXMOLPAIR; //rounds down...
-  MiniState &ms = *ministates[ministatehandle]; 
+  MiniState &ms = *ministates[ministatehandle];
   MolPair &mp = ms.pairs[molpairhandle-MAXMOLPAIR*ministatehandle-1];
   mp.nonp = nonp;
 }
@@ -282,8 +282,14 @@ extern "C" void molpair_pairgen_(
   if (!mp.pairgen_done) {
     mp.iactl = new int[MAXATOM];
     mp.iactr = new int[MAXATOM];
-    mp.nonr = new int[MAXMOLPAIR];
-    mp.nonl = new int[MAXMOLPAIR];
+#ifdef INFINITE
+    	//cut down memory consumption in attract-infinite
+    	mp.nonr = new int[100];
+    	mp.nonl = new int[100];
+#else
+        mp.nonr = new int[MAXMOLPAIR];
+        mp.nonl = new int[MAXMOLPAIR];
+#endif
     select_(MAXATOM, MAXRES, MAXMOLPAIR, 
       molpairhandle, cartstatehandle, ms.rcut);       
     pairgen_(MAXATOM, MAXRES, MAXMOLPAIR,

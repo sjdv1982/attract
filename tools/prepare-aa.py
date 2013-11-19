@@ -54,45 +54,100 @@ def check(unbound, bound,sort=False):
 	sys.exit(1)
 	
     if ("HE2" in pdbu[i] or "HD1" in pdbu[i]) and 'XXX' in pdbu[i]:
-      tmp = pdbb[i]
       if (not "HE2" in pdbb[i]) and (not "HD1" in pdbb[i]):
 	print pdbb[i]
 	sys.exit(1)
 	
       else:
-	x1 = float(pdbu[i-1].split()[5])
-	y1 = float(pdbu[i-1].split()[6])
-	z1 = float(pdbu[i-1].split()[7])
-	x2 = float(pdbb[i-1].split()[5])
-	y2 = float(pdbb[i-1].split()[6])
-	z2 = float(pdbb[i-1].split()[7])
-	x3 = float(pdbb[i].split()[5])
-	y3 = float(pdbb[i].split()[6])
-	z3 = float(pdbb[i].split()[7])
+	print "Check HIS", unbound
+	tmp1 = pdbu[i-1]
+	tmp1 = tmp1.replace("-"," -")
+	tmp2 = pdbb[i-1]
+	tmp2 = tmp2.replace("-"," -")
+	tmp3 = pdbb[i]
+	tmp3 = tmp3.replace("-"," -")
+	x1 = float(tmp1.split()[5])
+	y1 = float(tmp1.split()[6])
+	z1 = float(tmp1.split()[7])
+	x2 = float(tmp2.split()[5])
+	y2 = float(tmp2.split()[6])
+	z2 = float(tmp2.split()[7])
+	x3 = float(tmp3.split()[5])
+	y3 = float(tmp3.split()[6])
+	z3 = float(tmp3.split()[7])
 	dx = x3-x2
 	dy = y3-y2
 	dz = z3-z2
-	tmp2 = pdbu[i][:28]+'     '+str(x1+dx)+' '+str(y1+dy)+' '+str(z1+dz)+pdbu[i][55:]
+	x = "%.3f"%(x1 + dx)
+	y = "%.3f"%(y1 + dy)
+	z = "%.3f"%(z1 + dz)
+	prex,postx = x.split('.')
+	xout = ''
+	for k in range(8-len(prex)):
+	  xout += ' '
+    
+	xout += x
+	yout = ''
+	prey, posty = y.split('.')
+	for k in range(7-len(postx)-len(prey)):
+	  yout += ' '
+	  
+	yout += y
+	zout = ''
+	prez, postz = z.split('.')
+	for k in range(7-len(posty)-len(prez)):
+	  zout += ' '
+	  
+	zout += z
+	tmp2 = pdbu[i][:26]+xout+yout+zout+pdbu[i][54:]
 	print pdbu[i]
 	print pdbu[i-1]
 	print tmp2
 	pdbu[i] = tmp2
-	
+    
     if "HG" in pdbu[i] and "CYS" in pdbu[i] and 'XXX' in pdbu[i]:
       if not 'XX' in pdbb[i] and "HG" in pdbb[i]:
-	x1 = float(pdbu[i-1].split()[5])
-	y1 = float(pdbu[i-1].split()[6])
-	z1 = float(pdbu[i-1].split()[7])
-	x2 = float(pdbb[i-1].split()[5])
-	y2 = float(pdbb[i-1].split()[6])
-	z2 = float(pdbb[i-1].split()[7])
-	x3 = float(pdbb[i].split()[5])
-	y3 = float(pdbb[i].split()[6])
-	z3 = float(pdbb[i].split()[7])
+	print "Check CYS", unbound
+	tmp1 = pdbu[i-1]
+	tmp1 = tmp1.replace("-"," -")
+	tmp2 = pdbb[i-1]
+	tmp2 = tmp2.replace("-"," -")
+	tmp3 = pdbb[i]
+	tmp3 = tmp3.replace("-"," -")
+	x1 = float(tmp1.split()[5])
+	y1 = float(tmp1.split()[6])
+	z1 = float(tmp1.split()[7])
+	x2 = float(tmp2.split()[5])
+	y2 = float(tmp2.split()[6])
+	z2 = float(tmp2.split()[7])
+	x3 = float(tmp3.split()[5])
+	y3 = float(tmp3.split()[6])
+	z3 = float(tmp3.split()[7])
 	dx = x3-x2
 	dy = y3-y2
 	dz = z3-z2
-	tmp2 = pdbu[i][:28]+'     '+str(x1+dx)+' '+str(y1+dy)+' '+str(z1+dz)+pdbu[i][55:]
+	x = "%.3f"%(x1 + dx)
+	y = "%.3f"%(y1 + dy)
+	z = "%.3f"%(z1 + dz)
+	prex,postx = x.split('.')
+	xout = ''
+	for k in range(8-len(prex)):
+	  xout += ' '
+	  
+	xout += x
+	yout = ''
+	prey, posty = y.split('.')
+	for k in range(7-len(postx)-len(prey)):
+	  yout += ' '
+	  
+	yout += y
+	zout = ''
+	prez, postz = z.split('.')
+	for k in range(7-len(posty)-len(prez)):
+	  zout += ' '
+	  
+	zout += z
+	tmp2 = pdbu[i][:26]+xout+yout+zout+pdbu[i][54:]
 	print pdbu[i]
 	print pdbu[i-1]
 	print tmp2
@@ -117,21 +172,25 @@ dirlist = [ name for name in os.listdir(pathname) if os.path.isdir(os.path.join(
 old_dir = os.getcwd()
 os.chdir(pathname)
 ligands = ['A','B']
+calc = True
 for directory in dirlist:
   print directory
+  if directory == '1DQJ':
+    calc = True
+    
   for ligand in ligands:
     unbound = directory+'/'+directory+ligand+'-unbound.pdb'
     unboundaa =directory+'/'+directory+ligand+'-unbound-aa.pdb' 
     bound = directory+'/'+directory+ligand+'-refe.pdb'
     boundaa = directory+'/'+directory+ligand+'-refe-aa.pdb'
-    if os.path.exists(unboundaa) and os.path.exists(boundaa):
-      continue
-    if os.path.exists(unbound) and os.path.exists(bound):
+   # if os.path.exists(unboundaa) and os.path.exists(boundaa):
+   #   continue
+    if os.path.exists(unbound) and os.path.exists(bound) and calc:
       os.chdir(old_dir+'/allatom')
-      subprocess.call(['python','pqreduce-notermini.py',old_dir+'/'+pathname+'/'+unbound,'oplsx.trans','topallhdg5.3.pro',old_dir+'/'+pathname+'/'+bound])
+      subprocess.call(['python','pqreduce-notermini-refepatches.py',old_dir+'/'+pathname+'/'+unbound,'oplsx.trans','topallhdg5.3.pro',old_dir+'/'+pathname+'/'+bound])
       os.chdir(old_dir)
-      subprocess.call(['python','tools/clean_pdb.py',pathname+'/'+unboundaa])
-      subprocess.call(['python','tools/clean_pdb.py',pathname+'/'+boundaa])
+      #subprocess.call(['python','tools/clean_pdb.py',pathname+'/'+unboundaa])
+      #subprocess.call(['python','tools/clean_pdb.py',pathname+'/'+boundaa])
       os.chdir(old_dir+'/'+pathname)
       check(unboundaa,boundaa,True)
       subprocess.call('grep -v XXX '+unboundaa+' > tmp.pdb',shell=True)

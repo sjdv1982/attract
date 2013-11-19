@@ -30,7 +30,8 @@ def read(files):
         # Make list of corresponding beads
         data = []
         for line in open(files[i+1]):
-            list = line.split()
+	    tmp = line.replace('-',' -')
+            list = tmp.split()
             if len(list) > 0 and list[0] == 'ATOM':
                 data.append((int(list[1]),int(list[4]), list[2], list[3]))
         
@@ -149,12 +150,12 @@ if parse_arg(sys.argv):
     inputfiles = sys.argv[2:]
         
     flexbeads, lenligands, atomlist = read(inputfiles)
-    rcut = 5.0
+    rcut = 3.0
     directory = os.path.split(inputfiles[1])[0]
     inp = inputfiles[0].split('rl')[0]
     while (len(flexbeads[0])+len(flexbeads[1]))*3 > 1000 and rcut > 0:
-        rcut -= 0.5
-        subprocess.call(['python','tools/interface.py',inputfiles[1],inputfiles[3],directory,str(rcut*rcut)])
+        rcut -= 0.1
+        subprocess.call(['python','tools/interface.py',inputfiles[1],inputfiles[3],directory,str(rcut),'rlist-'+name,'llist-'+name])
         flexbeads, lenligands, atomlist = read(inputfiles)
         
     output = open(directory+'/flexm-'+name+'.dat','w')

@@ -510,7 +510,7 @@ c     at this stage the whole calculation is complete
 255   g(i)=-delta(i)
  
 256   call ministate_free_pairlist(ministatehandle)      
-      write (ERROR_UNIT,*),'Final energy:', gesa
+c      write (ERROR_UNIT,*),'Final energy:', gesa
 
       return
 c     calculate a new step-length by cubic interpolation
