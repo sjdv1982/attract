@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
-webdir = "http://localhost/services/attractcgi/"
-localdir = "/home/sjoerd/services/attractcgi/html/"
+webdir = "http://www.attract.ph.tum.de/services/ATTRACT/"
+localdir = "/home/server/services/ATTRACT/html/"
 resultdir = "results/"
 
 def serve_attract():
@@ -14,12 +14,26 @@ def serve_attract():
    iterationslength = 10,
   )  
   
-  webform = cgi.FieldStorage()
-  webdict = spyder.htmlform.cgi(webform,f)    
+  webform = cgi.FieldStorage() 
+  #determine nr_iterations
+  nr_iterations = 0
+  for k in webform:
+    if not k.startswith("iterations-"): continue
+    kk = k[len("iterations-"):]
+    p = kk.find("-")
+    if p == -1: continue
+    try:
+      i = int(kk[:p]) + 1
+    except ValueError:
+      continue
+    if i > nr_iterations: nr_iterations = i
+  resourcemodel = None  
   if "_tmpresource" in webform:
     tmpf = webform["_tmpresource"].value    
-    model = Spyder.AttractModel.fromfile(tmpf)    
-    spyder.htmlform.update_webdict(webdict, model)
+    resourcemodel = Spyder.AttractModel.fromfile(tmpf)    
+    nr_iterations = max( len(resourcemodel.iterations) , nr_iterations )    
+  webdict = spyder.htmlform.cgi(webform,f,resourcemodel)  
+  webdict["nr_iterations"] = nr_iterations
   newmodel = Spyder.AttractModel.fromdict(webdict)
   resources.embed(newmodel)
   import random

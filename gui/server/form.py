@@ -172,15 +172,21 @@ def webform(f, model=None,
     ### START b_modes block
     b = fp.new_group("b_modes", "block")
     b.title = "Use harmonic modes"
-    b.members.append("generate_modes")
+    #insert placeholder boolean to determine the state of the Modes switch
+    fp._membernames.append("use_modes")
+    fp._members["use_modes"] = fp._members["ensemble"].get_copy()        
+    b.members.append("use_modes")
     b.has_switch = True
     b.members.append("modes_file")
+    b.members.append("generate_modes")    
     b.members.append("nr_modes")
     b.members.append("aa_modes_file")
-    ff = fp.generate_modes
+    ff = fp.use_modes
     ff.name = "Use harmonic modes"
-    ff.type = "switch"
+    ff.type = "switch"    
     ff = fp.modes_file
+    ff = fp.generate_modes
+    ff.name = "Or: generate harmonic modes automatically"
     ff = fp.nr_modes
     ff.name = "Number of modes to select"
     ff.type = "number"

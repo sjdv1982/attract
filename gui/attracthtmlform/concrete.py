@@ -112,11 +112,13 @@ def _container_tag(node, tag):
 
 def morph_formwrapper(node):
   assert node.space.cgi is not None
-  attributes = (
+  attributes = [
     ("encType", "multipart/form-data"),
     ("action", node.space.cgi),
     ("method", "post"),
-  )
+  ]
+  if node.space.newtab:
+    attributes.append(("target", "_blank"))
   comment = "<!-- END: form -->"
   formtag = SimpleTag("form", attributes, comment = comment)
   if node.space.hidden is not None: 
