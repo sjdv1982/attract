@@ -10,7 +10,12 @@ def make_relpath(outpdir, m):
     items = list(m.__dict__.items())
     ar = False
   for k,v in items:
-    if isinstance(v, Spyder.File): 
+    if isinstance(v, Spyder.Resource): 
+      if v.filename is None: continue
+      nam = v.filename
+      rel = os.path.relpath(nam, outpdir)
+      v.filename = rel
+    elif isinstance(v, Spyder.File): 
       nam = v.name
       rel = os.path.relpath(nam, outpdir)
       if len(os.path.split(rel)[0]) == 0:
@@ -37,9 +42,28 @@ def make_relpath(outpdir, m):
     elif isinstance(v, Spyder.Object):
       make_relpath(outpdir, v)      
       
-      
+def check_embedded(m, attrname = ""):
+  try:
+    items = [a for a in m]
+    items = enumerate(items)
+    ar = True
+  except TypeError:
+    items = list(m.__dict__.items())
+    ar = False
+  for k,v in items:
+    attrname2 = attrname
+    if ar: attrname2 += "[%s]" % k
+    elif attrname == "": attrname2 = str(k)
+    else: attrname2 += ".%s" % k    
+    if isinstance(v, Spyder.Resource): 
+      if v._data is not None:
+        return attrname2
+    elif isinstance(v, Spyder.Object):
+      embedded = check_embedded(v, attrname2)      
+      if embedded is not None: return embedded
+  
 def save(m, outp, *args):
-  v = m.get() 
+  v = m.get()   
   outpdir = os.path.split(outp)[0]  
   if v is not None:
     make_relpath(outpdir, v)
@@ -52,6 +76,10 @@ def generate(m, outp, *args):
   v = m.get() 
   outpdir = os.path.split(outp)[0]
   if v is not None:
+    embedded = check_embedded(v)
+    if embedded is not None:
+      print("Cannot generate shell script: %s is an embedded resource, not a file name" % embedded)
+      return
     make_relpath(outpdir, v)
     sh = os.path.splitext(outp)[0] + ".sh"
     script = v.generate()

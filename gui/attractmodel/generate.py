@@ -73,8 +73,8 @@ cat /dev/null > hm-all.dat
   reduce_any = False
   reduced = set()
   for pnr,p in enumerate(m.partners):
-    if p.pdb.mode == "download":
-      raise Exception("TODO: not yet implemented")
+    assert p.code is None #TODO: not implemented
+    #TODO: select chain
     if p.is_reduced == False:
       if reduce_any == False:
         ret += """
@@ -83,7 +83,7 @@ echo 'Reduce partner PDBs...'
 echo '**************************************************************'
 """      
         reduce_any = True
-      pdbname = p.pdb.pdbfile.name
+      pdbname = p.pdbfile.name
       pdbname2 = os.path.split(pdbname)[1]
       pdbname_reduced = pdbname2[:-4] + "r.pdb"
       if pdbname_reduced not in reduced:
@@ -92,8 +92,8 @@ echo '**************************************************************'
         ret += "$ATTRACTDIR/reduce %s > /dev/null\n" % pdbname2
         reduced.add(pdbname_reduced)
       filenames.append(pdbname_reduced)
-    else:  
-      filenames.append(p.pdb.pdbfile.name) 
+    else:        
+      filenames.append(p.pdbfile.name) 
     #TODO?: generate normal modes  
   if reduce_any: ret += "\n"
   
@@ -319,6 +319,8 @@ echo '**************************************************************'
 """
   ordinals = ["1st", "2nd", "3rd",] + ["%dth" % n for n in range(4,51)]
   iterations = []
+  outp = ""
+  if m.nr_iterations is None: m.nr_iterations = len(m.iterations)
   for n in range(m.nr_iterations):  
     if m.iterations is None or len(m.iterations) <= n:
       iterations.append([None, None, False, False])

@@ -37,9 +37,7 @@ else:
 
 try:
   import spyder
-  #sys.path.append("/home/sjoerd/data/Spyder/modules") ###
-  import spyder.modules.atom ###
-  #import haddock
+  import spyder.modules.atom
   import spyder.qtform.anyQt
 except ImportError:
   import traceback
