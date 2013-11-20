@@ -28,7 +28,7 @@ attract: attract.o grid.o ministate.o $(OBJ)
 attract-torque: attract.o grid-torque.o ministate-torque.o $(OBJ) 
 	$(CXX) $(CFLAGS)  $^ -lgfortran -lrt -o $@
 	
-attract-infinite: attract.o grid.o nonbon8-infinite.o ministate-infinite.o $(OBJ0)
+attract-infinite: attract.o grid.o nonbon8-infinite.o ministate.o $(OBJ0)
 	$(CXX) $(CFLAGS)  $^ -lgfortran -lrt -o $@
 
 collect: collect.o read_parameters.o read_pdb.o read_pdb2.o read_dof.o \
@@ -143,8 +143,6 @@ omp_threadnum: omp_threadnum.o
 %-omp.o: %.cpp $(H)
 	$(CXX) $(CFLAGS) -fopenmp -c $< -o $@ 
 	
-%-infinite.o: %.cpp $(H)
-	$(CXX) $(CFLAGS) -DINFINITE -c $< -o $@
 	
 
 collectlib.so: collectlib-pic.o read_parameters-pic.o read_pdb-pic.o \

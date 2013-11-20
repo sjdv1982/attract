@@ -282,14 +282,8 @@ extern "C" void molpair_pairgen_(
   if (!mp.pairgen_done) {
     mp.iactl = new int[MAXATOM];
     mp.iactr = new int[MAXATOM];
-#ifdef INFINITE
-    	//cut down memory consumption in attract-infinite
-    	mp.nonr = new int[100];
-    	mp.nonl = new int[100];
-#else
-        mp.nonr = new int[MAXMOLPAIR];
-        mp.nonl = new int[MAXMOLPAIR];
-#endif
+    mp.nonr = new int[MAXMOLPAIR];
+    mp.nonl = new int[MAXMOLPAIR];
     select_(MAXATOM, MAXRES, MAXMOLPAIR, 
       molpairhandle, cartstatehandle, ms.rcut);       
     pairgen_(MAXATOM, MAXRES, MAXMOLPAIR,
