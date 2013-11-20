@@ -1,16 +1,14 @@
-       subroutine pairenergy(maxlig,maxatom,totmaxatom,maxmode,
-     1 maxdof,maxmolpair,maxres,totmaxres,
-     2 cartstatehandle,molpairhandle,iab,fixre,gridptr,
-     3 ffr, frotr, ffl, frotl,
-     4 ensr, phir, ssir, rotr, xar, yar, zar, morphr, dligr, 
-     5 ensl, phil, ssil, rotl, xal, yal, zal, morphl, dligl,
-     6 energies, deltar, deltal, deltamorphr, deltamorphl)
+       subroutine pairenergy(
+     1 cartstatehandle,molpairhandle,iab,fixre,gridptr,
+     2 ffr, frotr, ffl, frotl,
+     3 ensr, phir, ssir, rotr, xar, yar, zar, morphr, dligr,
+     4 ensl, phil, ssil, rotl, xal, yal, zal, morphl, dligl,
+     5 energies, deltar, deltal, deltamorphr, deltamorphl)
 
        implicit none
 
 c      Parameters
-       integer maxlig,maxatom,totmaxatom,maxmode,maxmolpair,maxdof,
-     1  maxres, totmaxres
+       include "max.fin"
        integer cartstatehandle,molpairhandle
        integer iab, fixre
        integer gridptr_dmmy
@@ -20,10 +18,12 @@ c      Parameters
        dimension frotr(9), frotl(9)
        real*8 phir, ssir, rotr, xar, yar, zar, morphr, dligr
        real*8 phil, ssil, rotl, xal, yal, zal, morphl, dligl
-       dimension dligr(maxmode), dligl(maxmode)
+       dimension dligr(maxmode+maxindexmode)
+       dimension dligl(maxmode+maxindexmode)
        real*8 energies
        dimension energies(6)
-       real*8 deltar(6+maxmode),deltal(6+maxmode)
+       real*8 deltar(6+maxmode+maxindexmode)
+       real*8 deltal(6+maxmode+maxindexmode)
        real*8 deltamorphr, deltamorphl
        
       
@@ -109,18 +109,25 @@ c      Handle variables: forcefield parameters
 
 c      Handle variables: full coordinates and modes
        real*8 xb,x,xori,xori0,eig
-       integer ieins,nhm
+       integer index_eig
+       real*8 index_val
+       integer ieins,nhm,nihm
        dimension xb(3*totmaxatom),x(3*totmaxatom)
        dimension xori(3*totmaxatom),xori0(3*totmaxatom)
        dimension eig(maxlig,maxmode,3*maxatom)
-       dimension ieins(maxlig),nhm(maxlig)
+       dimension index_eig(maxlig,maxindexmode,maxlenindexmode)
+       dimension index_val(maxlig,maxindexmode,maxlenindexmode)
+       dimension ieins(maxlig),nhm(maxlig), nihm(maxlig)
        pointer(ptr_xb,xb)
        pointer(ptr_x,x)
        pointer(ptr_xori,xori)
        pointer(ptr_xori0,xori0)       
        pointer(ptr_eig,eig)
+       pointer(ptr_index_eig,index_eig)
+       pointer(ptr_index_val,index_val)
        pointer(ptr_ieins,ieins)
        pointer(ptr_nhm,nhm)
+       pointer(ptr_nihm,nihm)
        integer dmmy
        pointer(ptr_dmmy, dmmy)
 
@@ -145,10 +152,12 @@ c deltar/deltar is an array of 6 + nhm[ligand]/nhm[receptor]
 
 c     Local variables: other      
       integer i, j,l,n, use_grid, rigid, true, false
+      integer dummy2
       real*8 enon,epote,zero,e
       real*8 flcopy,xl0
       dimension flcopy(3*maxatom),xl0(3*maxatom)
-      real*8 deltar0(6+maxmode)
+      real*8 deltar0(6+maxmode+maxindexmode)
+      integer, parameter :: ERROR_UNIT = 0
       
       deltamorphr = 0
       deltamorphl = 0
@@ -172,24 +181,23 @@ c Are we using a grid?
 
 c get molpair 
 
-       call molpair_get_rl(molpairhandle,idr,idl,ptr_dmmy)
+       call molpair_get_rl(molpairhandle,idr,idl,ptr_dmmy,dummy2)
 
 c get full coordinates and normal modes
 
-       call cartstate_f_pairenergy(cartstatehandle,ptr_nhm,ptr_ieins,
-     1  ptr_eig, ptr_xb, ptr_x, ptr_xori, ptr_xori0)
+       call cartstate_f_pairenergy(cartstatehandle,ptr_nhm,ptr_nihm,
+     1  ptr_ieins, ptr_eig, ptr_index_eig, ptr_index_val,
+     2  ptr_xb, ptr_x, ptr_xori, ptr_xori0)
 
 c apply ensemble/normal mode deformations to receptor and ligand
        call cartstate_get_ensd(cartstatehandle,idr,ensr,ptr_ensdr,
      1  morphr,cmorphr,ptr_cmorphdr)
-       call deform(maxlig,3*maxatom,3*totmaxatom,maxatom,maxmode,
-     1  ensr,ensdr,cmorphr,cmorphdr,dligr,nhm,idr,ieins,eig,xb,
-     2  x,xori,xori0,1)
+       call deform(ensr,ensdr,cmorphr,cmorphdr,dligr,nhm,nihm,idr,ieins,
+     1  eig,index_eig,index_val,xb,x,xori,xori0,1)
        call cartstate_get_ensd(cartstatehandle,idl,ensl,ptr_ensdl,
      1  morphl,cmorphl,ptr_cmorphdl)
-       call deform(maxlig,3*maxatom,3*totmaxatom,maxatom,maxmode,
-     1  ensl,ensdl,cmorphl,cmorphdl,dligl,nhm,idl,ieins,eig,xb,
-     2  x,xori,xori0,1)
+       call deform(ensl,ensdl,cmorphl,cmorphdl,dligl,nhm,nihm,idl,ieins,
+     1  eig,index_eig,index_val,xb,x,xori,xori0,1)
 
 c select deformed coordinates: select non-pivotized coordinates for receptor
 
@@ -209,7 +217,7 @@ c select deformed coordinates: select non-pivotized coordinates for receptor
      2  cdie,epsilon,swi_on, swi_off)
             
        xnull = 0.0d0   
-       do 10 i=1,6+maxmode
+       do 10 i=1,6+maxmode+maxindexmode
        deltal(i) = xnull
        deltar(i) = xnull 
        deltar0(i)= xnull 
@@ -277,33 +285,38 @@ c      therefore, we must rotate the pm2 matrix
        enddo
        enddo
        endif
-       
+
        call nonbon_grid(gridptr,rigid,iab,fixre,xl,xr,pivotr,tr,
      1  wel,wer,chail,chair,iacil,iacir,natoml,natomr,
      2  rc,ac,emin,rmin2,ipon,potshape,cdie,epsilon,
      3  swi_on, swi_off,
      4  fl,enon,epote,fr,pm2,deltar0) 
 c      rotate delta-translate back into global frame
+
        call rotate1(3*maxatom,
      1  rotmatr,zero,zero,zero,
      2	 pivotnull, 1,deltar0(4))     
        else  
        call molpair_pairgen(molpairhandle,cartstatehandle,nonp)
        call molpair_get_values(molpairhandle,idr,idl,
-     1  ptr_iactr,ptr_iactl,nonp,ptr_nonr,ptr_nonl)       
-       call nonbon8(maxatom,maxmolpair,
-     1  iab,xl,xr,fl,fr,wel,wer,chair,chail,ac,rc,
-     2  emin,rmin2,iacir,iacil,nonr,nonl,ipon,nonp,
-     3  potshape,cdie,swi_on,swi_off,enon,epote)
+     1  ptr_iactr,ptr_iactl,nonp,ptr_nonr,ptr_nonl) 
+c       write(ERROR_UNIT,*), xl(3*132+1:3*132+3), xr(3*1704+1:3*1704+3)
+       call nonbon8(iab,xl,xr,fl,fr,wel,wer,chair,chail,ac,rc,
+     1  emin,rmin2,iacir,iacil,nonr,nonl,ipon,nonp,
+     2  potshape,cdie,swi_on,swi_off,enon,epote,natomr,natoml)
        endif
        
        energies(1) = enon
        energies(2) = epote
-       
-c calculate receptor mode deltas
-       call ligmin(maxlig,maxdof,maxmode,maxatom,
-     1  fr,natomr,idr+1,eig,nhm(idr+1),deltar) 
+c       write(ERROR_UNIT,*) "Pair", energies(1), energies(2)
+c calculate receptor harmonic mode deltas
+       call ligmin(fr,natomr,idr+1,eig,nhm(idr+1),deltar)
+c       write(ERROR_UNIT,*)'deltar',(deltar(i),i=1,12)
 
+c calculate receptor index mode deltas
+       call ligmin_index(fr,natomr,idr+1,index_eig,index_val,
+     1  nhm(idr+1),nihm(idr+1),deltar)
+c       write(ERROR_UNIT,*)'deltar',(deltar(i),i=1,12)
        call grad_morph(fr,natomr,morphr,cmorphdr,
      1  deltamorphr)       
        
@@ -314,10 +327,13 @@ c rotate ligand forces into ligand frame
      1  rotmatd2,zero,zero,zero,
      2	 pivotnull, natoml,flcopy)
        
-c calculate ligand mode deltas
-       call ligmin(maxlig,maxdof,maxmode,maxatom,
-     1  flcopy,natoml,idl+1,eig,nhm(idl+1),deltal) 
-       
+c calculate ligand harmonic mode deltas
+       call ligmin(flcopy,natoml,idl+1,eig,nhm(idl+1),deltal)
+c       write(ERROR_UNIT,*)'deltal',(deltal(i),i=1,12)
+c calculate ligand index mode deltas
+       call ligmin_index(flcopy,natoml,idl+1,index_eig,index_val,
+     1  nhm(idl+1),nihm(idl+1),deltal)
+c       write(ERROR_UNIT,*)'deltal',(deltal(i),i=1,12)
        call grad_morph(flcopy,natoml,morphl,cmorphdl,
      1  deltamorphl)
        
@@ -358,10 +374,9 @@ c      multiply the torque matrix with the inverse axsym force rotation matrix
        enddo
        enddo
        
-       call trans(3*maxatom,maxdof,fr,deltar,natomr)
-       call rota(3*maxatom,maxdof,
-     1  xr,fr,deltar,pm2a,natomr)
-       do 20 i=1,6+maxmode
+       call trans(fr,deltar,natomr)
+       call rota(xr,fr,deltar,pm2a,natomr)
+       do 20 i=1,6+maxmode+maxindexmode
        deltar(i) = deltar(i)+deltar0(i)
 20     continue  
        endif
@@ -382,10 +397,10 @@ c      multiply the torque matrix with the inverse axsym force rotation matrix
        enddo
        enddo
 
-       call rota(3*maxatom,maxdof,
-     1  xl0,fl,deltal,pm2a,natoml)       
-       call trans(3*maxatom,maxdof,fl,deltal,natoml)       
-            
+       call rota(xl0,fl,deltal,pm2a,natoml)
+       call trans(fl,deltal,natoml)
+c      write(ERROR_UNIT,*)'deltar',(deltar(i),i=1,12)
+c          write(ERROR_UNIT,*)'deltal',(deltal(i),i=1,12)
       e = zero
       do 990,i=1,6
       e = e + energies(i)

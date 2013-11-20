@@ -261,6 +261,82 @@ inline void restrain_type_3(const Restraint &r, int iab, const Coor *x, Coor *f,
   }
 }
 
+inline void restrain_type_4(const Restraint &r, int iab, const Coor *x, Coor *f, double &energy) {
+  //harmonic bond restraints for preserving intramolecular secondary structure
+	// poor mans elastic network force field
+  if (r.s1 == 1 && r.s2 == 1) {
+    int atomnr1 = r.selection1[0]-1;
+    const Coor &a1 = x[atomnr1];
+    int atomnr2 = r.selection2[0]-1;
+    const Coor &a2 = x[atomnr2];
+
+    double disx = a1[0]-a2[0];
+    double disy = a1[1]-a2[1];
+    double disz = a1[2]-a2[2];
+    double dsq = disx*disx+disy*disy+disz*disz;
+    double cforce = r.par2;
+    double dis = sqrt(dsq);
+    double violation = dis - r.par1;
+    //if (abs (violation) < 0.01) {
+    //	return;
+    //}
+    double violationsq = violation*violation;
+    energy += 0.5 * cforce * violationsq;
+    //fprintf(stderr, "Bond restraint %i  %i %f %f \n",atomnr1, atomnr2, dis, r.par1);
+    if (iab) {
+    	double factor = violation/dis;
+    	Coor force = {disx * cforce*factor,disy * cforce*factor,disz * cforce*factor};
+    	//fprintf(stderr, "Bond restraint %i  %i %f %f %f %f %f\n",atomnr1, atomnr2, dis, r.par1, force[0], force[1], force[2]);
+    	Coor &f1 = f[atomnr1];
+    	f1[0] -= force[0];
+    	f1[1] -= force[1];
+    	f1[2] -= force[2];
+    	Coor &f2 = f[atomnr2];
+    	f2[0] += force[0];
+    	f2[1] += force[1];
+    	f2[2] += force[2];
+    }
+  }
+}
+
+inline void restrain_type_5(const Restraint &r, int iab, const Coor *x, Coor *f, double &energy) {
+  //Repulsive restraints for preserving intramolecular secondary structure
+	// poor mans Lennard Jones
+  if (r.s1 == 1 && r.s2 == 1) {
+    int atomnr1 = r.selection1[0]-1;
+    const Coor &a1 = x[atomnr1];
+    int atomnr2 = r.selection2[0]-1;
+    const Coor &a2 = x[atomnr2];
+
+    double disx = a1[0]-a2[0];
+    double disy = a1[1]-a2[1];
+    double disz = a1[2]-a2[2];
+    double dsq = disx*disx+disy*disy+disz*disz;
+    double limsq = r.par1 * r.par1;
+    if (limsq < dsq) {
+      //printf("ENERGY: 0\n");
+      return;
+    }
+    double cforce = r.par2;
+    double violation = dsq - limsq;
+    double violationsq = violation*violation;
+    energy += 0.5 * cforce * violationsq;
+    // ToDo check force code
+    if (iab) {
+    	double factor = 2*violation;
+    	Coor force = {disx * cforce*factor,disy * cforce*factor,disz * cforce*factor};
+    	//fprintf(stderr, "LJ restraint %i  %i %f %f %f %f %f\n",atomnr1, atomnr2, dsq, limsq, force[0], force[1], force[2]);
+    	Coor &f1 = f[atomnr1];
+    	f1[0] -= force[0];
+    	f1[1] -= force[1];
+    	f1[2] -= force[2];
+    	Coor &f2 = f[atomnr2];
+    	f2[0] += force[0];
+    	f2[1] += force[1];
+    	f2[2] += force[2];
+    }
+  }
+}
 
 extern "C" void restrain_(const int &ministatehandle, const int &cartstatehandle, const int &seed, const int &iab, double &energy) {
   MiniState &ms = ministate_get(ministatehandle);
@@ -273,5 +349,7 @@ extern "C" void restrain_(const int &ministatehandle, const int &cartstatehandle
     if (r.type == 1) restrain_type_1(r,iab,x,f,energy);
     if (r.type == 2) restrain_type_2(r,iab,x,f,energy);    
     if (r.type == 3) restrain_type_3(r,iab,x,f,energy);    
+    if (r.type == 4) restrain_type_4(r,iab,x,f,energy);
+    if (r.type == 5) restrain_type_5(r,iab,x,f,energy);
   }
 }

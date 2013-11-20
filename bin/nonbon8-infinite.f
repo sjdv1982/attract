@@ -1,11 +1,12 @@
       subroutine nonbon8(iab,xl,xr,fl,fr,wel,wer,chair,chail,ac,rc,
      1 emin,rmin2,iacir,iacil,nonr,nonl,ipon,nonp,
-     2 potshape, cdie, swi_on,swi_off, enon,epote)
+     2 potshape, cdie, swi_on,swi_off, enon,epote,natomr, natoml)
       implicit none
 
 c     Parameters
       include "max.fin"
       integer iab,nonp,potshape
+      integer natomr, natoml
       integer cdie
       real swi_on, swi_off
       real*8 xl,xr,fl,fr,wel,wer,chair,chail,ac,rc
@@ -25,14 +26,16 @@ c     Local variables
       integer k,ik,i,j,ii,jj,it,jt,ivor
       dimension dx(3)
       real*8 e_min
+      integer natom
+      integer, parameter:: ERROR_UNIT = 0
       
       xnull=0.0d0
       enon=xnull
       epote=xnull
       r2=xnull
-      do 100 ik=1,nonp
-      i=nonr(ik)
-      j=nonl(ik)
+
+      do 100 i=1,natomr
+      do 110 j=1,natoml
       it=iacir(i)
       jt=iacil(j)
       ii=3*(i-1)
@@ -129,6 +132,13 @@ c     1 emin(it,jt)
       endif
       else
       enon=enon+fswi*ivor*vlj
+c      if (vlj.gt.0.1) then
+c       write(ERROR_UNIT,*)'large pair',i,j,it,jt,r2,ivor*vlj,enon
+c       do k=1,3
+c       write(ERROR_UNIT,*) ii,jj,xr(ii+k), xl(jj+k)
+c       enddo
+c       endif
+!       write(*,*)'pair',i,j,it,jt,r2,ivor*vlj,e_min
 c      write(*,*)'pair',i,j,it,jt,r2,ivor*vlj,et,
 c     1 emin(it,jt)
       if(iab.eq.1) then
@@ -141,6 +151,7 @@ c     1 emin(it,jt)
   145 continue      
       endif
       endif
+  110 continue
   100 continue
 c      write(ERROR_UNIT, *) "nonbon8 ", enon, epote
 

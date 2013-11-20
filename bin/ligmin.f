@@ -1,9 +1,8 @@
-      subroutine ligmin(maxlig,maxdof,maxmode,maxatom,
-     1                  f,natom,ijk,eig,nhm,delta)
+      subroutine ligmin(f,natom,ijk,eig,nhm,delta)
       implicit none
       
-c     Parameters      
-      integer maxlig,maxdof,maxmode,maxatom
+c     Parameters
+      include "max.fin"
       integer natom,ijk
       real*8 f,eig,delta
       integer nhm
@@ -14,6 +13,7 @@ c     Parameters
 c     Local variables
       real*8 xnull, force
       integer i,j
+      integer, parameter :: ERROR_UNIT = 0
 
 c
 c  delta(6+i): skalar product between force f and eigenvector I
@@ -26,6 +26,7 @@ c  dei(i): skalar product between difference(actual pos.-ori-pos.) and eig(i).
       
       delta(6+i)=delta(6+i)-force
    30 continue
+c      write(ERROR_UNIT,*) "Mode delta", i, delta(6+i)
    20 continue
 
       return 

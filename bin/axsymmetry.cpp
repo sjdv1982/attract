@@ -27,6 +27,7 @@ extern "C" void print_struc_(
  const coors2 &locrests, 
  const double *morph,
  const int *nhm,
+ const int *nihm,
  const modes2 &dlig, 
  const int *has_locrests,
  int len_label
@@ -34,7 +35,7 @@ extern "C" void print_struc_(
 
 extern "C" FILE *read_dof_init_(const char *f_, int nlig, int &line, double (&pivot)[3][MAXLIG], int &auto_pivot, int &centered_receptor, int &centered_ligands, int f_len);
 
-extern "C" int read_dof_(FILE *fil, int &line, int &nstruc, const char *f_, idof2 &ens, dof2 &phi, dof2 &ssi, dof2 &rot, dof2 &xa, dof2 &ya, dof2 &za, coors2 &locrests, dof2 &morph, modes2 &dlig, const int &nlig, const int *nhm, const int *nrens0, const int *morphing, const int *has_locrests, int &seed, char *&label, const int &all_labels, int f_len);
+extern "C" int read_dof_(FILE *fil, int &line, int &nstruc, const char *f_, idof2 &ens, dof2 &phi, dof2 &ssi, dof2 &rot, dof2 &xa, dof2 &ya, dof2 &za, coors2 &locrests, dof2 &morph, modes2 &dlig, const int &nlig, const int *nhm, const int *nihm, const int *nrens0, const int *morphing, const int *has_locrests, int &seed, char *&label, const int &all_labels, int f_len);
 
 static int seed;
 static char *label;
@@ -62,6 +63,7 @@ int main(int argc, char *argv[]) {
     
   int nrens[MAXLIG];
   int nhm[MAXLIG];
+  int nihm[MAXLIG];
 
   int ens[MAXLIG];
   double phi[MAXLIG];
@@ -71,7 +73,7 @@ int main(int argc, char *argv[]) {
   double ya[MAXLIG];
   double za[MAXLIG];
   double morph[MAXLIG];
-  double dlig[MAXLIG][MAXMODE];
+  double dlig[MAXLIG][MAXMODE+MAXINDEXMODE];
 
   int morphing[MAXLIG];
   memset(morphing, 0, MAXLIG*sizeof(int));
@@ -93,6 +95,7 @@ int main(int argc, char *argv[]) {
 
   for (int n = 0; n < MAXLIG; n++) {
     nhm[n] = 0;
+    nihm[n] = 0;
     nrens[n] = 0;
   }
 
@@ -152,6 +155,7 @@ int main(int argc, char *argv[]) {
    syms,
    nlig0,
    nhm,
+   nihm,
    nrens,
    morphing,
    has_locrests,
@@ -200,7 +204,7 @@ int main(int argc, char *argv[]) {
 
     int result = read_dof_(fil, line, nstruc, argv[1], ens, phi, ssi, rot, 
      xa, ya, za, locrests, 
-     morph, dlig, nlig0, nhm, nrens, morphing, has_locrests, 
+     morph, dlig, nlig0, nhm, nihm, nrens, morphing, has_locrests,
      seed, label, 1, strlen(argv[1])
     );
     if (result != 0) break;
@@ -240,6 +244,7 @@ int main(int argc, char *argv[]) {
      locrests,
      morph,
      nhm,
+     nihm,
      dlig,
      has_locrests,
      lablen
