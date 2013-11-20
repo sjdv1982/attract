@@ -2,7 +2,7 @@ Type Data_ATTRACT_Structures:Data{}
 Type Data_ATTRACT_Rotations:Data{}
 Type Data_ATTRACT_Translations:Data{}
 Type Data_ATTRACT_Modes:Data{}
-Type Data_ATTRACT_CryoEM_data:Data{}
+Type Data_ATTRACT_CryoEM:Data{}
 
 Type Data_TXT_FileList_PDB:Data{}
 
@@ -19,9 +19,7 @@ Type AttractSymmetry {
     symmetry_axis.add_header(" - Do not provide explicit symmetry axis and origin")    
     symmetry_axis.add_header(" - Specify all symmetry partners that are to be restrained")    
     symmetry_axis.add_header(" - In the Docking Partner section, specify all partner structures, which must be identical")
-    symmetry_axis.type = "required"
     symmetry_axis.name = "Generative symmetry axis"
-    symmetry_origin.type = "required"
     symmetry_origin.name = "Origin for generative symmetry axis"
   }
   Enum symmetry("Cx","Dx") = "Cx"
@@ -29,6 +27,9 @@ Type AttractSymmetry {
     if symmetry_origin is not None: assert symmetry_axis is not None
   }
   IntegerArray partners = []
+  form {
+    partners.form = "soft"
+  }  
   validate {
     if symmetry_axis is not None: assert len(partners) == 1
     else:
@@ -37,32 +38,42 @@ Type AttractSymmetry {
   }
 }
 
+
 Type AttractPartnerInterface {
-  ## form pdb.name = "Structure definition"
-  PDBInterface pdb
+  ## form pdbfile.type = "file"
+  ## form pdbfile.name = "Structure file"
+  *ResourceData_PDB pdbfile
   
+  ## form code.length = 4  
+  ## form code.name = "Or define?"
+  *PDBCode code
+
+  *String gridname
+  ## form gridname.name = "Name of the grid to use for this molecule"
+  
+  ## form chain.name = "Which chain of the structure must be used?"
+  ## form chain.options = "All", "A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"
+  String chain
+        
   #RestraintsInterface r = RestraintsInterface()
   ## #form r.name = "Restraint definition"
-  ## #form r.type = "required"
-    
-  Enum moleculetype("Protein", "DNA", "RNA") = "Protein"
-  ## form moleculetype.name = "What kind of molecule are you docking?"
-  ## form moleculetype.optiontitles = "Protein/peptide/small ligand", "DNA", "RNA"
-  
+      
   Bool is_reduced = False
   ## form is_reduced.name = "The molecule is already in reduced form"
+
+  Enum moleculetype("Protein", "DNA", "RNA") = "Protein"
+  ## form moleculetype.name = "What kind of molecule are you docking?"
+  ## form moleculetype.optiontitles = "Protein/peptide", "DNA", "RNA"
   
   Bool generate_modes = False
   ## form generate_modes.name = "Generate harmonic modes"
   
-  *File modes_file 
+  *ResourceData_ATTRACT_Modes modes_file 
   ## form modes_file.name = "Harmonic modes file"
-  ## form modes_file.type = "required"
-  ## form modes_file.file = "Data_ATTRACT_Modes"  
-  *File aa_modes_file 
+  ## form modes_file.type = "file"
+  *ResourceData_ATTRACT_Modes aa_modes_file 
   ## form aa_modes_file.name = "All-atom harmonic modes file (for RMSD/collect)"
-  ## form aa_modes_file.type = "required"
-  ## form aa_modes_file.file = "Data_ATTRACT_Modes"    
+  ## form aa_modes_file.type = "file"
   *Integer nr_modes = 0
   form {
     nr_modes.name = "Number of harmonic modes to select"
@@ -73,21 +84,15 @@ Type AttractPartnerInterface {
   ## validate if generate_modes: assert nr_modes is not None
   ## validate if generate_modes: assert modes_file is None
   ## validate if nr_modes not in (None, 0): assert nr_modes >= 1 and nr_modes <= 10
-  
-  *String gridname
-  ## form gridname.name = "Name of the grid to use for this molecule"
-  ## form gridname.type = "required"  
-  
-  *File ensemble_list
+    
+  Bool ensemble = False
+  *ResourceData_TXT_FileList_PDB ensemble_list
   ## form ensemble_list.name = "Ensemble list file"
-  ## form ensemble_list.type = "required"
-  ## form ensemble_list.file = "Data_TXT_FileList_PDB"
+  ## form ensemble_list.type = "file"
   *Integer ensemble_size
   ## form ensemble_size.name = "Number of conformers in the ensemble"
-  ## form ensemble_size.type = "required"
   ## validate assert ensemble_size is None or ensemble_size > 0
   *Enum ensemblize("random","all","custom")
-  ## form ensemblize.type = "required"
   ## form ensemblize.name = "Ensemble search"
   ## form ensemblize.optiontitles = "Random", "All", "Custom (none)"
   
@@ -100,26 +105,23 @@ Type AttractPartnerInterface {
   ## form deflex.add_header("If you perform RMSD analysis, you may remove all flexibility (ensemble and modes) beforehand")
   ## form deflex.name = "Remove flexibility" 
 
-  *File_PDB rmsd_pdb
+  *ResourceData_PDB rmsd_pdb
   ## form rmsd_pdb.add_header("You can specify a PDB file to use as reference in RMSD calculations")
-  ## form rmsd_pdb.add_header("Leave blank to use the docked PDB instead (bound conforation = unbound conformation)")
+  ## form rmsd_pdb.add_header("Leave blank to use the docked PDB instead (bound conformation = unbound conformation)")
   ## form rmsd_pdb.name = "RMSD PDB file"
-  ## form rmsd_pdb.type = "required"
-  ## form rmsd_pdb.file = "Data_PDB"
+  ## form rmsd_pdb.type = "file"
   Bool rmsd_bb = True
   ## form rmsd_bb.name = "Select only backbone atoms for RMSD calculation"
 
-  *File_PDB collect_pdb
+  *ResourceData_PDB collect_pdb
   ## form collect_pdb.add_header("You can specify a different PDB file to use as template for collecting the structures")
   ## form collect_pdb.add_header("Leave blank to use the reduced PDB instead")
   ## form collect_pdb.name = "Collect PDB file"
-  ## form collect_pdb.type = "required"
-  ## form collect_pdb.file = "Data_PDB"
-  *File collect_ensemble_list
+  ## form collect_pdb.type = "file"
+  *ResourceData_TXT_FileList_PDB collect_ensemble_list
   ## form collect_ensemble_list.add_header("If you specified a PDB file above, you may provide an ensemble conformer list for it")
-  ## form collect_ensemble_list.name = "Collect Ensemble list file"
-  ## form collect_ensemble_list.type = "required"
-  ## form collect_ensemble_list.file = "Data_TXT_FileList_PDB"
+  ## form collect_ensemble_list.name = "Collect ensemble list file"
+  ## form collect_ensemble_list.type = "file"
 
   form {
     """
@@ -134,8 +136,14 @@ Type AttractPartnerInterface {
     charged_cter.type = None
   }  
   validate {
+    if (pdbfile is None and code is None):
+       raise spyder.core.ValidationError("Please upload a PDB file or provide a PDB code")
+    if (pdbfile is not None and code is not None):
+       raise spyder.core.ValidationError("Please upload a PDB file or provide a PDB code, not both")
+    if chain not in ("All", "A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"):
+       raise spyder.core.ValidationError("Please provide a chain")  
     assert (ensemble_size is None) == (ensemble_list is None) == (ensemblize == None)
-    assert is_reduced == False or pdb.code is None
+    assert is_reduced == False or code is None
   }
 }
 
@@ -192,19 +200,14 @@ Type AttractIteration {
   form {
     mc.group = "Monte Carlo"
     mc.name = "Enable Monte Carlo mode"
-    mctemp.type = "required"
     mctemp.group = "Monte Carlo"
     mctemp.name = "Temperature (in kT)"
-    mcscalerot.type = "required"
     mcscalerot.group = "Monte Carlo"
     mcscalerot.name = "Rotation step size (in radians)"
-    mcscalecenter.type = "required"
     mcscalecenter.group = "Monte Carlo"
     mcscalecenter.name = "Translation step size (in angstroms)"
-    mcscalemode.type = "required"
     mcscalemode.group = "Monte Carlo"
     mcscalemode.name = "Mode deformation step size (in angstroms)"
-    mcensprob.type = "required"
     mcensprob.group = "Monte Carlo"
     mcensprob.name = "Probability to switch between ensemble conformers"
   }
@@ -215,41 +218,47 @@ Type AttractIteration {
 }
 
 Type AttractModel {
-  String runname
+  *String runname
   form {
     runname.add_header("Please supply a name for your docking run (one word)")
     runname.name = "Name"
   }  
   validate {
-    runname = runname.strip()
-    self.runname = runname
-    if not runname.replace("_","").replace("-","").isalnum():
-      raise ValueError("The name of your run may contain only letters, digits, _ and -")  
+    if runname is not None:
+      runname = runname.strip()
+      self.runname = runname
+      if not runname.replace("_","").replace("-","").isalnum():
+        raise ValueError("The name of your run may contain only letters, digits, _ and -")  
   }
   
   AttractPartnerInterfaceArray partners
   form {
     partners.length = 10
     partners.name = "Docking partners"
-    for n in range(partners.length):      
-      partners[n].name = "Docking partner % d" % (n+1)
+    partners.form = "soft"
+    for n in range(10):
+      partners[n].name = "Docking partner %d" % (n+1)
+      partners[n].group = "Docking partner %d" % (n+1)
   }
   AttractGridArray grids = []
   form {
     grids.length = 5
     grids.group = "Grids"
     grids.name = "Grid"
+    grids.form = "soft"
     grids.count_from_one = True
   }  
   
   #***Iteration parameters***  
-  Integer nr_iterations = 1
+  *Integer nr_iterations
   AttractIterationArray iterations = []
-  form {  
+  form {      
+    nr_iterations.default = 1
     nr_iterations.group = "Iteration parameters"
     nr_iterations.name = "Number of iterations"
     iterations.group = "Iteration parameters"
     iterations.length = 5
+    iterations.form = "soft"
     iterations[0].name = "First iteration"
     iterations[1].name = "Second iteration"
     iterations[2].name = "Third iteration"
@@ -257,8 +266,9 @@ Type AttractModel {
     iterations[4].name = "Fifth iteration"
   }  
   validate {
-    assert nr_iterations > 0
-    assert nr_iterations >= len(iterations)
+    if nr_iterations is not None:
+      assert nr_iterations > 0
+      assert nr_iterations >= len(iterations)
   }
   *Bool zoom = False  
   *Integer zoom_select = 1000
@@ -272,8 +282,6 @@ Type AttractModel {
     zoom.add_header("Do you want to use a zoom-in protocol?")
     zoom.add_header("Note that a zoom-in protocol ignores the parameters for the individual iterations")
     zoom.name = "Use zoom-in protocol"      
-    zoom_it_initial.type = "required"
-    zoom_it_subsequent.type = "required"
     
     zoom_select.group = "Iteration parameters"
     zoom_select.name = "Zoom-in protocol: number of structures to select after each iteration"
@@ -284,7 +292,7 @@ Type AttractModel {
     zoom_trans.group = "Iteration parameters"
     zoom_trans.name = "Zoom-in protocol: translation displacement (angstroms)"
     zoom_it_initial.group = "Iteration parameters"
-    zoom_it_initial.name = "Zoom-in protocol: first iteration"
+    zoom_it_initial.name = "Zoom-in protocol: First iteration"
     zoom_it_subsequent.group = "Iteration parameters"
     zoom_it_subsequent.name = "Zoom-in protocol: subsequent iterations"
     
@@ -301,11 +309,6 @@ Type AttractModel {
     if zoom is not None and nr_iterations > 1: assert zoom_it_subsequent is not None
     if zoom_it_subsequent is not None: assert zoom_it_subsequent.traj == False
   }
-  Integer some_new_parameter = 43
-  form {
-    some_new_parameter.group = "Iteration parameters"
-    some_new_parameter.name = "Some new parameter"
-  }
   #***Sampling parameters***
   Bool fix_receptor = False
   ## form fix_receptor.name = "Fix the receptor during docking"    
@@ -318,15 +321,12 @@ Type AttractModel {
   }  
   Integer structures = 10000
   ## form structures.name = "Number of structures for random search"
-  *File start_structures_file
-  ## form start_structures_file.type = "required"
-  ## form start_structures_file.file = "Data_ATTRACT_Structures"
-  *File rotations_file
-  ## form rotations_file.type = "required"
-  ## form rotations_file.file = "Data_ATTRACT_Rotations"
-  *File translations_file
-  ## form translations_file.type = "required"
-  ## form translations_file.file = "Data_ATTRACT_Translations"
+  *ResourceData_ATTRACT_Structures start_structures_file
+  ## form start_structures_file.type = "file"
+  *ResourceData_ATTRACT_Rotations rotations_file
+  ## form rotations_file.type = "file"
+  *ResourceData_ATTRACT_Translations translations_file
+  ## form translations_file.type = "file"
   form {
     start_structures_file.add_header("Custom search files")
     start_structures_file.add_header("For a custom search, supply a starting structures file, OR: rotations and/or translations files")
@@ -369,7 +369,6 @@ Type AttractModel {
   *Float rstk = 0.2
   form {
     rstk.name = "Restraining force constant"
-    rstk.type = "required"
     rstk.digits = 4
   }
   
@@ -398,17 +397,15 @@ Type AttractModel {
   }
   #***
   
-  *File cryoem_data
+  *ResourceData_ATTRACT_CryoEM cryoem_data
   form {
     cryoem_data.group = "Cryo-EM data"
-    cryoem_data.type = "required"
+    cryoem_data.type = "file"
     cryoem_data.name = "Cryo-EM density map (SITUS format)"
-    cryoem_data.file = "Data_ATTRACT_CryoEM_data"
   }  
   *Float cryoem_resolution
   form {
     cryoem_resolution.group = "Cryo-EM data"
-    cryoem_resolution.type = "required"
     cryoem_resolution.name = "Cryo-EM density map resolution (in angstroms)"
   }  
   validate {
@@ -422,17 +419,15 @@ Type AttractModel {
     cryoem_scoring_mode.name = "Cryo-EM scoring criterion"
     cryoem_scoring_mode.optiontitles = ("No separate scoring step with a higher-resolution map", "ATTRACT energy", "GVM score", "cross-correlation")
   }
-  *File cryoem_scoring_data
+  *ResourceData_ATTRACT_CryoEM cryoem_scoring_data
   form {
     cryoem_scoring_data.group = "Cryo-EM data"
-    cryoem_scoring_data.type = "required"
+    cryoem_scoring_data.type = "file"
     cryoem_scoring_data.name = "Cryo-EM density map used in scoring (SITUS format)"
-    cryoem_scoring_data.file = "Data_ATTRACT_CryoEM_data"
   }  
   *Float cryoem_scoring_resolution
   form {
     cryoem_scoring_resolution.group = "Cryo-EM data"
-    cryoem_scoring_resolution.type = "required"
     cryoem_scoring_resolution.name = "Cryo-EM scoring density map resolution (in angstroms)"
   }  
   validate {
@@ -449,6 +444,7 @@ Type AttractModel {
     symmetries.length = 5
     symmetries.name = "Symmetry"
     symmetries.count_from_one = True
+    symmetries.form = "soft"
     symmetries[None].symmetry.name = "Symmetry type"
     symmetries[None].partners.name = "Symmetry partners"
     symmetries[None].partners.length = 12
@@ -504,7 +500,7 @@ Type AttractModel {
   *String header = ""
   ## form header.group = "Computing and parallelization parameters"
   ## form header.name = "Header for docking protocol script"
-  ## form header.default = "#PBS -l nodes=1:ppn=12\n#PBS -l walltime=6:30:00\n#PBS -j oe\ncd $PBS_O_WORKDIR\n\nATTRACTDIR=/home/sjoerd/data/work/attract/bin\nATTRACTTOOLS=/home/sjoerd/data/work/attract/tools"
+  ## form header.default = "#PBS -l nodes=1:ppn=12\n#PBS -l walltime=6:30:00\n#PBS -j oe\ncd $PBS_O_WORKDIR\n\nATTRACTDIR=/home/sjoerd/data/work/attract/bin\nATTRACTTOOLS=/home/sjoerd/data/work/attract/tools\n"
   ## form header.type = "textarea"
   ## form header.cols = 80
   ## form header.rows = 50
