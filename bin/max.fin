@@ -4,7 +4,7 @@
       integer, parameter :: totmaxres = 10000
       integer, parameter :: maxlig = 10
       integer, parameter :: maxmode = 10
-      integer, parameter :: maxmolpair = 20000000
+      integer, parameter :: maxmolpair = 2000000
       integer, parameter :: maxdof = 1070
       integer, parameter :: maxatomtypes = 99
       integer, parameter :: maxselection = 1000

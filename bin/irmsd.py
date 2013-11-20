@@ -154,7 +154,7 @@ opt_allatoms = False
 opt_allresidues = False
 
 anr = 0
-output = ''
+output = None
 while 1:
   anr += 1
       
@@ -252,7 +252,9 @@ allboundatoms = numpy.array(allboundatoms)
 fboundatoms = allboundatoms[sel]
 
 nstruc = 0
-f1 = open(output,'w')
+f1 = sys.stdout
+if output is not None:
+  f1 = open(output,'w')
 while 1:
   result = collectlib.collect_next()
   if result: break
