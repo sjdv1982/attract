@@ -10,12 +10,20 @@ selection "sel" consists of atoms 293 and 294 of the receptor and atom 8 of the 
 
 restraint types:
 1: harmonic maximum distance restraint: <maximum distance> <force constant>
-    force constant increases linearly with the violation
+    force increases linearly with the violation
 2: HADDOCK maximum distance restraint: <maximum distance> <force constant>
     <max violation> <chance of random removal>
-    force constant increases linearly with the violation
+    force increases linearly with the violation
     force cannot be bigger than force at max violation:
-      i.e.: harmonic up to max violation, linear afterward    
+      i.e.: harmonic up to max violation, linear afterward  
+      
+3: harmonic minimum distance restraint: <minimum distance> <force constant>
+    force increases linearly with the violation
+4: harmonic distance restraint: <equilibrium distance> <force constant>
+    force increases linearly with the violation
+    used for bond and angle restraints in flexible interface simulations
+5: double quadradtic minimum distance restraint: <minimum distance> <force constant>
+   used for steric repulsion in flexible interface simulations
 
 The "chance of random removal" indicates the chance that a restraint is not used at all.
 This is determined by a random number generated from a structure's seed. Therefore, the same seed with the same restraint file causes the same restraints to be enabled or disabled within every docking stage.

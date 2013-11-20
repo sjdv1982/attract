@@ -20,6 +20,7 @@ extern "C" void print_struc_(
  const coors2 &locrests, 
  const double *morph,
  const int *nhm,
+ const int *nihm,
  const modes2 &dlig, 
  const int *has_locrests,
  int len_label
@@ -60,6 +61,9 @@ extern "C" void print_struc_(
     for (int ii = 0; ii < nhm[i]; ii++) {
       printf(" %.4f", dlig[i][ii]);
     }
+    for (int ii = nhm[i]; ii < nhm[i]+nihm[i]; ii++) {
+          printf(" %.4f", dlig[i][ii]);
+        }
     printf("\n"); 
   }
   //fflush(stdout);
@@ -81,6 +85,7 @@ extern "C" void print_struc2_(
  const coors2 &locrests,
  const double *morph,
  const int *nhm,
+ const int *nihm,
  const modes2 &dlig, 
  const int *has_locrests,
  const int &len_label
@@ -102,6 +107,7 @@ extern "C" void print_struc2_(
   locrests,
   morph,
   nhm,
+  nihm,
   dlig, 
   has_locrests,
   len_label
