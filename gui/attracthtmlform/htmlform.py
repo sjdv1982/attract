@@ -8,7 +8,7 @@ class HtmlformRoot(spyderform.SpyderformRoot): pass
 def _htmlform(
  root,obj,form,header,footer, 
  indent, header_indentation, 
- cgi, hidden
+ cgi, hidden, newtab=False
 ):     
   from spyder.stalkwalk.testing import print_grouping, print_tree
   from spyder.stalkwalk import markup
@@ -21,6 +21,7 @@ def _htmlform(
   #print("HTML-MAKE-ABSTRACT")
   root["top"].space.cgi = cgi
   root["top"].space.hidden = hidden
+  root["top"].space.newtab = newtab
   root["top"].sendMessage("html-make-abstract")
   root["top"].sendMessage("html-insert-level2")
   root["top"].sendMessage("html-promote-level3-switch")
@@ -55,7 +56,7 @@ def htmlform(
  obj=None, form=None,
  header = "", footer = "", 
  indent = 2, header_indentation = 0,
- cgi = None, hidden = None
+ cgi = None, hidden = None, newtab = False
 ): 
   """
   obj can be: A Spyder class, a Spyder object, or None
@@ -92,6 +93,6 @@ def htmlform(
   return _htmlform(
    root,obj,form,header,footer, 
    indent, header_indentation, 
-   cgi, hidden
+   cgi, hidden, newtab
   ) 
   

@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-webdir = "http://localhost/services/attractcgi/"
-cgidir = "http://localhost/cgi/services/attractcgi/"
-localdir = "/home/sjoerd/services/attractcgi/html/"
+webdir = "http://www.attract.ph.tum.de/services/ATTRACT/"
+cgidir = "http://www.attract.ph.tum.de/cgi/services/ATTRACT/"
+localdir = "/home/server/services/ATTRACT/html/"
 resultdir = "results/"
 cgiscript = "attractserver.py"
 
@@ -22,7 +22,8 @@ def serve_upload():
   os.chdir(mydir)
   model.tofile(fname)
   
-  for p in model.partners: p.rmsd = None #"virtual" form attribute defined in form.webform
+  for p in model.partners: 
+    p.rmsd, p.use_modes = None, None #"virtual" form attributes defined in form.webform
   f = attractmodel.AttractModel._form()
   f = form.webform(f, model)
   header = form.header.replace("<head>", "<head>\n        <base href=\"%s\" target=\"_blank\">" % webdir, 1)
