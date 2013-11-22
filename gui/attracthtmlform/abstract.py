@@ -131,11 +131,10 @@ def morph_clonecontainer(node):
 
   fields = ("clonebutton","clonelength","controltitle", "title", "blockname")
   p = _extract_fields(space, space.form, fields)  
-  if p.clonebutton is None: return Handler.NO_MATCH
+  if p.clonelength is None: return Handler.NO_MATCH
   assert node.parent.nodetype == "html-abstract-category", (node.name, node.formpath) #only categories can clone
     
   clone = Space.Space(top=False)
-  assert p.clonebutton is not None, node.name
   clone.button = p.clonebutton
   assert p.clonelength is not None, node.name
   clone.length = p.clonelength

@@ -299,14 +299,14 @@ Type AttractModel {
 
   }
   validate {
-    if zoom is not None: assert zoom_select is not None
-    if zoom is not None: assert zoom_clone is not None
+    if zoom: assert zoom_select is not None
+    if zoom: assert zoom_clone is not None
     assert zoom_clone is None or zoom_clone > 1
-    if zoom is not None: assert zoom_ori is not None
-    if zoom is not None: assert zoom_trans is not None
-    if zoom is not None: assert zoom_it_initial is not None
+    if zoom: assert zoom_ori is not None
+    if zoom: assert zoom_trans is not None
+    if zoom: assert zoom_it_initial is not None
     if zoom_it_initial is not None: assert zoom_it_initial.traj == False
-    if zoom is not None and nr_iterations > 1: assert zoom_it_subsequent is not None
+    if zoom and nr_iterations > 1: assert zoom_it_subsequent is not None
     if zoom_it_subsequent is not None: assert zoom_it_subsequent.traj == False
   }
   #***Sampling parameters***
