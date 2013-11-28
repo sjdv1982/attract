@@ -22,11 +22,12 @@ from __future__ import print_function
 
 import sys, os
 
-if len(sys.argv) == 1:
+argv = [a for a in sys.argv if not a.startswith("--")]
+if len(argv) == 1:
   inp = None
   outp = "new.web"
-elif len(sys.argv) == 2:
-  inp = sys.argv[1]
+elif len(argv) == 2:
+  inp = argv[1]
   d,f = os.path.split(inp)
   if len(d): os.chdir(d)
   inp = f  
@@ -34,14 +35,20 @@ elif len(sys.argv) == 2:
 else: 
  raise Exception("Usage: attract-editor [file name]")
 
-import spyder
-from gi.repository import Gtk
-import spyder.modules.atom
-import attractmodel
+try:
+  import spyder
+  from gi.repository import Gtk
+except ImportError:
+  import traceback
+  traceback.print_exc()
+  if sys.platform == "win32":
+    time.sleep(30) 
+  sys.exit()    
 from spyder.gtkform import gtkview
+import attractmodel
 from Spyder import AttractModel
 
-from spyder.formtools import model, controller, comparator, mvc
+from spyder.formtools import model, controller
 
 spydertype = AttractModel
 
@@ -53,20 +60,12 @@ form.add_button("Save", "after")
 #construct model, controller, comparator
 m = model(spydertype._typetree())  #or: m = model(spydertype)
 con = controller(form, m)
-com = comparator(form)
-
-#link model and comparator
-m.listen(com._set)
 
 #optional: initialize model 
 if inp is not None:
   params = AttractModel.fromfile(inp)
-  m.set(params)
-  #print(params)
-  #print(m.get())
-  #print(m.exc)
-  #import sys;sys.exit()
-
+  m._set(params)
+  
 #build view
 xml = spyder.gtkform.xml(spydertype, form=form)
 builder = Gtk.Builder()
@@ -74,46 +73,87 @@ builder.add_from_string(xml)
 v = gtkview.gtkview(form)
 v._wrap(builder)
 
-#construct mvc
-my_mvc = mvc(form, lambda:m, lambda: v, lambda:con, lambda:com)
-
-#bind mvc
-my_mvc.bind()
-my_mvc.sync_m2v()
+#bind view to controller
+con._bind_view(v)
+#listen for model updates
+con._listen()
+#synchronize
+con._sync_to_view()
+con._sync_from_view() 
 
 #register view listener 
 # (note the order, after the mvc binding! The viewupdate will now be invoked last)
+
+####################################################################
+
+#exception printing (prints *all* exceptions, also the non-fatal ones)  
+# TODO: make it nicer, visual (exceptiongui)
+
 import traceback
-def format_model_exc(exc,limit=None,pat = None):
+def format_exc(exc,limit=None,pat=None):
+  if isinstance(exc, model): 
+    return format_exc(exc._exc(),limit,None)
   if exc is None: return []
   ret = []
   if isinstance(exc, list):
     for e in exc:
-      ret += format_model_exc(e,limit,pat)
+      ret += format_exc(e,limit,pat)
   elif isinstance(exc, dict):
-    for k in exc:
+    for k in sorted(exc.keys()):
       subpat = k
-      if pat is not None: subpat = pat + "." + k
-      subret = format_model_exc(exc[k],limit,subpat)
+      if pat is not None: subpat = pat + "." + str(k)
+      subret = format_exc(exc[k],limit,subpat)
       if len(subret):
         ret.append("Attribute %s:\n" % subpat)
         for l in subret: ret.append("  " + l)
   else:
     ret = traceback.format_exception(exc[0],exc[1],exc[2],limit)
+  if pat is None: ret = "".join(ret)
   return ret
 
-#exception printing (prints *all* exceptions, also the non-fatal ones)  
+
+def dictcompare(d1, d2):
+  #returns all elements of d2 that are not in d1
+  if not isinstance(d1, dict): return d2
+  ret = {}  
+  for k in d2:
+    v2 = d2[k]
+    if k not in d1:
+      ret[k] = v2
+      continue
+    else:
+      v1 = d1[k]
+      if isinstance(v1, dict) and isinstance(v2, dict):
+        dv = dictcompare(v1, v2)
+        if len(dv): 
+          ret[k] = dv
+      elif v1 != v2:
+        ret[k] = v2
+  return ret
+   
 old_exc = None
-def viewupdate(*args):
-  global old_exc
-  if m.exc is None:
-    if old_exc is not None: print("No exception")
-    old_exc = None 
-  else: 
-    exc = "".join(format_model_exc(m.exc,10))
-    if exc == old_exc: return
-    print(exc)
-    old_exc = exc
+old_exc_str = ""
+def viewupdate(*args):  
+  global old_exc, old_exc_str
+  mexc = m._exc(full=True)  
+  if mexc is None:
+    old_exc = mexc
+    if old_exc_str is not None: print("No exception")
+    old_exc_str = None 
+  else:     
+    if old_exc is None: 
+      dexc = mexc
+    else:
+      dexc = dictcompare(old_exc, mexc)
+    if "_self" in dexc: dexc = {"_self": dexc["_self"]}
+    if len(dexc):
+      exc_str = format_exc(dexc,20)
+      if exc_str != old_exc_str:
+        print(exc_str)
+      old_exc_str = exc_str  
+      old_exc = mexc
+  
+####################################################################    
 
 import attractsave
 from functools import partial
@@ -127,4 +167,3 @@ window = builder.get_object("window1")
 window.connect("delete-event", Gtk.main_quit)
 window.show_all()
 Gtk.main()
-
