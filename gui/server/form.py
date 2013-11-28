@@ -93,9 +93,27 @@ def _assign_category(f, category, groupname, span = False):
     ff.group = None
     if span: ff.span = True
 
-def webform(f, partnerlength):
+def webform(f, model=None,
+ partnerslength=None, gridslength=None, iterationslength=None, symmetrieslength=None,
+):
+  if model is not None:
+    if partnerslength is None:
+      partnerslength = max(1,len(model.partners))
+    if gridslength is None:
+      gridslength = max(1,len(model.grids))
+    if iterationslength is None:
+      iterationslength = max(1,len(model.iterations))
+    if symmetrieslength is None:  
+      symmetrieslength = max(1,len(model.symmetries))
+  else:  
+    if partnerslength is None: partnerslength = 1
+    if gridslength is None: gridslength = 1  
+    if iterationslength is None: iterationslength = 1
+    if symmetrieslength is None: symmetrieslength = 1
   import copy
   f = copy.deepcopy(f)
+  
+  f.partners.length = partnerslength
   
   f.runname.type = None
 
@@ -107,14 +125,13 @@ def webform(f, partnerlength):
   c.categoryname = "partners"
   c.description = """Define up to 10 docking partners by uploading a PDB structure file or identifying them by their 
             RCSB Protein Databank ID. Ensemble structures are allowed.""" 
-  c.members.append("partners") 
-  f.partners.length = partnerlength
+  c.members.append("partners")   
   f.partners.clonebutton = "Add partner"
   f.partners.clonelength = 10
-  f.partners.controltitle = "Docking partners"
-  f.partners.group = None
+  f.partners.controltitle = "Docking partners"  
   for fpnr in range(f.partners.length):
     fp = f.partners[fpnr]
+    fp.group = None
     
     ### START b_struc block
     b = fp.new_group("b_struc", "block")
@@ -155,19 +172,24 @@ def webform(f, partnerlength):
     ### START b_modes block
     b = fp.new_group("b_modes", "block")
     b.title = "Use harmonic modes"
-    b.members.append("generate_modes")
+    #insert placeholder boolean to determine the state of the Modes switch
+    fp._membernames.append("use_modes")
+    fp._members["use_modes"] = fp._members["ensemble"].get_copy()        
+    b.members.append("use_modes")
     b.has_switch = True
     b.members.append("modes_file")
+    b.members.append("generate_modes")    
     b.members.append("nr_modes")
     b.members.append("aa_modes_file")
-    ff = fp.generate_modes
+    ff = fp.use_modes
     ff.name = "Use harmonic modes"
-    ff.type = "switch"
+    ff.type = "switch"    
     ff = fp.modes_file
+    ff = fp.generate_modes
+    ff.name = "Or: generate harmonic modes automatically"
     ff = fp.nr_modes
     ff.name = "Number of modes to select"
     ff.type = "number"
-    ff.default = 1
     ff.min = 1
     ff.max = 10
     ff = fp.aa_modes_file
@@ -186,10 +208,8 @@ def webform(f, partnerlength):
     ff.name = "Use ensembles"
     ff = fp.ensemble_list
     ff = fp.ensemble_size
-    ff.default = 1
     ff.min = 1
     ff = fp.ensemblize
-    ff.default = "custom"
     ### END b_ensemble block
 
     ### START b_rmsd block
@@ -226,10 +246,10 @@ def webform(f, partnerlength):
   c.categoryname = "grids"
   c.description = ""
   c.members.append("grids")
-  f.grids.length = 1 #TODO
+  f.grids.length = gridslength
   f.grids.clonebutton = "Add grid"
   f.grids.clonelength = 5
-  f.grids.controltitle = "Grid 1"
+  f.grids.controltitle = "Grid"
   f.grids.group = None
   fg = f.grids[0]
 
@@ -268,10 +288,10 @@ def webform(f, partnerlength):
   f.nr_iterations.type = None #hide explicit nr_iterations parameter
   f.nr_iterations.group = None
   f.iterations.group = None
-  f.iterations.length = 1 #TODO
+  f.iterations.length = iterationslength
   f.iterations.clonebutton = "Add iteration"
   f.iterations.clonelength = 5
-  f.iterations.controltitle = "Iteration 1"
+  f.iterations.controltitle = "Iteration"
 
   b = f.new_group("b_iterations", "block")
   b.blockname = "iterations-zoom-in"
@@ -377,11 +397,11 @@ def webform(f, partnerlength):
         </ul>"""
   c.html_description = True      
   c.members.append("symmetries")
-  f.symmetries.length = 1 #TODO
+  f.symmetries.length = symmetrieslength #TODO
   f.symmetries.clonebutton = "Add partner"
   f.symmetries.clonelength = 5
   f.symmetries.blockname = "symmetry"
-  f.symmetries.controltitle = "Symmetry 1"
+  f.symmetries.controltitle = "Symmetry"
 
   fs = f.symmetries[0]
   fs.symmetry_axis.x.name = "X"

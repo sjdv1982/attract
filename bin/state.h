@@ -51,6 +51,11 @@ struct CartState {
   double val[MAXMODE][MAXLIG];  //force constant per mode
   double eig[3*MAXATOM][MAXMODE][MAXLIG];  //modes
 
+  /* index modes */
+  int nihm[MAXLIG];        //number of index modes per ligand
+  int index_eig[MAXLENINDEXMODE][MAXINDEXMODE][MAXLIG]; //index modes: position of nonzero mode entries
+  double index_val[MAXLENINDEXMODE][MAXINDEXMODE][MAXLIG]; //index modes: values of nonzero mode entries
+
   /* copies */
   int ncop[TOTMAXRES][21][11];
   int nmaxco[TOTMAXRES];
@@ -121,6 +126,7 @@ struct MolPair {
   int *nonl; //nonl[MAXMOLPAIR]  //pairlist: ligand atom
   Grid *grid;
   int pairgen_done;
+  int use_energy; //Only calculate energy for the first molpair
 };
 
 struct Restraint {
@@ -149,7 +155,8 @@ struct MiniState {
   int ivmax; //max steps
   int iori;  //enable orientations
   int itra;  //enable translations
-  int ieig;  //enable modes
+  int ieig;  //enable mode displacement
+  int iindex; //enable index mode displacement
   int irst;  //enable CoM restraints
   int fixre; //fix receptor
   double rcut;  //square of distance cutoff
@@ -174,6 +181,8 @@ typedef int (&limitarr)[MAXLIG];
 
 
 extern "C" void read_hm_(const char *hmfile_, const char *hmword_, const int &nlig, const int *natom, int *nhm, double (&vall)[MAXMODE][MAXLIG], double *eigl, const int &multi, int hmfile_len, int hmword_len);
+
+extern "C" void read_indexmode_(const char *hmfile_, const char *hmword_, const int &nlig, int *nhm, int *eigl, double *eigl_val, const int &multi, int hmfile_len, int hmword_len);
 
 extern "C" void read_one_pdb_(
    const int &maxlig, const int &totmaxres, const int &totmaxatom,

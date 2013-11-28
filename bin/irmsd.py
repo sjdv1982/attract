@@ -8,10 +8,8 @@ usage: python irmsd.py <DAT file> \
 --allresidues: use also the residues outside the 10 A interface region 
 
 """
-
 thresh = 10.0
 threshsq = thresh * thresh
-
 import sys
 
 import numpy
@@ -151,10 +149,12 @@ def irmsd(atoms1, atoms2):
 
 ensfiles = []
 modefile = None
+imodefile = None
 opt_allatoms = False
 opt_allresidues = False
 
 anr = 0
+output = None
 while 1:
   anr += 1
       
@@ -181,6 +181,18 @@ while 1:
 
   if anr <= len(sys.argv)-2 and arg == "--modes":
     modefile = sys.argv[anr+1]
+    sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
+    anr -= 2
+    continue
+  
+  if anr <= len(sys.argv)-2 and arg == "--imodes":
+    imodefile = sys.argv[anr+1]
+    sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
+    anr -= 2
+    continue
+  
+  if anr <= len(sys.argv)-2 and arg == "--output":
+    output = sys.argv[anr+1]
     sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
     anr -= 2
     continue
@@ -212,6 +224,7 @@ if len(bounds) == 1 and opt_allresidues == False:
 
 initargs = [sys.argv[1]] + unbounds
 if modefile: initargs += ["--modes", modefile]
+if imodefile: initargs += ["--imodes", imodefile]
 for nr, ensfile in ensfiles:
   initargs += ["--ens", nr, ensfile]
 
@@ -239,6 +252,9 @@ allboundatoms = numpy.array(allboundatoms)
 fboundatoms = allboundatoms[sel]
 
 nstruc = 0
+f1 = sys.stdout
+if output is not None:
+  f1 = open(output,'w')
 while 1:
   result = collectlib.collect_next()
   if result: break
@@ -246,5 +262,5 @@ while 1:
   coor = collectlib.collect_all_coor()
   coor = numpy.array(coor)
   fcoor = coor[sel]
-  print nstruc, "%.3f" % irmsd(fboundatoms,fcoor)
+  f1.write(str(nstruc)+" %.3f\n" % irmsd(fboundatoms,fcoor))
   #for co in coor: print co[0], co[-1]

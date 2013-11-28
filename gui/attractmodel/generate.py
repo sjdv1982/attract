@@ -619,5 +619,6 @@ echo '**************************************************************'
   ret += "fi ### move to disable parts of the protocol\n"
   ret = ret.replace("\n\n\n","\n\n")
   ret = ret.replace("\n\n\n","\n\n")
+  ret = ret.replace("\r\n", "\n")
   return ret
 

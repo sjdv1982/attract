@@ -170,7 +170,7 @@ def morph_inputtag_file(node):
   assert space.formpath is not None
   fp = "-".join([str(s) for s in space.formpath[1:]])
   if space.formtype != "file": return Handler.NO_MATCH
-  fields = ("placeholder",)
+  fields = ("placeholder","defaultvalue")
   p = _extract_fields(space, space.form, fields)
   attributes = [
     ("type", "file"), 
@@ -179,6 +179,8 @@ def morph_inputtag_file(node):
     ("placeholder", p.placeholder),
   ]  
   inputtag = VoidTag("input", attributes)
+  if p.defaultvalue is not None:
+    space.formname = "<em><mark>&lt;Embedded resource&gt;:</mark>&nbsp;&nbsp;&nbsp;</em>" + space.formname
   return _div_leaf_tag(node, inputtag, "field-item file align-right")
 
 def morph_inputtag_checkbox(node):
