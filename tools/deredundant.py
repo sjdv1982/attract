@@ -28,6 +28,9 @@ ncomp = len(dofs[0][0]) - 1 #ligand RMSD = ignore receptor
 stnr = 0
 st2nr = 0
 lim = 0.02
+if len(sys.argv) > 2:
+  lim = float(sys.argv[2])
+  
 okdofs = []
 for d,s in zip(dofs, structures):
   stnr += 1

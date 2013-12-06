@@ -1,0 +1,219 @@
+#!/usr/bin/perl -w
+#program to make hmr.dat and harm.dat files for RNA
+use strict;
+use PDL;
+use PDL::LinearAlgebra::Real;
+
+my $power=6.0;
+my $ampl=1;
+my $max_modes=10;
+
+my @r_aa;
+my @r_cg;
+my @n_cg;
+my @res;
+my @springs;
+my $natoms=0;
+my $nres=0;
+my $ncg=0;
+
+$power=$power*$power;
+
+############################################################
+# read all atom structure
+############################################################
+sub read_aa{
+	my $name=$_[0];
+	open (RF,$name) or die "$name problem: $!\n";
+ 	my $nat=-1;
+	my $orn=-900;
+	my $rn=-1;
+	while (<RF>) {
+		my $line=$_;
+		if ($line=~m/^ATOM/) {
+			$nat++;
+			my $nnr=int(substr $line,22,4); #residue number
+			if ($nnr!=$orn) {
+				$orn=$nnr;
+				$rn++;
+			}
+			push @{$res[$rn]},$nat;
+			for my $k (0..2) {
+				my $r=substr $line,30+$k*8,8;
+				push @r_aa,$r
+			}
+		}	
+	}	
+	close RF;
+	return $nat,$rn;
+}
+
+############################################################
+# read coarse grained structure
+############################################################
+sub read_cg{
+	my $name=$_[0];
+	open (RF,$name) or die "$name problem: $!\n";
+ 	my $nat=-1;
+	my $orn=-900;
+	my $rn=-1;
+	while (<RF>) {
+		my $line=$_;
+		if ($line=~m/^ATOM/) {
+			my $nnr=int(substr $line,22,4); #residue number
+			if ($nnr!=$orn) {
+				$orn=$nnr;
+				$rn++;
+			}
+			$n_cg[$rn]++;
+			my $type=int(substr $line,57,2);
+			if ($type>90) {
+				$nat++;
+				for my $k (0..2) {
+					my $r=substr $line,30+$k*8,8;
+					push @r_cg,$r
+				}
+			}
+		}
+	}	
+	close RF;
+	return $nat;
+}
+############################################################
+# calculate eigenvectors & output them
+############################################################
+sub do_eigens {
+	my @h=(); #hessian matrix
+	for my $i (0 .. $nres) {
+	for my $j (0 .. $nres) {
+		if ($i==$j) {next;}
+		my @dx=();
+		my $r2=0;
+		my $ii=3*$i;
+		my $jj=3*$j;
+		for my $k (0..2) {
+			$dx[$k]=$r_cg[$ii+$k]-$r_cg[$jj+$k];
+			$r2+=$dx[$k]*$dx[$k];
+		}
+		my $kk=$springs[$i][$j];
+		$kk=$kk/$r2;
+		for my $k (0..2) {
+		for my $l (0..2) {
+			$h[$ii+$k][$jj+$l]=-$kk*$dx[$k]*$dx[$l];
+		}}
+		for my $k (0..2) {
+		for my $l (0..2) {
+			$h[$ii+$k][$ii+$l]+=$kk*$dx[$k]*$dx[$l];
+		}}
+	}}
+	my $hh= pdl @h;
+	@h=();
+	my ($n,$m)=$hh->dims;
+	
+	syevd($hh,1,1,(my $ee=zeroes($n)),(my $info=null));
+	$hh=$hh->transpose;
+	my @eigv=list($ee);
+	my @eig=();
+	for (my $i=0;  $i<$n;$i++) {
+		my @e=list($hh->slice("$i,:"));
+		for my $j (0..$#e) {
+			push @{$eig[$i]},$e[$j];
+		}
+	}
+	$hh=null;
+
+	open(HM,">hmr.dat");
+	for (my $i=6; $i<$max_modes; $i++) {
+		printf(HM "%5d        %12.10f\n",$i-5,$eigv[$i]);
+		my $l=0;
+		for my $j (0..$nres) {
+			for my $u (1..$n_cg[$j]) {
+				for my $k (0..2) {
+					printf(HM "%15.10f",$eig[$i][$j*3+$k]);
+					$l++;
+					if ($l>5) {
+						$l=0;
+						print HM "\n";
+					}
+				}
+			}
+		}
+		if ($l!=0) {
+			print HM "\n";
+		}
+	}
+	close HM;
+}
+############################################################
+# residue-residue spring constant (exponential model)
+############################################################
+sub spring{
+	my $ri=$_[0];
+	my $rj=$_[1];
+	my $spr=0;
+	for my $i (0..$#{$res[$ri]}) {
+	for my $j (0..$#{$res[$rj]}) {
+		my $r=0;
+		my $ai=$res[$ri][$i];
+		my $aj=$res[$rj][$j];
+		$ai=$ai*3;
+		$aj=$aj*3;
+		for my $k (0..2) {
+			$r+=($r_aa[$ai+$k]-$r_aa[$aj+$k])**2;
+		}
+		$spr+=$ampl*exp(-$r/$power);
+	}}
+	return $spr;
+}
+
+############################################################
+# write harm.dat file
+############################################################
+sub write_springs{
+	my $name=$_[0];
+	open(SPR,">$name") or die "$name problem: $!\n";
+	for my $i (0..$nres) {
+		for my $j (0..$nres) {
+			if ($i!=$j) {
+				printf(SPR "%11.4f",$springs[$i][$j]);
+			} else {
+				printf(SPR "%11.4f",0.0);
+			}
+		}
+		print SPR "\n";
+	}
+	close SPR;
+}
+
+
+
+my $aa_name=$ARGV[0];
+my $cg_name=$ARGV[1];
+
+if (defined($ARGV[2])) {
+	$max_modes=$ARGV[2];
+}
+
+($natoms,$nres)=&read_aa($aa_name);
+$ncg=&read_cg($cg_name);
+
+unless ($ncg==$nres) {
+	die "modes_rna: wrong number of residues/beads: $nres : $ncg\n";
+}
+
+if ($max_modes==0) {
+	$max_modes=3*$ncg+3;
+} else {
+	$max_modes+=6;
+}
+
+for my $i (0..$nres-1) {
+	for my $j ($i+1..$nres) {
+		$springs[$i][$j]=&spring($i,$j);
+		$springs[$j][$i]=$springs[$i][$j];
+	}
+}
+
+&write_springs("harm.dat");
+
+&do_eigens;

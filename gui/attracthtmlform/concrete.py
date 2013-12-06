@@ -171,7 +171,7 @@ def _add_controls(node):
     inline = True  
   )  
   controlchildren.append(t)
-  if node.space.clone is not None:
+  if node.space.clone is not None and node.space.clone.button is not None:
     t = ComplexTag(
      "div", 
      [
@@ -233,26 +233,27 @@ def morph_categorywrapper(node):
   if space.clones is not None and len(space.clones):
     children = []
     for clone in space.clones:
-      onClick = "cloneBlock('block-%s-',%d);" % (clone.name, clone.length)
-      child = ComplexTag (
-        "div",
-        [("class", "field-container")],
-        [ComplexTag (
-          "div",
-          [("class", "field-item button align-right")],
-          [VoidTag(
-            "input",
-            [
-              ("type","button"),
-              ("value",clone.button),
-              ("id","block-%s-add" % clone.name ),
-              ("onClick", onClick),
-            ],
-            inline = True,
-          )],
-        )],
-      )
-      children.append(child)    
+      if clone.button is not None:
+	onClick = "cloneBlock('block-%s-',%d);" % (clone.name, clone.length)
+	child = ComplexTag (
+	  "div",
+	  [("class", "field-container")],
+	  [ComplexTag (
+	    "div",
+	    [("class", "field-item button align-right")],
+	    [VoidTag(
+	      "input",
+	      [
+		("type","button"),
+		("value",clone.button),
+		("id","block-%s-add" % clone.name ),
+		("onClick", onClick),
+	      ],
+	      inline = True,
+	    )],
+	  )],
+	)
+	children.append(child)    
     controltag = ComplexTag (
       "div",
       [("class", "category-controls")],
