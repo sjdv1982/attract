@@ -20,6 +20,8 @@ def make_relpath(outpdir, m):
     elif isinstance(v, Spyder.File): 
       nam = v.name
       rel = os.path.relpath(nam, outpdir)
+      if rel.startswith(".."): #os.path.relpath does this for /tmp, very annoying
+        rel = nam      
       if len(os.path.split(rel)[0]) == 0:
         vv = type(v)(
          rel,
@@ -34,6 +36,8 @@ def make_relpath(outpdir, m):
     elif isinstance(v, Spyder.Filename):	  
       nam = v.name
       rel = os.path.relpath(nam, outpdir)
+      if rel.startswith(".."): #os.path.relpath does this for /tmp, very annoying
+        rel = nam      
       if len(os.path.split(rel)[0]) == 0:
         vv = type(v)(rel)
         if ar:

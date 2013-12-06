@@ -86,72 +86,13 @@ con._sync_from_view()
 
 ####################################################################
 
-#exception printing (prints *all* exceptions, also the non-fatal ones)  
-# TODO: make it nicer, visual (exceptiongui)
-
-import traceback
-def format_exc(exc,limit=None,pat=None):
-  if isinstance(exc, model): 
-    return format_exc(exc._exc(),limit,None)
-  if exc is None: return []
-  ret = []
-  if isinstance(exc, list):
-    for e in exc:
-      ret += format_exc(e,limit,pat)
-  elif isinstance(exc, dict):
-    for k in sorted(exc.keys()):
-      subpat = k
-      if pat is not None: subpat = pat + "." + str(k)
-      subret = format_exc(exc[k],limit,subpat)
-      if len(subret):
-        ret.append("Attribute %s:\n" % subpat)
-        for l in subret: ret.append("  " + l)
-  else:
-    ret = traceback.format_exception(exc[0],exc[1],exc[2],limit)
-  if pat is None: ret = "".join(ret)
-  return ret
-
-
-def dictcompare(d1, d2):
-  #returns all elements of d2 that are not in d1
-  if not isinstance(d1, dict): return d2
-  ret = {}  
-  for k in d2:
-    v2 = d2[k]
-    if k not in d1:
-      ret[k] = v2
-      continue
-    else:
-      v1 = d1[k]
-      if isinstance(v1, dict) and isinstance(v2, dict):
-        dv = dictcompare(v1, v2)
-        if len(dv): 
-          ret[k] = dv
-      elif v1 != v2:
-        ret[k] = v2
-  return ret
-   
-old_exc = None
-old_exc_str = ""
+old_status = None
 def viewupdate(*args):  
-  global old_exc, old_exc_str
-  mexc = m._exc(full=True)  
-  if mexc is None:
-    old_exc = mexc
-    if old_exc_str is not None: print("No exception")
-    old_exc_str = None 
-  else:     
-    if old_exc is None: 
-      dexc = mexc
-    else:
-      dexc = dictcompare(old_exc, mexc)
-    if "_self" in dexc: dexc = {"_self": dexc["_self"]}
-    if len(dexc):
-      exc_str = format_exc(dexc,20)
-      if exc_str != old_exc_str:
-        print(exc_str)
-      old_exc_str = exc_str  
-      old_exc = mexc
+  global old_status
+  status = m._status(con)
+  if status == old_status: return
+  print(status)
+  old_status = status
   
 ####################################################################    
 
