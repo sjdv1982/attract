@@ -94,6 +94,7 @@ int main(int argc, char *argv[]) {
         nhm[count] = atoi(argv[3]);
         count++;
       }
+      argc--;     
       continue;          
     }
     if (!strcmp(argv[3],"--imodes")) {
@@ -105,6 +106,7 @@ int main(int argc, char *argv[]) {
         nihm[count] = atoi(argv[3]);
         count++;
       }
+      argc--;
       continue;
     }
     if (!strcmp(argv[3],"--ens")) {
@@ -114,8 +116,10 @@ int main(int argc, char *argv[]) {
         argc--;      
         if (!strncmp(argv[3],"--",2)) break;      
         nrens[count] = atoi(argv[3]);
+	fprintf(stderr,"%d\n",nrens[count]);
         count++;
       }
+      argc--;
       continue;
     }
     if (argc > 4 && (!strcmp(argv[3],"--locrest"))) {
@@ -126,10 +130,10 @@ int main(int argc, char *argv[]) {
       }
       has_locrests[lig-1] = 1;
       memmove(argv+3, argv+5, sizeof(char*) * (argc-4));
-      argc -= 2;      
+      argc -= 2;  
       continue;
     }
-    fprintf(stderr, "Wrong number of arguments\n"); usage();
+    fprintf(stderr, " Wrong number of arguments %d\n", argc); usage();
   }  
 
   if (argc != 3) {

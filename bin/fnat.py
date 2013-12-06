@@ -5,6 +5,8 @@ import collectlibpy as collectlib
 
 ensfiles = []
 modefile = None
+imodefile = None
+output = None
 anr = 0
 while 1:
   anr += 1
@@ -23,7 +25,18 @@ while 1:
     sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
     anr -= 2
     continue
-
+  
+  if anr <= len(sys.argv)-2 and arg == "--imodes":
+    imodefile = sys.argv[anr+1]
+    sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
+    anr -= 2
+    continue
+  
+  if anr <= len(sys.argv)-2 and arg == "--output":
+    output = sys.argv[anr+1]
+    sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
+    anr -= 2
+    continue
 if len(sys.argv) < 5 or not len(sys.argv) % 2:
   raise Exception("Please supply a .DAT file, a cutoff and an even number of PDB files (unbound, bound)")
 
@@ -55,6 +68,7 @@ for n in range(3, len(sys.argv), 2):
 
 initargs = [sys.argv[1]] + unbounds
 if modefile: initargs += ["--modes", modefile]
+if imodefile: initargs += ["--imodes", imodefile]
 for nr, ensfile in ensfiles:
   initargs += ["--ens", nr, ensfile]
 
@@ -152,6 +166,10 @@ for partner1, mask1, partner2, mask2 in contacts0:
 del contacts0
   
 nstruc = 0
+f = sys.stdout
+if output is not None:
+  f = open(output,'w')
+  
 while 1:
   result = collectlib.collect_next()
   if result: break
@@ -167,5 +185,5 @@ while 1:
     #print(mindistance)
     if mindistance < cutoffsq:
       fcount += 1
-  print(float(fcount)/len(contacts))
+  f.write(str(float(fcount)/len(contacts))+'\n')
     

@@ -37,7 +37,7 @@ def get_interface(a1, a2, output,output2,rcut):
     ilist1 = []
     ilist2 = []
     rcutsqrt = math.sqrt(rcut)
-    while len(ilist1) < 8 or len(ilist2) < 8:
+    while len(ilist1) < 8 or len(ilist2) < 4:
         for atom1 in a1:
             for atom2 in a2:
                     dist = (atom1[2]-atom2[2])**2+(atom1[3]-atom2[3])**2+(atom1[4]-atom2[4])**2
@@ -128,11 +128,9 @@ def make_interfacelist(file1, file2, directory,rcut=3.0,name1='rlist',name2='lli
 import os    
 def make_interface(struc,directory,rcut=3.0):
     a1, a2 = read_struc(struc)
-    print "Get interface 1"
     name = os.path.split(os.path.splitext(struc)[0])[-1]
-    get_interface2(a1, a2, directory+'/'+name+'rlist.txt',rcut)
-    print "Get interface 2"
-    get_interface2(a2, a1, directory+'/'+name+'llist.txt',rcut)
+    get_interface(a1, a2, directory+'/'+name+'rlist.txt',directory+'/'+name+'llist.txt',rcut*rcut)
+
     
 #Main
 if __name__ == "__main__":
