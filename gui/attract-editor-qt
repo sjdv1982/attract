@@ -37,7 +37,6 @@ else:
 
 try:
   import spyder
-  import spyder.modules.atom
   import spyder.qtform.anyQt
 except ImportError:
   import traceback
@@ -53,7 +52,7 @@ from spyder.qtform import qtview
 import attractmodel
 from Spyder import AttractModel
 
-from spyder.formtools import model, controller, comparator, mvc
+from spyder.formtools import model, controller
 
 spydertype = AttractModel
 
@@ -65,15 +64,11 @@ form.add_button("Save", "after")
 #construct model, controller, comparator
 m = model(spydertype._typetree())  #or: m = model(spydertype)
 con = controller(form, m)
-com = comparator(form)
-
-#link model and comparator
-m.listen(com._set)
 
 #optional: initialize model 
 if inp is not None:
   params = AttractModel.fromfile(inp)
-  m.set(params)
+  m._set(params)
   
 #build view
 xml = spyder.qtform.xml(spydertype, form=form)
@@ -87,46 +82,28 @@ ui = loader.load(buf)
 v = qtview.qtview(form)
 v._wrap(ui)
 
-#construct mvc
-my_mvc = mvc(form, lambda:m, lambda: v, lambda:con, lambda:com)
-
-#bind mvc
-my_mvc.bind()
-my_mvc.sync_m2v()
+#bind view to controller
+con._bind_view(v)
+#listen for model updates
+con._listen()
+#synchronize
+con._sync_to_view()
+con._sync_from_view() 
 
 #register view listener 
 # (note the order, after the mvc binding! The viewupdate will now be invoked last)
-import traceback
-def format_model_exc(exc,limit=None,pat = None):
-  if exc is None: return []
-  ret = []
-  if isinstance(exc, list):
-    for e in exc:
-      ret += format_model_exc(e,limit,pat)
-  elif isinstance(exc, dict):
-    for k in exc:
-      subpat = k
-      if pat is not None: subpat = pat + "." + k
-      subret = format_model_exc(exc[k],limit,subpat)
-      if len(subret):
-        ret.append("Attribute %s:\n" % subpat)
-        for l in subret: ret.append("  " + l)
-  else:
-    ret = traceback.format_exception(exc[0],exc[1],exc[2],limit)
-  return ret
 
-#exception printing (prints *all* exceptions, also the non-fatal ones)  
-old_exc = None
-def viewupdate(*args):
-  global old_exc
-  if m.exc is None:
-    if old_exc is not None: print("No exception")
-    old_exc = None 
-  else: 
-    exc = "".join(format_model_exc(m.exc,10))
-    if exc == old_exc: return
-    print(exc)
-    old_exc = exc
+####################################################################
+
+old_status = None
+def viewupdate(*args):  
+  global old_status
+  status = m._status(con)
+  if status == old_status: return
+  print(status)
+  old_status = status
+  
+####################################################################    
 
 import attractsave
 from functools import partial

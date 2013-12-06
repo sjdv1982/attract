@@ -53,7 +53,7 @@ Type AttractPartnerInterface {
   
   ## form chain.name = "Which chain of the structure must be used?"
   ## form chain.options = "All", "A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"
-  String chain
+  String chain = "All"
         
   #RestraintsInterface r = RestraintsInterface()
   ## #form r.name = "Restraint definition"
@@ -344,8 +344,7 @@ Type AttractModel {
       assert rotations_file is None
       assert translations_file is None
     else:
-      assert rotations_file is not None or \
-       translations_file is not None      
+      assert rotations_file is not None or translations_file is not None      
       assert len(partners) == 2 
   }   
   form {
