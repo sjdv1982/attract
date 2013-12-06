@@ -12,12 +12,16 @@ def make_relpath(outpdir, m):
   for k,v in items:
     if isinstance(v, Spyder.Resource): 
       if v.filename is None: continue
-      nam = v.filename
+      nam = v.filename      
       rel = os.path.relpath(nam, outpdir)
+      if rel.startswith(".."): #os.path.relpath does this for /tmp, very annoying
+        rel = nam
       v.filename = rel
     elif isinstance(v, Spyder.File): 
       nam = v.name
       rel = os.path.relpath(nam, outpdir)
+      if rel.startswith(".."): #os.path.relpath does this for /tmp, very annoying
+        rel = nam      
       if len(os.path.split(rel)[0]) == 0:
         vv = type(v)(
          rel,
@@ -32,6 +36,8 @@ def make_relpath(outpdir, m):
     elif isinstance(v, Spyder.Filename):	  
       nam = v.name
       rel = os.path.relpath(nam, outpdir)
+      if rel.startswith(".."): #os.path.relpath does this for /tmp, very annoying
+        rel = nam      
       if len(os.path.split(rel)[0]) == 0:
         vv = type(v)(rel)
         if ar:
@@ -63,7 +69,7 @@ def check_embedded(m, attrname = ""):
       if embedded is not None: return embedded
   
 def save(m, outp, *args):
-  v = m.get()   
+  v = m._get()   
   outpdir = os.path.split(outp)[0]  
   if v is not None:
     make_relpath(outpdir, v)
@@ -73,7 +79,7 @@ def save(m, outp, *args):
     print("Cannot save form: does not contain a valid object")
 
 def generate(m, outp, *args):
-  v = m.get() 
+  v = m._get() 
   outpdir = os.path.split(outp)[0]
   if v is not None:
     embedded = check_embedded(v)
