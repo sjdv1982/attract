@@ -1,6 +1,6 @@
 //Converts DOF so that receptor rotations and translations are zero
 
-//usage: ./fix_receptor structures.dat <number of ligands> [--ens <ensemble size for each ligand>] [--modes <number of modes for each ligand>] [--imodes <number of index modes for each ligand>][--locrest <ligand>]
+//usage: ./fix_receptor structures.dat <number of partners> [--ens <ensemble size for each partner>] [--modes <number of modes for each partner>] [--imodes <number of index modes for each partner>][--locrest <partner>]
 
 
 #include "max.h"
@@ -59,7 +59,7 @@ static char *label;
 #include <cstdlib>
 
 void usage() {
-  fprintf(stderr, "usage: $path/fix_receptor structures.dat <number of ligands> [--ens <ensemble size for each ligand>] [--modes <number of modes for each ligand>] [--imodes <number of index modes for each ligand>] [--locrest <ligand>]\n");
+  fprintf(stderr, "usage: $path/fix_receptor structures.dat <number of partners> [--ens <ensemble size for each partner>] [--modes <number of modes for each partner>] [--imodes <number of index modes for each partner>] [--locrest <partner>]\n");
   exit(1);
 }
 
@@ -101,8 +101,8 @@ int main(int argc, char *argv[]) {
       int count = 0;
       while (argc > 4) {
         memmove(argv+3, argv+4, sizeof(char*) * (argc-3));
-        argc--;
         if (!strncmp(argv[3],"--",2)) break;
+        argc--;
         nihm[count] = atoi(argv[3]);
         count++;
       }
@@ -113,8 +113,8 @@ int main(int argc, char *argv[]) {
       int count = 0;
       while (argc > 4) {
         memmove(argv+3, argv+4, sizeof(char*) * (argc-3));
-        argc--;      
         if (!strncmp(argv[3],"--",2)) break;      
+        argc--;              
         nrens[count] = atoi(argv[3]);
         count++;
       }
