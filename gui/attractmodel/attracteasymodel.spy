@@ -1,0 +1,103 @@
+
+Type AttractEasyPartnerInterface {
+  ## form pdbfile.type = "file"
+  ## form pdbfile.name = "Structure file"
+  ResourceData_PDB pdbfile
+        
+  Bool generate_modes = False
+  ## form generate_modes.type = None
+  Integer nr_modes = 5
+  form {
+    nr_modes.name = "Number of harmonic modes to select"
+    nr_modes.type = "option"
+    nr_modes.options = list(range(0,10+1))
+    nr_modes.optiontitles = ["No modes"] + [str(v) for v in nr_modes.options[1:]]
+  }
+
+  ## validate if nr_modes not in (None, 0): assert nr_modes >= 1 and nr_modes <= 10
+    
+  Bool use_rmsd = False
+  *ResourceData_PDB rmsd_pdb
+  ## form rmsd_pdb.add_header("You can specify a PDB file to use as reference in RMSD calculations")
+  ## form rmsd_pdb.name = "RMSD PDB file"
+  ## form rmsd_pdb.type = "file"
+  Bool rmsd_bb = True
+  ## form rmsd_bb.name = "Select only backbone atoms for RMSD calculation"
+  validate {
+    if not use_rmsd:
+      if rmsd_pdb is not None: raise spyder.core.ValidationError("You defined an PDB for RMSD calculation, which you disabled")
+    else:
+      if rmsd_pdb is None: raise spyder.core.ValidationError("You need to define an PDB for RMSD calculation, or disable it")
+  }
+}
+
+
+Type AttractEasyModel {
+  AttractEasyPartnerInterfaceArray partners[2]
+  form {
+    partners.name = "Docking partners"
+    for n in range(2):
+      partners[n].name = "Docking partner %d" % (n+1)
+      partners[n].group = "Docking partner %d" % (n+1)
+  }
+  
+
+  #***Energy and interaction parameters***
+  Bool use_grids = False
+  ## form use_grids.name = "Grids"
+  ## form use_grids.add_header("Perform grid-accelerated docking")
+  Bool gravity = False
+  form {
+    gravity.name = "Gravity"
+  
+  }  
+  form {
+    _g = "Energy and interaction parameters"
+    gravity.group = _g
+    use_grids.group = _g
+  }
+
+  
+  #**Analysis***  
+  Bool calc_lrmsd = False  
+  Bool calc_irmsd = False
+  Bool calc_fnat = False
+  Integer nr_collect = 50
+  form {
+
+    calc_lrmsd.group = "Analysis"
+    calc_irmsd.group = "Analysis"
+    calc_fnat.group = "Analysis"
+    nr_collect.group = "Analysis"
+    
+    calc_lrmsd.name = "Calculate ligand RMSD after docking"
+    calc_irmsd.name = "Calculate interface RMSD after docking"
+    calc_fnat.name = "Calculate fraction of native contacts after docking"
+
+    nr_collect.name = "Number of structures to collect as PDB file"
+  }
+  #***
+    
+  #***Computing and parallelization parameters***
+  Integer np = 1
+  ## form np.group = "Computing and parallelization parameters"
+  ## form np.name = "Number of processor cores"
+  
+  
+  #***
+  validate {
+    assert nr_collect > 0
+    assert np > 0
+    
+    p1, p2 = partners
+    if p1.use_rmsd != p2.use_rmsd: raise spyder.core.ValidationError("Please enable RMSD calculation for both partners or for neither one")    
+    if p1.use_rmsd:
+      assert calc_lrmsd or calc_irmsd or calc_fnat
+    else:
+      assert not calc_lrmsd
+      assert not calc_irmsd
+      assert not calc_fnat
+  }
+}
+
+Define AttractModel(AttractEasyModel) easy2model
