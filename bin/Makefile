@@ -184,6 +184,7 @@ cluster_struc: cluster_struc.o
 	
 rest: read_pdb2.o
 	$(FF) $(FLAG) reduce.f -o reduce
+	$(FF) $(FLAG) redatom.f -o redatom
 	$(FF) $(FLAG) reduce_rna.f -o reduce_rna
 	$(FF) $(FLAG) translate.f -o translate 
 	$(FF) $(FLAG) rotam.f -o rotam 
