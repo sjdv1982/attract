@@ -329,7 +329,7 @@ extern "C" void ministate_check_parameters_(const int &ministatehandle, const in
         if (!used2[ii]) continue;
         if (!cartstate.haspar[i][ii]) {
           fprintf(stderr, 
-            "Atom type %d in molecule %d can interact with atom type %d in molecule %d, but no parameters are available\n", i+1,p.receptor+1,ii+i,p.ligand+1);
+            "Atom type %d in molecule %d can interact with atom type %d in molecule %d, but no parameters are available\n", i+1,p.receptor+1,ii+1,p.ligand+1);
           exit(1);
         }
       }

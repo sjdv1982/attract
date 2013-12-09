@@ -1,6 +1,6 @@
 //Converts DOF so that receptor rotations and translations are zero
 
-//usage: ./fix_receptor structures.dat <number of partners> [--ens <ensemble size for each partner>] [--modes <number of modes for each partner>] [--imodes <number of index modes for each partner>][--locrest <partner>]
+//usage: ./fix_receptor structures.dat <number of ligands> [--ens <ensemble size for each ligand>] [--modes <number of modes for each ligand>] [--imodes <number of index modes for each ligand>][--locrest <ligand>]
 
 
 #include "max.h"
@@ -59,7 +59,7 @@ static char *label;
 #include <cstdlib>
 
 void usage() {
-  fprintf(stderr, "usage: $path/fix_receptor structures.dat <number of partners> [--ens <ensemble size for each partner>] [--modes <number of modes for each partner>] [--imodes <number of index modes for each partner>] [--locrest <partner>]\n");
+  fprintf(stderr, "usage: $path/fix_receptor structures.dat <number of ligands> [--ens <ensemble size for each ligand>] [--modes <number of modes for each ligand>] [--imodes <number of index modes for each ligand>] [--locrest <ligand>]\n");
   exit(1);
 }
 
@@ -94,31 +94,32 @@ int main(int argc, char *argv[]) {
         nhm[count] = atoi(argv[3]);
         count++;
       }
-      argc--;      
+      argc--;     
       continue;          
     }
     if (!strcmp(argv[3],"--imodes")) {
       int count = 0;
       while (argc > 4) {
         memmove(argv+3, argv+4, sizeof(char*) * (argc-3));
-        if (!strncmp(argv[3],"--",2)) break;
         argc--;
+        if (!strncmp(argv[3],"--",2)) break;
         nihm[count] = atoi(argv[3]);
         count++;
       }
-      argc--;      
+      argc--;
       continue;
     }
     if (!strcmp(argv[3],"--ens")) {
       int count = 0;
       while (argc > 4) {
         memmove(argv+3, argv+4, sizeof(char*) * (argc-3));
+        argc--;      
         if (!strncmp(argv[3],"--",2)) break;      
-        argc--;              
         nrens[count] = atoi(argv[3]);
+	fprintf(stderr,"%d\n",nrens[count]);
         count++;
       }
-      argc--;      
+      argc--;
       continue;
     }
     if (argc > 4 && (!strcmp(argv[3],"--locrest"))) {
@@ -129,10 +130,10 @@ int main(int argc, char *argv[]) {
       }
       has_locrests[lig-1] = 1;
       memmove(argv+3, argv+5, sizeof(char*) * (argc-4));
-      argc -= 2;      
+      argc -= 2;  
       continue;
     }
-    fprintf(stderr, "Wrong number of arguments\n"); usage();
+    fprintf(stderr, " Wrong number of arguments %d\n", argc); usage();
   }  
 
   if (argc != 3) {
