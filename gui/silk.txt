@@ -1,0 +1,11 @@
+set $ATTRACTGUI to $ATTRACTDIR/../gui
+
+local GUI:
+silk AttractModel -m attractmodel -I $ATTRACTGUI
+
+web form, default style:
+silk AttractModel -m attractmodel -I $ATTRACTGUI --gui html
+
+full web server, ATTRACT style:
+silk AttractModel -m attractmodel -I $ATTRACTGUI --gui html \
+ -I $ATTRACTGUI/server --form form_model webform --view form_model html --webdir $ATTRACTGUI/server/html --webserver-pre form_model webserverform

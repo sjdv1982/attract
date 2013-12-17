@@ -147,7 +147,7 @@ Type AttractPartnerInterface {
   }
 }
 
-Type AttractGrid {
+Type AttractGrid:Degenerate {
   String gridname = ""
   ## form gridname.name = "Name of this grid"
   validate {
@@ -345,7 +345,7 @@ Type AttractModel {
       assert translations_file is None
     else:
       assert rotations_file is not None or translations_file is not None      
-      assert len(partners) == 2 
+      assert len(partners) == 2
   }   
   form {
     fix_receptor.group = "Sampling parameters"
@@ -523,6 +523,145 @@ Type AttractModel {
     
     if calc_lrmsd: assert len(partners) == 2
     if calc_irmsd: assert len(partners) == 2
+  }
+  
+  error {
+    'if zoom is not None: assert zoom_it_initial is not None'
+    =>
+    ''
+
+    'if zoom is not None: assert zoom_trans is not None'
+    =>
+    ''
+
+    'if cryoem_scoring_mode != None: assert cryoem_scoring_mode in ("no","attract","gvm","cc")'
+    =>
+    ''
+
+    'assert nr_iterations > 0'
+    =>
+    ''
+
+    'if dielec != None: assert dielec in ("cdie", "rdie")'
+    =>
+    ''
+
+    'if zoom_it_initial is not None: assert zoom_it_initial.traj == False'
+    =>
+    ''
+
+    'assert rotations_file is None'
+    =>
+    ''
+
+    'if zoom is not None: assert zoom_select is not None'
+    =>
+    ''
+
+    'if cryoem_data is None: assert cryoem_resolution is None'
+    =>
+    ''
+
+    'if cryoem_scoring_mode != "no": assert cryoem_scoring_data is not None'
+    =>
+    ''
+
+    'if forcefield != None: assert forcefield in ("ATTRACT", "OPLSX")'
+    =>
+    ''
+
+    'if cryoem_scoring_resolution is not None: assert cryoem_scoring_resolution <= cryoem_resolution'
+    =>
+    ''
+
+    'if cryoem_scoring_data is not None: assert cryoem_data is not None'
+    =>
+    ''
+
+    'assert start_structures_file is None'
+    =>
+    ''
+
+    'if calc_irmsd: assert len(partners) == 2'
+    =>
+    ''
+
+    'assert nr_iterations >= len(iterations)'
+    =>
+    ''
+
+    'assert partner.gridname in gridnames, partner.gridname'
+    =>
+    ''
+
+    'if cryoem_scoring_data is not None: assert cryoem_scoring_resolution is not None'
+    =>
+    ''
+
+    'assert zoom_clone is None or zoom_clone > 1'
+    =>
+    ''
+
+    'assert len(partners) == 2'
+    =>
+    'You must define two docking partners, not {len(partners)}'
+
+    'if calc_lrmsd: assert len(partners) == 2'
+    =>
+    ''
+
+    'if zoom is not None: assert zoom_clone is not None'
+    =>
+    ''
+
+    'if zoom is not None: assert zoom_ori is not None'
+    =>
+    ''
+
+    'if zoom_it_subsequent is not None: assert zoom_it_subsequent.traj == False'
+    =>
+    ''
+
+    'if p.ensemblize == "custom": assert search == "custom"'
+    =>
+    ''
+
+    'if cryoem_data is not None: assert cryoem_resolution is not None'
+    =>
+    ''
+
+    'if search == "syst": assert len(partners) == 2'
+    =>
+    ''
+
+    'if search != None: assert search in ("syst","random", "custom")'
+    =>
+    ''
+
+    'if zoom is not None and nr_iterations > 1: assert zoom_it_subsequent is not None'
+    =>
+    ''
+
+    'assert rotations_file is not None or translations_file is not None'
+    =>
+    ''
+
+    'if cryoem_scoring_mode == "no": assert cryoem_scoring_data is None'
+    =>
+    ''
+
+    'assert translations_file is None'
+    =>
+    ''
+
+    'raise ValueError("The name of your run may contain only letters, digits, _ and -")'
+    =>
+    ''
+
+    'if cryoem_scoring_data is None: assert cryoem_scoring_resolution is None'
+    =>
+    ''
+    
   }
   
 }
