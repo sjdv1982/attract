@@ -1,4 +1,15 @@
 set $ATTRACTGUI to $ATTRACTDIR/../gui
+alias "silk" to 'python <spyderdir>/silk/silk.py'
+
+sudo apt-get install python-pyside
+OR
+sudo apt-get install python-qt4
+
+sudo apt-get install pip
+sudo apt-get install python-zmq
+sudo pip install ipython
+sudo pip install pigments
+
 
 local GUI:
 silk AttractModel -m attractmodel -I $ATTRACTGUI
