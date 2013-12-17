@@ -1,16 +1,11 @@
 import sys, os
-import attracthtmlform 
 import spyder
 from attractmodel import AttractModel
-import form
+import form_model
 
 cgi = sys.argv[1]
 
 f = AttractModel._form()
-f = form.webform(f)
-html = attracthtmlform.htmlform(
- form=f, cgi=cgi, 
- header=form.header, footer=form.footer, header_indentation = 12, 
- newtab=True
-)
+f = form_model.webform(f)
+html = form_model.html(f, cgi, newtab=True)
 print(html)
