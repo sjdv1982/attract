@@ -451,3 +451,31 @@ def webform(f, model=None,
   ### END computation block
 
   return f
+
+import spyder.htmlform
+def webserverform(webdict, form=None, spydertype=None):
+  if spydertype is not None: form = spydertype._form()
+  f = webform(
+   form,
+   partnerslength = 10,
+   gridslength = 10,
+   symmetrieslength = 10,
+   iterationslength = 10,
+  )  
+  nr_iterations = 0
+  try:
+    nr_iterations = len(webdict["iterations"])
+  except (KeyError, TypeError) as exc:
+    pass
+  webdict["nr_iterations"] = nr_iterations
+  return f
+  
+def html(form, cgi,newtab=False):
+  import attracthtmlform 
+  html = attracthtmlform.htmlform(
+  form=form, cgi=cgi, 
+  header=header, footer=footer, header_indentation = 12, 
+  newtab=newtab
+  )
+  return html
+  

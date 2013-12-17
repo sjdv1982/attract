@@ -1,72 +1,7 @@
 import os
 import Spyder
 
-def make_relpath(outpdir, m):
-  try:
-    items = [a for a in m]
-    items = enumerate(items)
-    ar = True
-  except TypeError:
-    items = list(m.__dict__.items())
-    ar = False
-  for k,v in items:
-    if isinstance(v, Spyder.Resource): 
-      if v.filename is None: continue
-      nam = v.filename      
-      rel = os.path.relpath(nam, outpdir)
-      if rel.startswith(".."): #os.path.relpath does this for /tmp, very annoying
-        rel = nam
-      v.filename = rel
-    elif isinstance(v, Spyder.File): 
-      nam = v.name
-      rel = os.path.relpath(nam, outpdir)
-      if rel.startswith(".."): #os.path.relpath does this for /tmp, very annoying
-        rel = nam      
-      if len(os.path.split(rel)[0]) == 0:
-        vv = type(v)(
-         rel,
-         fileformat=v.fileformat(),
-         mode=v.mode,
-         format=v.format(),
-        ) 
-        if ar:
-          m[k] = vv
-        else:
-          setattr(m,k,vv) 
-    elif isinstance(v, Spyder.Filename):	  
-      nam = v.name
-      rel = os.path.relpath(nam, outpdir)
-      if rel.startswith(".."): #os.path.relpath does this for /tmp, very annoying
-        rel = nam      
-      if len(os.path.split(rel)[0]) == 0:
-        vv = type(v)(rel)
-        if ar:
-          m[k] = vv
-        else:
-          setattr(m,k,vv) 
-
-    elif isinstance(v, Spyder.Object):
-      make_relpath(outpdir, v)      
-      
-def check_embedded(m, attrname = ""):
-  try:
-    items = [a for a in m]
-    items = enumerate(items)
-    ar = True
-  except TypeError:
-    items = list(m.__dict__.items())
-    ar = False
-  for k,v in items:
-    attrname2 = attrname
-    if ar: attrname2 += "[%s]" % k
-    elif attrname == "": attrname2 = str(k)
-    else: attrname2 += ".%s" % k    
-    if isinstance(v, Spyder.Resource): 
-      if v._data is not None:
-        return attrname2
-    elif isinstance(v, Spyder.Object):
-      embedded = check_embedded(v, attrname2)      
-      if embedded is not None: return embedded
+from spyder.formtools import make_relpath, check_embedded
   
 def save(m, outp, *args):
   v = m._get()   
@@ -96,3 +31,27 @@ def generate(m, outp, *args):
     print("Shell script generated: %s" % sh)
   else:
     print("Cannot generate shell script: form does not contain a valid object")
+    
+def _deploy(resource, fname):
+  if resource is not None: 
+    resource.link(fname)
+    resource.save()
+  
+def deploy(model, dir):
+  d = dir + "/"
+  if dir in (None, "", ".", "./"): d = ""
+  elif dir.endswith("/"): d = dir
+  for n,p in enumerate(model.partners):
+    _deploy(p.pdbfile,d+"partner-%d.pdb" % (n+1))
+    _deploy(p.ensemble_list,d+"ensemble-%d.list" % (n+1))
+    _deploy(p.modes_file,d+"partner-%d.modes" % (n+1))
+    _deploy(p.aa_modes_file,d+"partner-aa-%d.modes" % (n+1))
+    _deploy(p.rmsd_pdb,d+"partner-rmsd-%d.pdb" % (n+1))
+    _deploy(p.collect_pdb,d+"partner-collect-%d.pdb" % (n+1))
+    _deploy(p.collect_ensemble_list,d+"partner-collect-ensemble-%d.list" % (n+1))
+  _deploy(model.cryoem_data,d+"cryo.map")
+  _deploy(model.cryoem_scoring_data,d+"cryo-scoring.map")
+  _deploy(model.start_structures_file,d+"startstruc.dat")
+  _deploy(model.rotations_file,d+"rotations.dat")
+  _deploy(model.translations_file,d+"translations.dat")
+    
