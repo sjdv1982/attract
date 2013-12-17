@@ -5,35 +5,15 @@ localdir = "/home/server/services/ATTRACT/html/"
 resultdir = "results/"
 
 def serve_attract():
-  f = Spyder.AttractModel._form()
-  f = form.webform(
-   f,
-   partnerslength = 10,
-   gridslength = 10,
-   symmetrieslength = 10,
-   iterationslength = 10,
-  )  
+  webform = spyder.htmlform.dict_from_fieldstorage(cgi.FieldStorage())
+  f = form_model.webserverform(webform, spydertype=Spyder.AttractModel)
   
-  webform = cgi.FieldStorage() 
-  #determine nr_iterations
-  nr_iterations = 0
-  for k in webform:
-    if not k.startswith("iterations-"): continue
-    kk = k[len("iterations-"):]
-    p = kk.find("-")
-    if p == -1: continue
-    try:
-      i = int(kk[:p]) + 1
-    except ValueError:
-      continue
-    if i > nr_iterations: nr_iterations = i
   resourcemodel = None  
   if "_tmpresource" in webform:
     tmpf = webform["_tmpresource"].value    
     resourcemodel = Spyder.AttractModel.fromfile(tmpf)    
     nr_iterations = max( len(resourcemodel.iterations) , nr_iterations )    
   webdict = spyder.htmlform.cgi(webform,f,resourcemodel)  
-  webdict["nr_iterations"] = nr_iterations
   newmodel = Spyder.AttractModel.fromdict(webdict)
   resources.embed(newmodel)
   import random
@@ -68,7 +48,7 @@ try:
   import spyder, Spyder
   import spyder.htmlform
   import attractmodel
-  import form
+  import form_model
   import resources
 
   r = serve_attract()
