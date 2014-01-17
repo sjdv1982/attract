@@ -155,6 +155,9 @@ void parse_options(int ministatehandle, int cartstatehandle, int nlig, int argc,
     if (!strcmp(arg,"--mc")) {
       ms.imc = 1;
     }
+    else if (!strcmp(arg, "--mcm")) {
+    	ms.imc = 2;
+    }
     else if (!strcmp(arg,"--lambda")) {
       if (argc-n < 2) lambda_usage();    
       double lambda = atof(argv[n+1]);

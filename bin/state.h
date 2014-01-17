@@ -145,7 +145,7 @@ struct Restraint {
 struct MiniState {
   MolPair *pairs;
   int npairs;
-  int imc;     //Monte Carlo mode: 0 = off (minfor), 1 = on (monte)
+  int imc;     //Monte Carlo mode: 0 = off (minfor), 1 = (monte) 2 = (mc_min)
   double mctemp; //Monte Carlo temperature (in KT)
   double mcscalerot; //Monte Carlo rotation step size (in radians)
   double mcscalecenter; //Monte Carlo translation step size (in A)

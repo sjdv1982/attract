@@ -93,9 +93,17 @@ const int &seed, char *label, double &energy, double *energies, int &lablen);
 
 extern "C" void monte_(
 const int &cartstatehandle,const int &ministatehandle, 
-int *nhm, const int &nlig, 
+int *nhm, int*nihm, const int &nlig,
 int *ens,  double *phi, double *ssi, double *rot, double *xa, double *ya, double *za, double *morph,
 double *dlig, 
+double *locrests, int *has_locrests,
+const int &seed, char *label, double &energy, double *energies, int &lablen);
+
+extern "C" void monte_min_(
+const int &cartstatehandle,const int &ministatehandle,
+int *nhm, int*nihm, const int &nlig,
+int *ens,  double *phi, double *ssi, double *rot, double *xa, double *ya, double *za, double *morph,
+double *dlig,
 double *locrests, int *has_locrests,
 const int &seed, char *label, double &energy, double *energies, int &lablen);
 
@@ -289,12 +297,24 @@ int main(int argc, char *argv[]) {
         energy, energies, lablen
       );
     }
-    else {
+    if (imc == 1) {
       monte_(
         cartstatehandle, ministatehandle,
-        nhm, nlig,
+        nhm, nihm, nlig,
         &ens[0], &phi[0], &ssi[0], &rot[0], 
         &xa[0], &ya[0], &za[0], 
+        &morph[0], &dlig[0][0],
+        &locrests[0][0], has_locrests,
+        seed, label,
+        energy, energies, lablen
+      );
+    }
+    if (imc == 2) {
+      monte_min_(
+        cartstatehandle, ministatehandle,
+        nhm, nihm, nlig,
+        &ens[0], &phi[0], &ssi[0], &rot[0],
+        &xa[0], &ya[0], &za[0],
         &morph[0], &dlig[0][0],
         &locrests[0][0], has_locrests,
         seed, label,
