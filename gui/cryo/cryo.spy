@@ -1,12 +1,19 @@
 Type CryoSimData {
+  ResourceData_PDB pdb
   Float map_resolution_fitting = 40
   Float map_resolution_scoring = 20
   Bool deconvolute = False
   form {
+    pdb.name = "PDB from which the map will be simulated"
+    pdb.type = "file"
+    t = "Resolution for the cryo-EM map that will simulated from the structure and used in assembly"
+    map_resolution_fitting.add_header(t)
     map_resolution_fitting.name = "Simulated map resolution (fitting) in angstroms"
-    map_resolution_fitting.tooltip = "Resolution for the cryo-EM map that will simulated from the structure and used in assembly"
-    map_resolution_fitting.name = "Simulated map resolution (scoring) in angstroms"
-    map_resolution_scoring.tooltip = "Resolution for the cryo-EM map that will simulated from the structure and used in GVM scoring"
+    map_resolution_fitting.tooltip = t
+    t = "Resolution for the cryo-EM map that will simulated from the structure and used in GVM scoring"
+    map_resolution_scoring.add_header(t)
+    map_resolution_scoring.name = "Simulated map resolution (scoring) in angstroms"
+    map_resolution_scoring.tooltip = t
     deconvolute.name = "Deconvolute the assembly map"
   }  
 }
@@ -21,8 +28,10 @@ Type CryoReference {
   CryoSequenceMappingArray sequencemappings = []
   form { 
     pdb.name = "Reference structure"
+    pdb.type = "file"
     pdb.tooltip = "PDB that contains the true structure"
-    sequencemappings.length = 20
+    sequencemappings.length = 10
+    sequencemappings.count_from_one = True
     sequencemappings.form = "soft"
     sequencemappings.name = "Mapping to assembly sequences"
     sequencemappings.tooltip = "Mapping of the reference structure to the assembly sequences"
@@ -30,7 +39,11 @@ Type CryoReference {
   validate {
     assert len(sequencemappings)
   }
-  
+  error {
+    'assert len(sequencemappings)'
+    =>
+    ''
+  } 
 }
 
 Type CryoMap {
@@ -38,6 +51,7 @@ Type CryoMap {
   Float resolution
   form {
     map.name = "Cryo-EM density map in SITUS format"
+    map.type = "file"
     resolution.name = "Map resolution (in angstroms)"
   }
 }
@@ -60,6 +74,19 @@ Type CryoData {
     assert generate_map_fitting or map_fitting is not None
     if map_fitting is not None: assert not generate_map_fitting 
     if generate_map_fitting: assert map_fitting is None
+  }  
+  error {
+    'if map_fitting is not None: assert not generate_map_fitting'
+    =>
+    ''
+
+    'assert generate_map_fitting or map_fitting is not None'
+    =>
+    ''
+
+    'if generate_map_fitting: assert map_fitting is None'
+    =>
+    ''
   }
 }
 
@@ -114,6 +141,27 @@ Type CryoZoom {
     if pre_frac is not None: assert pre_frac > 0 and pre_frac <= 1
     if pre_mini: assert pre_frac * struc_initial >= select
   }
+   error {
+    'assert struc_initial >= select'
+    =>
+    ''
+
+    'if pre_frac is not None: assert pre_frac > 0 and pre_frac <= 1'
+    =>
+    ''
+
+    'if pre_mini: assert pre_frac * struc_initial >= select'
+    =>
+    ''
+
+    'if pre_mini: assert pre_frac is not None'
+    =>
+    ''
+
+    'if pre_frac is not None: assert pre_mini'
+    =>
+    ''
+  } 
 }
 
 Type CryoSequence:Degenerate {
@@ -124,7 +172,8 @@ Type CryoSequence:Degenerate {
   *String chain
   RangeArray subsequences = []
   form {
-    subsequences.length = 10
+    subsequences.length = 3
+    subsequences.count_from_one = True
     subsequences.form = "soft"
     mode.name = "How is the protein sequence specified?"
     mode.optiontitles = (
@@ -147,6 +196,23 @@ Type CryoSequence:Degenerate {
     if mode in ("partner", "body"): assert len(subsequences) == 0
     if mode not in ("partner", "body"): assert chain is None
   }
+  error {
+    'assert index > 0'
+    =>
+    ''
+
+    'if mode not in ("partner", "body"): assert chain is None'
+    =>
+    ''
+
+    'if mode is not None: assert mode in ("code","partner","body","sequence")'
+    =>
+    ''
+
+    'if mode in ("partner", "body"): assert len(subsequences) == 0'
+    =>
+    ''
+  }  
 }
 
 Type CryoPartnerRun {
@@ -154,7 +220,7 @@ Type CryoPartnerRun {
   High-level definition of an ATTRACT-EM assembly run
   Assembly partners are defined as PDBs standing in relationship to protein sequences
   """
-  CryoSequenceArray sequences = [] 
+  CryoSequenceArray sequences
   GenSymmetry symmetry
   CryoPartnerArray partners
   *CryoData cryodata 
@@ -163,7 +229,8 @@ Type CryoPartnerRun {
   *CryoZoom cryozoom
   form {
     sequences.name = "Protein sequence definition"
-    sequences.length = 20
+    sequences.count_from_one = 1
+    sequences.length = 10
     sequences.form = "soft"
     for n in range(sequences.length):
       sequences[n].mode.options = ("code","partner","sequence")
@@ -175,25 +242,58 @@ Type CryoPartnerRun {
     symmetry.name = "Symmetry definition"
     partners.name = "Assembly partners"
     partners.length = 10
+    partners.count_from_one = True
     partners.form = "soft"
     cryodata.name = "Experimental cryo-EM data"
     simdata.name = "Simulated cryo-EM data" 
     reference.name = "Reference structure"
-    cryozoom.name = "Assembly protocol parameters"
-    
+    cryozoom.name = "Assembly protocol parameters"   
   }
   validate {   
+    assert len(partners)
+    assert len(sequences)
     assert cryodata is not None or simdata is not None
     if cryodata is None: assert simdata is not None
-    if simdata is None: assert cryodata is not None
-    
-    if simdata is not None: assert reference is not None
+    if simdata is None: assert cryodata is not None    
     for seqnr, seq in enumerate(sequences):
       assert seq.mode != "body", seqnr    
       if seq.mode == "partner": 
         assert seq.index <= len(partners), seqnr
         assert partners[index-1].pdb is not None
-  }
+  }  
+  error {
+    'assert partners[index-1].pdb is not None'
+    =>
+    ''
+
+    'assert cryodata is not None or simdata is not None'
+    =>
+    ''
+
+    'assert seq.index <= len(partners), seqnr'
+    =>
+    ''
+
+    'if simdata is None: assert cryodata is not None'
+    =>
+    ''
+
+    'assert seq.mode != "body", seqnr'
+    =>
+    ''
+
+    'assert len(sequences)'
+    =>
+    'Please specify at least one assembly sequence'
+
+    'if cryodata is None: assert simdata is not None'
+    =>
+    ''
+
+    'assert len(partners)'
+    =>
+    'Please specify at least one assembly partner'
+  } 
 }
 
 Type CryoInterBodyRestraint {
@@ -220,7 +320,7 @@ Type CryoBodyRun {
   Low-level definition of an ATTRACT-EM assembly run
   Assembly bodies are defined as sequence regions, with or without a structure
   """
-  CryoSequenceArray sequences = []
+  CryoSequenceArray sequences
   GenSymmetry symmetry
   CryoBodyArray bodies
   *CryoData cryodata 
@@ -235,7 +335,8 @@ Type CryoBodyRun {
   Float k_ibr_linker = 1
   form {
     sequences.name = "Protein sequence definition"
-    sequences.length = 20
+    sequences.count_from_one = 1
+    sequences.length = 10
     for n in range(sequences.length):
       sequences[n].mode.options = ("code","body","sequence")
       sequences[n].mode.optiontitles = (
@@ -244,13 +345,14 @@ Type CryoBodyRun {
        "Manually entered sequence",
       )                  
     symmetry.name = "Symmetry definition"
-    bodies.length = 100
+    bodies.length = 10
+    bodies.count_from_one = True
     cryodata.name = "Experimental cryo-EM data"
     simdata.name = "Simulated cryo-EM data" 
     reference.name = "Reference structure"
     cryozoom.name = "Assembly protocol parameters"    
     interbodyrestraints.name = "Inter-body restraints"
-    interbodyrestraints.length = 30
+    interbodyrestraints.length = 10
     k_abs_ori.name = "Force constant for absolute orientational restraints"
     k_abs_trans.name = "Force constant for absolute translational restraints"    
     k_ibr_ori.name = "Force constant for inter-body orientational restraints"
@@ -258,6 +360,8 @@ Type CryoBodyRun {
     k_ibr_linker.name = "Force constant for inter-body linker restraints"
   }  
   validate {
+    assert len(bodies)
+    assert len(sequences)  
     for seqnr, seq in enumerate(sequences):
       assert seq.mode != "partner", seqnr
       if seq.mode == "body": 
@@ -269,7 +373,47 @@ Type CryoBodyRun {
       assert rest.cryobody2 <= len(bodies), restnr
       assert bodies[rest.cryobody2-1].pdb is not None
   }  
+  error {
+    'assert len(bodies)'
+    =>
+    ''
+
+    'assert rest.cryobody1 <= len(bodies), restnr'
+    =>
+    ''
+
+    'assert bodies[index-1].pdb is not None, seqnr'
+    =>
+    ''
+
+    'assert bodies[rest.cryobody1-1].pdb is not None'
+    =>
+    ''
+
+    'assert bodies[rest.cryobody2-1].pdb is not None'
+    =>
+    ''
+
+    'assert rest.cryobody2 <= len(bodies), restnr'
+    =>
+    ''
+
+    'assert len(sequences)'
+    =>
+    ''
+
+    'assert seq.mode != "partner", seqnr'
+    =>
+    ''
+
+    'assert seq.index <= len(bodies), seqnr'
+    =>
+    ''
+  }
 }
+
+Define CryoBodyRun(CryoPartnerRun) partners2bodies
+Method generate(CryoBodyRun) generate
 
 #TODO: atom type mass table => sum of the EM map will be the mass of the sequence
 #TODO: positional restraints: rotation matrices as well, are they there yet?
