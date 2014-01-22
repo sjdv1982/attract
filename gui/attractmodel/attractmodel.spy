@@ -526,15 +526,15 @@ Type AttractModel {
   }
   
   error {
-    'if zoom is not None: assert zoom_it_initial is not None'
+    'if zoom: assert zoom_it_initial is not None'
     =>
     ''
 
-    'if zoom is not None: assert zoom_trans is not None'
+    'if zoom: assert zoom_trans is not None'
     =>
     ''
 
-    'if cryoem_scoring_mode != None: assert cryoem_scoring_mode in ("no","attract","gvm","cc")'
+    'if cryoem_scoring_mode is not None: assert cryoem_scoring_mode in ("no","attract","gvm","cc")'
     =>
     ''
 
@@ -542,7 +542,7 @@ Type AttractModel {
     =>
     ''
 
-    'if dielec != None: assert dielec in ("cdie", "rdie")'
+    'if dielec is not None: assert dielec in ("cdie", "rdie")'
     =>
     ''
 
@@ -554,7 +554,7 @@ Type AttractModel {
     =>
     ''
 
-    'if zoom is not None: assert zoom_select is not None'
+    'if zoom: assert zoom_select is not None'
     =>
     ''
 
@@ -566,7 +566,7 @@ Type AttractModel {
     =>
     ''
 
-    'if forcefield != None: assert forcefield in ("ATTRACT", "OPLSX")'
+    'if forcefield is not None: assert forcefield in ("ATTRACT", "OPLSX")'
     =>
     ''
 
@@ -610,11 +610,11 @@ Type AttractModel {
     =>
     ''
 
-    'if zoom is not None: assert zoom_clone is not None'
+    'if zoom: assert zoom_clone is not None'
     =>
     ''
 
-    'if zoom is not None: assert zoom_ori is not None'
+    'if zoom: assert zoom_ori is not None'
     =>
     ''
 
@@ -634,11 +634,11 @@ Type AttractModel {
     =>
     ''
 
-    'if search != None: assert search in ("syst","random", "custom")'
+    'if search is not None: assert search in ("syst","random", "custom")'
     =>
     ''
 
-    'if zoom is not None and nr_iterations > 1: assert zoom_it_subsequent is not None'
+    'if zoom and nr_iterations > 1: assert zoom_it_subsequent is not None'
     =>
     ''
 

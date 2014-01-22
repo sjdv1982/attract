@@ -10,18 +10,32 @@ Type GenSymmetry:Degenerate {
   Enum symmetry("No symmetry", "C2","C3","C4","C5","C6","C7","D2")
   *Vector secondary_axis
   form {
+    symmetry.name = "Symmetry type"
     secondary_axis.name = "Secondary symmetry axis (for D symmetry)"
   }
   validate {
     if symmetry[0] == "C": assert secondary_axis is None
     if symmetry[0] == "D": assert secondary_axis is not None
   }
+  error {
+    'if symmetry[0] == "C": assert secondary_axis is None'
+    =>
+    ''
+
+    'if symmetry is not None: assert symmetry in ("No symmetry", "C2","C3","C4","C5","C6","C7","D2")'
+    =>
+    ''
+
+    'if symmetry[0] == "D": assert secondary_axis is not None'
+    =>
+    ''
+  }
 }
 
 Type CryoSequenceMapping {
   *String chain
   Integer index
-  RangeArray subsequences
+  RangeArray subsequences = []
   *Integer shift
   form {
     t = "You may select a chain of the mapped PDB, or leave it blank"
@@ -29,10 +43,11 @@ Type CryoSequenceMapping {
     chain.tooltip = t
     chain.length = 2
     index.name = "Index of the assembly sequence to map to"
-    t = "You may define the sequence stretches to which the PDB is aligned; leave blank for automatic alignment"
-    subsequences.add_header(t)
+    t = "The sequence stretches to which the PDB is aligned; leave blank for automatic alignment"
+    subsequences[0].add_header(t)
     subsequences.tooltip = t
-    subsequences.length = 10
+    subsequences.length = 5
+    subsequences.count_from_one = True
     subsequences.form = "soft"
     t = "It is possible to indicate symmetry shifts in the mapped PDB, causing linker restraints to be defined to bodies in the next/previous symmetry copy, instead of to bodies in the reference copy"
     shift.add_header(t)
@@ -41,7 +56,7 @@ Type CryoSequenceMapping {
   }
 }
 
-Type CryoPartner {
+Type CryoPartner:Degenerate {
   """
   High-level definition of a component that is to be fitted
   A CryoPartner has a single PDB, and/or a sequence mapping, and/or a DSSP assignment  
@@ -61,19 +76,20 @@ Type CryoPartner {
     The PDB will be auto-fragmented into secondary structure element bodies, based on the DSSP assignment if provided, or else automatically
   - mode "ab_initio"  
     No PDB has been provided. Sequence and DSSP alignment must be provided. The sequence will be fragmented into secondary structure element bodies, based on the DSSP assignment.
-    Idealized SSE fragment PDBs will be built ab initio.
-    
+    Idealized SSE fragment PDBs will be built ab initio.    
   """
   Enum mode("single", "multi", "SSE", "ab_initio")
   *ResourceData_PDB pdb
   *ResourceData_DSSP dssp
   CryoSequenceMappingArray sequencemappings = []
-  Enum absplace("free","guess","estpos","estimate","fixed")
-  Enum relplace("free","guess","estpos","estimate","fixed")  
-  Enum missing_loops("forbidden","missing","ab_initio")  
-  Float floppyness  
+  Enum absplace("free","guess","estpos","estimate","fixed") = "free"
+  Enum relplace("free","guess","estpos","estimate","fixed") = "free" 
+  Enum missing_loops("forbidden","neglect","ignore","ab_initio") = "neglect" 
+  Float floppiness = 0
   form {
-    mode.name = "What kind of body?"
+    pdb.type = "file"
+    dssp.type = "file"
+    mode.name = "What kind of protein body?"
     mode.optiontitles = (
       "Single body",
       "Multiple bodies",
@@ -82,7 +98,8 @@ Type CryoPartner {
     )  
     pdb.name = "PDB structure"
     dssp.name = "DSSP secondary structure assignment"
-    sequencemappings.length = 20
+    sequencemappings.length = 3
+    sequencemappings.count_from_one = True
     sequencemappings.form = "soft"
     sequencemappings.name = "Mapping to assembly sequences"
     sequencemappings.tooltip = "Mapping of the reference structure to the assembly sequences"    
@@ -92,16 +109,19 @@ Type CryoPartner {
     relplace.name = "Relative placement of the bodies within the PDB"
     relplace.optiontitles = ot    
     t = "How should missing loops (between the PDB sequence's start and end) be treated?"
-    missing_loops.add_header(t)    
+    missing_loops.add_header(t)  
+    missing_loops.name = "Missing loops"
     missing_loops.optiontitles = (
      "Forbidden: PDB sequence corresponds exactly to the sequence mapping",
+     "Neglect: PDB contains only small missing loops, which are not modeled",
      "Ignore: missing loops are not modeled",
      "Build: missing loops are built from individual amino acids" 
     )
     missing_loops.tooltip = t
-    t = "Uncertainty about endpoint coordinates (floppyness), in angstroms"
-    floppyness.add_header(t)
-    floppyness.tooltip = t
+    t = "Uncertainty about endpoint coordinates (floppiness), in angstroms"
+    floppiness.add_header(t)
+    floppiness.name = "Floppiness"
+    floppiness.tooltip = t
   }
   validate {
     if mode != "ab_initio": assert pdb is not None 
@@ -109,6 +129,43 @@ Type CryoPartner {
     if dssp is not None: assert mode in "SSE", "ab_initio"
     if mode == "ab_initio": assert dssp is not None
     if mode == "ab_initio": assert len(sequencemappings)    
+  }  
+  error {
+    'if relplace is not None: assert relplace in ("free","guess","estpos","estimate","fixed")'
+    =>
+    ''
+
+    'if missing_loops is not None: assert missing_loops in ("forbidden","neglect","ignore","ab_initio")'
+    =>
+    ''
+
+    'if absplace is not None: assert absplace in ("free","guess","estpos","estimate","fixed")'
+    =>
+    ''
+
+    'if mode == "ab_initio": assert len(sequencemappings)'
+    =>
+    ''
+
+    'if mode == "ab_initio": assert dssp is not None'
+    =>
+    ''
+
+    'if mode is not None: assert mode in ("single", "multi", "SSE", "ab_initio")'
+    =>
+    ''
+
+    'if dssp is not None: assert mode in "SSE", "ab_initio"'
+    =>
+    ''
+
+    'if mode != "multi": assert relplace == "free"'
+    =>
+    ''
+
+    'if mode != "ab_initio": assert pdb is not None'
+    =>
+    ''
   }
 }
 
@@ -120,17 +177,19 @@ Type CryoBody {
   *ResourceData_PDB pdb
   CryoSequenceMappingArray sequencemappings = []
   Enum absplace("free","guess","estpos","estimate","fixed")
-  Enum missing_loops("forbidden","missing","ab_initio")  
-  Float floppyness  
+  Enum missing_loops("forbidden","neglect","ignore","ab_initio") = "neglect" 
+  Float floppiness  
   form {
-    mode.name = "What kind of body?"
+    pdb.type = "file"
+    mode.name = "What kind of protein body?"
     mode.optiontitles = (
       "Fitted structure",
       "Missing sequence region",
       "Built from amino acids"
     )
     pdb.name = "PDB structure"
-    sequencemappings.length = 20
+    sequencemappings.length = 3
+    sequencemappings.count_from_one = True
     sequencemappings.form = "soft"
     sequencemappings.name = "Mapping to assembly sequences"
     sequencemappings.tooltip = "Mapping of the reference structure to the assembly sequences"    
@@ -138,21 +197,49 @@ Type CryoBody {
     absplace.name = "Absolute placement of the entire PDB"
     absplace.optiontitles = ot
     t = "How should missing loops (between the PDB sequence's start and end) be treated?"
-    missing_loops.add_header(t)    
+    missing_loops.add_header(t)   
+    missing_loops.name = "Missing loops"
     missing_loops.optiontitles = (
      "Forbidden: PDB sequence corresponds exactly to the sequence mapping",
+     "Neglect: PDB contains only small missing loops, which are not modeled",
      "Ignore: missing loops are not modeled",
      "Build: missing loops are built from individual amino acids" 
     )
     missing_loops.tooltip = t
-    t = "Uncertainty about endpoint coordinates (floppyness), in angstroms"
-    floppyness.add_header(t)
-    floppyness.tooltip = t
+    t = "Uncertainty about endpoint coordinates (floppiness), in angstroms"
+    floppiness.add_header(t)
+    floppiness.name = "Floppiness"
+    floppiness.tooltip = t
   }
   validate {
     assert len(sequencemappings)
     if mode == "structure": assert pdb is not None
     if mode != "structure": assert pdb is None
+  }  
+  error {
+    'if missing_loops is not None: assert missing_loops in ("forbidden","neglect","ignore","ab_initio")'
+    =>
+    ''
+
+    'if absplace is not None: assert absplace in ("free","guess","estpos","estimate","fixed")'
+    =>
+    ''
+
+    'if mode is not None: assert mode in ("structure", "missing region", "ab_initio")'
+    =>
+    ''
+
+    'assert len(sequencemappings)'
+    =>
+    ''
+
+    'if mode != "structure": assert pdb is None'
+    =>
+    ''
+
+    'if mode == "structure": assert pdb is not None'
+    =>
+    ''
   }
 }
 

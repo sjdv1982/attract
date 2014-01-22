@@ -448,7 +448,7 @@ def webform(f, model=None,
   c.description = ""
   f.header.rows = 25
   _assign_category(f, c, "Computing and parallelization parameters", span = True)
-  ### END computation block
+  ### END computation category
 
   return f
 
