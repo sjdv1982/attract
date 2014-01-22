@@ -728,6 +728,7 @@ A CryoPartner has different options for how it is to be converted into CryoBodie
 
                         <div class="field-container">
                           <div class="title"><h3>Use advanced settings</h3></div>
+                          <div class="tooltip"><div class="tooltip-body">Do you want an initial minimization without forcefield?</div></div>
                           <div class="field-item switch align-left">
                             <input type="checkbox" name="partners-0-use_advanced" id="partners-0-use_advanced" value="">
                             <label for="partners-0-use_advanced">Off</label>
@@ -944,24 +945,14 @@ A CryoPartner has different options for how it is to be converted into CryoBodie
                             </div>
 
                           </div> <!--END: group-inline -->
-                          <div class="group-inline clearfix">
 
-                            <div class="field-container">
-                              <div class="title"><p>Auto-generate assembly map</p></div>
-                              <div class="tooltip"><div class="tooltip-body">Auto-generate the assembly map from the scoring map by downsampling it to 40 A</div></div>
-                              <div class="field-item checkbox align-right">
-                                <input type="checkbox" name="cryodata-generate_map_fitting" id="cryodata-generate_map_fitting" value="">
-                              </div>
+                          <div class="field-container">
+                            <div class="title"><p>Auto-generate assembly map</p></div>
+                            <div class="tooltip"><div class="tooltip-body">Auto-generate the assembly map from the scoring map by downsampling it to 40 A</div></div>
+                            <div class="field-item checkbox align-right">
+                              <input type="checkbox" name="cryodata-generate_map_fitting" id="cryodata-generate_map_fitting" value="">
                             </div>
-
-                            <div class="field-container">
-                              <div class="title"><p>Deconvolute the assembly map</p></div>
-                              <div class="field-item checkbox align-right">
-                                <input type="checkbox" name="cryodata-deconvolute" id="cryodata-deconvolute" value="">
-                              </div>
-                            </div>
-
-                          </div> <!--END: group-inline -->
+                          </div>
                         </div> <!-- END: group-container -->
                       </div> <!-- END: level2 -->
                     </div><!-- END: level1-container -->
@@ -1002,24 +993,14 @@ A CryoPartner has different options for how it is to be converted into CryoBodie
                             </div>
 
                           </div> <!--END: group-inline -->
-                          <div class="group-inline clearfix">
 
-                            <div class="field-container">
-                              <div class="title"><p>Simulated map resolution (scoring) in angstroms</p></div>
-                              <div class="tooltip"><div class="tooltip-body">Resolution for the cryo-EM map that will simulated from the structure and used in GVM scoring</div></div>
-                              <div class="field-item number align-right">
-                                <input type="number" name="simdata-map_resolution_scoring" id="simdata-map_resolution_scoring" value = "20.0">
-                              </div>
+                          <div class="field-container">
+                            <div class="title"><p>Simulated map resolution (scoring) in angstroms</p></div>
+                            <div class="tooltip"><div class="tooltip-body">Resolution for the cryo-EM map that will simulated from the structure and used in GVM scoring</div></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="simdata-map_resolution_scoring" id="simdata-map_resolution_scoring" value = "20.0">
                             </div>
-
-                            <div class="field-container">
-                              <div class="title"><p>Deconvolute the assembly map</p></div>
-                              <div class="field-item checkbox align-right">
-                                <input type="checkbox" name="simdata-deconvolute" id="simdata-deconvolute" value="">
-                              </div>
-                            </div>
-
-                          </div> <!--END: group-inline -->
+                          </div>
                         </div> <!-- END: group-container -->
                       </div> <!-- END: level2 -->
                     </div><!-- END: level1-container -->
@@ -2610,7 +2591,7 @@ A CryoPartner has different options for how it is to be converted into CryoBodie
                   <div id="block-b_initial-0" class="level1 active">
 
                     <div class="controls">
-                      <div class="title"><h4>Inital iteration</h4></div>
+                      <div class="title"><h4>Initial iteration</h4></div>
                       <div class="button reload-icon reload-form-block"><div class="controls-tooltip"><p>Restore default values</p></div></div>
                     </div>
 

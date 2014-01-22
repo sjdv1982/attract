@@ -194,7 +194,7 @@ A CryoPartner has different options for how it is to be converted into CryoBodie
     b = fp.new_group("b_advanced", "block")
     b.title =  "Advanced settings"
     fp._membernames.append("use_advanced")
-    sw = f.cryodata._members["deconvolute"].get_copy()        
+    sw = f.cryozoom._members["pre_mini"].get_copy()        
     sw.name = "Use advanced settings"
     sw.type = "switch"
     fp._members["use_advanced"] = sw
@@ -285,7 +285,7 @@ A CryoPartner has different options for how it is to be converted into CryoBodie
   b.members.append("cryozoom.iterations")  
   c.members.append("b_protocol")  
   b = f.new_group("b_initial", "block")
-  b.title = "Inital iteration"
+  b.title = "Initial iteration"
   b.members.append("cryozoom.initial")
   c.members.append("b_initial")
   b = f.new_group("b_subsequent", "block")

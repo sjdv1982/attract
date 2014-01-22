@@ -2,7 +2,6 @@ Type CryoSimData {
   ResourceData_PDB pdb
   Float map_resolution_fitting = 40
   Float map_resolution_scoring = 20
-  Bool deconvolute = False
   form {
     pdb.name = "PDB from which the map will be simulated"
     pdb.type = "file"
@@ -14,7 +13,6 @@ Type CryoSimData {
     map_resolution_scoring.add_header(t)
     map_resolution_scoring.name = "Simulated map resolution (scoring) in angstroms"
     map_resolution_scoring.tooltip = t
-    deconvolute.name = "Deconvolute the assembly map"
   }  
 }
 
@@ -60,7 +58,6 @@ Type CryoData {
   *CryoMap map_fitting
   CryoMap map_scoring
   Bool generate_map_fitting = False
-  Bool deconvolute = False
   form {
     map_fitting.name = "Cryo-EM data for the assembly stage"
     map_scoring.name = "Cryo-EM data for the scoring stage"
@@ -68,7 +65,6 @@ Type CryoData {
     generate_map_fitting.add_header(t)
     generate_map_fitting.name = "Auto-generate assembly map"
     generate_map_fitting.tooltip = t
-    deconvolute.name = "Deconvolute the assembly map"
   }
   validate {
     assert generate_map_fitting or map_fitting is not None
@@ -438,7 +434,8 @@ Type CryoBodyRun {
 }
 
 Define CryoBodyRun(CryoPartnerRun) partners2bodies
-Method generate(CryoBodyRun) generate
+Define AttractModel(CryoBodyRun) bodies2attractmodel
 
 #TODO: atom type mass table => sum of the EM map will be the mass of the sequence
 #TODO: positional restraints: rotation matrices as well, are they there yet?
+#TODO: remove menu interface from pdb2vol and include it in ATTRACT
