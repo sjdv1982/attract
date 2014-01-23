@@ -65,7 +65,7 @@ void parse_restraintfile(MiniState &ms, const char *restfile) {
 	exit(1);
       }
       if (nf != natoms + 2) {
-        fprintf(stderr, "Reading error in %s, line %d: wrong number of atoms in selection\n", restfile, line);      
+        fprintf(stderr, "Reading error in %s, line %d %d: wrong number of atoms %d in selection\n", restfile, line, nf, natoms);      
 	exit(1);	
       }
       int *atoms = new int[natoms+1];
