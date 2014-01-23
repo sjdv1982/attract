@@ -184,6 +184,7 @@ cluster_struc: cluster_struc.o
 	
 rest: read_pdb2.o
 	$(FF) $(FLAG) reduce.f -o reduce
+	$(FF) $(FLAG) redatom.f -o redatom
 	$(FF) $(FLAG) reduce_rna.f -o reduce_rna
 	$(FF) $(FLAG) translate.f -o translate 
 	$(FF) $(FLAG) rotam.f -o rotam 
@@ -195,6 +196,7 @@ rest: read_pdb2.o
 	$(CXX) $(CFLAGS) center.cpp read_pdb2.o -o center
 	$(CXX) $(CFLAGS) transl.cpp read_pdb2.o -o trans
 	$(CXX) $(CFLAGS) deflate.cpp read_pdb2.o -o deflate
+	$(CXX) $(CFLAGS) cluster_struc.cpp -o cluster_struc
 
 all: max.fin attract attract-torque attract-infinite collect collectlib.so lrmsd rmsd calc_interior calc_no_interior make-grid \
  make-grid-omp make-grid-torque make-grid-torque-omp shm-grid \

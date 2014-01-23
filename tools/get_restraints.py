@@ -11,6 +11,11 @@ import re
 
 def make_interfacelist(ilist, pdb):
      # Read interface residues from files
+    data = open(ilist).readlines()
+    data = [l for l in data if not l[0]=='#']
+    if len(data) == 0:
+      return [],[],[]
+
     rlist = np.loadtxt(ilist,dtype=int,ndmin=1)
     # Make list of corresponding atoms
     receptor = []
@@ -143,12 +148,15 @@ def make_model(filelist,nlistcut=30):
 def write_output(nbonds, pdb, name, c, offset, atomid):
     sel = []
     output = os.path.splitext(pdb)[0]+'_'+name+'.txt'
-    print output
+    #print output
     out = open(output,'w')
-    print "Write bonds..."
+    #print "Write bonds..."
     countb = 0
     counta = 0
     countc = 0
+    if len(nbonds) == 0:
+      out.write('dummy 1 1')
+
     for bond in nbonds:
         #Write selection
         res1 = atomid[bond[0]-1]
@@ -206,7 +214,7 @@ def write_output(nbonds, pdb, name, c, offset, atomid):
                 countc += 1
     
     out.close()    
-    print countb, counta, countc
+    #print countb, counta, countc
     
 #Main
 if __name__ == "__main__":
@@ -230,7 +238,7 @@ if __name__ == "__main__":
     else:    
         nbonds, pdb, name, c, offset, atomid = make_model(sys.argv)
         cut = 31
-        while len(nbonds) > 6000 and cut > 0:
+        while len(nbonds) > 5000 and cut > 0:
             cut -= 5
             nbonds, pdb, name, c, offset, atomid = make_model(sys.argv,cut)
             

@@ -233,8 +233,8 @@ extern "C" void read_indexmode_(const char *hmfile_, const char *hmword_, const 
     exit(1);
   }
   char buf[100000];
-  float fields[10000];
-  int currlig = 1;
+  int fields[10000];
+  int currlig = 0;
   int currmode = 0;
   int currpos = 0;
   int line = 0;
@@ -250,7 +250,7 @@ extern "C" void read_indexmode_(const char *hmfile_, const char *hmword_, const 
         fprintf(stderr, "Reading error in %s, line %d: too many values on a line\n", hmfile, line);
         exit(1);
       }
-      fields[nf] = atof(field);
+      fields[nf] = atoi(field);
       field = strtok(NULL, chars);
       nf++;
     }
@@ -268,32 +268,7 @@ extern "C" void read_indexmode_(const char *hmfile_, const char *hmword_, const 
       reading = 0;
       continue;
     }
-    if (nf == 2 && fields[0] == currmode+1) {
-      //End of this mode
-
-      //We have reached the next mode
-      currmode++;
-      if (currmode > MAXINDEXMODE) {
-        fprintf(stderr, "Reading error in %s, line %d: Cannot read more than %d index modes for %s %d\n", hmfile, line, MAXINDEXMODE, hmword, currlig);
-	exit(1);
-      }
-      currpos=0;
-      reading = 1;
-      count = 0;
-      // Initialize index mode
-      for (int c=0; c< MAXLENINDEXMODE; c++){
-      	if (multi){
-      		eigl_multi[c][currmode-1][currlig-1] = -1;
-      		val_eigl_multi[c][currmode-1][currlig-1] = 0;
-      	}
-      	else{
-      		eigl_mono[c][currmode-1] = -1;
-      		val_eigl_mono[c][currmode-1] = 0;
-      	}
-      }
-      continue;
-    }
-    if (nf == 2 && fields[0] == 1) {
+    if (nf == 1 && fields[0] == -1) {
       //End of this mode
       if (currmode > 0) {
         fprintf(stderr,"%d index modes read for %s %d\n", currmode, hmword, currlig);
@@ -307,7 +282,7 @@ extern "C" void read_indexmode_(const char *hmfile_, const char *hmword_, const 
 	exit(1);
       }
 
-      currmode = 1;
+      currmode = 0;
       currpos = 0;
       reading = 1;
       count = 0;
@@ -326,6 +301,7 @@ extern "C" void read_indexmode_(const char *hmfile_, const char *hmword_, const 
     }
 
     //reading data
+    count = 0;
     if (!reading) {
       fprintf(stderr, "Reading error in %s, line %d: Not expecting values here\n", hmfile, line);
     }
@@ -334,10 +310,14 @@ extern "C" void read_indexmode_(const char *hmfile_, const char *hmword_, const 
     }
     for (int n = 0; n < nf; n++) {
       if (multi) {
-    	  if ( fields[n] != 0.0 ){
+    	  if ( fields[n] != 0 ){
     		  if ( count < MAXLENINDEXMODE ){
-    		  eigl_multi[count][currmode-1][currlig-1] = currpos+n;
-    		  val_eigl_multi[count][currmode-1][currlig-1] = fields[n];
+    		  eigl_multi[count][currmode-1][currlig-1] = 3*(fields[n]-1);
+    		  val_eigl_multi[count][currmode-1][currlig-1] = 1.0;
+    		  eigl_multi[count][currmode][currlig-1] = 3*(fields[n]-1)+1;
+    		  val_eigl_multi[count][currmode][currlig-1] = 1.0;
+    		  eigl_multi[count][currmode+1][currlig-1] = 3*(fields[n]-1)+2;
+    		  val_eigl_multi[count][currmode+1][currlig-1] = 1.0;
     	//	  fprintf(stderr,"Nonzero %i %i %i %f\n", currlig-1, currmode-1, currpos+n, fields[n]);
     		  count ++;
     		  }
@@ -351,8 +331,12 @@ extern "C" void read_indexmode_(const char *hmfile_, const char *hmword_, const 
       else {
     	  if (fields[n] != 0.0){
     		  if ( count < MAXLENINDEXMODE ){
-    		  eigl_mono[count][currmode-1] = currpos+n;
-    		  val_eigl_mono[count][currmode-1] = fields[n];
+    		  eigl_mono[count][currmode-1] = 3*(fields[n]-1);
+    		  val_eigl_mono[count][currmode-1] = 1.0;
+    		  eigl_mono[count][currmode] = 3*(fields[n]-1)+1;
+    		  val_eigl_mono[count][currmode] = 1.0;
+    		  eigl_mono[count][currmode+1] = 3*(fields[n]-1)+2;
+    		  val_eigl_mono[count][currmode+1] = 1.0;
     		  count ++;
     		  }
     		  else{
@@ -365,7 +349,7 @@ extern "C" void read_indexmode_(const char *hmfile_, const char *hmword_, const 
  /*   for (int c=0; c< MAXLENINDEXMODE; c++){
     	fprintf(stderr,"%i %i %i %f\n", currlig-1, currmode-1, eigl_multi[c][currmode-1][currlig-1],val_eigl_multi[c][currmode-1][currlig-1]);
     }*/
-    currpos += nf;
+    currmode += 3;
   }
 
   fprintf(stderr,"%d index modes read for %s %d\n", currmode, hmword, currlig);

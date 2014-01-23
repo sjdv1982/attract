@@ -12,7 +12,9 @@ def morph_inputleaf(node):
 
 
 def morph_blockcategory(node):  
-  g = node.space.group.elegroup  
+  g0 = node.space.group
+  if g0 is None or g0.type != "elegroup": return Handler.NO_MATCH  
+  g = g0.elegroup  
   if g is None: return Handler.NO_MATCH  
   if g.type != "category": return Handler.NO_MATCH 
   if node.space.complexity > 1: return Handler.NO_MATCH 
@@ -47,7 +49,9 @@ def morph_blockcategory(node):
   return Handler.CLAIM
 
 def morph_category(node):
-  g = node.space.group.elegroup  
+  g0 = node.space.group
+  if g0 is None or g0.type != "elegroup": return Handler.NO_MATCH  
+  g = g0.elegroup  
   if g is None: return Handler.NO_MATCH  
   if g.type != "category": return Handler.NO_MATCH 
   if node.space.complexity == 1: return Handler.NO_MATCH 
@@ -69,7 +73,9 @@ def morph_category(node):
   return Handler.CLAIM
 
 def morph_block(node):
-  g = node.space.group.elegroup  
+  g0 = node.space.group
+  if g0 is None or g0.type != "elegroup": return Handler.NO_MATCH  
+  g = g0.elegroup  
   if g is None: return Handler.NO_MATCH  
   if g.type != "block": return Handler.NO_MATCH    
   

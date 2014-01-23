@@ -1,0 +1,2830 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    
+    <head>
+        <title>ATTRACT Online</title>
+        
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+        <meta name="description" content="" />
+        <meta name="viewport" content="width=device-width"/>
+        
+        <!-- Always load normalize CSS first -->
+        <link rel="stylesheet" href="css/normalize.min.css">
+        <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,600' rel='stylesheet' type='text/css'>
+        <link href='http://fonts.googleapis.com/css?family=Lobster' rel='stylesheet' type='text/css'>
+        <link rel="stylesheet" href="css/attract.min.css">
+    </head>
+    
+    <body>
+        <!--[if lt IE 7]>
+            <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
+        <![endif]-->
+
+        <main id="container" class="col row">
+          
+          <section id="sidebar" class="col">
+            <div id="title"><span class="t1">Attract</span> <span class="t2">online</span></div>
+            <div id="logo"></div>
+            
+            <nav id="form-category-navigation" class="row">
+              <ul>
+                <li id="view-page1"><a id="nav-block-sequences" class="grid-icon">Sequences</a></li>              
+                <li id="view-page2"><a id="nav-block-partners" class="puzzle-icon">Partners</a></li>
+                <li id="view-page3"><a id="nav-block-symmetry" class="symmetry-icon">Symmetry</a></li>
+                <li id="view-page4"><a id="nav-block-cryoem" class="cryo-icon">Cryo-EM density maps</a></li>
+                <li id="view-page5"><a id="nav-block-reference" class="analysis-icon">Reference structure</a></li>                
+                <li id="view-page6"><a id="nav-block-protocol" class="iteration-icon">Assembly protocol</a></li>
+                <li id="view-page7"><a id="nav-block-computation" class="computation-icon">Computation</a></li>
+              </ul>
+            </nav>
+            
+            <div id="download-button" class="row download-icon" onClick="submitForm();">
+              <p>Get configuration</p>
+            </div>  
+            
+          </section>
+            
+          <section id="content" class="col">
+            
+            <header id="header">
+              
+              <div id="show-hide-sidepanel" class="button menu-icon float-left"><div class="header-tooltip"><p>Hide sidepanel</p></div></div>
+              <div id="reload-form" class="button reload-icon-active float-left"><div class="header-tooltip"><p>Restore default values</p></div></div>
+              <div id="unfold-all" class="button double-arrow-icon float-left"><div class="header-tooltip"><p>Unfold all form blocks</p></div></div>
+              <div id="header-nav" class="button-text down-icon-active float-left">
+                <p>Menu</p>
+                <nav class="header-tooltip">
+                  <ul>
+                    <li><a href="#" class="message-icon">Messages<span id="message-counter">2</span></a></li>
+                    <li><a href="#" class="download-icon" onClick="submitForm();">Save</a></li>
+                    <li><a href="#" class="contact-icon">Contact</a></li>
+                    <li><a href="documentation.html" target="_blank" class="help-icon">Help</a></li>
+                  </ul>
+                </nav> 
+              </div>
+              <div id="close-app" class="button close-icon-active float-right"></div>
+              
+            </header>
+            <form encType="multipart/form-data" action="http://localhost:7455/" method="post">
+
+              <div id="page1" class="category-container">
+                <div class="form-category-description">
+                  <div class="large-icon grid-icon"></div>
+                  <div class="description">
+                    <h2>Protein sequences</h2>
+                    <p></p>
+                  </div>
+
+                  <div class="category-controls">
+                    <div class="field-container">
+                      <div class="field-item button align-right">
+                        <input type="button" value="Add sequence" id="block-sequences-add" onClick="cloneBlock('block-sequences-',50);">
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+
+                <!-- UI CONTAINER FOR FORM ELEMENTS OF A CATEGORY SELECTED IN CATEGORY NAVIGATION MENU -->
+                <div class="form-category">
+
+                  <div id="block-sequences-0" class="level1 active">
+
+                    <div class="controls">
+                      <div class="title"><h4>Assembly sequences 1</h4></div>
+                      <div class="button reload-icon reload-form-block"><div class="controls-tooltip"><p>Restore default values</p></div></div>
+                      <div id="remove-block-sequences-0" class="button close-icon"><div class="controls-tooltip"><p>Remove partner</p></div></div>
+                    </div>
+
+                    <div class="level1-container">
+
+                      <div class="level2">
+
+                        <div class="group-container">
+
+                          <div class="field-container">
+                            <div class="title"><h3>Sequence origin</h3></div>
+                          </div>
+                          <div class="group-inline clearfix">
+
+                            <div class="field-container">
+                              <div class="title"><p>How is the protein sequence specified?</p></div>
+                              <div class="field-item select align-right">
+                                <select name="sequences-0-mode" id="sequences-0-mode">
+                                  <option value="" selected></option>
+                                  <option value="code">Protein code (SwissProt)</option>
+                                  <option value="partner">Automatic, from assembly partner</option>
+                                  <option value="sequence">Manually entered sequence</option>
+                                </select>
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>SwissProt code of the protein</p></div>
+                              <div class="field-item text align-right">
+                                <input type="text" name="sequences-0-proteincode" id="sequences-0-proteincode" value="">
+                              </div>
+                            </div>
+
+                          </div> <!--END: group-inline -->
+                          <div class="group-inline clearfix">
+
+                            <div class="field-container">
+                              <div class="title"><p>Or: sequence of the protein (in FASTA format)</p></div>
+                              <div class="field-item textarea align-right">
+                                <textarea name="sequences-0-sequence" id="sequences-0-sequence"></textarea>
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Protein chain</p></div>
+                              <div class="field-item text align-right">
+                                <input type="text" name="sequences-0-chain" id="sequences-0-chain" value="" maxlength="2">
+                              </div>
+                            </div>
+
+                          </div> <!--END: group-inline -->
+                        </div> <!-- END: group-container -->
+                      </div> <!-- END: level2 -->
+
+                      <div class="level2">
+
+                        <div class="group-container">
+
+
+                          <div class="field-container">
+                            <div class="title"><p>Index</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="sequences-0-index" id="sequences-0-index">
+                            </div>
+                          </div>
+                        </div> <!-- END: group-container -->
+                      </div> <!-- END: level2 -->
+
+                      <div class="level2">
+
+                        <div class="group-container">
+
+                          <div class="field-container">
+                            <div class="title"><h3>subsequences</h3></div>
+                          </div>
+                          <div class="group-inline clearfix">
+                            <div class="field-container">
+                              <div class="title"><h3>1</h3></div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>First number</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="sequences-0-subsequences-0-start" id="sequences-0-subsequences-0-start">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Last number</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="sequences-0-subsequences-0-end" id="sequences-0-subsequences-0-end">
+                              </div>
+                            </div>
+                            <div class="field-container">
+                              <div class="title"><h3>2</h3></div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>First number</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="sequences-0-subsequences-1-start" id="sequences-0-subsequences-1-start">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Last number</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="sequences-0-subsequences-1-end" id="sequences-0-subsequences-1-end">
+                              </div>
+                            </div>
+
+                          </div> <!--END: group-inline -->
+                          <div class="group-inline clearfix">
+                            <div class="field-container">
+                              <div class="title"><h3>3</h3></div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>First number</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="sequences-0-subsequences-2-start" id="sequences-0-subsequences-2-start">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Last number</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="sequences-0-subsequences-2-end" id="sequences-0-subsequences-2-end">
+                              </div>
+                            </div>
+                            <div class="field-container">
+                              <div class="title"><h3>4</h3></div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>First number</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="sequences-0-subsequences-3-start" id="sequences-0-subsequences-3-start">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Last number</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="sequences-0-subsequences-3-end" id="sequences-0-subsequences-3-end">
+                              </div>
+                            </div>
+
+                          </div> <!--END: group-inline -->
+                          <div class="field-container">
+                            <div class="title"><h3>5</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="sequences-0-subsequences-4-start" id="sequences-0-subsequences-4-start">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="sequences-0-subsequences-4-end" id="sequences-0-subsequences-4-end">
+                            </div>
+                          </div>
+                        </div> <!-- END: group-container -->
+                      </div> <!-- END: level2 -->
+                    </div><!-- END: level1-container -->
+                  </div><!-- END: level1 -->
+
+                </div><!-- END: UI container -->
+              </div>
+
+              <div id="page2" class="category-container">
+                <div class="form-category-description">
+                  <div class="large-icon puzzle-icon"></div>
+                  <div class="description">
+                    <h2>Docking partners</h2>
+                    <p>High-level definition of a component that is to be fitted
+A CryoPartner has a single PDB, and/or a sequence mapping, and/or a DSSP assignment  
+The PDB consists of one or more chains  
+A CryoPartner has different options for how it is to be converted into CryoBodies  
+- mode "single": 
+  The PDB consists of a single chain. If a sequence range has been defined, the PDB must align to that range, else it will be auto-aligned
+  The CryoPartner will be mapped onto a single CryoBody. 
+- mode "multi"
+  The PDB consists of multiple chains. If a sequence range has been defined, all chains together must align to that range, else it will be auto-aligned
+  -relplace "fixed": The relative positions of the chains is fixed. The partner maps to a single CryoBody
+  -relplace "guess": (guess) The relative positions of the chains are an initial estimate, they can re-adjust during refinement. The partner maps to one CryoBody per chain
+  -relplace "estimate": (good estimate) Same as above, but a restraining force will enforce resemblance to the initial positioning
+  -relplace "free": The CryoPartner will be split into independent CryoBodies, one per chain
+- mode "SSE":  
+  The PDB consists of a single chain. If a sequence range has been defined, the PDB must align to that range, else it will be auto-aligned
+  The PDB will be auto-fragmented into secondary structure element bodies, based on the DSSP assignment if provided, or else automatically
+- mode "ab_initio"  
+  No PDB has been provided. Sequence and DSSP alignment must be provided. The sequence will be fragmented into secondary structure element bodies, based on the DSSP assignment.
+  Idealized SSE fragment PDBs will be built ab initio.    
+</p>
+                  </div>
+
+                  <div class="category-controls">
+                    <div class="field-container">
+                      <div class="field-item button align-right">
+                        <input type="button" value="Add partner" id="block-partners-add" onClick="cloneBlock('block-partners-',50);">
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+
+                <!-- UI CONTAINER FOR FORM ELEMENTS OF A CATEGORY SELECTED IN CATEGORY NAVIGATION MENU -->
+                <div class="form-category">
+
+                  <div id="block-partners-0" class="level1 active">
+
+                    <div class="controls">
+                      <div class="title"><h4>Assembly partners 1</h4></div>
+                      <div class="button reload-icon reload-form-block"><div class="controls-tooltip"><p>Restore default values</p></div></div>
+                      <div id="remove-block-partners-0" class="button close-icon"><div class="controls-tooltip"><p>Remove partner</p></div></div>
+                    </div>
+
+                    <div class="level1-container">
+
+                      <div class="level2">
+
+                        <div class="group-container">
+
+                          <div class="field-container">
+                            <div class="title"><h3>Structure sources</h3></div>
+                          </div>
+                          <div class="group-inline clearfix">
+
+                            <div class="field-container">
+                              <div class="title"><p>What kind of protein body?</p></div>
+                              <div class="field-item select align-right">
+                                <select name="partners-0-mode" id="partners-0-mode">
+                                  <option value="" selected></option>
+                                  <option value="single">Single body</option>
+                                  <option value="multi">Multiple bodies</option>
+                                  <option value="SSE">Structure will be split into secondary structure bodies</option>
+                                  <option value="ab_initio">Structure will be built from idealized secondary structure</option>
+                                </select>
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>PDB structure</p></div>
+                              <div class="field-item file align-right">
+                                <input type="file" name="partners-0-pdb" id="partners-0-pdb">
+                              </div>
+                            </div>
+
+                          </div> <!--END: group-inline -->
+
+                          <div class="field-container">
+                            <div class="title"><p>DSSP secondary structure assignment</p></div>
+                            <div class="field-item file align-right">
+                              <input type="file" name="partners-0-dssp" id="partners-0-dssp">
+                            </div>
+                          </div>
+                        </div> <!-- END: group-container -->
+                      </div> <!-- END: level2 -->
+
+                      <div class="level2">
+
+                        <div class="group-container">
+
+                          <div class="field-container">
+                            <div class="title"><h3>Sequence mappings 1</h3></div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>1</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="partners-0-sequencemappings-0-subsequences-0-start" id="partners-0-sequencemappings-0-subsequences-0-start">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="partners-0-sequencemappings-0-subsequences-0-end" id="partners-0-sequencemappings-0-subsequences-0-end">
+                            </div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>2</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="partners-0-sequencemappings-0-subsequences-1-start" id="partners-0-sequencemappings-0-subsequences-1-start">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="partners-0-sequencemappings-0-subsequences-1-end" id="partners-0-sequencemappings-0-subsequences-1-end">
+                            </div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>3</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="partners-0-sequencemappings-0-subsequences-2-start" id="partners-0-sequencemappings-0-subsequences-2-start">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="partners-0-sequencemappings-0-subsequences-2-end" id="partners-0-sequencemappings-0-subsequences-2-end">
+                            </div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>4</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="partners-0-sequencemappings-0-subsequences-3-start" id="partners-0-sequencemappings-0-subsequences-3-start">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="partners-0-sequencemappings-0-subsequences-3-end" id="partners-0-sequencemappings-0-subsequences-3-end">
+                            </div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>5</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="partners-0-sequencemappings-0-subsequences-4-start" id="partners-0-sequencemappings-0-subsequences-4-start">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="partners-0-sequencemappings-0-subsequences-4-end" id="partners-0-sequencemappings-0-subsequences-4-end">
+                            </div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>Mapping to assembly sequences 1</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>chain</p></div>
+                            <div class="tooltip"><div class="tooltip-body">You may select a chain of the mapped PDB, or leave it blank</div></div>
+                            <div class="field-item text align-right">
+                              <input type="text" name="partners-0-sequencemappings-0-chain" id="partners-0-sequencemappings-0-chain" value="" maxlength="2">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Index of the assembly sequence to map to</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="partners-0-sequencemappings-0-index" id="partners-0-sequencemappings-0-index">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Symmetry shift</p></div>
+                            <div class="tooltip"><div class="tooltip-body">It is possible to indicate symmetry shifts in the mapped PDB, causing linker restraints to be defined to bodies in the next/previous symmetry copy, instead of to bodies in the reference copy</div></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="partners-0-sequencemappings-0-shift" id="partners-0-sequencemappings-0-shift">
+                            </div>
+                          </div>
+                        </div> <!-- END: group-container -->
+                      </div> <!-- END: level2 -->
+
+                      <div class="level2">
+
+                        <div class="group-container">
+
+                          <div class="field-container">
+                            <div class="title"><h3>Sequence mappings 2</h3></div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>1</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="partners-0-sequencemappings-1-subsequences-0-start" id="partners-0-sequencemappings-1-subsequences-0-start">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="partners-0-sequencemappings-1-subsequences-0-end" id="partners-0-sequencemappings-1-subsequences-0-end">
+                            </div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>2</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="partners-0-sequencemappings-1-subsequences-1-start" id="partners-0-sequencemappings-1-subsequences-1-start">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="partners-0-sequencemappings-1-subsequences-1-end" id="partners-0-sequencemappings-1-subsequences-1-end">
+                            </div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>3</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="partners-0-sequencemappings-1-subsequences-2-start" id="partners-0-sequencemappings-1-subsequences-2-start">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="partners-0-sequencemappings-1-subsequences-2-end" id="partners-0-sequencemappings-1-subsequences-2-end">
+                            </div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>4</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="partners-0-sequencemappings-1-subsequences-3-start" id="partners-0-sequencemappings-1-subsequences-3-start">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="partners-0-sequencemappings-1-subsequences-3-end" id="partners-0-sequencemappings-1-subsequences-3-end">
+                            </div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>5</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="partners-0-sequencemappings-1-subsequences-4-start" id="partners-0-sequencemappings-1-subsequences-4-start">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="partners-0-sequencemappings-1-subsequences-4-end" id="partners-0-sequencemappings-1-subsequences-4-end">
+                            </div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>Mapping to assembly sequences 2</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>chain</p></div>
+                            <div class="tooltip"><div class="tooltip-body">You may select a chain of the mapped PDB, or leave it blank</div></div>
+                            <div class="field-item text align-right">
+                              <input type="text" name="partners-0-sequencemappings-1-chain" id="partners-0-sequencemappings-1-chain" value="" maxlength="2">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Index of the assembly sequence to map to</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="partners-0-sequencemappings-1-index" id="partners-0-sequencemappings-1-index">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Symmetry shift</p></div>
+                            <div class="tooltip"><div class="tooltip-body">It is possible to indicate symmetry shifts in the mapped PDB, causing linker restraints to be defined to bodies in the next/previous symmetry copy, instead of to bodies in the reference copy</div></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="partners-0-sequencemappings-1-shift" id="partners-0-sequencemappings-1-shift">
+                            </div>
+                          </div>
+                        </div> <!-- END: group-container -->
+                      </div> <!-- END: level2 -->
+
+                      <div class="level2">
+
+                        <div class="group-container">
+
+                          <div class="field-container">
+                            <div class="title"><h3>Sequence mappings 3</h3></div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>1</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="partners-0-sequencemappings-2-subsequences-0-start" id="partners-0-sequencemappings-2-subsequences-0-start">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="partners-0-sequencemappings-2-subsequences-0-end" id="partners-0-sequencemappings-2-subsequences-0-end">
+                            </div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>2</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="partners-0-sequencemappings-2-subsequences-1-start" id="partners-0-sequencemappings-2-subsequences-1-start">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="partners-0-sequencemappings-2-subsequences-1-end" id="partners-0-sequencemappings-2-subsequences-1-end">
+                            </div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>3</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="partners-0-sequencemappings-2-subsequences-2-start" id="partners-0-sequencemappings-2-subsequences-2-start">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="partners-0-sequencemappings-2-subsequences-2-end" id="partners-0-sequencemappings-2-subsequences-2-end">
+                            </div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>4</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="partners-0-sequencemappings-2-subsequences-3-start" id="partners-0-sequencemappings-2-subsequences-3-start">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="partners-0-sequencemappings-2-subsequences-3-end" id="partners-0-sequencemappings-2-subsequences-3-end">
+                            </div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>5</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="partners-0-sequencemappings-2-subsequences-4-start" id="partners-0-sequencemappings-2-subsequences-4-start">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="partners-0-sequencemappings-2-subsequences-4-end" id="partners-0-sequencemappings-2-subsequences-4-end">
+                            </div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>Mapping to assembly sequences 3</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>chain</p></div>
+                            <div class="tooltip"><div class="tooltip-body">You may select a chain of the mapped PDB, or leave it blank</div></div>
+                            <div class="field-item text align-right">
+                              <input type="text" name="partners-0-sequencemappings-2-chain" id="partners-0-sequencemappings-2-chain" value="" maxlength="2">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Index of the assembly sequence to map to</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="partners-0-sequencemappings-2-index" id="partners-0-sequencemappings-2-index">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Symmetry shift</p></div>
+                            <div class="tooltip"><div class="tooltip-body">It is possible to indicate symmetry shifts in the mapped PDB, causing linker restraints to be defined to bodies in the next/previous symmetry copy, instead of to bodies in the reference copy</div></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="partners-0-sequencemappings-2-shift" id="partners-0-sequencemappings-2-shift">
+                            </div>
+                          </div>
+                        </div> <!-- END: group-container -->
+                      </div> <!-- END: level2 -->
+
+                      <div class="level2">
+
+                        <div class="field-container">
+                          <div class="title"><h3>Use advanced settings</h3></div>
+                          <div class="tooltip"><div class="tooltip-body">Do you want an initial minimization without forcefield?</div></div>
+                          <div class="field-item switch align-left">
+                            <input type="checkbox" name="partners-0-use_advanced" id="partners-0-use_advanced" value="">
+                            <label for="partners-0-use_advanced">Off</label>
+                            <label for="partners-0-use_advanced">On</label>
+                            <span class="toggle"></span>
+                          </div>
+                        </div>
+
+                        <div class="group-container">
+
+                          <div class="group-inline clearfix">
+
+                            <div class="field-container">
+                              <div class="title"><p>Absolute placement of the entire PDB</p></div>
+                              <div class="field-item select align-right">
+                                <select name="partners-0-absplace" id="partners-0-absplace">
+                                  <option value="free" selected>Free</option>
+                                  <option value="guess">Initial guess</option>
+                                  <option value="estpos">Estimate, restrained position</option>
+                                  <option value="estimate">Estimate, restrained position and orientation</option>
+                                  <option value="fixed">Fixed position and orientation</option>
+                                </select>
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Relative placement of the bodies within the PDB</p></div>
+                              <div class="field-item select align-right">
+                                <select name="partners-0-relplace" id="partners-0-relplace">
+                                  <option value="free" selected>Free</option>
+                                  <option value="guess">Initial guess</option>
+                                  <option value="estpos">Estimate, restrained position</option>
+                                  <option value="estimate">Estimate, restrained position and orientation</option>
+                                  <option value="fixed">Fixed position and orientation</option>
+                                </select>
+                              </div>
+                            </div>
+
+                          </div> <!--END: group-inline -->
+                          <div class="group-inline clearfix">
+
+                            <div class="field-container">
+                              <div class="title"><p>Missing loops</p></div>
+                              <div class="tooltip"><div class="tooltip-body">How should missing loops (between the PDB sequence's start and end) be treated?</div></div>
+                              <div class="field-item select align-right">
+                                <select name="partners-0-missing_loops" id="partners-0-missing_loops">
+                                  <option value="forbidden">Forbidden: PDB sequence corresponds exactly to the sequence mapping</option>
+                                  <option value="neglect" selected>Neglect: PDB contains only small missing loops, which are not modeled</option>
+                                  <option value="ignore">Ignore: missing loops are not modeled</option>
+                                  <option value="ab_initio">Build: missing loops are built from individual amino acids</option>
+                                </select>
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Floppiness</p></div>
+                              <div class="tooltip"><div class="tooltip-body">Uncertainty about endpoint coordinates (floppiness), in angstroms</div></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="partners-0-floppiness" id="partners-0-floppiness" value = "0.0">
+                              </div>
+                            </div>
+
+                          </div> <!--END: group-inline -->
+                        </div> <!-- END: group-container -->
+                      </div> <!-- END: level2 -->
+                    </div><!-- END: level1-container -->
+                  </div><!-- END: level1 -->
+
+                </div><!-- END: UI container -->
+              </div>
+
+              <div id="page3" class="category-container">
+                <div class="form-category-description">
+                  <div class="large-icon symmetry-icon"></div>
+                  <div class="description">
+                    <h2>Symmetry</h2>
+                    <p></p>
+                  </div>
+                </div>
+
+                <!-- UI CONTAINER FOR FORM ELEMENTS OF A CATEGORY SELECTED IN CATEGORY NAVIGATION MENU -->
+                <div class="form-category">
+
+                  <div id="block-b_symmetry-0" class="level1 active">
+
+                    <div class="controls">
+                      <div class="title"><h4>Symmetry</h4></div>
+                      <div class="button reload-icon reload-form-block"><div class="controls-tooltip"><p>Restore default values</p></div></div>
+                    </div>
+
+                    <div class="level1-container">
+
+                      <div class="level2">
+
+                        <div class="group-container">
+
+                          <div class="field-container">
+                            <div class="title"><h3>Symmetry definition</h3></div>
+                          </div>
+                          <div class="group-inline clearfix">
+
+                            <div class="field-container">
+                              <div class="title"><p>Symmetry type</p></div>
+                              <div class="field-item select align-right">
+                                <select name="symmetry-symmetry" id="symmetry-symmetry">
+                                  <option value="" selected></option>
+                                  <option value="No symmetry">No symmetry</option>
+                                  <option value="C2">C2</option>
+                                  <option value="C3">C3</option>
+                                  <option value="C4">C4</option>
+                                  <option value="C5">C5</option>
+                                  <option value="C6">C6</option>
+                                  <option value="C7">C7</option>
+                                  <option value="D2">D2</option>
+                                </select>
+                              </div>
+                            </div>
+                            <div class="field-container">
+                              <div class="title"><h3>Secondary symmetry axis (for D symmetry)</h3></div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>x</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="symmetry-secondary_axis-x" id="symmetry-secondary_axis-x" value = "0.0" min="-1" max="1">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>y</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="symmetry-secondary_axis-y" id="symmetry-secondary_axis-y" value = "0.0" min="-1" max="1">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>z</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="symmetry-secondary_axis-z" id="symmetry-secondary_axis-z" value = "0.0" min="-1" max="1">
+                              </div>
+                            </div>
+
+                          </div> <!--END: group-inline -->
+                        </div> <!-- END: group-container -->
+                      </div> <!-- END: level2 -->
+                    </div><!-- END: level1-container -->
+                  </div><!-- END: level1 -->
+
+                </div><!-- END: UI container -->
+              </div>
+
+              <div id="page4" class="category-container">
+                <div class="form-category-description">
+                  <div class="large-icon cryoem-icon"></div>
+                  <div class="description">
+                    <h2>Cryo-EM data</h2>
+                    <p></p>
+                  </div>
+                </div>
+
+                <!-- UI CONTAINER FOR FORM ELEMENTS OF A CATEGORY SELECTED IN CATEGORY NAVIGATION MENU -->
+                <div class="form-category">
+
+                  <div id="block-b_cryodata-0" class="level1 active">
+
+                    <div class="controls">
+                      <div class="title"><h4>Experimental cryo-EM data</h4></div>
+                      <div class="button reload-icon reload-form-block"><div class="controls-tooltip"><p>Restore default values</p></div></div>
+                    </div>
+
+                    <div class="level1-container">
+
+                      <div class="level2">
+
+                        <div class="group-container">
+
+                          <div class="field-container">
+                            <div class="title"><h3></h3></div>
+                          </div>
+                          <div class="group-inline clearfix">
+                            <div class="field-container">
+                              <div class="title"><h3>Cryo-EM data for the assembly stage</h3></div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Cryo-EM density map in SITUS format</p></div>
+                              <div class="field-item file align-right">
+                                <input type="file" name="cryodata-map_fitting-map" id="cryodata-map_fitting-map">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Map resolution (in angstroms)</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="cryodata-map_fitting-resolution" id="cryodata-map_fitting-resolution">
+                              </div>
+                            </div>
+                            <div class="field-container">
+                              <div class="title"><h3>Cryo-EM data for the scoring stage</h3></div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Cryo-EM density map in SITUS format</p></div>
+                              <div class="field-item file align-right">
+                                <input type="file" name="cryodata-map_scoring-map" id="cryodata-map_scoring-map">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Map resolution (in angstroms)</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="cryodata-map_scoring-resolution" id="cryodata-map_scoring-resolution">
+                              </div>
+                            </div>
+
+                          </div> <!--END: group-inline -->
+
+                          <div class="field-container">
+                            <div class="title"><p>Auto-generate assembly map</p></div>
+                            <div class="tooltip"><div class="tooltip-body">Auto-generate the assembly map from the scoring map by downsampling it to 40 A</div></div>
+                            <div class="field-item checkbox align-right">
+                              <input type="checkbox" name="cryodata-generate_map_fitting" id="cryodata-generate_map_fitting" value="">
+                            </div>
+                          </div>
+                        </div> <!-- END: group-container -->
+                      </div> <!-- END: level2 -->
+                    </div><!-- END: level1-container -->
+                  </div><!-- END: level1 -->
+
+
+                  <div id="block-b_simdata-0" class="level1 active">
+
+                    <div class="controls">
+                      <div class="title"><h4>Simulated cryo-EM data</h4></div>
+                      <div class="button reload-icon reload-form-block"><div class="controls-tooltip"><p>Restore default values</p></div></div>
+                    </div>
+
+                    <div class="level1-container">
+
+                      <div class="level2">
+
+                        <div class="group-container">
+
+                          <div class="field-container">
+                            <div class="title"><h3></h3></div>
+                          </div>
+                          <div class="group-inline clearfix">
+
+                            <div class="field-container">
+                              <div class="title"><p>PDB from which the map will be simulated</p></div>
+                              <div class="field-item file align-right">
+                                <input type="file" name="simdata-pdb" id="simdata-pdb">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Simulated map resolution (fitting) in angstroms</p></div>
+                              <div class="tooltip"><div class="tooltip-body">Resolution for the cryo-EM map that will simulated from the structure and used in assembly</div></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="simdata-map_resolution_fitting" id="simdata-map_resolution_fitting" value = "40.0">
+                              </div>
+                            </div>
+
+                          </div> <!--END: group-inline -->
+
+                          <div class="field-container">
+                            <div class="title"><p>Simulated map resolution (scoring) in angstroms</p></div>
+                            <div class="tooltip"><div class="tooltip-body">Resolution for the cryo-EM map that will simulated from the structure and used in GVM scoring</div></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="simdata-map_resolution_scoring" id="simdata-map_resolution_scoring" value = "20.0">
+                            </div>
+                          </div>
+                        </div> <!-- END: group-container -->
+                      </div> <!-- END: level2 -->
+                    </div><!-- END: level1-container -->
+                  </div><!-- END: level1 -->
+
+                </div><!-- END: UI container -->
+              </div>
+
+              <div id="page5" class="category-container">
+                <div class="form-category-description">
+                  <div class="large-icon analysis-icon"></div>
+                  <div class="description">
+                    <h2>Reference structure</h2>
+                    <p>If you want to compare the assembly result against a known reference structure, you can define it here</p>
+                  </div>
+                </div>
+
+                <!-- UI CONTAINER FOR FORM ELEMENTS OF A CATEGORY SELECTED IN CATEGORY NAVIGATION MENU -->
+                <div class="form-category">
+
+                  <div id="block-b_reference-0-0" class="level1 active">
+
+                    <div class="controls">
+                      <div class="title"><h4>Mapping to assembly sequences 1</h4></div>
+                      <div class="button reload-icon reload-form-block"><div class="controls-tooltip"><p>Restore default values</p></div></div>
+                    </div>
+
+                    <div class="level1-container">
+
+                      <div class="level2">
+
+                        <div class="group-container">
+
+                          <div class="field-container">
+                            <div class="title"><h3>subsequences</h3></div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>1</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-0-subsequences-0-start" id="reference-sequencemappings-0-subsequences-0-start">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-0-subsequences-0-end" id="reference-sequencemappings-0-subsequences-0-end">
+                            </div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>2</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-0-subsequences-1-start" id="reference-sequencemappings-0-subsequences-1-start">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-0-subsequences-1-end" id="reference-sequencemappings-0-subsequences-1-end">
+                            </div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>3</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-0-subsequences-2-start" id="reference-sequencemappings-0-subsequences-2-start">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-0-subsequences-2-end" id="reference-sequencemappings-0-subsequences-2-end">
+                            </div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>4</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-0-subsequences-3-start" id="reference-sequencemappings-0-subsequences-3-start">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-0-subsequences-3-end" id="reference-sequencemappings-0-subsequences-3-end">
+                            </div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>5</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-0-subsequences-4-start" id="reference-sequencemappings-0-subsequences-4-start">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-0-subsequences-4-end" id="reference-sequencemappings-0-subsequences-4-end">
+                            </div>
+                          </div>
+                        </div> <!-- END: group-container -->
+                      </div> <!-- END: level2 -->
+
+                      <div class="level2">
+
+                        <div class="group-container">
+
+                          <div class="field-container">
+                            <div class="title"><h3>Mapping to assembly sequences 1</h3></div>
+                          </div>
+                          <div class="group-inline clearfix">
+
+                            <div class="field-container">
+                              <div class="title"><p>chain</p></div>
+                              <div class="tooltip"><div class="tooltip-body">You may select a chain of the mapped PDB, or leave it blank</div></div>
+                              <div class="field-item text align-right">
+                                <input type="text" name="reference-sequencemappings-0-chain" id="reference-sequencemappings-0-chain" value="" maxlength="2">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Index of the assembly sequence to map to</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="reference-sequencemappings-0-index" id="reference-sequencemappings-0-index">
+                              </div>
+                            </div>
+
+                          </div> <!--END: group-inline -->
+
+                          <div class="field-container">
+                            <div class="title"><p>Symmetry shift</p></div>
+                            <div class="tooltip"><div class="tooltip-body">It is possible to indicate symmetry shifts in the mapped PDB, causing linker restraints to be defined to bodies in the next/previous symmetry copy, instead of to bodies in the reference copy</div></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-0-shift" id="reference-sequencemappings-0-shift">
+                            </div>
+                          </div>
+                        </div> <!-- END: group-container -->
+                      </div> <!-- END: level2 -->
+                    </div><!-- END: level1-container -->
+                  </div><!-- END: level1 -->
+
+
+                  <div id="block-b_reference-1-0" class="level1 active">
+
+                    <div class="controls">
+                      <div class="title"><h4>Mapping to assembly sequences 2</h4></div>
+                      <div class="button reload-icon reload-form-block"><div class="controls-tooltip"><p>Restore default values</p></div></div>
+                    </div>
+
+                    <div class="level1-container">
+
+                      <div class="level2">
+
+                        <div class="group-container">
+
+                          <div class="field-container">
+                            <div class="title"><h3>subsequences</h3></div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>1</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-1-subsequences-0-start" id="reference-sequencemappings-1-subsequences-0-start">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-1-subsequences-0-end" id="reference-sequencemappings-1-subsequences-0-end">
+                            </div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>2</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-1-subsequences-1-start" id="reference-sequencemappings-1-subsequences-1-start">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-1-subsequences-1-end" id="reference-sequencemappings-1-subsequences-1-end">
+                            </div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>3</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-1-subsequences-2-start" id="reference-sequencemappings-1-subsequences-2-start">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-1-subsequences-2-end" id="reference-sequencemappings-1-subsequences-2-end">
+                            </div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>4</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-1-subsequences-3-start" id="reference-sequencemappings-1-subsequences-3-start">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-1-subsequences-3-end" id="reference-sequencemappings-1-subsequences-3-end">
+                            </div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>5</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-1-subsequences-4-start" id="reference-sequencemappings-1-subsequences-4-start">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-1-subsequences-4-end" id="reference-sequencemappings-1-subsequences-4-end">
+                            </div>
+                          </div>
+                        </div> <!-- END: group-container -->
+                      </div> <!-- END: level2 -->
+
+                      <div class="level2">
+
+                        <div class="group-container">
+
+                          <div class="field-container">
+                            <div class="title"><h3>Mapping to assembly sequences 2</h3></div>
+                          </div>
+                          <div class="group-inline clearfix">
+
+                            <div class="field-container">
+                              <div class="title"><p>chain</p></div>
+                              <div class="tooltip"><div class="tooltip-body">You may select a chain of the mapped PDB, or leave it blank</div></div>
+                              <div class="field-item text align-right">
+                                <input type="text" name="reference-sequencemappings-1-chain" id="reference-sequencemappings-1-chain" value="" maxlength="2">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Index of the assembly sequence to map to</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="reference-sequencemappings-1-index" id="reference-sequencemappings-1-index">
+                              </div>
+                            </div>
+
+                          </div> <!--END: group-inline -->
+
+                          <div class="field-container">
+                            <div class="title"><p>Symmetry shift</p></div>
+                            <div class="tooltip"><div class="tooltip-body">It is possible to indicate symmetry shifts in the mapped PDB, causing linker restraints to be defined to bodies in the next/previous symmetry copy, instead of to bodies in the reference copy</div></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-1-shift" id="reference-sequencemappings-1-shift">
+                            </div>
+                          </div>
+                        </div> <!-- END: group-container -->
+                      </div> <!-- END: level2 -->
+                    </div><!-- END: level1-container -->
+                  </div><!-- END: level1 -->
+
+
+                  <div id="block-b_reference-2-0" class="level1 active">
+
+                    <div class="controls">
+                      <div class="title"><h4>Mapping to assembly sequences 3</h4></div>
+                      <div class="button reload-icon reload-form-block"><div class="controls-tooltip"><p>Restore default values</p></div></div>
+                    </div>
+
+                    <div class="level1-container">
+
+                      <div class="level2">
+
+                        <div class="group-container">
+
+                          <div class="field-container">
+                            <div class="title"><h3>subsequences</h3></div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>1</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-2-subsequences-0-start" id="reference-sequencemappings-2-subsequences-0-start">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-2-subsequences-0-end" id="reference-sequencemappings-2-subsequences-0-end">
+                            </div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>2</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-2-subsequences-1-start" id="reference-sequencemappings-2-subsequences-1-start">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-2-subsequences-1-end" id="reference-sequencemappings-2-subsequences-1-end">
+                            </div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>3</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-2-subsequences-2-start" id="reference-sequencemappings-2-subsequences-2-start">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-2-subsequences-2-end" id="reference-sequencemappings-2-subsequences-2-end">
+                            </div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>4</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-2-subsequences-3-start" id="reference-sequencemappings-2-subsequences-3-start">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-2-subsequences-3-end" id="reference-sequencemappings-2-subsequences-3-end">
+                            </div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>5</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-2-subsequences-4-start" id="reference-sequencemappings-2-subsequences-4-start">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-2-subsequences-4-end" id="reference-sequencemappings-2-subsequences-4-end">
+                            </div>
+                          </div>
+                        </div> <!-- END: group-container -->
+                      </div> <!-- END: level2 -->
+
+                      <div class="level2">
+
+                        <div class="group-container">
+
+                          <div class="field-container">
+                            <div class="title"><h3>Mapping to assembly sequences 3</h3></div>
+                          </div>
+                          <div class="group-inline clearfix">
+
+                            <div class="field-container">
+                              <div class="title"><p>chain</p></div>
+                              <div class="tooltip"><div class="tooltip-body">You may select a chain of the mapped PDB, or leave it blank</div></div>
+                              <div class="field-item text align-right">
+                                <input type="text" name="reference-sequencemappings-2-chain" id="reference-sequencemappings-2-chain" value="" maxlength="2">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Index of the assembly sequence to map to</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="reference-sequencemappings-2-index" id="reference-sequencemappings-2-index">
+                              </div>
+                            </div>
+
+                          </div> <!--END: group-inline -->
+
+                          <div class="field-container">
+                            <div class="title"><p>Symmetry shift</p></div>
+                            <div class="tooltip"><div class="tooltip-body">It is possible to indicate symmetry shifts in the mapped PDB, causing linker restraints to be defined to bodies in the next/previous symmetry copy, instead of to bodies in the reference copy</div></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-2-shift" id="reference-sequencemappings-2-shift">
+                            </div>
+                          </div>
+                        </div> <!-- END: group-container -->
+                      </div> <!-- END: level2 -->
+                    </div><!-- END: level1-container -->
+                  </div><!-- END: level1 -->
+
+
+                  <div id="block-b_reference-3-0" class="level1 active">
+
+                    <div class="controls">
+                      <div class="title"><h4>Mapping to assembly sequences 4</h4></div>
+                      <div class="button reload-icon reload-form-block"><div class="controls-tooltip"><p>Restore default values</p></div></div>
+                    </div>
+
+                    <div class="level1-container">
+
+                      <div class="level2">
+
+                        <div class="group-container">
+
+                          <div class="field-container">
+                            <div class="title"><h3>subsequences</h3></div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>1</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-3-subsequences-0-start" id="reference-sequencemappings-3-subsequences-0-start">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-3-subsequences-0-end" id="reference-sequencemappings-3-subsequences-0-end">
+                            </div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>2</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-3-subsequences-1-start" id="reference-sequencemappings-3-subsequences-1-start">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-3-subsequences-1-end" id="reference-sequencemappings-3-subsequences-1-end">
+                            </div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>3</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-3-subsequences-2-start" id="reference-sequencemappings-3-subsequences-2-start">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-3-subsequences-2-end" id="reference-sequencemappings-3-subsequences-2-end">
+                            </div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>4</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-3-subsequences-3-start" id="reference-sequencemappings-3-subsequences-3-start">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-3-subsequences-3-end" id="reference-sequencemappings-3-subsequences-3-end">
+                            </div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>5</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-3-subsequences-4-start" id="reference-sequencemappings-3-subsequences-4-start">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-3-subsequences-4-end" id="reference-sequencemappings-3-subsequences-4-end">
+                            </div>
+                          </div>
+                        </div> <!-- END: group-container -->
+                      </div> <!-- END: level2 -->
+
+                      <div class="level2">
+
+                        <div class="group-container">
+
+                          <div class="field-container">
+                            <div class="title"><h3>Mapping to assembly sequences 4</h3></div>
+                          </div>
+                          <div class="group-inline clearfix">
+
+                            <div class="field-container">
+                              <div class="title"><p>chain</p></div>
+                              <div class="tooltip"><div class="tooltip-body">You may select a chain of the mapped PDB, or leave it blank</div></div>
+                              <div class="field-item text align-right">
+                                <input type="text" name="reference-sequencemappings-3-chain" id="reference-sequencemappings-3-chain" value="" maxlength="2">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Index of the assembly sequence to map to</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="reference-sequencemappings-3-index" id="reference-sequencemappings-3-index">
+                              </div>
+                            </div>
+
+                          </div> <!--END: group-inline -->
+
+                          <div class="field-container">
+                            <div class="title"><p>Symmetry shift</p></div>
+                            <div class="tooltip"><div class="tooltip-body">It is possible to indicate symmetry shifts in the mapped PDB, causing linker restraints to be defined to bodies in the next/previous symmetry copy, instead of to bodies in the reference copy</div></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-3-shift" id="reference-sequencemappings-3-shift">
+                            </div>
+                          </div>
+                        </div> <!-- END: group-container -->
+                      </div> <!-- END: level2 -->
+                    </div><!-- END: level1-container -->
+                  </div><!-- END: level1 -->
+
+
+                  <div id="block-b_reference-4-0" class="level1 active">
+
+                    <div class="controls">
+                      <div class="title"><h4>Mapping to assembly sequences 5</h4></div>
+                      <div class="button reload-icon reload-form-block"><div class="controls-tooltip"><p>Restore default values</p></div></div>
+                    </div>
+
+                    <div class="level1-container">
+
+                      <div class="level2">
+
+                        <div class="group-container">
+
+                          <div class="field-container">
+                            <div class="title"><h3>subsequences</h3></div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>1</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-4-subsequences-0-start" id="reference-sequencemappings-4-subsequences-0-start">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-4-subsequences-0-end" id="reference-sequencemappings-4-subsequences-0-end">
+                            </div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>2</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-4-subsequences-1-start" id="reference-sequencemappings-4-subsequences-1-start">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-4-subsequences-1-end" id="reference-sequencemappings-4-subsequences-1-end">
+                            </div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>3</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-4-subsequences-2-start" id="reference-sequencemappings-4-subsequences-2-start">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-4-subsequences-2-end" id="reference-sequencemappings-4-subsequences-2-end">
+                            </div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>4</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-4-subsequences-3-start" id="reference-sequencemappings-4-subsequences-3-start">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-4-subsequences-3-end" id="reference-sequencemappings-4-subsequences-3-end">
+                            </div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>5</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-4-subsequences-4-start" id="reference-sequencemappings-4-subsequences-4-start">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-4-subsequences-4-end" id="reference-sequencemappings-4-subsequences-4-end">
+                            </div>
+                          </div>
+                        </div> <!-- END: group-container -->
+                      </div> <!-- END: level2 -->
+
+                      <div class="level2">
+
+                        <div class="group-container">
+
+                          <div class="field-container">
+                            <div class="title"><h3>Mapping to assembly sequences 5</h3></div>
+                          </div>
+                          <div class="group-inline clearfix">
+
+                            <div class="field-container">
+                              <div class="title"><p>chain</p></div>
+                              <div class="tooltip"><div class="tooltip-body">You may select a chain of the mapped PDB, or leave it blank</div></div>
+                              <div class="field-item text align-right">
+                                <input type="text" name="reference-sequencemappings-4-chain" id="reference-sequencemappings-4-chain" value="" maxlength="2">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Index of the assembly sequence to map to</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="reference-sequencemappings-4-index" id="reference-sequencemappings-4-index">
+                              </div>
+                            </div>
+
+                          </div> <!--END: group-inline -->
+
+                          <div class="field-container">
+                            <div class="title"><p>Symmetry shift</p></div>
+                            <div class="tooltip"><div class="tooltip-body">It is possible to indicate symmetry shifts in the mapped PDB, causing linker restraints to be defined to bodies in the next/previous symmetry copy, instead of to bodies in the reference copy</div></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-4-shift" id="reference-sequencemappings-4-shift">
+                            </div>
+                          </div>
+                        </div> <!-- END: group-container -->
+                      </div> <!-- END: level2 -->
+                    </div><!-- END: level1-container -->
+                  </div><!-- END: level1 -->
+
+
+                  <div id="block-b_reference-5-0" class="level1 active">
+
+                    <div class="controls">
+                      <div class="title"><h4>Mapping to assembly sequences 6</h4></div>
+                      <div class="button reload-icon reload-form-block"><div class="controls-tooltip"><p>Restore default values</p></div></div>
+                    </div>
+
+                    <div class="level1-container">
+
+                      <div class="level2">
+
+                        <div class="group-container">
+
+                          <div class="field-container">
+                            <div class="title"><h3>subsequences</h3></div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>1</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-5-subsequences-0-start" id="reference-sequencemappings-5-subsequences-0-start">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-5-subsequences-0-end" id="reference-sequencemappings-5-subsequences-0-end">
+                            </div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>2</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-5-subsequences-1-start" id="reference-sequencemappings-5-subsequences-1-start">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-5-subsequences-1-end" id="reference-sequencemappings-5-subsequences-1-end">
+                            </div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>3</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-5-subsequences-2-start" id="reference-sequencemappings-5-subsequences-2-start">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-5-subsequences-2-end" id="reference-sequencemappings-5-subsequences-2-end">
+                            </div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>4</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-5-subsequences-3-start" id="reference-sequencemappings-5-subsequences-3-start">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-5-subsequences-3-end" id="reference-sequencemappings-5-subsequences-3-end">
+                            </div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>5</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-5-subsequences-4-start" id="reference-sequencemappings-5-subsequences-4-start">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-5-subsequences-4-end" id="reference-sequencemappings-5-subsequences-4-end">
+                            </div>
+                          </div>
+                        </div> <!-- END: group-container -->
+                      </div> <!-- END: level2 -->
+
+                      <div class="level2">
+
+                        <div class="group-container">
+
+                          <div class="field-container">
+                            <div class="title"><h3>Mapping to assembly sequences 6</h3></div>
+                          </div>
+                          <div class="group-inline clearfix">
+
+                            <div class="field-container">
+                              <div class="title"><p>chain</p></div>
+                              <div class="tooltip"><div class="tooltip-body">You may select a chain of the mapped PDB, or leave it blank</div></div>
+                              <div class="field-item text align-right">
+                                <input type="text" name="reference-sequencemappings-5-chain" id="reference-sequencemappings-5-chain" value="" maxlength="2">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Index of the assembly sequence to map to</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="reference-sequencemappings-5-index" id="reference-sequencemappings-5-index">
+                              </div>
+                            </div>
+
+                          </div> <!--END: group-inline -->
+
+                          <div class="field-container">
+                            <div class="title"><p>Symmetry shift</p></div>
+                            <div class="tooltip"><div class="tooltip-body">It is possible to indicate symmetry shifts in the mapped PDB, causing linker restraints to be defined to bodies in the next/previous symmetry copy, instead of to bodies in the reference copy</div></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-5-shift" id="reference-sequencemappings-5-shift">
+                            </div>
+                          </div>
+                        </div> <!-- END: group-container -->
+                      </div> <!-- END: level2 -->
+                    </div><!-- END: level1-container -->
+                  </div><!-- END: level1 -->
+
+
+                  <div id="block-b_reference-6-0" class="level1 active">
+
+                    <div class="controls">
+                      <div class="title"><h4>Mapping to assembly sequences 7</h4></div>
+                      <div class="button reload-icon reload-form-block"><div class="controls-tooltip"><p>Restore default values</p></div></div>
+                    </div>
+
+                    <div class="level1-container">
+
+                      <div class="level2">
+
+                        <div class="group-container">
+
+                          <div class="field-container">
+                            <div class="title"><h3>subsequences</h3></div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>1</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-6-subsequences-0-start" id="reference-sequencemappings-6-subsequences-0-start">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-6-subsequences-0-end" id="reference-sequencemappings-6-subsequences-0-end">
+                            </div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>2</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-6-subsequences-1-start" id="reference-sequencemappings-6-subsequences-1-start">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-6-subsequences-1-end" id="reference-sequencemappings-6-subsequences-1-end">
+                            </div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>3</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-6-subsequences-2-start" id="reference-sequencemappings-6-subsequences-2-start">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-6-subsequences-2-end" id="reference-sequencemappings-6-subsequences-2-end">
+                            </div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>4</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-6-subsequences-3-start" id="reference-sequencemappings-6-subsequences-3-start">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-6-subsequences-3-end" id="reference-sequencemappings-6-subsequences-3-end">
+                            </div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>5</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-6-subsequences-4-start" id="reference-sequencemappings-6-subsequences-4-start">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-6-subsequences-4-end" id="reference-sequencemappings-6-subsequences-4-end">
+                            </div>
+                          </div>
+                        </div> <!-- END: group-container -->
+                      </div> <!-- END: level2 -->
+
+                      <div class="level2">
+
+                        <div class="group-container">
+
+                          <div class="field-container">
+                            <div class="title"><h3>Mapping to assembly sequences 7</h3></div>
+                          </div>
+                          <div class="group-inline clearfix">
+
+                            <div class="field-container">
+                              <div class="title"><p>chain</p></div>
+                              <div class="tooltip"><div class="tooltip-body">You may select a chain of the mapped PDB, or leave it blank</div></div>
+                              <div class="field-item text align-right">
+                                <input type="text" name="reference-sequencemappings-6-chain" id="reference-sequencemappings-6-chain" value="" maxlength="2">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Index of the assembly sequence to map to</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="reference-sequencemappings-6-index" id="reference-sequencemappings-6-index">
+                              </div>
+                            </div>
+
+                          </div> <!--END: group-inline -->
+
+                          <div class="field-container">
+                            <div class="title"><p>Symmetry shift</p></div>
+                            <div class="tooltip"><div class="tooltip-body">It is possible to indicate symmetry shifts in the mapped PDB, causing linker restraints to be defined to bodies in the next/previous symmetry copy, instead of to bodies in the reference copy</div></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-6-shift" id="reference-sequencemappings-6-shift">
+                            </div>
+                          </div>
+                        </div> <!-- END: group-container -->
+                      </div> <!-- END: level2 -->
+                    </div><!-- END: level1-container -->
+                  </div><!-- END: level1 -->
+
+
+                  <div id="block-b_reference-7-0" class="level1 active">
+
+                    <div class="controls">
+                      <div class="title"><h4>Mapping to assembly sequences 8</h4></div>
+                      <div class="button reload-icon reload-form-block"><div class="controls-tooltip"><p>Restore default values</p></div></div>
+                    </div>
+
+                    <div class="level1-container">
+
+                      <div class="level2">
+
+                        <div class="group-container">
+
+                          <div class="field-container">
+                            <div class="title"><h3>subsequences</h3></div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>1</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-7-subsequences-0-start" id="reference-sequencemappings-7-subsequences-0-start">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-7-subsequences-0-end" id="reference-sequencemappings-7-subsequences-0-end">
+                            </div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>2</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-7-subsequences-1-start" id="reference-sequencemappings-7-subsequences-1-start">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-7-subsequences-1-end" id="reference-sequencemappings-7-subsequences-1-end">
+                            </div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>3</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-7-subsequences-2-start" id="reference-sequencemappings-7-subsequences-2-start">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-7-subsequences-2-end" id="reference-sequencemappings-7-subsequences-2-end">
+                            </div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>4</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-7-subsequences-3-start" id="reference-sequencemappings-7-subsequences-3-start">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-7-subsequences-3-end" id="reference-sequencemappings-7-subsequences-3-end">
+                            </div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>5</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-7-subsequences-4-start" id="reference-sequencemappings-7-subsequences-4-start">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-7-subsequences-4-end" id="reference-sequencemappings-7-subsequences-4-end">
+                            </div>
+                          </div>
+                        </div> <!-- END: group-container -->
+                      </div> <!-- END: level2 -->
+
+                      <div class="level2">
+
+                        <div class="group-container">
+
+                          <div class="field-container">
+                            <div class="title"><h3>Mapping to assembly sequences 8</h3></div>
+                          </div>
+                          <div class="group-inline clearfix">
+
+                            <div class="field-container">
+                              <div class="title"><p>chain</p></div>
+                              <div class="tooltip"><div class="tooltip-body">You may select a chain of the mapped PDB, or leave it blank</div></div>
+                              <div class="field-item text align-right">
+                                <input type="text" name="reference-sequencemappings-7-chain" id="reference-sequencemappings-7-chain" value="" maxlength="2">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Index of the assembly sequence to map to</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="reference-sequencemappings-7-index" id="reference-sequencemappings-7-index">
+                              </div>
+                            </div>
+
+                          </div> <!--END: group-inline -->
+
+                          <div class="field-container">
+                            <div class="title"><p>Symmetry shift</p></div>
+                            <div class="tooltip"><div class="tooltip-body">It is possible to indicate symmetry shifts in the mapped PDB, causing linker restraints to be defined to bodies in the next/previous symmetry copy, instead of to bodies in the reference copy</div></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-7-shift" id="reference-sequencemappings-7-shift">
+                            </div>
+                          </div>
+                        </div> <!-- END: group-container -->
+                      </div> <!-- END: level2 -->
+                    </div><!-- END: level1-container -->
+                  </div><!-- END: level1 -->
+
+
+                  <div id="block-b_reference-8-0" class="level1 active">
+
+                    <div class="controls">
+                      <div class="title"><h4>Mapping to assembly sequences 9</h4></div>
+                      <div class="button reload-icon reload-form-block"><div class="controls-tooltip"><p>Restore default values</p></div></div>
+                    </div>
+
+                    <div class="level1-container">
+
+                      <div class="level2">
+
+                        <div class="group-container">
+
+                          <div class="field-container">
+                            <div class="title"><h3>subsequences</h3></div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>1</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-8-subsequences-0-start" id="reference-sequencemappings-8-subsequences-0-start">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-8-subsequences-0-end" id="reference-sequencemappings-8-subsequences-0-end">
+                            </div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>2</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-8-subsequences-1-start" id="reference-sequencemappings-8-subsequences-1-start">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-8-subsequences-1-end" id="reference-sequencemappings-8-subsequences-1-end">
+                            </div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>3</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-8-subsequences-2-start" id="reference-sequencemappings-8-subsequences-2-start">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-8-subsequences-2-end" id="reference-sequencemappings-8-subsequences-2-end">
+                            </div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>4</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-8-subsequences-3-start" id="reference-sequencemappings-8-subsequences-3-start">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-8-subsequences-3-end" id="reference-sequencemappings-8-subsequences-3-end">
+                            </div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>5</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-8-subsequences-4-start" id="reference-sequencemappings-8-subsequences-4-start">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-8-subsequences-4-end" id="reference-sequencemappings-8-subsequences-4-end">
+                            </div>
+                          </div>
+                        </div> <!-- END: group-container -->
+                      </div> <!-- END: level2 -->
+
+                      <div class="level2">
+
+                        <div class="group-container">
+
+                          <div class="field-container">
+                            <div class="title"><h3>Mapping to assembly sequences 9</h3></div>
+                          </div>
+                          <div class="group-inline clearfix">
+
+                            <div class="field-container">
+                              <div class="title"><p>chain</p></div>
+                              <div class="tooltip"><div class="tooltip-body">You may select a chain of the mapped PDB, or leave it blank</div></div>
+                              <div class="field-item text align-right">
+                                <input type="text" name="reference-sequencemappings-8-chain" id="reference-sequencemappings-8-chain" value="" maxlength="2">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Index of the assembly sequence to map to</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="reference-sequencemappings-8-index" id="reference-sequencemappings-8-index">
+                              </div>
+                            </div>
+
+                          </div> <!--END: group-inline -->
+
+                          <div class="field-container">
+                            <div class="title"><p>Symmetry shift</p></div>
+                            <div class="tooltip"><div class="tooltip-body">It is possible to indicate symmetry shifts in the mapped PDB, causing linker restraints to be defined to bodies in the next/previous symmetry copy, instead of to bodies in the reference copy</div></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-8-shift" id="reference-sequencemappings-8-shift">
+                            </div>
+                          </div>
+                        </div> <!-- END: group-container -->
+                      </div> <!-- END: level2 -->
+                    </div><!-- END: level1-container -->
+                  </div><!-- END: level1 -->
+
+
+                  <div id="block-b_reference-9-0" class="level1 active">
+
+                    <div class="controls">
+                      <div class="title"><h4>Mapping to assembly sequences 10</h4></div>
+                      <div class="button reload-icon reload-form-block"><div class="controls-tooltip"><p>Restore default values</p></div></div>
+                    </div>
+
+                    <div class="level1-container">
+
+                      <div class="level2">
+
+                        <div class="group-container">
+
+                          <div class="field-container">
+                            <div class="title"><h3>subsequences</h3></div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>1</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-9-subsequences-0-start" id="reference-sequencemappings-9-subsequences-0-start">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-9-subsequences-0-end" id="reference-sequencemappings-9-subsequences-0-end">
+                            </div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>2</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-9-subsequences-1-start" id="reference-sequencemappings-9-subsequences-1-start">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-9-subsequences-1-end" id="reference-sequencemappings-9-subsequences-1-end">
+                            </div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>3</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-9-subsequences-2-start" id="reference-sequencemappings-9-subsequences-2-start">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-9-subsequences-2-end" id="reference-sequencemappings-9-subsequences-2-end">
+                            </div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>4</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-9-subsequences-3-start" id="reference-sequencemappings-9-subsequences-3-start">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-9-subsequences-3-end" id="reference-sequencemappings-9-subsequences-3-end">
+                            </div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>5</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-9-subsequences-4-start" id="reference-sequencemappings-9-subsequences-4-start">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-9-subsequences-4-end" id="reference-sequencemappings-9-subsequences-4-end">
+                            </div>
+                          </div>
+                        </div> <!-- END: group-container -->
+                      </div> <!-- END: level2 -->
+
+                      <div class="level2">
+
+                        <div class="group-container">
+
+                          <div class="field-container">
+                            <div class="title"><h3>Mapping to assembly sequences 10</h3></div>
+                          </div>
+                          <div class="group-inline clearfix">
+
+                            <div class="field-container">
+                              <div class="title"><p>chain</p></div>
+                              <div class="tooltip"><div class="tooltip-body">You may select a chain of the mapped PDB, or leave it blank</div></div>
+                              <div class="field-item text align-right">
+                                <input type="text" name="reference-sequencemappings-9-chain" id="reference-sequencemappings-9-chain" value="" maxlength="2">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Index of the assembly sequence to map to</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="reference-sequencemappings-9-index" id="reference-sequencemappings-9-index">
+                              </div>
+                            </div>
+
+                          </div> <!--END: group-inline -->
+
+                          <div class="field-container">
+                            <div class="title"><p>Symmetry shift</p></div>
+                            <div class="tooltip"><div class="tooltip-body">It is possible to indicate symmetry shifts in the mapped PDB, causing linker restraints to be defined to bodies in the next/previous symmetry copy, instead of to bodies in the reference copy</div></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-9-shift" id="reference-sequencemappings-9-shift">
+                            </div>
+                          </div>
+                        </div> <!-- END: group-container -->
+                      </div> <!-- END: level2 -->
+                    </div><!-- END: level1-container -->
+                  </div><!-- END: level1 -->
+
+
+                  <div id="block-b_reference-0" class="level1 active">
+
+                    <div class="controls">
+                      <div class="title"><h4>Reference</h4></div>
+                      <div class="button reload-icon reload-form-block"><div class="controls-tooltip"><p>Restore default values</p></div></div>
+                    </div>
+
+                    <div class="level1-container">
+
+                      <div class="level2">
+
+                        <div class="group-container">
+
+                          <div class="field-container">
+                            <div class="title"><h3>Reference structure</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Reference structure</p></div>
+                            <div class="tooltip"><div class="tooltip-body">PDB that contains the true structure</div></div>
+                            <div class="field-item file align-right">
+                              <input type="file" name="reference-pdb" id="reference-pdb">
+                            </div>
+                          </div>
+                        </div> <!-- END: group-container -->
+                      </div> <!-- END: level2 -->
+                    </div><!-- END: level1-container -->
+                  </div><!-- END: level1 -->
+
+                </div><!-- END: UI container -->
+              </div>
+
+              <div id="page6" class="category-container">
+                <div class="form-category-description">
+                  <div class="large-icon iteration-icon"></div>
+                  <div class="description">
+                    <h2>Assembly protocol parameters</h2>
+                    <p>Protocol settings</p>
+                  </div>
+                </div>
+
+                <!-- UI CONTAINER FOR FORM ELEMENTS OF A CATEGORY SELECTED IN CATEGORY NAVIGATION MENU -->
+                <div class="form-category">
+
+                  <div id="block-b_protocol-0" class="level1 active">
+
+                    <div class="controls">
+                      <div class="title"><h4>General settings</h4></div>
+                      <div class="button reload-icon reload-form-block"><div class="controls-tooltip"><p>Restore default values</p></div></div>
+                    </div>
+
+                    <div class="level1-container">
+
+                      <div class="level2">
+
+                        <div class="group-container">
+
+                          <div class="group-inline clearfix">
+
+                            <div class="field-container">
+                              <div class="title"><p>Number of initial structures</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="cryozoom-struc_initial" id="cryozoom-struc_initial" value = "100000">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Initial minimization</p></div>
+                              <div class="tooltip"><div class="tooltip-body">Do you want an initial minimization without forcefield?</div></div>
+                              <div class="field-item checkbox align-right">
+                                <input type="checkbox" name="cryozoom-pre_mini" id="cryozoom-pre_mini" value="">
+                              </div>
+                            </div>
+
+                          </div> <!--END: group-inline -->
+                          <div class="group-inline clearfix">
+
+                            <div class="field-container">
+                              <div class="title"><p>Fraction</p></div>
+                              <div class="tooltip"><div class="tooltip-body">Fraction of structures to keep after initial minimization</div></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="cryozoom-pre_frac" id="cryozoom-pre_frac">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Number of selected structures</p></div>
+                              <div class="tooltip"><div class="tooltip-body">Fraction of structures to keep after initial minimization</div></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="cryozoom-select" id="cryozoom-select" value = "1000">
+                              </div>
+                            </div>
+
+                          </div> <!--END: group-inline -->
+                          <div class="group-inline clearfix">
+
+                            <div class="field-container">
+                              <div class="title"><p>Number of copies</p></div>
+                              <div class="tooltip"><div class="tooltip-body">The number of modified copies that is made of each selected structure</div></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="cryozoom-clone" id="cryozoom-clone" value = "20">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Rotational step size</p></div>
+                              <div class="tooltip"><div class="tooltip-body">The modification step size for rotational degrees of freedom (in radians)</div></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="cryozoom-ori" id="cryozoom-ori" value = "0.25">
+                              </div>
+                            </div>
+
+                          </div> <!--END: group-inline -->
+                          <div class="group-inline clearfix">
+
+                            <div class="field-container">
+                              <div class="title"><p>Translational step size</p></div>
+                              <div class="tooltip"><div class="tooltip-body">The modification step size for translational degrees of freedom (in angstroms)</div></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="cryozoom-trans" id="cryozoom-trans" value = "5.0">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>The number of zoom-in iterations</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="cryozoom-iterations" id="cryozoom-iterations" value = "10">
+                              </div>
+                            </div>
+
+                          </div> <!--END: group-inline -->
+                        </div> <!-- END: group-container -->
+                      </div> <!-- END: level2 -->
+                    </div><!-- END: level1-container -->
+                  </div><!-- END: level1 -->
+
+
+                  <div id="block-b_initial-0" class="level1 active">
+
+                    <div class="controls">
+                      <div class="title"><h4>Initial iteration</h4></div>
+                      <div class="button reload-icon reload-form-block"><div class="controls-tooltip"><p>Restore default values</p></div></div>
+                    </div>
+
+                    <div class="level1-container">
+
+                      <div class="level2">
+
+                        <div class="group-container">
+
+                          <div class="field-container">
+                            <div class="title"><h3>Parameters for the initial iteration</h3></div>
+                          </div>
+                          <div class="group-inline clearfix">
+
+                            <div class="field-container">
+                              <div class="title"><p>vmax</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="cryozoom-initial-vmax" id="cryozoom-initial-vmax" value = "200">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>traj</p></div>
+                              <div class="field-item checkbox align-right">
+                                <input type="checkbox" name="cryozoom-initial-traj" id="cryozoom-initial-traj" value="">
+                              </div>
+                            </div>
+
+                          </div> <!--END: group-inline -->
+                        </div> <!-- END: group-container -->
+                      </div> <!-- END: level2 -->
+
+                      <div class="level2">
+
+                        <div class="field-container">
+                          <div class="title"><h3>Enable Monte Carlo mode</h3></div>
+                          <div class="field-item switch align-left">
+                            <input type="checkbox" name="cryozoom-initial-mc" id="cryozoom-initial-mc" value="" checked="checked">
+                            <label for="cryozoom-initial-mc">Off</label>
+                            <label for="cryozoom-initial-mc">On</label>
+                            <span class="toggle"></span>
+                          </div>
+                        </div>
+
+                        <div class="group-container">
+
+
+                          <div class="field-container">
+                            <div class="title"><p>Temperature (in kT)</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="cryozoom-initial-mctemp" id="cryozoom-initial-mctemp" value = "3.5">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Rotation step size (in radians)</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="cryozoom-initial-mcscalerot" id="cryozoom-initial-mcscalerot" value = "0.05">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Translation step size (in angstroms)</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="cryozoom-initial-mcscalecenter" id="cryozoom-initial-mcscalecenter" value = "10.0">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Mode deformation step size (in angstroms)</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="cryozoom-initial-mcscalemode" id="cryozoom-initial-mcscalemode" value = "0.1">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Probability to switch between ensemble conformers</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="cryozoom-initial-mcensprob" id="cryozoom-initial-mcensprob" value = "0.1">
+                            </div>
+                          </div>
+                        </div> <!-- END: group-container -->
+                      </div> <!-- END: level2 -->
+                    </div><!-- END: level1-container -->
+                  </div><!-- END: level1 -->
+
+
+                  <div id="block-b_subsequent-0" class="level1 active">
+
+                    <div class="controls">
+                      <div class="title"><h4>Subsequent iterations</h4></div>
+                      <div class="button reload-icon reload-form-block"><div class="controls-tooltip"><p>Restore default values</p></div></div>
+                    </div>
+
+                    <div class="level1-container">
+
+                      <div class="level2">
+
+                        <div class="group-container">
+
+                          <div class="field-container">
+                            <div class="title"><h3>Parameters for subsequent iterations</h3></div>
+                          </div>
+                          <div class="group-inline clearfix">
+
+                            <div class="field-container">
+                              <div class="title"><p>vmax</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="cryozoom-subsequent-vmax" id="cryozoom-subsequent-vmax" value = "100">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>traj</p></div>
+                              <div class="field-item checkbox align-right">
+                                <input type="checkbox" name="cryozoom-subsequent-traj" id="cryozoom-subsequent-traj" value="">
+                              </div>
+                            </div>
+
+                          </div> <!--END: group-inline -->
+                        </div> <!-- END: group-container -->
+                      </div> <!-- END: level2 -->
+
+                      <div class="level2">
+
+                        <div class="field-container">
+                          <div class="title"><h3>Enable Monte Carlo mode</h3></div>
+                          <div class="field-item switch align-left">
+                            <input type="checkbox" name="cryozoom-subsequent-mc" id="cryozoom-subsequent-mc" value="">
+                            <label for="cryozoom-subsequent-mc">Off</label>
+                            <label for="cryozoom-subsequent-mc">On</label>
+                            <span class="toggle"></span>
+                          </div>
+                        </div>
+
+                        <div class="group-container">
+
+
+                          <div class="field-container">
+                            <div class="title"><p>Temperature (in kT)</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="cryozoom-subsequent-mctemp" id="cryozoom-subsequent-mctemp" value = "3.5">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Rotation step size (in radians)</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="cryozoom-subsequent-mcscalerot" id="cryozoom-subsequent-mcscalerot" value = "0.05">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Translation step size (in angstroms)</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="cryozoom-subsequent-mcscalecenter" id="cryozoom-subsequent-mcscalecenter" value = "0.1">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Mode deformation step size (in angstroms)</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="cryozoom-subsequent-mcscalemode" id="cryozoom-subsequent-mcscalemode" value = "0.1">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Probability to switch between ensemble conformers</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="cryozoom-subsequent-mcensprob" id="cryozoom-subsequent-mcensprob" value = "0.1">
+                            </div>
+                          </div>
+                        </div> <!-- END: group-container -->
+                      </div> <!-- END: level2 -->
+                    </div><!-- END: level1-container -->
+                  </div><!-- END: level1 -->
+
+                </div><!-- END: UI container -->
+              </div>
+
+              <div id="page7" class="category-container">
+                <div class="form-category-description">
+                  <div class="large-icon computation-icon"></div>
+                  <div class="description">
+                    <h2>Computation</h2>
+                    <p></p>
+                  </div>
+                </div>
+
+                <!-- UI CONTAINER FOR FORM ELEMENTS OF A CATEGORY SELECTED IN CATEGORY NAVIGATION MENU -->
+                <div class="form-category">
+
+                  <div id="block-computation-0" class="level1 active">
+
+                    <div class="controls">
+                      <div class="title"><h4>Computation</h4></div>
+                      <div class="button reload-icon reload-form-block"><div class="controls-tooltip"><p>Restore default values</p></div></div>
+                    </div>
+
+                    <div class="level1-container">
+
+                      <div class="level2">
+
+                        <div class="group-container">
+
+
+                          <div class="field-container">
+                            <div class="title"><p>Number of processor cores</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="np" id="np" value = "1">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Number of structures in a single job (leave blank to divide all structures equally over the cores)</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="jobsize" id="jobsize" value = "0">
+                            </div>
+                          </div>
+                        </div> <!-- END: group-container -->
+                      </div> <!-- END: level2 -->
+                    </div><!-- END: level1-container -->
+                  </div><!-- END: level1 -->
+
+                </div><!-- END: UI container -->
+              </div>
+            </form><!-- END: form -->           
+            
+        </section>
+      </main>  
+        
+      <script src="js/jquery-1.10.2.min.js"></script>
+      <script src="js/main.min.js"></script>
+
+    </body>
+</html>

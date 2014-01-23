@@ -1,0 +1,50 @@
+08-10-2013
+----------
+* Added support for multiple "buttons" in the category control box. This div of class catergory-controls houses buttons such as 
+  "Add partners". A button element has the following HTML structure:
+  
+   <div class="field-container">
+     <div class="field-item button align-right">
+       <input type="button" value="Add partners" id="block-partners-add" onClick="cloneBlock('block-partners-',10);">
+     </div>
+   </div>
+   
+   3 of these in the category control box fits nicely. 4 is possible but does not look that nice anymore.
+   
+* "Reload" confirmation dialog now also shown for reload of parts of the form.
+* Added tooltips for the "reload" and "remove" buttons that are part of a category.
+* The unchecked state of a checkbox used to be a "x" symbol. This might be confusing with respect to the "remove" button.
+  In general, checkboxes have a checkmark when checked and are empty when not checked. Because this is the most common use of
+  checkboxes it is what a user might expect. This is now respected except for a change of default checked to unchecked to 
+  indicate that this checkbox is unchecked.
+* The default "checked" image that appears in checkboxes does not show anymore in the "switch" control for submenu's in Firefox. 
+* REMARK: The File selection fields do not align with the other fields. In Chrome, they are slightly to the left. 
+  In Firefox, they are so far to the left that a bit of text disappears. Since consistent alignment is not possible anyway, 
+  perhaps it is safest to center them instead?
+  
+  I cannot reproduce this or do not know what you mean. The file selection box itself is aligned perfectly as all other input fields
+  in Firefox, Safari and Chrome on my machine. The default text in a file selection box is align to the left and overflows on the 
+  right side if it is to long. For me, the "to long" bit depends on the text translation. On my machine the "no file selected" message
+  translates as "Geen bestand gekozen" in Chrome, "Geen bestand geselecteerd" in Firefox and Safari. In all browsers the text aligns left, 
+  in Chrome the full text fits in the box, no clipping. In Firefox, the message exactly fits and in Safari it is clipped.
+  When I select a file it again depends on the length of the filename if it gets clipped or not, but always aligned left.
+  
+  If it is the alignment of the text you are worried about I would not change anything here. Align left makes most sense to me.
+  Longer filenames can be fully viewed if you hover on the filefield for a moment.
+* Added a "reset form block" action to the javascript code responsible for cloning a form block. This is to reset any fields in the source
+  form block that might have been changed by the user after initial load. 
+* NOTE: In the "Symmetry" category, the button to add another symmetry operator lists "Add partners". Probably needs to be changed in the
+  form generator code.
+* Add javascript function to the "remove form block" function to renumber the remaining blocks to ensure an equal increment in ID
+  starting from 0.
+* REMARK: Long options in the option fields "walk off the screen", for example in "Cryo-EM scoring criterion". This is because excess 
+  space for the dropdown menu (beyond the field width) is allocated on the right. Is it possible to allocate them on the left, instead?
+  
+  The default "select input" behaviour is hardcoded in the browser. In Safari, Firefox and Chrome the dropdown is display absolute with a 
+  fixed positioning relative to the source. In all cases the long option names overflow the browser window. There is nothing you can do
+  about this behaviour and it would be great if they fix this by respecting the browser window when positioning the dropdown. Ways around
+  this are not using long names or position these select boxes more to the center or left of the UI.
+* The UI is nativly ready to handle prefilled forms. I changed the javascript to prevend cloning of form blocks defined in the javascript
+  init_clone array (now only block-partners-) if there are already more than 1 blocks available in the provided form which might be the
+  case for prefilled forms. The first block will always be used as source for cloning so all values predefined will also be cloned. 
+  

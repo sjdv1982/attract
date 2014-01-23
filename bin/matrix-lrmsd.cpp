@@ -284,7 +284,7 @@ int main(int argc, char *argv[]) {
   int struclen;
   while (1) {
     if (nstruc == MAXMATRIXSTRUC) {
-      fprintf(stderr, "Number of structures exceeds maximum (%d)\n", MAXMATRIXSTRUC);
+      fprintf(stderr, "Number of structures %d exceeds maximum (%d)\n", nstruc, MAXMATRIXSTRUC);
       exit(1);
     }
     int result = read_dof_(fil, line, nstruc, argv[1], ens, phi, ssi, rot, 
