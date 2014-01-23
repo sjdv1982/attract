@@ -124,7 +124,6 @@ Type AttractEasyModel {
     ''
 
     'assert not calc_lrmsd'
-    =>
     'You are trying to calculate ligand RMSD but did not enable RMSD calculation in the partners section. Please upload PDB files for RMSD calculation for both partners.'
 
     'assert np > 0'
@@ -134,5 +133,5 @@ Type AttractEasyModel {
   }
   
 }
-
+  
 Define AttractModel(AttractEasyModel) easy2model

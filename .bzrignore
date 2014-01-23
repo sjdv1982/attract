@@ -16,3 +16,4 @@ tools/*.pyc
 .project
 .scinotes
 max.fin
+*.TYPES
