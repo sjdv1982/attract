@@ -153,6 +153,7 @@ struct MiniState {
   double mcensprob; //Monte Carlo probability of switching ensemble copies
   int iscore;  //scoring mode: 0 = normal, 1 = scoring, 2 = trajectory
   int ivmax; //max steps
+  int imcmax; //max MC steps
   int iori;  //enable orientations
   int itra;  //enable translations
   int ieig;  //enable mode displacement

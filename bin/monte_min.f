@@ -42,13 +42,13 @@ c     Local variables
       dimension energies0(6)
 c     integer dseed,i,ii,j,jj,k,kk,itr,nfun
       integer i,ii,j,jj,k,kk,itr,nfun
-      integer itra, ieig, iindex, iori, fixre, gridmode,iscore,ivmax
+      integer itra, ieig, iindex, iori, fixre, gridmode,iscore,imcmax
       integer ju,ju0,jl,jb,nmodes,nimodes, jn, jn0
       integer iab,ijk,iaccept
       real*8 xnull
       real*8 scalecenter,scalemode,ensprob,scalerot,rr
       real*8 rotmat,randrot,newrot,sum
-      real*8 xaa,delta,deltamorph,bol,pi,mctemp
+      real*8 xaa,delta,deltamorph,bol1,bol2,pi,mctemp
       integer ensaa
       real*8 dseed
       dimension xaa(maxdof)
@@ -59,18 +59,22 @@ c     integer dseed,i,ii,j,jj,k,kk,itr,nfun
       dimension nrens(maxlig)
       pointer(ptr_nrens,nrens)
       real*8 neomorph
+      integer, parameter:: ERROR_UNIT = 0
       pi=3.141592654d0
+
+
 
       do i=1, maxlig
       ensaa(i) = 0
       enddo
 
-      call ministate_f_monte(ministatehandle,
-     1 iscore,ivmax,iori,itra,ieig,iindex,fixre,gridmode,mctemp,
+      call ministate_f_monte_min(ministatehandle,
+     1 iscore,imcmax,iori,itra,ieig,iindex,fixre,gridmode,mctemp,
      2 scalerot,scalecenter,scalemode,ensprob)
 
-c     always calculate only energies
+c     calculate only energies
       iab = 0
+
 
 c
 c  all variables without lig-hm
@@ -125,10 +129,13 @@ c
 
 c   start Monte Carlo
       iaccept=1
-      do 4000 ijk=1,ivmax
+      do 4000 ijk=1,imcmax
 c store old Euler angle, position and ligand and receptor coordinates
 c
 c phi,ssi,rot for first molecule are fixed!
+
+      write(ERROR_UNIT,*)'step',ijk
+
       if(iaccept.eq.1) then
       ensaa(i)=ens(i)
       if(iori.eq.1) then
@@ -176,6 +183,12 @@ c if ligand flex is included store deformation factor in every mode in dlig(j)
       jj = jj + nihm(j)
   140 continue
       endif
+
+c     store coordinates of accepted mc-step
+
+      call print_struc2(seed,label,gesa,energies,nlig,
+     1  ens,phi,ssi,rot,xa,ya,za,locrests,morph,
+     2  nhm,nihm,dlig,has_locrests,lablen)
 
       endif
 c old Cartesians are not stored!
@@ -294,25 +307,59 @@ c    1 rr(ii+1),rr(ii+2),rr(ii+3),xaa(ii+1),xaa(ii+2),xaa(ii+3)
      2 ens,phi,ssi,rot,xa,ya,za,morph,dlig,
      3 locrests, has_locrests, seed,
      4 enew,energies0,delta,deltamorph)
+
+c      call minfor_mcm(cartstatehandle,ministatehandle,
+c     1 nhm, nihm, nlig, ens, phi, ssi, rot, xa, ya, za, morph, dlig,
+c     2 locrests, has_locrests, seed, label,
+c     3 enew, energies0, lablen)
+
+c      write(ERROR_UNIT,*)'after min',enew
 c  new energy
 c      write (*,*),'Energy2', enew
-      bol=enew-gesa
+      bol1=enew-gesa
+      bol2=(enew-gesa)*2.0d0
       if (mctemp.eq.0) then
-      bol=sign(1.0d0,-bol)
+      bol1=sign(1.0d0,-bol1)
+      bol2=sign(1.0d0,-bol2)
       else
-      bol=exp(-bol/mctemp)
+      bol1=exp(-bol1/mctemp)
+      bol2=exp(-bol2/mctemp)
+c      write(ERROR_UNIT,*)'bol1, bol2',bol1,bol2
       endif
 c      write(*,*)'exp(bol)',enew,gesa,enew-gesa,bol
 c     call crand(dseed,2,rr)
       call GGUBS(dseed,2,rr)
 c     dseed = int(10000*rr(2))
-      if(bol.gt.rr(1)) then
+
+      if(bol1.gt.rr(1)) then
 c      write(*,*)'accept the step', bol, rr(1)
 c     write(*,*)
 c    1 'rrot1,rrot2,rrot3,rrot4,sphi,phi(i),sssi,ssi(i),srot,rot(i)',
 c    2 rrot1,rrot2,rrot3,rrot4,sphi,phi(2),sssi,ssi(2),srot,rot(2)
       gesa=enew
       energies(:)=energies0(:)
+
+
+
+      write(ERROR_UNIT,*)'mc step accepted',enew
+
+
+      if(bol2.gt.rr(2)) then
+
+
+      call minfor_mcm(cartstatehandle,ministatehandle,
+     1 nhm, nihm, nlig, ens, phi, ssi, rot, xa, ya, za, morph, dlig,
+     2 locrests, has_locrests, seed, label,
+     3 enew, energies0, lablen)
+
+      gesa=enew
+      energies(:)=energies0(:)
+
+      write(ERROR_UNIT,*)'minimized',enew
+
+      endif
+
+
       iaccept=1
       if (iscore.eq.2) then
         call print_struc2(seed,label,gesa,energies,nlig,
@@ -373,9 +420,10 @@ c if ligand flex is included store deformation factor in every mode in dlig(j)
        endif
       enddo
 
-
+c      write(ERROR_UNIT,*)'end of loop'
  4000 continue
 
 c     Clean up
       call ministate_free_pairlist(ministatehandle)
+c      write(ERROR_UNIT,*)'end of monte_min'
       end

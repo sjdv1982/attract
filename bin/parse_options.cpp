@@ -108,6 +108,11 @@ void vmax_usage() {
   exit(1);
 }
 
+void mcmax_usage() {
+ fprintf(stderr, "--mcmax option usage: --mcmax <maximum number of MC steps>\n");
+  exit(1);
+}
+
 void rest_usage() {
  fprintf(stderr, "--rest option usage: --rest <restraint file>\n");
   exit(1);
@@ -391,6 +396,13 @@ void parse_options(int ministatehandle, int cartstatehandle, int nlig, int argc,
       int vmax = atoi(argv[n+1]);
       if (vmax <= 0) vmax_usage();
       ms.ivmax = vmax;
+      n += 1;
+    }
+    else if (!strcmp(arg,"--mcmax")) {
+      if (argc-n < 2) mcmax_usage();
+      int mcmax = atoi(argv[n+1]);
+      if (mcmax <= 0) mcmax_usage();
+      ms.imcmax = mcmax;
       n += 1;
     }
     else if (!strcmp(arg,"--proxlim")) {
