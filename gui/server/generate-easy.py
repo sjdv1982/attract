@@ -1,5 +1,5 @@
 import sys, os
-import attracthtmlform 
+sys.path.insert(0, "..")
 import spyder
 from attractmodel import AttractEasyModel
 import formeasy, form_model
