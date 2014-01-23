@@ -1,6 +1,6 @@
 //Converts DOF so that receptor rotations and translations are zero
 
-//usage: ./fix_receptor structures.dat <number of ligands> [--ens <ensemble size for each ligand>] [--modes <number of modes for each ligand>] [--locrest <ligand>]
+//usage: ./fix_receptor structures.dat <number of ligands> [--ens <ensemble size for each ligand>] [--modes <number of modes for each ligand>] [--imodes <number of index modes for each ligand>][--locrest <ligand>]
 
 
 #include "max.h"
@@ -25,6 +25,7 @@ extern "C" void print_struc_(
  const coors2 &locrests, 
  const double *morph,
  const int *nhm,
+ const int *nihm,
  const modes2 &dlig, 
  const int *has_locrests,
  int len_label
@@ -36,7 +37,7 @@ extern "C" void vecmatmult_(double *v0, double *m, double *v);
 
 extern "C" FILE *read_dof_init_(const char *f_, int nlig, int &line, double (&pivot)[3][MAXLIG], int &auto_pivot, int &centered_receptor, int &centered_ligands, int f_len);
 
-extern "C" int read_dof_(FILE *fil, int &line, int &nstruc, const char *f_, idof2 &ens, dof2 &phi, dof2 &ssi, dof2 &rot, dof2 &xa, dof2 &ya, dof2 &za, coors2 &locrests, dof2 &morph, modes2 &dlig, const int &nlig, const int *nhm, const int *nrens0, const int *morphing, const int *has_locrests, int &seed, char *&label, const int &all_labels, int f_len);
+extern "C" int read_dof_(FILE *fil, int &line, int &nstruc, const char *f_, idof2 &ens, dof2 &phi, dof2 &ssi, dof2 &rot, dof2 &xa, dof2 &ya, dof2 &za, coors2 &locrests, dof2 &morph, modes2 &dlig, const int &nlig, const int *nhm, const int *nihm, const int *nrens0, const int *morphing, const int *has_locrests, int &seed, char *&label, const int &all_labels, int f_len);
 
 extern "C" void euler2rotmat_(const double &phi,const double &ssi, const double &rot, double (&rotmat)[9]);
 
@@ -50,7 +51,7 @@ static double xa[MAXLIG];
 static double ya[MAXLIG];
 static double za[MAXLIG];
 static double morph[MAXLIG];
-static double dlig[MAXLIG][MAXMODE];
+static double dlig[MAXLIG][MAXMODE+MAXINDEXMODE];
 static int seed;
 static char *label;
 
@@ -58,7 +59,7 @@ static char *label;
 #include <cstdlib>
 
 void usage() {
-  fprintf(stderr, "usage: $path/fix_receptor structures.dat <number of ligands> [--ens <ensemble size for each ligand>] [--modes <number of modes for each ligand>] [--locrest <ligand>]\n");
+  fprintf(stderr, "usage: $path/fix_receptor structures.dat <number of ligands> [--ens <ensemble size for each ligand>] [--modes <number of modes for each ligand>] [--imodes <number of index modes for each ligand>] [--locrest <ligand>]\n");
   exit(1);
 }
 
@@ -73,9 +74,10 @@ bool exists(const char *f) {
 
 int main(int argc, char *argv[]) {
   int i;
-  int nhm[MAXLIG];
+  int nhm[MAXLIG]; int nihm[MAXLIG];
   for (int n = 0; n < MAXLIG; n++) {
     nhm[n] = 0;
+    nihm[n] = 0;
     nrens[n] = 0;
   }
   coors2 locrests;
@@ -92,7 +94,20 @@ int main(int argc, char *argv[]) {
         nhm[count] = atoi(argv[3]);
         count++;
       }
+      argc--;     
       continue;          
+    }
+    if (!strcmp(argv[3],"--imodes")) {
+      int count = 0;
+      while (argc > 4) {
+        memmove(argv+3, argv+4, sizeof(char*) * (argc-3));
+        argc--;
+        if (!strncmp(argv[3],"--",2)) break;
+        nihm[count] = atoi(argv[3]);
+        count++;
+      }
+      argc--;
+      continue;
     }
     if (!strcmp(argv[3],"--ens")) {
       int count = 0;
@@ -101,8 +116,10 @@ int main(int argc, char *argv[]) {
         argc--;      
         if (!strncmp(argv[3],"--",2)) break;      
         nrens[count] = atoi(argv[3]);
+	fprintf(stderr,"%d\n",nrens[count]);
         count++;
       }
+      argc--;
       continue;
     }
     if (argc > 4 && (!strcmp(argv[3],"--locrest"))) {
@@ -113,10 +130,10 @@ int main(int argc, char *argv[]) {
       }
       has_locrests[lig-1] = 1;
       memmove(argv+3, argv+5, sizeof(char*) * (argc-4));
-      argc -= 2;      
+      argc -= 2;  
       continue;
     }
-    fprintf(stderr, "Wrong number of arguments\n"); usage();
+    fprintf(stderr, " Wrong number of arguments %d\n", argc); usage();
   }  
 
   if (argc != 3) {
@@ -163,7 +180,7 @@ int main(int argc, char *argv[]) {
     
     int result = read_dof_(fil, line, nstruc, argv[1], ens, phi, ssi, rot, 
      xa, ya, za, locrests, 
-     morph, dlig, nlig, nhm, nrens, morphing, has_locrests,
+     morph, dlig, nlig, nhm, nihm, nrens, morphing, has_locrests,
      seed, label, 0, strlen(argv[1])
     );
     if (result != 0) break;
@@ -249,6 +266,7 @@ int main(int argc, char *argv[]) {
      locrests,
      morph,
      nhm,
+     nihm,
      dlig,
      has_locrests,
      lablen

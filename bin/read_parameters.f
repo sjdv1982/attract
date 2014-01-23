@@ -52,7 +52,9 @@ c     write(*,*)(abc(i,j),j=1,maxpar)
        endif 
        ipon(i,j)=iflo(i,j)
       elseif (potshape.eq.12) then
-       ipon(i,j)= 1.0d0       
+      emin(i,j)=-0.25d0*abc(i,j)
+      rmin2(i,j)=1.25992105*rbc(i,j)*rbc(i,j)
+      ipon(i,j)=iflo(i,j)
       else
         write(*,*), 'Unknown potential shape', potshape
         stop 

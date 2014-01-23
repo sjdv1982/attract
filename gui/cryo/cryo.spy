@@ -1,0 +1,441 @@
+Type CryoSimData {
+  ResourceData_PDB pdb
+  Float map_resolution_fitting = 40
+  Float map_resolution_scoring = 20
+  form {
+    pdb.name = "PDB from which the map will be simulated"
+    pdb.type = "file"
+    t = "Resolution for the cryo-EM map that will simulated from the structure and used in assembly"
+    map_resolution_fitting.add_header(t)
+    map_resolution_fitting.name = "Simulated map resolution (fitting) in angstroms"
+    map_resolution_fitting.tooltip = t
+    t = "Resolution for the cryo-EM map that will simulated from the structure and used in GVM scoring"
+    map_resolution_scoring.add_header(t)
+    map_resolution_scoring.name = "Simulated map resolution (scoring) in angstroms"
+    map_resolution_scoring.tooltip = t
+  }  
+}
+
+Type CryoReference {
+  """
+  Reference PDB for cryo-EM assembly, for benchmarking purposes
+  Overall RMSD will be automatically calculated, for each chain (mapping) and for the PDB as a whole
+   Pairwise ligand RMSDs or interface RMSDs have to be computed manually 
+  """
+  ResourceData_PDB pdb
+  CryoSequenceMappingArray sequencemappings = []
+  form { 
+    pdb.name = "Reference structure"
+    pdb.type = "file"
+    pdb.tooltip = "PDB that contains the true structure"
+    sequencemappings.length = 10
+    sequencemappings.count_from_one = True
+    sequencemappings.form = "soft"
+    sequencemappings.name = "Mapping to assembly sequences"
+    sequencemappings.tooltip = "Mapping of the reference structure to the assembly sequences"
+  }
+  validate {
+    assert len(sequencemappings)
+  }
+  error {
+    'assert len(sequencemappings)'
+    =>
+    ''
+  } 
+}
+
+Type CryoMap {
+  ResourceData_CryoEM_SITUS map
+  Float resolution
+  form {
+    map.name = "Cryo-EM density map in SITUS format"
+    map.type = "file"
+    resolution.name = "Map resolution (in angstroms)"
+  }
+}
+
+Type CryoData {
+  *CryoMap map_fitting
+  CryoMap map_scoring
+  Bool generate_map_fitting = False
+  form {
+    map_fitting.name = "Cryo-EM data for the assembly stage"
+    map_scoring.name = "Cryo-EM data for the scoring stage"
+    t = "Auto-generate the assembly map from the scoring map by downsampling it to 40 A"
+    generate_map_fitting.add_header(t)
+    generate_map_fitting.name = "Auto-generate assembly map"
+    generate_map_fitting.tooltip = t
+  }
+  validate {
+    assert generate_map_fitting or map_fitting is not None
+    if map_fitting is not None: assert not generate_map_fitting 
+    if generate_map_fitting: assert map_fitting is None
+  }  
+  error {
+    'if map_fitting is not None: assert not generate_map_fitting'
+    =>
+    ''
+
+    'assert generate_map_fitting or map_fitting is not None'
+    =>
+    ''
+
+    'if generate_map_fitting: assert map_fitting is None'
+    =>
+    ''
+  }
+}
+
+Type CryoZoom {
+  Integer struc_initial = 100000
+  Bool pre_mini = False
+  *Float pre_frac
+  Integer select = 1000
+  Integer clone = 20
+  Float ori = 0.25
+  Float trans = 5
+  Integer iterations = 10
+  AttractIteration initial = AttractIteration(mc=True,mcscalecenter=10,vmax=200)
+  *AttractIteration subsequent
+  form {
+    t = "How many structures do you want to generate initially?"
+    struc_initial.add_header(t)
+    struc_initial.name = "Number of initial structures"
+    t = "Do you want an initial minimization without forcefield?"
+    pre_mini.add_header(t)
+    pre_mini.name = "Initial minimization"
+    pre_mini.tooltip = t
+    t = "Fraction of structures to keep after initial minimization"
+    pre_frac.add_header(t)
+    pre_frac.name = "Fraction"
+    pre_frac.tooltip = t
+    select.add_header("The number of structures that is selected after each iteration")     
+    select.name = "Number of selected structures"
+    select.tooltip = t
+    t = "The number of modified copies that is made of each selected structure"
+    clone.add_header(t)
+    clone.name = "Number of copies"
+    clone.tooltip = t
+    t = "The modification step size for rotational degrees of freedom (in radians)"
+    ori.add_header(t)
+    ori.name = "Rotational step size"
+    ori.tooltip = t
+    t = "The modification step size for translational degrees of freedom (in angstroms)"
+    trans.add_header(t)
+    trans.name = "Translational step size"
+    trans.tooltip = t    
+    iterations.name = "The number of zoom-in iterations"
+    initial.name = "Parameters for the initial iteration"
+    initial.rcut.type = None
+    subsequent.name = "Parameters for subsequent iterations"
+    subsequent.rcut.type = None
+  }  
+  validate {
+    assert struc_initial >= select
+    if pre_mini: assert pre_frac is not None
+    if pre_frac is not None: assert pre_mini
+    if pre_frac is not None: assert pre_frac > 0 and pre_frac <= 1
+    if pre_mini: assert pre_frac * struc_initial >= select
+  }
+   error {
+    'assert struc_initial >= select'
+    =>
+    ''
+
+    'if pre_frac is not None: assert pre_frac > 0 and pre_frac <= 1'
+    =>
+    ''
+
+    'if pre_mini: assert pre_frac * struc_initial >= select'
+    =>
+    ''
+
+    'if pre_mini: assert pre_frac is not None'
+    =>
+    ''
+
+    'if pre_frac is not None: assert pre_mini'
+    =>
+    ''
+  } 
+}
+
+Type CryoSequence:Degenerate {
+  Enum mode("code","partner","body","sequence")
+  *String proteincode 
+  *String sequence  
+  *Integer index
+  *String chain
+  RangeArray subsequences = []
+  form {
+    subsequences.length = 3
+    subsequences.count_from_one = True
+    subsequences.form = "soft"
+    mode.name = "How is the protein sequence specified?"
+    mode.optiontitles = (
+     "Protein code (SwissProt)", 
+     "Automatic, from assembly partner", 
+     "Automatic, from assembly body",
+     "Manually entered sequence",
+    )
+    proteincode.name = "SwissProt code of the protein" 
+    sequence.name = "Or: sequence of the protein (in FASTA format)"
+    sequence.type = "textarea"
+    index.add_header("Or: index of the assembly partner or assembly body of which the PDB is to be used")
+    index.name = "Index"
+    chain.add_header("If the sequence is derived automatically from a PDB, you can select one of its chains")
+    chain.name = "Protein chain"
+    chain.length = 2
+  }
+  validate {
+    assert index > 0
+    if mode in ("partner", "body"): assert len(subsequences) == 0
+    if mode not in ("partner", "body"): assert chain is None
+  }
+  error {
+    'assert index > 0'
+    =>
+    ''
+
+    'if mode not in ("partner", "body"): assert chain is None'
+    =>
+    ''
+
+    'if mode is not None: assert mode in ("code","partner","body","sequence")'
+    =>
+    ''
+
+    'if mode in ("partner", "body"): assert len(subsequences) == 0'
+    =>
+    ''
+  }  
+}
+
+Type CryoPartnerRun {
+  """
+  High-level definition of an ATTRACT-EM assembly run
+  Assembly partners are defined as PDBs standing in relationship to protein sequences
+  """
+  CryoSequenceArray sequences
+  GenSymmetry symmetry
+  CryoPartnerArray partners
+  *CryoData cryodata 
+  *CryoSimData simdata 
+  *CryoReference reference
+  *CryoZoom cryozoom
+  
+  #***Computing and parallelization parameters***
+  Integer np = 1
+  ## form np.group = "Computing and parallelization parameters"
+  ## form np.name = "Number of processor cores"
+  Integer jobsize = 0
+  ## form jobsize.group = "Computing and parallelization parameters"
+  ## form jobsize.name = "Number of structures in a single job (leave blank to divide all structures equally over the cores)"
+  
+  form {
+    sequences.name = "Protein sequence definition"
+    sequences.count_from_one = 1
+    sequences.length = 10
+    sequences.form = "soft"
+    for n in range(sequences.length):
+      sequences[n].mode.options = ("code","partner","sequence")
+      sequences[n].mode.optiontitles = (
+       "Protein code (SwissProt)", 
+       "Automatic, from assembly partner", 
+       "Manually entered sequence",
+      )            
+    symmetry.name = "Symmetry definition"
+    partners.name = "Assembly partners"
+    partners.length = 10
+    partners.count_from_one = True
+    partners.form = "soft"
+    cryodata.name = "Experimental cryo-EM data"
+    simdata.name = "Simulated cryo-EM data" 
+    reference.name = "Reference structure"
+    cryozoom.name = "Assembly protocol parameters"   
+  }
+  validate {   
+    assert len(partners)
+    assert len(sequences)
+    assert cryodata is not None or simdata is not None
+    if cryodata is None: assert simdata is not None
+    if simdata is None: assert cryodata is not None    
+    for seqnr, seq in enumerate(sequences):
+      assert seq.mode != "body", seqnr    
+      if seq.mode == "partner": 
+        assert seq.index <= len(partners), seqnr
+        assert partners[index-1].pdb is not None
+  }  
+  error {
+    'assert partners[index-1].pdb is not None'
+    =>
+    ''
+
+    'assert cryodata is not None or simdata is not None'
+    =>
+    ''
+
+    'assert seq.index <= len(partners), seqnr'
+    =>
+    ''
+
+    'if simdata is None: assert cryodata is not None'
+    =>
+    ''
+
+    'assert seq.mode != "body", seqnr'
+    =>
+    ''
+
+    'assert len(sequences)'
+    =>
+    'Please specify at least one assembly sequence'
+
+    'if cryodata is None: assert simdata is not None'
+    =>
+    ''
+
+    'assert len(partners)'
+    =>
+    'Please specify at least one assembly partner'
+  } 
+}
+
+Type CryoInterBodyRestraint {
+  Integer cryobody1
+  Integer cryobody2
+  *Coordinate position
+  *AxisSystem ori
+  form {
+    cryobody1.name = "Index of first body"
+    cryobody2.name = "Index of second body"
+    position.name = "Position of the second body relative to the first"
+    ori.name = "Orientation of the second body relative to the first"
+  }
+  validate {
+    assert cryobody1 > 0
+    assert cryobody2 > 0
+    assert position is not None or ori is not None
+    if position is not None: assert ori is None
+  }
+}
+
+Type CryoBodyRun {
+  """
+  Low-level definition of an ATTRACT-EM assembly run
+  Assembly bodies are defined as sequence regions, with or without a structure
+  """
+  CryoSequenceArray sequences
+  GenSymmetry symmetry
+  CryoBodyArray bodies
+  *CryoData cryodata 
+  *CryoSimData simdata 
+  *CryoReference reference
+  *CryoZoom cryozoom
+  
+  #***Sampling parameters***
+  CryoInterBodyRestraintArray interbodyrestraints  
+  Float k_abs_ori = 2
+  Float k_abs_trans = 2
+  Float k_ibr_ori =  2
+  Float k_ibr_trans = 0.1
+  Float k_ibr_linker = 1
+  
+  #***Computing and parallelization parameters***
+  Integer np = 1
+  ## form np.group = "Computing and parallelization parameters"
+  ## form np.name = "Number of processor cores"
+  Integer jobsize = 0
+  ## form jobsize.group = "Computing and parallelization parameters"
+  ## form jobsize.name = "Number of structures in a single job (leave blank to divide all structures equally over the cores)"
+  
+  form {
+    sequences.name = "Protein sequence definition"
+    sequences.count_from_one = 1
+    sequences.length = 10
+    for n in range(sequences.length):
+      sequences[n].mode.options = ("code","body","sequence")
+      sequences[n].mode.optiontitles = (
+       "Protein code (SwissProt)", 
+       "Automatic, from assembly body", 
+       "Manually entered sequence",
+      )                  
+    symmetry.name = "Symmetry definition"
+    bodies.length = 10
+    bodies.count_from_one = True
+    cryodata.name = "Experimental cryo-EM data"
+    simdata.name = "Simulated cryo-EM data" 
+    reference.name = "Reference structure"
+    cryozoom.name = "Assembly protocol parameters"    
+    interbodyrestraints.name = "Inter-body restraints"
+    interbodyrestraints.length = 10
+    k_abs_ori.name = "Force constant for absolute orientational restraints"
+    k_abs_ori.group = "Sampling parameters"
+    k_abs_trans.name = "Force constant for absolute translational restraints"    
+    k_abs_trans.group = "Sampling parameters"
+    k_ibr_ori.name = "Force constant for inter-body orientational restraints"
+    k_ibr_ori.group = "Sampling parameters"
+    k_ibr_trans.name = "Force constant for inter-body translational restraints"
+    k_ibr_trans.group = "Sampling parameters"
+    k_ibr_linker.name = "Force constant for inter-body linker restraints"
+    k_ibr_linker.group = "Sampling parameters"
+  }  
+  validate {
+    assert len(bodies)
+    assert len(sequences)  
+    for seqnr, seq in enumerate(sequences):
+      assert seq.mode != "partner", seqnr
+      if seq.mode == "body": 
+        assert seq.index <= len(bodies), seqnr
+        assert bodies[index-1].pdb is not None, seqnr    
+    for restnr, rest in enumerate(interbodyrestraints):
+      assert rest.cryobody1 <= len(bodies), restnr
+      assert bodies[rest.cryobody1-1].pdb is not None
+      assert rest.cryobody2 <= len(bodies), restnr
+      assert bodies[rest.cryobody2-1].pdb is not None
+  }  
+  error {
+    'assert len(bodies)'
+    =>
+    ''
+
+    'assert rest.cryobody1 <= len(bodies), restnr'
+    =>
+    ''
+
+    'assert bodies[index-1].pdb is not None, seqnr'
+    =>
+    ''
+
+    'assert bodies[rest.cryobody1-1].pdb is not None'
+    =>
+    ''
+
+    'assert bodies[rest.cryobody2-1].pdb is not None'
+    =>
+    ''
+
+    'assert rest.cryobody2 <= len(bodies), restnr'
+    =>
+    ''
+
+    'assert len(sequences)'
+    =>
+    ''
+
+    'assert seq.mode != "partner", seqnr'
+    =>
+    ''
+
+    'assert seq.index <= len(bodies), seqnr'
+    =>
+    ''
+  }
+}
+
+Define CryoBodyRun(CryoPartnerRun) partners2bodies
+Define AttractModel(CryoBodyRun) bodies2attractmodel
+
+#TODO: atom type mass table => sum of the EM map will be the mass of the sequence
+#TODO: positional restraints: rotation matrices as well, are they there yet?
+#TODO: remove menu interface from pdb2vol and include it in ATTRACT

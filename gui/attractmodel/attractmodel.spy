@@ -2,7 +2,7 @@ Type Data_ATTRACT_Structures:Data{}
 Type Data_ATTRACT_Rotations:Data{}
 Type Data_ATTRACT_Translations:Data{}
 Type Data_ATTRACT_Modes:Data{}
-Type Data_ATTRACT_CryoEM:Data{}
+Type Data_CryoEM_SITUS:Data{}
 
 Type Data_TXT_FileList_PDB:Data{}
 
@@ -53,7 +53,7 @@ Type AttractPartnerInterface {
   
   ## form chain.name = "Which chain of the structure must be used?"
   ## form chain.options = "All", "A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"
-  String chain
+  String chain = "All"
         
   #RestraintsInterface r = RestraintsInterface()
   ## #form r.name = "Restraint definition"
@@ -147,7 +147,7 @@ Type AttractPartnerInterface {
   }
 }
 
-Type AttractGrid {
+Type AttractGrid:Degenerate {
   String gridname = ""
   ## form gridname.name = "Name of this grid"
   validate {
@@ -182,13 +182,13 @@ Type AttractGrid {
 Type AttractIteration {
   ## form rcut.add_header("The nonbonded pairlist distance cutoff (rcut) (in A**2) during this iteration")
   *Float rcut = 1500
-  ## form vmax.add_header("The maximum number of energy minimization steps (vmax)") 
+  ## form vmax.add_header("The maximum number of energy minimization or Monte Carlo steps (vmax)") 
   *Integer vmax = 100
   ## form traj.add_header("Trajectory mode: only minimize the first structure, and output the structure after every minimization step")
   Bool traj = False
   validate {
-   assert rcut is None or rcut > 0
-   assert vmax is None or vmax > 0
+    assert rcut is None or rcut > 0
+    assert vmax is None or vmax > 0
   }  
   
   Bool mc = False
@@ -299,14 +299,14 @@ Type AttractModel {
 
   }
   validate {
-    if zoom is not None: assert zoom_select is not None
-    if zoom is not None: assert zoom_clone is not None
+    if zoom: assert zoom_select is not None
+    if zoom: assert zoom_clone is not None
     assert zoom_clone is None or zoom_clone > 1
-    if zoom is not None: assert zoom_ori is not None
-    if zoom is not None: assert zoom_trans is not None
-    if zoom is not None: assert zoom_it_initial is not None
+    if zoom: assert zoom_ori is not None
+    if zoom: assert zoom_trans is not None
+    if zoom: assert zoom_it_initial is not None
     if zoom_it_initial is not None: assert zoom_it_initial.traj == False
-    if zoom is not None and nr_iterations > 1: assert zoom_it_subsequent is not None
+    if zoom and nr_iterations > 1: assert zoom_it_subsequent is not None
     if zoom_it_subsequent is not None: assert zoom_it_subsequent.traj == False
   }
   #***Sampling parameters***
@@ -344,9 +344,8 @@ Type AttractModel {
       assert rotations_file is None
       assert translations_file is None
     else:
-      assert rotations_file is not None or \
-       translations_file is not None      
-      assert len(partners) == 2 
+      assert rotations_file is not None or translations_file is not None
+      assert len(partners) == 2
   }   
   form {
     fix_receptor.group = "Sampling parameters"
@@ -397,7 +396,7 @@ Type AttractModel {
   }
   #***
   
-  *ResourceData_ATTRACT_CryoEM cryoem_data
+  *ResourceData_CryoEM_SITUS cryoem_data
   form {
     cryoem_data.group = "Cryo-EM data"
     cryoem_data.type = "file"
@@ -419,7 +418,7 @@ Type AttractModel {
     cryoem_scoring_mode.name = "Cryo-EM scoring criterion"
     cryoem_scoring_mode.optiontitles = ("No separate scoring step with a higher-resolution map", "ATTRACT energy", "GVM score", "cross-correlation")
   }
-  *ResourceData_ATTRACT_CryoEM cryoem_scoring_data
+  *ResourceData_CryoEM_SITUS cryoem_scoring_data
   form {
     cryoem_scoring_data.group = "Cryo-EM data"
     cryoem_scoring_data.type = "file"
@@ -524,6 +523,145 @@ Type AttractModel {
     
     if calc_lrmsd: assert len(partners) == 2
     if calc_irmsd: assert len(partners) == 2
+  }
+  
+  error {
+    'if zoom: assert zoom_it_initial is not None'
+    =>
+    ''
+
+    'if zoom: assert zoom_trans is not None'
+    =>
+    ''
+
+    'if cryoem_scoring_mode is not None: assert cryoem_scoring_mode in ("no","attract","gvm","cc")'
+    =>
+    ''
+
+    'assert nr_iterations > 0'
+    =>
+    ''
+
+    'if dielec is not None: assert dielec in ("cdie", "rdie")'
+    =>
+    ''
+
+    'if zoom_it_initial is not None: assert zoom_it_initial.traj == False'
+    =>
+    ''
+
+    'assert rotations_file is None'
+    =>
+    ''
+
+    'if zoom: assert zoom_select is not None'
+    =>
+    ''
+
+    'if cryoem_data is None: assert cryoem_resolution is None'
+    =>
+    ''
+
+    'if cryoem_scoring_mode != "no": assert cryoem_scoring_data is not None'
+    =>
+    ''
+
+    'if forcefield is not None: assert forcefield in ("ATTRACT", "OPLSX")'
+    =>
+    ''
+
+    'if cryoem_scoring_resolution is not None: assert cryoem_scoring_resolution <= cryoem_resolution'
+    =>
+    ''
+
+    'if cryoem_scoring_data is not None: assert cryoem_data is not None'
+    =>
+    ''
+
+    'assert start_structures_file is None'
+    =>
+    ''
+
+    'if calc_irmsd: assert len(partners) == 2'
+    =>
+    ''
+
+    'assert nr_iterations >= len(iterations)'
+    =>
+    ''
+
+    'assert partner.gridname in gridnames, partner.gridname'
+    =>
+    ''
+
+    'if cryoem_scoring_data is not None: assert cryoem_scoring_resolution is not None'
+    =>
+    ''
+
+    'assert zoom_clone is None or zoom_clone > 1'
+    =>
+    ''
+
+    'assert len(partners) == 2'
+    =>
+    'You must define two docking partners, not {len(partners)}'
+
+    'if calc_lrmsd: assert len(partners) == 2'
+    =>
+    ''
+
+    'if zoom: assert zoom_clone is not None'
+    =>
+    ''
+
+    'if zoom: assert zoom_ori is not None'
+    =>
+    ''
+
+    'if zoom_it_subsequent is not None: assert zoom_it_subsequent.traj == False'
+    =>
+    ''
+
+    'if p.ensemblize == "custom": assert search == "custom"'
+    =>
+    ''
+
+    'if cryoem_data is not None: assert cryoem_resolution is not None'
+    =>
+    ''
+
+    'if search == "syst": assert len(partners) == 2'
+    =>
+    ''
+
+    'if search is not None: assert search in ("syst","random", "custom")'
+    =>
+    ''
+
+    'if zoom and nr_iterations > 1: assert zoom_it_subsequent is not None'
+    =>
+    ''
+
+    'assert rotations_file is not None or translations_file is not None'
+    =>
+    ''
+
+    'if cryoem_scoring_mode == "no": assert cryoem_scoring_data is None'
+    =>
+    ''
+
+    'assert translations_file is None'
+    =>
+    ''
+
+    'raise ValueError("The name of your run may contain only letters, digits, _ and -")'
+    =>
+    ''
+
+    'if cryoem_scoring_data is None: assert cryoem_scoring_resolution is None'
+    =>
+    ''
+    
   }
   
 }
