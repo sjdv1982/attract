@@ -155,6 +155,7 @@ if parse_arg(sys.argv):
     flexbeads, lenligands, atomlist = read(inputfiles)
     rcut = 3.0
     directory = os.path.split(inputfiles[1])[0]
+    if len(directory) == 0: directory = '.'
     inp = inputfiles[0].split('rl')[0]
     while (len(flexbeads[0])+len(flexbeads[1]))*3 > 1000 and rcut > 0:
         rcut -= 0.1
