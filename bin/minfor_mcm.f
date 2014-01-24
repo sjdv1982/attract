@@ -188,10 +188,10 @@ c     set some variables for the first iteration
        endif
        enddo      
 c       go to 256
-      else if (iscore.eq.2) then
-        call print_struc2(seed,label,gesa,energies,nlig,
-     1  ens,phi,ssi,rot,xa,ya,za,locrests,morph,
-     2  nhm,nihm,dlig,has_locrests,lablen)
+c      else if (iscore.eq.2) then
+c        call print_struc2(seed,label,gesa,energies,nlig,
+c     1  ens,phi,ssi,rot,xa,ya,za,locrests,morph,
+c     2  nhm,nihm,dlig,has_locrests,lablen)
       endif     
       
 110   fa=gesa
@@ -438,11 +438,11 @@ c     store this function value if it is the smallest so far
       if (gl2.ge.gl1) go to 220
 200   isfv=3
       gesa=fb
-      if (iscore.eq.2) then
-        call print_struc2(seed,label,gesa,energies,nlig,
-     1  ens,phi,ssi,rot,xa,ya,za,locrests,morph,
-     2  nhm,nihm,dlig,has_locrests,lablen)
-      endif           
+c      if (iscore.eq.2) then
+c        call print_struc2(seed,label,gesa,energies,nlig,
+c     1  ens,phi,ssi,rot,xa,ya,za,locrests,morph,
+c     2  nhm,nihm,dlig,has_locrests,lablen)
+c      endif           
       do i=1,jn
        g(i)=gb(i)
       enddo
@@ -513,11 +513,11 @@ c     at this stage the whole calculation is complete
       do i=jn0+1,jn
        delta(i) = deltamorph(i-jn0)
       enddo     
-      if (iscore.eq.2) then
-        call print_struc2(seed,label,gesa,energies,nlig,
-     1  ens,phi,ssi,rot,xa,ya,za,locrests,morph,
-     2  nhm,nihm,dlig,has_locrests,lablen)
-      endif     
+c     if (iscore.eq.2) then
+c        call print_struc2(seed,label,gesa,energies,nlig,
+c     1  ens,phi,ssi,rot,xa,ya,za,locrests,morph,
+c     2  nhm,nihm,dlig,has_locrests,lablen)
+c      endif     
 
       do 255 i=1,jn
 255   g(i)=-delta(i)

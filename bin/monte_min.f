@@ -48,7 +48,7 @@ c     integer dseed,i,ii,j,jj,k,kk,itr,nfun
       real*8 xnull
       real*8 scalecenter,scalemode,ensprob,scalerot,rr
       real*8 rotmat,randrot,newrot,sum
-      real*8 xaa,delta,deltamorph,bol1,bol2,pi,mctemp
+      real*8 xaa,delta,deltamorph,bol1,bol2,pi,mctemp,mcmtemp
       integer ensaa
       real*8 dseed
       dimension xaa(maxdof)
@@ -69,8 +69,9 @@ c     integer dseed,i,ii,j,jj,k,kk,itr,nfun
       enddo
 
       call ministate_f_monte_min(ministatehandle,
-     1 iscore,imcmax,iori,itra,ieig,iindex,fixre,gridmode,mctemp,
-     2 scalerot,scalecenter,scalemode,ensprob)
+     1 iscore,imcmax,iori,itra,ieig,iindex,fixre,gridmode,
+     2 mctemp,mcmtemp,
+     3 scalerot,scalecenter,scalemode,ensprob)
 
 c     calculate only energies
       iab = 0
@@ -134,7 +135,7 @@ c store old Euler angle, position and ligand and receptor coordinates
 c
 c phi,ssi,rot for first molecule are fixed!
 
-      write(ERROR_UNIT,*)'step',ijk
+c      write(ERROR_UNIT,*)'step',ijk
 
       if(iaccept.eq.1) then
       ensaa(i)=ens(i)
@@ -186,9 +187,9 @@ c if ligand flex is included store deformation factor in every mode in dlig(j)
 
 c     store coordinates of accepted mc-step
 
-      call print_struc2(seed,label,gesa,energies,nlig,
-     1  ens,phi,ssi,rot,xa,ya,za,locrests,morph,
-     2  nhm,nihm,dlig,has_locrests,lablen)
+c      call print_struc2(seed,label,gesa,energies,nlig,
+c     1  ens,phi,ssi,rot,xa,ya,za,locrests,morph,
+c     2  nhm,nihm,dlig,has_locrests,lablen)
 
       endif
 c old Cartesians are not stored!
@@ -316,14 +317,25 @@ c     3 enew, energies0, lablen)
 c      write(ERROR_UNIT,*)'after min',enew
 c  new energy
 c      write (*,*),'Energy2', enew
+
+      bol2=enew-gesa
+
+      if(bol2.lt.mcmtemp) then
+
+      call minfor_mcm(cartstatehandle,ministatehandle,
+     1 nhm, nihm, nlig, ens, phi, ssi, rot, xa, ya, za, morph, dlig,
+     2 locrests, has_locrests, seed, label,
+     3 enew, energies0, lablen)
+
+c      write(ERROR_UNIT,*)'minimized',enew,mcmtemp
+      endif
+
       bol1=enew-gesa
-      bol2=(enew-gesa)*2.0d0
       if (mctemp.eq.0) then
       bol1=sign(1.0d0,-bol1)
-      bol2=sign(1.0d0,-bol2)
       else
       bol1=exp(-bol1/mctemp)
-      bol2=exp(-bol2/mctemp)
+c      bol2=exp(-bol2/mcmtemp)
 c      write(ERROR_UNIT,*)'bol1, bol2',bol1,bol2
       endif
 c      write(*,*)'exp(bol)',enew,gesa,enew-gesa,bol
@@ -339,25 +351,18 @@ c    2 rrot1,rrot2,rrot3,rrot4,sphi,phi(2),sssi,ssi(2),srot,rot(2)
       gesa=enew
       energies(:)=energies0(:)
 
+c      write(ERROR_UNIT,*)'mc step accepted',enew
 
 
-      write(ERROR_UNIT,*)'mc step accepted',enew
+c      call minfor_mcm(cartstatehandle,ministatehandle,
+c     1 nhm, nihm, nlig, ens, phi, ssi, rot, xa, ya, za, morph, dlig,
+c     2 locrests, has_locrests, seed, label,
+c     3 enew, energies0, lablen)
 
+c      gesa=enew
+c      energies(:)=energies0(:)
 
-      if(bol2.gt.rr(2)) then
-
-
-      call minfor_mcm(cartstatehandle,ministatehandle,
-     1 nhm, nihm, nlig, ens, phi, ssi, rot, xa, ya, za, morph, dlig,
-     2 locrests, has_locrests, seed, label,
-     3 enew, energies0, lablen)
-
-      gesa=enew
-      energies(:)=energies0(:)
-
-      write(ERROR_UNIT,*)'minimized',enew
-
-      endif
+c      endif
 
 
       iaccept=1
@@ -420,10 +425,10 @@ c if ligand flex is included store deformation factor in every mode in dlig(j)
        endif
       enddo
 
-c      write(ERROR_UNIT,*)'end of loop'
+
  4000 continue
 
 c     Clean up
       call ministate_free_pairlist(ministatehandle)
-c      write(ERROR_UNIT,*)'end of monte_min'
+
       end

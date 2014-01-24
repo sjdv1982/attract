@@ -344,6 +344,7 @@ int main(int argc, char *argv[]) {
      has_locrests,     
      lablen
     );
+
   }    
   extern char *shmlinks[100];
   extern int shmlinkcount;

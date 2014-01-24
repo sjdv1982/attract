@@ -19,7 +19,8 @@ extern "C" int ministate_new_() {
   ministatesize++;
   //default settings
   ms.imc = 0;
-  ms.mctemp = 3.5;
+  ms.mctemp = 1.0;
+  ms.mcmtemp = 15.0;
   ms.mcscalerot = 0.05;
   ms.mcscalecenter = 0.1;
   ms.mcscalemode = 3;
@@ -82,11 +83,11 @@ extern "C" void ministate_f_monte_(const int &handle, int &iscore, int &imcmax, 
   mctemp = ms.mctemp; mcscalerot = ms.mcscalerot; mcscalecenter = ms.mcscalecenter; mcscalemode = ms.mcscalemode; mcensprob = ms.mcensprob;
 }
 
-extern "C" void ministate_f_monte_min_(const int &handle, int &iscore, int &imcmax, int &iori, int &itra, int &ieig, int &iindex, int &fixre, int &gridmode, double &mctemp, double &mcscalerot, double &mcscalecenter, double &mcscalemode, double &mcensprob) {
+extern "C" void ministate_f_monte_min_(const int &handle, int &iscore, int &imcmax, int &iori, int &itra, int &ieig, int &iindex, int &fixre, int &gridmode, double &mctemp, double &mcmtemp, double &mcscalerot, double &mcscalecenter, double &mcscalemode, double &mcensprob) {
   MiniState &ms = *ministates[handle];
   iscore=ms.iscore; imcmax = ms.imcmax;iori = ms.iori;itra = ms.itra;ieig = ms.ieig; iindex=ms.iindex;
   fixre = ms.fixre; gridmode = ms.gridmode;
-  mctemp = ms.mctemp; mcscalerot = ms.mcscalerot; mcscalecenter = ms.mcscalecenter; mcscalemode = ms.mcscalemode; mcensprob = ms.mcensprob;
+  mctemp = ms.mctemp; mcmtemp = ms.mcmtemp; mcscalerot = ms.mcscalerot; mcscalecenter = ms.mcscalecenter; mcscalemode = ms.mcscalemode; mcensprob = ms.mcensprob;
 }
 
 extern "C" void ministate_f_disre_(const int &handle, int &gravity, double &rstk) {
