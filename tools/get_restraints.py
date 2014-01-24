@@ -20,11 +20,13 @@ def make_interfacelist(ilist, pdb):
     # Make list of corresponding atoms
     receptor = []
     receptorid = []
+    count = 0
     for line in open(pdb):
         tmp = line.replace('-',' -')
         list = tmp.split()
         if len(list) > 0 and list[0] == 'ATOM':
-            receptor.append((int(list[1]),int(list[4]),float(list[5]),float(list[6]),float(list[7])))
+	    count += 1
+            receptor.append((count,int(list[4]),float(list[5]),float(list[6]),float(list[7])))
             receptorid.append((list[3],list[4],list[2],list[1]))
             
     ratoms = []
