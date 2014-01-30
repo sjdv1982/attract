@@ -13,8 +13,9 @@ def serve_upload():
   typ, content = spyder.core.parse(data)
   if typ != "AttractModel": raise ValueError(typ) ### TODO, nice error message
   model = attractmodel.AttractModel.fromdict(content)
-  resources.embed(model)
   import random
+  from spyder.formtools import embed
+  embed(model)   
   mydir = "run" + str(random.randint(1,1000000))  
   fname = "attract.web"
   os.chdir(localdir + resultdir)
@@ -51,7 +52,6 @@ try:
   import attractmodel
   import attracthtmlform
   import form
-  import resources
 
   r = serve_upload()
   print r

@@ -56,6 +56,7 @@ import subprocess
 def prepare_input(start,pdbA,pdbB,current,name,attracttools):
   current = str(current)
   directorypath = os.path.split(pdbA)[0]
+  if not len(directorypath): directorypath = "."
   subprocess.call(attracttools+'/../bin/collect '+start+' '+pdbA+' '+pdbB+' > '+directorypath+'/'+current+name+'.pdb',shell=True)
   subprocess.call(['python',attracttools+'/interface.py',directorypath+'/'+current+name+'.pdb',directorypath,current+name])
   if not os.path.exists(directorypath+'/'+current+name+'rlist.txt'):
@@ -78,6 +79,7 @@ def prepare_input(start,pdbA,pdbB,current,name,attracttools):
 #prepare input for run with global interface list
 def prepare_input2(pdbA,pdbB,rlist,llist,name,attracttools):
   directorypath = os.path.split(pdbA)[0]  
+  if not len(directorypath): directorypath = "."
   subprocess.call(['python',attracttools+'/cartmode.py',name,rlist,pdbA,llist,pdbB])
   subprocess.call(['python',attracttools+'/get_restraints.py',directorypath,pdbA,rlist,name])
   lenA = read_file(pdbA)
