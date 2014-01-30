@@ -528,7 +528,7 @@ echo '**************************************************************'
 """ % bb_str      
   
     fixresult = None 
-    if m.fix_receptor == False: 
+    if m.fix_receptor == False or m.search == "random": 
       fixresult = result + "-fixre"
       ret += "$ATTRACTDIR/fix_receptor %s %d%s > %s\n" % (result, len(m.partners), flexpar, fixresult)
       result = fixresult

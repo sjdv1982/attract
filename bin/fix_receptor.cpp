@@ -92,6 +92,7 @@ int main(int argc, char *argv[]) {
         nhm[count] = atoi(argv[3]);
         count++;
       }
+      argc--;     
       continue;          
     }
     if (!strcmp(argv[3],"--ens")) {
@@ -103,6 +104,20 @@ int main(int argc, char *argv[]) {
         nrens[count] = atoi(argv[3]);
         count++;
       }
+      argc--;     
+      continue;
+    }
+    if (!strcmp(argv[3],"--ens")) {
+      int count = 0;
+      while (argc > 4) {
+        memmove(argv+3, argv+4, sizeof(char*) * (argc-3));
+        argc--;      
+        if (!strncmp(argv[3],"--",2)) break;      
+        nrens[count] = atoi(argv[3]);
+	fprintf(stderr,"%d\n",nrens[count]);
+        count++;
+      }
+      argc--;
       continue;
     }
     if (argc > 4 && (!strcmp(argv[3],"--locrest"))) {
@@ -116,11 +131,11 @@ int main(int argc, char *argv[]) {
       argc -= 2;      
       continue;
     }
-    fprintf(stderr, "Wrong number of arguments\n"); usage();
+    fprintf(stderr, "1-Wrong number of arguments %d\n", argc); usage();
   }  
 
   if (argc != 3) {
-    fprintf(stderr, "Wrong number of arguments\n"); usage();
+    fprintf(stderr, "2-Wrong number of arguments\n"); usage();
   }
   if (!exists(argv[1])) {
     fprintf(stderr, "File %s does not exist\n", argv[1]);
