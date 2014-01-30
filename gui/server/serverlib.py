@@ -8,17 +8,21 @@ def serve_attract(spydertype, formlib, deploy):
   import spyder
   import spyder.htmlform
   from spyder.formtools import embed
+  import pprint
+  import traceback
   webform = spyder.htmlform.dict_from_fieldstorage(cgi.FieldStorage())
   f = formlib.webserverform(webform, spydertype=spydertype)
   
   resourcemodel = None  
   if "_tmpresource" in webform:
-    tmpf = webform["_tmpresource"].value    
-    resourcemodel = spydertype.fromfile(tmpf)    
-    nr_iterations = max( len(resourcemodel.iterations) , nr_iterations )    
+    tmpf = "/tmp/" + webform["_tmpresource"]
+    resourcemodel = spydertype.fromfile(tmpf)
   webdict = spyder.htmlform.cgi(webform,f,resourcemodel)  
-  newmodel = spydertype.fromdict(webdict)
-  embed.embed(newmodel)
+  try:
+    newmodel = spydertype.fromdict(webdict)
+  except:    
+    raise ValueError(traceback.format_exc() + "\n" + pprint.pformat(webform) + "\n" + pprint.pformat(webdict))
+  embed(newmodel)
   import random
   mydir = "run" + str(random.randint(1,1000000))
   fname = "attract.web"
