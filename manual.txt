@@ -137,7 +137,7 @@ For the exact command line syntax: just invoke the program without any arguments
 Collect takes now as input a DOF file + one or more PDBs.
 There is a difference in the result whether you supply one or two PDBs.
 If you supply one PDB, it must be in reduced format, with the first line containing the number of structures (see the PDB section above). The structures are printed one after another.
-If you supply two or more PDBs, they can be in any format you like (reduced, full-atom, ...). The structures will be separated with MODEL/ENMDL lines.
+If you supply two or more PDBs, they can be in any format you like (reduced, full-atom, ...). The structures will be separated with MODEL/ENDMDL lines.
 You can also provide a --modes <mode file> option, to read in and apply normal 
 modes in the same way as ATTRACT does. See the Normal modes section for more details.
 Collect has some sanity checks that you provide the correct number of structures and normal modes.
@@ -208,7 +208,7 @@ Old tools
 
 Those I didn't touch, ask Martin how they work :-)
 
-translate
+translate	#Find starting points arround receptor, to place the center of ligand
 rotam
 modes
 modesca
