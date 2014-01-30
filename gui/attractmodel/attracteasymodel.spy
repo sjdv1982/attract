@@ -29,6 +29,20 @@ Type AttractEasyPartnerInterface {
     else:
       if rmsd_pdb is None: raise spyder.core.ValidationError("You need to define an PDB for RMSD calculation, or disable it")
   }
+   error {
+    'if rmsd_pdb is not None: raise spyder.core.ValidationError("You defined an PDB for RMSD calculation, which you disabled")'
+    =>
+    ''
+
+    'if nr_modes not in (None, 0): assert nr_modes >= 1 and nr_modes <= 10'
+    =>
+    ''
+
+    'if rmsd_pdb is None: raise spyder.core.ValidationError("You need to define an PDB for RMSD calculation, or disable it")'
+    =>
+    ''
+
+  } 
 }
 
 
