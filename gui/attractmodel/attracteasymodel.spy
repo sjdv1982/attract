@@ -36,7 +36,7 @@ Type AttractEasyPartnerInterface {
 
     'if nr_modes not in (None, 0): assert nr_modes >= 1 and nr_modes <= 10'
     =>
-    ''
+    'Number of harmonic modes must be between 1 and 10'
 
     'if rmsd_pdb is None: raise spyder.core.ValidationError("You need to define an PDB for RMSD calculation, or disable it")'
     =>
