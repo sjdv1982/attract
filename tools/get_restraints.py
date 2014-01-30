@@ -20,14 +20,13 @@ def make_interfacelist(ilist, pdb):
     # Make list of corresponding atoms
     receptor = []
     receptorid = []
-    count = 0
-    for line in open(pdb):
+    data = open(pdb).readlines()
+    data = [x for x in data if 'ATOM' in x]
+    for count,line in enumerate(data):
         tmp = line.replace('-',' -')
         list = tmp.split()
-        if len(list) > 0 and list[0] == 'ATOM':
-	    count += 1
-            receptor.append((count,int(list[4]),float(list[5]),float(list[6]),float(list[7])))
-            receptorid.append((list[3],list[4],list[2],list[1]))
+        receptor.append((count+1,int(list[4]),float(list[5]),float(list[6]),float(list[7])))
+        receptorid.append((list[3],list[4],list[2],list[1]))
             
     ratoms = []
     if len(rlist) > 0:
@@ -37,15 +36,20 @@ def make_interfacelist(ilist, pdb):
                  
     return ratoms, receptor, receptorid  
 
-def find_neighbors(atom, xr, sigma2, c, rc2):   
+from scipy.spatial.distance import cdist
+def find_neighbors(atom, xr, sigma2, c, rc):   
     tmp0, tmp1, x0, y0, z0  = xr[atom-1]
+    r1 = np.matrix([[x0,y0,z0]])
+    r2 = [[x,y,z] for id, res, x, y, z in xr]
+    r2 = np.matrix(r2)
+    Y = cdist(r1,r2,'euclidean')
     nlist = []
-    for id, res, x, y, z in xr:
-        if id != atom:
-             r2 = (x0-x)**2 + (y0-y)**2 + (z0-z)**2
-             #detect atoms in vicinity
-             if r2 < rc2: 
-                 nlist.append((atom, id, math.sqrt(r2)))
+    for j in range(len(xr)):
+        if j == atom-1:
+	  continue
+        dist = Y[0][j]
+        if dist < rc:
+            nlist.append((atom, j+1, dist))
                  
     return nlist
   
@@ -73,8 +77,7 @@ def make_model(filelist,nlistcut=30):
         nlist = []
         rc = 5.0
         while len(nlist) < nlistcut:
-            rc2 = rc*rc
-            nlist = find_neighbors(atom, atomlist, 9.0, c, rc2)
+            nlist = find_neighbors(atom, atomlist, 9.0, c, rc)
             rc += 1.0
             
         for item in nlist:

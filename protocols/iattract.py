@@ -56,19 +56,25 @@ import subprocess
 def prepare_input(start,pdbA,pdbB,current,name,attracttools):
   current = str(current)
   directorypath = os.path.split(pdbA)[0]
-  if not len(directorypath): directorypath = "."
+  if len(directorypath) == 0: directorypath = '.'
   subprocess.call(attracttools+'/../bin/collect '+start+' '+pdbA+' '+pdbB+' > '+directorypath+'/'+current+name+'.pdb',shell=True)
   subprocess.call(['python',attracttools+'/interface.py',directorypath+'/'+current+name+'.pdb',directorypath,current+name])
+  count = 0
   if not os.path.exists(directorypath+'/'+current+name+'rlist.txt'):
     out = open(directorypath+'/'+current+name+'rlist.txt','w')
     out.write('#no flexible residues')
     out.close()
+    count += 1
   
   if not os.path.exists(directorypath+'/'+current+name+'llist.txt'):
     out = open(directorypath+'/'+current+name+'llist.txt','w')
     out.write('#no flexible residues')
     out.close()
+    count += 1
     
+  if count == 2:
+    return ("","","")
+  
   subprocess.call(['python',attracttools+'/cartmode.py',current+name,directorypath+'/'+current+name+'rlist.txt',pdbA,directorypath+'/'+current+name+'llist.txt',pdbB])
   subprocess.call(['python',attracttools+'/get_restraints.py',directorypath,pdbA,directorypath+'/'+current+name+'rlist.txt',current+name])
   lenA = read_file(pdbA)
@@ -79,7 +85,7 @@ def prepare_input(start,pdbA,pdbB,current,name,attracttools):
 #prepare input for run with global interface list
 def prepare_input2(pdbA,pdbB,rlist,llist,name,attracttools):
   directorypath = os.path.split(pdbA)[0]  
-  if not len(directorypath): directorypath = "."
+  if len(directorypath) == 0: directorypath = '.'
   subprocess.call(['python',attracttools+'/cartmode.py',name,rlist,pdbA,llist,pdbB])
   subprocess.call(['python',attracttools+'/get_restraints.py',directorypath,pdbA,rlist,name])
   lenA = read_file(pdbA)
@@ -93,6 +99,7 @@ def run_docking(datain):
   restfile1 = ''
   restfile2 = ''
   directory = os.path.split(args[1])[0]
+  if len(directory) == 0: directorypath = '.'
   attracttools = os.path.split(attract)[0]+'/../tools'
   if otf:
     imodefile, restfile1, restfile2 = prepare_input(start,args[1],args[2],current,name,attracttools)
@@ -102,6 +109,11 @@ def run_docking(datain):
     restfile1 = os.path.splitext(args[1])[0]+'_'+name+'.txt'
     restfile2 = os.path.splitext(args[2])[0]+'_'+name+'.txt'
     
+  if imodefile == '':
+    com = "cp %s %s" %(start,outp)
+    print "No flexible residues for %s, skipping..." % start
+    run(com)
+    return
     
   com = " ".join([attract,start]+args+['--imodes',imodefile,'--rest',restfile1,'--rest',restfile2]) + " > %s " % outp
   run(com)
@@ -182,6 +194,7 @@ if name is None:
   raise ValueError("You must specify a name for the run with --name")
 
 attractdir0 = os.path.split(sys.argv[0])[0]
+if len(attractdir0) == 0: attractdir0 = '.'
 tooldir = attractdir0 + "/../tools"
 attractdir = attractdir0 + "/../bin"
 
