@@ -1,11 +1,9 @@
-      subroutine monte(maxatom,totmaxatom,maxres,
-     1 totmaxres,maxlig, maxdof, maxmode, maxmolpair,
-     2 cartstatehandle,ministatehandle,
-     3 nhm, nlig, 
-     4 ens, phi, ssi, rot, xa, ya, za, morph, dlig, 
-     5 locrests, has_locrests,
-     6 seed, label,
-     7 gesa, energies, lablen)
+      subroutine monte(cartstatehandle,ministatehandle,
+     1 nhm, nihm, nlig,
+     2 ens, phi, ssi, rot, xa, ya, za, morph, dlig,
+     3 locrests, has_locrests,
+     4 seed, label,
+     5 gesa, energies, lablen)
 c
 c  variable metric minimizer (Harwell subroutine lib.  as in Jumna with modifications)
 c     minimizes a single structure
@@ -14,8 +12,7 @@ c     minimizes a single structure
 
 c     Parameters
       integer cartstatehandle,ministatehandle
-      integer maxlig,maxatom,totmaxatom,maxres,maxdof,maxmode,
-     1 maxmolpair,totmaxres
+      include 'max.fin'
       integer nlig, seed
       real*8 locrests
       dimension locrests(3,maxlig)
@@ -29,11 +26,13 @@ c     Parameters
       
       integer nhm
       dimension nhm(maxlig)
+      integer nihm
+      dimension nihm(maxlig)
       integer ens
       dimension ens(maxlig)
       real*8 phi, ssi, rot, dlig, xa, ya, za, morph
       dimension phi(maxlig), ssi(maxlig), rot(maxlig)
-      dimension dlig(maxmode, maxlig)
+      dimension dlig(maxmode+maxindexmode, maxlig)
       dimension xa(maxlig), ya(maxlig), za(maxlig)
       dimension morph(maxlig)      
 
@@ -43,8 +42,8 @@ c     Local variables
       dimension energies0(6)
 c     integer dseed,i,ii,j,jj,k,kk,itr,nfun
       integer i,ii,j,jj,k,kk,itr,nfun
-      integer itra, ieig, iori, fixre, gridmode,iscore,ivmax
-      integer ju,ju0,jl,jb,nmodes
+      integer itra, ieig, iindex, iori, fixre, gridmode,iscore,ivmax
+      integer ju,ju0,jl,jb,nmodes,nimodes, jn, jn0
       integer iab,ijk,iaccept
       real*8 xnull
       real*8 scalecenter,scalemode,ensprob,scalerot,rr
@@ -60,6 +59,7 @@ c     integer dseed,i,ii,j,jj,k,kk,itr,nfun
       dimension nrens(maxlig)
       pointer(ptr_nrens,nrens)
       real*8 neomorph
+      integer, parameter :: ERROR_UNIT = 0
       pi=3.141592654d0
 
       do i=1, maxlig      
@@ -67,7 +67,7 @@ c     integer dseed,i,ii,j,jj,k,kk,itr,nfun
       enddo
       
       call ministate_f_monte(ministatehandle,
-     1 iscore,ivmax,iori,itra,ieig,fixre,gridmode,mctemp,
+     1 iscore,ivmax,iori,itra,ieig,iindex,fixre,gridmode,mctemp,
      2 scalerot,scalecenter,scalemode,ensprob)
      
 c     always calculate only energies
@@ -79,15 +79,18 @@ c
       jb=3*iori*(nlig-fixre)+3*itra*(nlig-fixre)
 c  all variables including lig-hm
       nmodes = 0
+      nimodes = 0
       do 5 i=fixre, nlig
       nmodes = nmodes + nhm(i)
-5     continue
+      nimodes = nimodes + nihm(i)
+    5 continue
       ju=jb+ieig*nmodes
-      
+      jn = ju + iindex*nimodes
       ju0=ju
+      jn0 = jn
       do i=1,nlig
       if (morph(i).ge.0) then
-      ju = ju + 1
+      jn = jn + 1
       endif
       enddo      
       
@@ -109,18 +112,16 @@ c     dseed=seed
       endif
 c intial energy evaluation      
 c
-      call energy(maxdof,maxmolpair,
-     1 maxlig, maxatom,totmaxatom,maxmode,maxres,
-     2 totmaxres,cartstatehandle,ministatehandle,
-     3 iab,iori,itra,ieig,fixre,gridmode,
-     4 ens,phi,ssi,rot,xa,ya,za,morph,dlig,
-     5 locrests, has_locrests, seed,
-     6 gesa,energies,delta,deltamorph)
+      call energy(cartstatehandle,ministatehandle,
+     1 iab,iori,itra,ieig,iindex,fixre,gridmode,
+     2 ens,phi,ssi,rot,xa,ya,za,morph,dlig,
+     3 locrests, has_locrests, seed,
+     4 gesa,energies,delta,deltamorph)
        
       if (iscore.eq.2) then
         call print_struc2(seed,label,gesa,energies,nlig,
      1  ens,phi,ssi,rot,xa,ya,za,locrests,morph,
-     2  nhm,dlig,has_locrests,lablen)	
+     2  nhm,nihm,dlig,has_locrests,lablen)
       endif     
       
 c   start Monte Carlo
@@ -147,7 +148,7 @@ c phi,ssi,rot for first molecule are fixed!
       xaa(ii+3)=za(i)
   122 continue
       endif
-      jj = ju0
+      jj = jn0
       do i=1,nlig
        if (morph(i).ge.0) then
         xaa(jj+1) = morph(i)
@@ -166,6 +167,17 @@ c if ligand flex is included store deformation factor in every mode in dlig(j)
       jj = jj + nhm(j)
   130 continue
       endif
+
+      if(iindex.eq.1) then
+      jj = 0
+      do 140 j=1,nlig
+      do 141 i=1,nihm(j)
+      xaa(ju0+jj+i)= dlig(ju0+i,j)
+  141 continue
+      jj = jj + nihm(j)
+  140 continue
+      endif
+
       endif
 c old Cartesians are not stored!
 c generate a total of ju random numbers
@@ -234,7 +246,7 @@ c       write(*,*)'new ii,c,phi,ssi,rot',i,ii,c,phi(i),ssi(i),rot(i)
       endif
 c make a move in HM direction and update x, y(1,i) and y(2,i) and dlig(j)
 c     call crand(dseed,ju+1,rr) 
-      call GGUBS(dseed,ju+1,rr) 
+      call GGUBS(dseed,jn+1,rr)
 c     dseed = int(10000*rr(ju+1))
       if(ieig.eq.1) then
       kk = 0
@@ -242,8 +254,17 @@ c     dseed = int(10000*rr(ju+1))
       do 1200 i=1,nhm(k)
       dlig(i,k)=xaa(i+jb+kk)+scalemode*(rr(i+jb+kk)-0.5d0)
  1200 continue
- 1180 kk = kk + nhm(k)
-      continue 
+      kk = kk + nhm(k)
+ 1180 continue
+      endif
+      if(iindex.eq.1) then
+      kk = 0
+      do 1280 k=1,nlig
+      do 1300 i=1,nihm(k)
+      dlig(ju0+i,k)=xaa(i+ju0+kk)+scalemode*(rr(i+ju0+kk)-0.5d0)
+ 1300 continue
+      kk = kk+ nihm(k)
+ 1280 continue
       endif
 c make a translation of the ligand center
       if(itra.eq.1) then
@@ -258,7 +279,7 @@ c    1 rr(ii+1),rr(ii+2),rr(ii+3),xaa(ii+1),xaa(ii+2),xaa(ii+3)
  1220 continue
       endif
       
-      jj = ju0
+      jj = jn0
       do i=1,nlig
        if (morph(i).ge.0) then
         neomorph = morph(i)+scalemode*(0.5d0-rr(ii+1))
@@ -269,18 +290,13 @@ c    1 rr(ii+1),rr(ii+2),rr(ii+3),xaa(ii+1),xaa(ii+2),xaa(ii+3)
        endif      
       enddo
       
-      do 183 i=1,3
-c      write (*,*),'lig',i,phi(i),ssi(i),rot(i),xa(i),ya(i),za(i)
-  183 continue
-      call energy(maxdof,maxmolpair,
-     1 maxlig, maxatom,totmaxatom,maxmode,maxres,
-     2 totmaxres,cartstatehandle,ministatehandle,
-     3 iab,iori,itra,ieig,fixre,gridmode,
-     4 ens,phi,ssi,rot,xa,ya,za,morph,dlig,
-     5 locrests, has_locrests, seed,
-     6 enew,energies0,delta,deltamorph)
+      call energy(cartstatehandle,ministatehandle,
+     1 iab,iori,itra,ieig,iindex,fixre,gridmode,
+     2 ens,phi,ssi,rot,xa,ya,za,morph,dlig,
+     3 locrests, has_locrests, seed,
+     4 enew,energies0,delta,deltamorph)
 c  new energy 
-c      write (*,*),'Energy2', enew 
+c      write (ERROR_UNIT,*),'Energy2', enew 
       bol=enew-gesa
       if (mctemp.eq.0) then
       bol=sign(1.0d0,-bol)
@@ -292,7 +308,7 @@ c     call crand(dseed,2,rr)
       call GGUBS(dseed,2,rr)
 c     dseed = int(10000*rr(2))
       if(bol.gt.rr(1)) then
-c      write(*,*)'accept the step', bol, rr(1)
+c      write(ERROR_UNIT,*)'accept the step', bol, rr(1)
 c     write(*,*)
 c    1 'rrot1,rrot2,rrot3,rrot4,sphi,phi(i),sssi,ssi(i),srot,rot(i)',
 c    2 rrot1,rrot2,rrot3,rrot4,sphi,phi(2),sssi,ssi(2),srot,rot(2)
@@ -302,12 +318,12 @@ c    2 rrot1,rrot2,rrot3,rrot4,sphi,phi(2),sssi,ssi(2),srot,rot(2)
       if (iscore.eq.2) then
         call print_struc2(seed,label,gesa,energies,nlig,
      1  ens,phi,ssi,rot,xa,ya,za,locrests,morph,
-     2  nhm,dlig,has_locrests,lablen)	
+     2  nhm,nihm,dlig,has_locrests,lablen)
       endif           
 c overwrite old xaa variables, see above
       else
 c do not overwrite xaa variables
-c      write(*,*)' step rejected'
+c      write(ERROR_UNIT,*)' step rejected'
       iaccept=0
       ens(i)=ensaa(i)
       if(iori.eq.1) then
@@ -338,15 +354,26 @@ c if ligand flex is included store deformation factor in every mode in dlig(j)
       jj = jj + nhm(j)
   230 continue
       endif
-      endif 
 
-      jj = ju0
+      if(iindex.eq.1) then
+      jj = 0
+      do 240 j=1,nlig
+      do 241 i=1,nihm(j)
+      dlig(nhm(j)+i,j)=xaa(ju0+jj+i)
+  241 continue
+      jj = jj + nihm(j)
+  240 continue
+      endif
+      endif
+
+      jj = jn0
       do i=1,nlig
        if (morph(i).ge.0) then
         morph(i) = xaa(jj+1)
         jj = jj + 1
        endif      
       enddo
+
 
  4000 continue
 

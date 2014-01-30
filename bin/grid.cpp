@@ -487,7 +487,8 @@ inline void trilin(
   double ax = (d[0]-g.ori[0])/g.gridspacing;
   double ay = (d[1]-g.ori[1])/g.gridspacing;
   double az = (d[2]-g.ori[2])/g.gridspacing;
-
+  //std::cerr << "Ligand position " << d[0] << " " << d[1] << " " << d[2] << "\n";
+  //std::cerr << "Grid " << ax << " " << ay << " " << az << "\n";
   bool chargenonzero = (fabs(charge0) > 0.001);
 
   double aax = (ax+g.gridextension)/2;  
@@ -510,7 +511,7 @@ inline void trilin(
   else {
     gx = g.gridx; gy = g.gridy; 
   }
-
+ // std::cerr << "Grid points " << ax << " " << ay << " " << az << "\n";
   if (g.nr_energrads) {
     int px0 = floor(ax);  
     int px1 = ceil(ax);
@@ -529,21 +530,29 @@ inline void trilin(
     wx1 *= wel; wy1 *= wel; wz1 *= wel;
 
     Potential *p;
+ //   std::cerr << "Add potential px0 etc " << px0 << " " << px1 << " " <<py0 << " " << py1 << " " << pz0 << " " << pz1 << "\n";
     if (inside) {
       p = &g.innergrid[px0+gx*py0+gx*gy*pz0].potential;
       add_potential(g.energrads, *p,iab,charge,atomtype,wx0*wy0*wz0, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
+   //   std::cerr << evdw << " " << px0+gx*py0+gx*gy*pz0 << "\t";
       p = &g.innergrid[px0+gx*py0+gx*gy*pz1].potential;
       add_potential(g.energrads, *p,iab,charge,atomtype,wx0*wy0*wz1, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
+  //    std::cerr << evdw << " " << px0+gx*py0+gx*gy*pz1<< "\t";
       p = &g.innergrid[px0+gx*py1+gx*gy*pz0].potential;
       add_potential(g.energrads, *p,iab,charge,atomtype,wx0*wy1*wz0, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
+  //    std::cerr << evdw << " " << px0+gx*py1+gx*gy*pz0<< "\t";
       p = &g.innergrid[px0+gx*py1+gx*gy*pz1].potential;
       add_potential(g.energrads, *p,iab,charge,atomtype,wx0*wy1*wz1, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
+ //     std::cerr << evdw << " " << px0+gx*py1+gx*gy*pz1<< "\t";
       p = &g.innergrid[px1+gx*py0+gx*gy*pz0].potential;
       add_potential(g.energrads, *p,iab,charge,atomtype,wx1*wy0*wz0, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
+  //    std::cerr << evdw << "\t";
       p = &g.innergrid[px1+gx*py0+gx*gy*pz1].potential;
       add_potential(g.energrads, *p,iab,charge,atomtype,wx1*wy0*wz1, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
+//      std::cerr << evdw << "\t";
       p = &g.innergrid[px1+gx*py1+gx*gy*pz0].potential;
       add_potential(g.energrads, *p,iab,charge,atomtype,wx1*wy1*wz0, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
+  //    std::cerr << evdw << "\t";
       p = &g.innergrid[px1+gx*py1+gx*gy*pz1].potential;
       add_potential(g.energrads, *p,iab,charge,atomtype,wx1*wy1*wz1, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
     }
@@ -566,7 +575,7 @@ inline void trilin(
       add_potential2(g.energrads, *p,iab,charge,atomtype,wx1*wy1*wz1, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
     }
   }
-  
+ // std::cerr << "After adding potential " << evdw << "\n";
   if (inside) {
     int pxj = floor(ax+0.5);
     int pyj = floor(ay+0.5);
@@ -586,6 +595,9 @@ inline void trilin(
 		      };
 	  
 	  double dsq = dis[0]*dis[0]+dis[1]*dis[1]+dis[2]*dis[2];
+	  if (dsq < 2.0){
+	//   std::cerr << nb.index << "\t" << d[0] << "\t" << d[1] << "\t" << d[2] << "\t" << dd[0] << "\t" << dd[1] << "\t" << dd[2] << "\n"; 
+	  }
           if (dsq > g.plateaudissq) continue;
 	  int atomtype2 = iacir[nb.index]-1;
 	  double ww = wel * wer[nb.index];
@@ -638,7 +650,7 @@ inline void trilin(
 	      gradr[1] -= grad0[1];
 	      gradr[2] -= grad0[2];
             }
-
+//	    std::cerr << "New vdW energy " << evdw << " = oldenergy + " << evdw0 << "\n";
             bool calc_elec = 0;
             double c;
 	    if (chargenonzero) {
@@ -666,7 +678,8 @@ inline void trilin(
 		gradr[1] += grad0[1];
 		gradr[2] += grad0[2];
               }
- 	    }   
+ 	    }  
+ //	    std::cerr << "New vdW energy " << evdw << " = oldenergy - " << evdw0 << "\n";
             if (calc_elec) {
 	      double eelec00; Coor grad00;
 	      elec(iab,cdie,c,rr2,dis[0],dis[1],dis[2],fswi,eelec00,grad00);
@@ -789,6 +802,8 @@ const Parameters &rc, const Parameters &ac, const Parameters &emin, const Parame
     double charge0 = chail[n];
     double charge = charge0/ffelec;
     Coor &grad = fl[n];
+    const Coor &d = xl[n];
+   // std::cerr << "Processing atoms " << n << " " << d[0] << " " << d[1] << " " << d[2] << " Receptor: ";
 #ifdef TORQUEGRID    
     trilin(xl[n],atomtype,charge0,charge,wel[n],*g,rigid,xr,wer,chair,iacir,
       rc,ac,emin,rmin2,ipon,potshape,cdie,swi_on,swi_off, iab,fixre,evdw,eelec,grad,fr,pm2,deltar,rtorques);
@@ -796,8 +811,9 @@ const Parameters &rc, const Parameters &ac, const Parameters &emin, const Parame
     trilin(xl[n],atomtype,charge0,charge,wel[n],*g,rigid,xr,wer,chair,iacir,
       rc,ac,emin,rmin2,ipon,potshape,cdie,swi_on,swi_off,iab,fixre,evdw,eelec,grad,fr,deltar);
 #endif
+ //   std::cerr << "Atom energy" << n << " " << evdw << " " << eelec << "\n";
   }
-
+ // std::cerr << "Energy from grid " << evdw << " " << eelec << "\n";
 #ifdef TORQUEGRID      
   for (int j = 0; j < 3; j++) { //euler angle
     for (int k = 0; k < 3; k++) {//gradient

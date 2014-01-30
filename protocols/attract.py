@@ -51,7 +51,13 @@ while 1:
     sys.argv = sys.argv[:anr] + sys.argv[anr+1:]
     anr -= 1
     continue
-    
+  
+  if arg == "--infinite":
+    torque = "-infinite"
+    sys.argv = sys.argv[:anr] + sys.argv[anr+1:]
+    anr -= 1
+    continue  
+  
   if anr >= len(sys.argv)-1: break
   arg, nextarg = sys.argv[anr],sys.argv[anr+1]
 

@@ -1,45 +1,10 @@
 import os
 import Spyder
 
-def make_relpath(outpdir, m):
-  try:
-    items = [a for a in m]
-    items = enumerate(items)
-    ar = True
-  except TypeError:
-    items = list(m.__dict__.items())
-    ar = False
-  for k,v in items:
-    if isinstance(v, Spyder.File): 
-      nam = v.name
-      rel = os.path.relpath(nam, outpdir)
-      if len(os.path.split(rel)[0]) == 0:
-        vv = type(v)(
-         rel,
-         fileformat=v.fileformat(),
-         mode=v.mode,
-         format=v.format(),
-        ) 
-        if ar:
-          m[k] = vv
-        else:
-          setattr(m,k,vv) 
-    elif isinstance(v, Spyder.Filename):	  
-      nam = v.name
-      rel = os.path.relpath(nam, outpdir)
-      if len(os.path.split(rel)[0]) == 0:
-        vv = type(v)(rel)
-        if ar:
-          m[k] = vv
-        else:
-          setattr(m,k,vv) 
-
-    elif isinstance(v, Spyder.Object):
-      make_relpath(outpdir, v)      
-      
-      
+from spyder.formtools import make_relpath, check_embedded
+  
 def save(m, outp, *args):
-  v = m.get() 
+  v = m._get()   
   outpdir = os.path.split(outp)[0]  
   if v is not None:
     make_relpath(outpdir, v)
@@ -49,9 +14,13 @@ def save(m, outp, *args):
     print("Cannot save form: does not contain a valid object")
 
 def generate(m, outp, *args):
-  v = m.get() 
+  v = m._get() 
   outpdir = os.path.split(outp)[0]
   if v is not None:
+    embedded = check_embedded(v)
+    if embedded is not None:
+      print("Cannot generate shell script: %s is an embedded resource, not a file name" % embedded)
+      return
     make_relpath(outpdir, v)
     sh = os.path.splitext(outp)[0] + ".sh"
     script = v.generate()
@@ -62,3 +31,35 @@ def generate(m, outp, *args):
     print("Shell script generated: %s" % sh)
   else:
     print("Cannot generate shell script: form does not contain a valid object")
+    
+def _deploy(resource, fname):
+  if resource is not None: 
+    resource.link(fname)
+    resource.save()
+  
+def deploy(model, dir):
+  d = dir + "/"
+  if dir in (None, "", ".", "./"): d = ""
+  elif dir.endswith("/"): d = dir
+  for n,p in enumerate(model.partners):
+    _deploy(p.pdbfile,d+"partner-%d.pdb" % (n+1))
+    _deploy(p.ensemble_list,d+"ensemble-%d.list" % (n+1))
+    _deploy(p.modes_file,d+"partner-%d.modes" % (n+1))
+    _deploy(p.aa_modes_file,d+"partner-aa-%d.modes" % (n+1))
+    _deploy(p.rmsd_pdb,d+"partner-rmsd-%d.pdb" % (n+1))
+    _deploy(p.collect_pdb,d+"partner-collect-%d.pdb" % (n+1))
+    _deploy(p.collect_ensemble_list,d+"partner-collect-ensemble-%d.list" % (n+1))
+  _deploy(model.cryoem_data,d+"cryo.map")
+  _deploy(model.cryoem_scoring_data,d+"cryo-scoring.map")
+  _deploy(model.start_structures_file,d+"startstruc.dat")
+  _deploy(model.rotations_file,d+"rotations.dat")
+  _deploy(model.translations_file,d+"translations.dat")
+
+def deploy_easy(model, dir):
+  d = dir + "/"
+  if dir in (None, "", ".", "./"): d = ""
+  elif dir.endswith("/"): d = dir
+  for n,p in enumerate(model.partners):
+    _deploy(p.pdbfile,d+"partner-%d.pdb" % (n+1))
+    _deploy(p.rmsd_pdb,d+"partner-rmsd-%d.pdb" % (n+1))
+  

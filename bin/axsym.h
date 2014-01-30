@@ -12,6 +12,7 @@ extern int prepare_axsym_dof(
  int nlig0,
 
  int *nhm,
+ int *nihm,
  int *nrens,
  int *morphing,
  int *has_locrests,

@@ -85,6 +85,7 @@ s.swi_on, s.swi_off, strlen(argv[0]));
     
   for (i=0;i<MAXLIG;i++) {
     s.nhm[i]=0;
+    s.nihm[i]=0;
     s.nr_symcopies[i]=1;
     s.symcopies[i][0] = i;
   }  
@@ -134,10 +135,11 @@ extern "C" void cartstate_pivot_auto_(const int &handle) {
   _cartstate_pivotize(cartstate);
 }
 
-extern "C" void cartstate_get_nlig_nhm_(const int &handle,int &nlig, int *&nhm) {
+extern "C" void cartstate_get_nlig_nhm_(const int &handle,int &nlig, int *&nhm, int *&nihm) {
   CartState &cartstate = *cartstates[handle-9990];
  
   nhm = &(cartstate.nhm[0]);
+  nihm = &(cartstate.nihm[0]);
   nlig = cartstate.nlig;
 }
 
@@ -237,7 +239,7 @@ extern "C" void cartstate_f_write_pdb_(
 
 extern "C" void cartstate_f_rotdeform_(
   const int &handle,
-  int *&nhm, int *&ieins, double *&eig, double *&pivot, 
+  int *&nhm, int *&nihm, int *&ieins, double *&eig, int *&index_eig, double *& index_val,double *&pivot,
   double *&xb, double *&x,
   double *&xori, double *&xori0) 
 {
@@ -245,8 +247,11 @@ extern "C" void cartstate_f_rotdeform_(
   CartState &cartstate = *cartstates[handle-9990];
 
   nhm = &(cartstate.nhm[0]);
+  nihm = &(cartstate.nihm[0]);
   ieins = &(cartstate.ieins[0]);
-  eig = &(cartstate.eig[0][0][0]);  
+  eig = &(cartstate.eig[0][0][0]);
+  index_eig = &(cartstate.index_eig[0][0][0]);
+  index_val = &(cartstate.index_val[0][0][0]);
   pivot = &(cartstate.pivot[0][0]);
   xb   = &(cartstate.xb[0]);
   x   = &(cartstate.x[0]);
@@ -255,14 +260,18 @@ extern "C" void cartstate_f_rotdeform_(
 }
 
 extern "C" void cartstate_f_pairenergy_(const int &handle,
-  int *&nhm, int *&ieins, double *&eig, 
+  int *&nhm, int *&nihm, int *&ieins, double *&eig,
+  int *&index_eig, double *&index_val,
   double *&xb, double *&x,double *&xori, double *&xori0) 
 {   
   CartState &cartstate = *cartstates[handle-9990];
 
   nhm = &(cartstate.nhm[0]);
+  nihm = &(cartstate.nihm[0]);
   ieins = &(cartstate.ieins[0]);
-  eig = &(cartstate.eig[0][0][0]);  
+  eig = &(cartstate.eig[0][0][0]);
+  index_eig = &(cartstate.index_eig[0][0][0]);
+  index_val = &(cartstate.index_val[0][0][0]);
   xb   = &(cartstate.xb[0]);
   x   = &(cartstate.x[0]);  
   xori   = &(cartstate.xori[0]);
@@ -271,8 +280,8 @@ extern "C" void cartstate_f_pairenergy_(const int &handle,
 
 extern "C" void cartstate_f_globalenergy_(const int &handle,
   int &nlig, int &nall, int &nall3, 
-  double &morph_fconstant, int *&nhm, int *&ieins, double *&eig, double *&val, 
-  double *&xb, double *&x,double *&xori, double *&xori0,
+  double &morph_fconstant, int *&nhm, int *&nihm, int *&ieins, double *&eig, double *&val,
+  int *&index_eig, double *&index_val,double *&xb, double *&x,double *&xori, double *&xori0,
   double *&f, double *&pivot, int *&natom, int *&iaci_old) 
 {   
   CartState &cartstate = *cartstates[handle-9990];
@@ -281,9 +290,12 @@ extern "C" void cartstate_f_globalenergy_(const int &handle,
   nall3 = cartstate.nall3;
   morph_fconstant = cartstate.morph_fconstant;
   nhm = &(cartstate.nhm[0]);
+  nihm = &(cartstate.nihm[0]);
   ieins = &(cartstate.ieins[0]);
   eig = &(cartstate.eig[0][0][0]);  
-  val = &(cartstate.val[0][0]);   
+  val = &(cartstate.val[0][0]);
+  index_eig =  &(cartstate.index_eig[0][0][0]);
+  index_val = &(cartstate.index_val[0][0][0]);
   xb   = &(cartstate.xb[0]);
   x   = &(cartstate.x[0]);  
   xori   = &(cartstate.xori[0]);

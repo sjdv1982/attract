@@ -1,11 +1,11 @@
-      subroutine nonbon8(maxatom,maxmolpair,
-     1 iab,xl,xr,fl,fr,wel,wer,chair,chail,ac,rc,       
-     2 emin,rmin2,iacir,iacil,nonr,nonl,ipon,nonp,
-     3 potshape, cdie, swi_on,swi_off, enon,epote)
+      subroutine nonbon8(iab,xl,xr,fl,fr,wel,wer,chair,chail,ac,rc,
+     1 emin,rmin2,iacir,iacil,nonr,nonl,ipon,nonp,
+     2 potshape, cdie, swi_on,swi_off, enon,epote)
       implicit none
 
-c     Parameters      
-      integer maxatom, maxmolpair,iab,nonp,potshape
+c     Parameters
+      include "max.fin"
+      integer iab,nonp,potshape
       integer cdie
       real swi_on, swi_off
       real*8 xl,xr,fl,fr,wel,wer,chair,chail,ac,rc
@@ -13,8 +13,9 @@ c     Parameters
       integer iacir,iacil,ipon,nonl,nonr
       dimension nonr(maxmolpair),nonl(maxmolpair),ipon(99,99),
      1  iacir(maxatom), iacil(maxatom)
-      dimension chair(maxatom),chail(maxatom),wer(maxatom),wel(maxatom),
-     1  fl(maxatom),fr(maxatom),ac(99,99),rc(99,99),rmin2(99,99)
+      dimension chair(maxatom),chail(maxatom),wer(maxatom),
+     1 wel(maxatom),fl(maxatom),fr(maxatom),ac(99,99),rc(99,99),
+     2 rmin2(99,99)
       dimension xl(maxatom),xr(maxatom),emin(99,99)
 
 c     Local variables
@@ -86,9 +87,17 @@ c      (cap all distances at 50 A)
       if(iab.eq.1) then
       do 130 k=1,3
       if (cdie.eq.1) then
-      fdb=fswi*et*dx(k)
+      if (rr1.le.0) then
+      fdb = fswi * et * dx(k)
       else
+      fdb=fswi*charge*(rr1+1.0/50.0)*dx(k)
+      endif
+      else
+      if (rr2a.le.0) then
       fdb=fswi*2.0d0*et*dx(k)
+      else
+      fdb = fswi * 2.0d0 *charge *rr2 * dx(k)
+      endif
       endif
       fl(jj+k)=fl(jj+k)+fdb
       fr(ii+k)=fr(ii+k)-fdb
@@ -120,7 +129,6 @@ c     1 emin(it,jt)
       endif
       else
       enon=enon+fswi*ivor*vlj
-!       write(*,*)'pair',i,j,it,jt,r2,ivor*vlj,e_min
 c      write(*,*)'pair',i,j,it,jt,r2,ivor*vlj,et,
 c     1 emin(it,jt)
       if(iab.eq.1) then
@@ -134,5 +142,7 @@ c     1 emin(it,jt)
       endif
       endif
   100 continue
+c      write(ERROR_UNIT, *) "nonbon8 ", enon, epote
+
       return
       end

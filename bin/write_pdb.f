@@ -23,6 +23,6 @@
    60 continue  
    80 write(*,'(a3)') 'TER'
       continue
-      write(*,'(a3)') 'END'
+c      write(*,'(a3)') 'END'
    26 format(a4,i7,2x,a4,a4,2x,i3,4x,f8.3,f8.3,f8.3,i5,f8.3,i2,f5.2)      
       end

@@ -7,3 +7,13 @@ gmon.out
 *.pyc
 bin/*.pyc
 tools/*.pyc
+.
+..
+.bzr
+.bzrignore
+.cproject
+.metadata
+.project
+.scinotes
+max.fin
+*.TYPES
