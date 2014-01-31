@@ -191,6 +191,7 @@ c      call print_struc2(seed,label,gesa,energies,nlig,
 c     1  ens,phi,ssi,rot,xa,ya,za,locrests,morph,
 c     2  nhm,nihm,dlig,has_locrests,lablen)
 
+
       endif
 c old Cartesians are not stored!
 c generate a total of ju random numbers
@@ -259,7 +260,7 @@ c       write(*,*)'new ii,c,phi,ssi,rot',i,ii,c,phi(i),ssi(i),rot(i)
       endif
 c make a move in HM direction and update x, y(1,i) and y(2,i) and dlig(j)
 c     call crand(dseed,ju+1,rr)
-      call GGUBS(dseed,jn+1,rr)
+      call GGUBS(dseed,jn+4,rr)
 c     dseed = int(10000*rr(ju+1))
       if(ieig.eq.1) then
       kk = 0
@@ -286,9 +287,21 @@ c make a translation of the ligand center
       xa(i)=xa(i)+scalecenter*(0.5d0-rr(ii+1))
       ya(i)=ya(i)+scalecenter*(0.5d0-rr(ii+2))
       za(i)=za(i)+scalecenter*(0.5d0-rr(ii+3))
-c     write(*,*)'trans-step',i,ii,
-c    1 0.5d0-rr(ii+1),0.5d0-rr(ii+2),0.5d0-rr(ii+3)
-c    1 rr(ii+1),rr(ii+2),rr(ii+3),xaa(ii+1),xaa(ii+2),xaa(ii+3)
+
+
+
+c     gaussian
+c      xa(i)=xa(i)+scalecenter*(sqrt(-log(rr(ii+1))))*(0.5d0-rr(ii+2))
+c      ya(i)=ya(i)+scalecenter*(sqrt(-log(rr(ii+3))))*(0.5d0-rr(ii+4))
+c      za(i)=za(i)+scalecenter*(sqrt(-log(rr(ii+5))))*(0.5d0-rr(ii+6))
+
+c      write(ERROR_UNIT,*)'xa',
+c     1 scalecenter*(sqrt(-log(rr(ii+1))))*(0.5-rr(ii+2)),
+c     2 scalecenter*(sqrt(-log(rr(ii+1))))*(0.5d0-rr(ii+2))
+
+c      write(*,*)'trans-step',i,ii,
+c     1 0.5d0-rr(ii+1),0.5d0-rr(ii+2),0.5d0-rr(ii+3),
+c     2 rr(ii+1),rr(ii+2),rr(ii+3),xaa(ii+1),xaa(ii+2),xaa(ii+3)
  1220 continue
       endif
 
@@ -314,8 +327,8 @@ c     1 nhm, nihm, nlig, ens, phi, ssi, rot, xa, ya, za, morph, dlig,
 c     2 locrests, has_locrests, seed, label,
 c     3 enew, energies0, lablen)
 
-c      write(ERROR_UNIT,*)'after min',enew
-c  new energy
+
+c      new energy
 c      write (*,*),'Energy2', enew
 
       bol2=enew-gesa
@@ -367,7 +380,7 @@ c      endif
 
       iaccept=1
       if (iscore.eq.2) then
-        call print_struc2(seed,label,gesa,energies,nlig,
+      call print_struc2(seed,label,gesa,energies,nlig,
      1  ens,phi,ssi,rot,xa,ya,za,locrests,morph,
      2  nhm,nihm,dlig,has_locrests,lablen)
       endif
