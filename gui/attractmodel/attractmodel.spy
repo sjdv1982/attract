@@ -2,7 +2,7 @@ Type Data_ATTRACT_Structures:Data{}
 Type Data_ATTRACT_Rotations:Data{}
 Type Data_ATTRACT_Translations:Data{}
 Type Data_ATTRACT_Modes:Data{}
-Type Data_ATTRACT_CryoEM:Data{}
+Type Data_CryoEM_SITUS:Data{}
 
 Type Data_TXT_FileList_PDB:Data{}
 
@@ -182,13 +182,13 @@ Type AttractGrid:Degenerate {
 Type AttractIteration {
   ## form rcut.add_header("The nonbonded pairlist distance cutoff (rcut) (in A**2) during this iteration")
   *Float rcut = 1500
-  ## form vmax.add_header("The maximum number of energy minimization steps (vmax)") 
+  ## form vmax.add_header("The maximum number of energy minimization or Monte Carlo steps (vmax)") 
   *Integer vmax = 100
   ## form traj.add_header("Trajectory mode: only minimize the first structure, and output the structure after every minimization step")
   Bool traj = False
   validate {
-   assert rcut is None or rcut > 0
-   assert vmax is None or vmax > 0
+    assert rcut is None or rcut > 0
+    assert vmax is None or vmax > 0
   }  
   
   Bool mc = False
@@ -344,7 +344,7 @@ Type AttractModel {
       assert rotations_file is None
       assert translations_file is None
     else:
-      assert rotations_file is not None or translations_file is not None      
+      assert rotations_file is not None or translations_file is not None
       assert len(partners) == 2
   }   
   form {
@@ -396,7 +396,7 @@ Type AttractModel {
   }
   #***
   
-  *ResourceData_ATTRACT_CryoEM cryoem_data
+  *ResourceData_CryoEM_SITUS cryoem_data
   form {
     cryoem_data.group = "Cryo-EM data"
     cryoem_data.type = "file"
@@ -418,7 +418,7 @@ Type AttractModel {
     cryoem_scoring_mode.name = "Cryo-EM scoring criterion"
     cryoem_scoring_mode.optiontitles = ("No separate scoring step with a higher-resolution map", "ATTRACT energy", "GVM score", "cross-correlation")
   }
-  *ResourceData_ATTRACT_CryoEM cryoem_scoring_data
+  *ResourceData_CryoEM_SITUS cryoem_scoring_data
   form {
     cryoem_scoring_data.group = "Cryo-EM data"
     cryoem_scoring_data.type = "file"
@@ -526,15 +526,15 @@ Type AttractModel {
   }
   
   error {
-    'if zoom is not None: assert zoom_it_initial is not None'
+    'if zoom: assert zoom_it_initial is not None'
     =>
     ''
 
-    'if zoom is not None: assert zoom_trans is not None'
+    'if zoom: assert zoom_trans is not None'
     =>
     ''
 
-    'if cryoem_scoring_mode != None: assert cryoem_scoring_mode in ("no","attract","gvm","cc")'
+    'if cryoem_scoring_mode is not None: assert cryoem_scoring_mode in ("no","attract","gvm","cc")'
     =>
     ''
 
@@ -542,7 +542,7 @@ Type AttractModel {
     =>
     ''
 
-    'if dielec != None: assert dielec in ("cdie", "rdie")'
+    'if dielec is not None: assert dielec in ("cdie", "rdie")'
     =>
     ''
 
@@ -554,7 +554,7 @@ Type AttractModel {
     =>
     ''
 
-    'if zoom is not None: assert zoom_select is not None'
+    'if zoom: assert zoom_select is not None'
     =>
     ''
 
@@ -566,7 +566,7 @@ Type AttractModel {
     =>
     ''
 
-    'if forcefield != None: assert forcefield in ("ATTRACT", "OPLSX")'
+    'if forcefield is not None: assert forcefield in ("ATTRACT", "OPLSX")'
     =>
     ''
 
@@ -610,11 +610,11 @@ Type AttractModel {
     =>
     ''
 
-    'if zoom is not None: assert zoom_clone is not None'
+    'if zoom: assert zoom_clone is not None'
     =>
     ''
 
-    'if zoom is not None: assert zoom_ori is not None'
+    'if zoom: assert zoom_ori is not None'
     =>
     ''
 
@@ -634,11 +634,11 @@ Type AttractModel {
     =>
     ''
 
-    'if search != None: assert search in ("syst","random", "custom")'
+    'if search is not None: assert search in ("syst","random", "custom")'
     =>
     ''
 
-    'if zoom is not None and nr_iterations > 1: assert zoom_it_subsequent is not None'
+    'if zoom and nr_iterations > 1: assert zoom_it_subsequent is not None'
     =>
     ''
 

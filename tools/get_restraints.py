@@ -11,16 +11,22 @@ import re
 
 def make_interfacelist(ilist, pdb):
      # Read interface residues from files
+    data = open(ilist).readlines()
+    data = [l for l in data if not l[0]=='#']
+    if len(data) == 0:
+      return [],[],[]
+
     rlist = np.loadtxt(ilist,dtype=int,ndmin=1)
     # Make list of corresponding atoms
     receptor = []
     receptorid = []
-    for line in open(pdb):
+    data = open(pdb).readlines()
+    data = [x for x in data if 'ATOM' in x]
+    for count,line in enumerate(data):
         tmp = line.replace('-',' -')
         list = tmp.split()
-        if len(list) > 0 and list[0] == 'ATOM':
-            receptor.append((int(list[1]),int(list[4]),float(list[5]),float(list[6]),float(list[7])))
-            receptorid.append((list[3],list[4],list[2],list[1]))
+        receptor.append((count+1,int(list[4]),float(list[5]),float(list[6]),float(list[7])))
+        receptorid.append((list[3],list[4],list[2],list[1]))
             
     ratoms = []
     if len(rlist) > 0:
@@ -30,15 +36,20 @@ def make_interfacelist(ilist, pdb):
                  
     return ratoms, receptor, receptorid  
 
-def find_neighbors(atom, xr, sigma2, c, rc2):   
+from scipy.spatial.distance import cdist
+def find_neighbors(atom, xr, sigma2, c, rc):   
     tmp0, tmp1, x0, y0, z0  = xr[atom-1]
+    r1 = np.matrix([[x0,y0,z0]])
+    r2 = [[x,y,z] for id, res, x, y, z in xr]
+    r2 = np.matrix(r2)
+    Y = cdist(r1,r2,'euclidean')
     nlist = []
-    for id, res, x, y, z in xr:
-        if id != atom:
-             r2 = (x0-x)**2 + (y0-y)**2 + (z0-z)**2
-             #detect atoms in vicinity
-             if r2 < rc2: 
-                 nlist.append((atom, id, math.sqrt(r2)))
+    for j in range(len(xr)):
+        if j == atom-1:
+	  continue
+        dist = Y[0][j]
+        if dist < rc:
+            nlist.append((atom, j+1, dist))
                  
     return nlist
   
@@ -66,8 +77,7 @@ def make_model(filelist,nlistcut=30):
         nlist = []
         rc = 5.0
         while len(nlist) < nlistcut:
-            rc2 = rc*rc
-            nlist = find_neighbors(atom, atomlist, 9.0, c, rc2)
+            nlist = find_neighbors(atom, atomlist, 9.0, c, rc)
             rc += 1.0
             
         for item in nlist:
@@ -143,12 +153,15 @@ def make_model(filelist,nlistcut=30):
 def write_output(nbonds, pdb, name, c, offset, atomid):
     sel = []
     output = os.path.splitext(pdb)[0]+'_'+name+'.txt'
-    print output
+    #print output
     out = open(output,'w')
-    print "Write bonds..."
+    #print "Write bonds..."
     countb = 0
     counta = 0
     countc = 0
+    if len(nbonds) == 0:
+      out.write('dummy 1 1')
+
     for bond in nbonds:
         #Write selection
         res1 = atomid[bond[0]-1]
@@ -206,7 +219,7 @@ def write_output(nbonds, pdb, name, c, offset, atomid):
                 countc += 1
     
     out.close()    
-    print countb, counta, countc
+    #print countb, counta, countc
     
 #Main
 if __name__ == "__main__":
@@ -230,7 +243,7 @@ if __name__ == "__main__":
     else:    
         nbonds, pdb, name, c, offset, atomid = make_model(sys.argv)
         cut = 31
-        while len(nbonds) > 6000 and cut > 0:
+        while len(nbonds) > 5000 and cut > 0:
             cut -= 5
             nbonds, pdb, name, c, offset, atomid = make_model(sys.argv,cut)
             

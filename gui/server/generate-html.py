@@ -1,4 +1,5 @@
 import sys, os
+sys.path.insert(0, "..")
 import spyder
 from attractmodel import AttractModel
 import form_model

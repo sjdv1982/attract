@@ -88,18 +88,13 @@ def _assign_category(f, category, groupname, span = False):
     ff.group = None
     if span: ff.span = True
 
-def webform(f, model=None,
- partnerslength=None, gridslength=None, iterationslength=None, symmetrieslength=None,
-):
+def webform(f, model=None, partnerslength=None):
   if model is not None:
     if partnerslength is None:
       partnerslength = max(1,len(model.partners))
-    if iterationslength is None:
-      iterationslength = max(1,len(model.iterations))
 
   else:  
     if partnerslength is None: partnerslength = 1
-    if iterationslength is None: iterationslength = 1
   import copy
   f = copy.deepcopy(f)
   
@@ -159,7 +154,7 @@ def webform(f, model=None,
     b.members.append("rmsd_pdb")
     b.members.append("rmsd_bb")
     ff = fp.use_rmsd
-    ff.default = True
+    ff.default = False
     ff.type = "switch" 
     ff.name = "RMSD calculation"
     ff = fp.rmsd_pdb
@@ -211,18 +206,15 @@ def webserverform(webdict, form=None, spydertype=None):
   f = webform(
    form,
    partnerslength = 2,
-   gridslength = 0,
-   symmetrieslength = 0,
-   iterationslength = 0,
   )  
   return f
   
 def html(form, cgi,newtab=False):
   import attracthtmlform 
   html = attracthtmlform.htmlform(
-  form=form, cgi=cgi, 
-  header=header, footer=footer, header_indentation = 12, 
-  newtab=newtab
+   form=form, cgi=cgi, 
+   header=header, footer=footer, header_indentation = 12, 
+   newtab=newtab
   )
   return html
   

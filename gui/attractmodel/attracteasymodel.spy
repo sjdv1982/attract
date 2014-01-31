@@ -29,6 +29,20 @@ Type AttractEasyPartnerInterface {
     else:
       if rmsd_pdb is None: raise spyder.core.ValidationError("You need to define an PDB for RMSD calculation, or disable it")
   }
+   error {
+    'if rmsd_pdb is not None: raise spyder.core.ValidationError("You defined an PDB for RMSD calculation, which you disabled")'
+    =>
+    ''
+
+    'if nr_modes not in (None, 0): assert nr_modes >= 1 and nr_modes <= 10'
+    =>
+    'Number of harmonic modes must be between 1 and 10'
+
+    'if rmsd_pdb is None: raise spyder.core.ValidationError("You need to define an PDB for RMSD calculation, or disable it")'
+    =>
+    ''
+
+  } 
 }
 
 
@@ -98,6 +112,41 @@ Type AttractEasyModel {
       assert not calc_irmsd
       assert not calc_fnat
   }
-}
+  error {
+    'assert not calc_irmsd'
+    =>
+    'You are trying to calculate IRMSD but did not enable RMSD calculation in the partners section. Please upload PDB files for RMSD calculation for both partners.'
 
+    'assert partners == None or len(partners) == 2'
+    =>
+    'Please specify 2 protein partners for docking.'
+
+    'assert calc_lrmsd or calc_irmsd or calc_fnat'
+    =>
+    'You specified PDBs for RMSD calculations but you are calculating neither ligand RMSD nor interface RMSD nor fraction of native contacts. Please specify one of these in the Analysis section or disable RMSD calculation.'
+
+    'assert nr_collect > 0'
+    =>
+    'Please specify a number of structures you want to collect as a PDB file from the docking results. It is not permitted to set this number to zero.'
+
+    'assert not calc_fnat'
+    =>
+    'You are trying to calculate fnat but did not enable RMSD calculation in the partners section. Please upload PDB files for RMSD calculation for both partners.'
+
+    'if p1.use_rmsd != p2.use_rmsd: raise spyder.core.ValidationError("Please enable RMSD calculation for both partners or for neither one")'
+    =>
+    ''
+
+    'assert not calc_lrmsd'
+    =>
+    'You are trying to calculate ligand RMSD but did not enable RMSD calculation in the partners section. Please upload PDB files for RMSD calculation for both partners.'
+
+    'assert np > 0'
+    =>
+    'Please use at least one core (np=1)for running the docking.'
+
+  }
+  
+}
+  
 Define AttractModel(AttractEasyModel) easy2model
