@@ -72,12 +72,17 @@
             
             <a name="partners-structure_file"><h3>Structure files</h3></a>
             <p>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent sed tellus a enim fermentum feugiat. Nullam viverra aliquam enim in sollicitudin. Fusce aliquam nunc vel purus posuere lacinia. Sed purus diam, pharetra at risus id, vehicula lacinia sem. Donec ac tempus turpis. Curabitur lectus odio, scelerisque ut magna non, tincidunt venenatis odio. Maecenas accumsan tempor dictum. Donec leo dolor, auctor condimentum ligula eget, mattis venenatis massa. Praesent ornare condimentum feugiat. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae;
-            </p>
+            For each docking partner a separate PDB file specifying its residues, atoms and atomic coordinates has to be provided. The Protein Data Bank (PDB) format describes the three-dimensional structures of macromolecules derived from X-ray diffraction and NMR studies. You can find more information on the file format <a href="http://www.wwpdb.org/docs.html" target="_blank">here</a> and <a href="http://en.wikipedia.org/wiki/Protein_Data_Bank_(file_format)" target="_blank">here</a>. A typical PDB file contains lines like the following:<br/>
+	    ATOM      1  N   PRO A   1       8.316  21.206  21.530  1.00 17.44           N<br/>
+	    ATOM      2  CA  PRO A   1       7.608  20.729  20.336  1.00 17.44           C<br/>
+	    ATOM      3  C   PRO A   1       8.487  20.707  19.092  1.00 17.44           C<br/>
+	    ATOM      4  O   PRO A   1       9.466  21.457  19.005  1.00 17.44           O<br/>
+	    ATOM      5  CB  PRO A   1       6.460  21.723  20.211  1.00 22.26           C
+	     </p>
             
             <a name="partners-rcsb_pdbid"><h3>RCSB PDB ID</h3></a>
             <p>
-            Sed in enim eget mi tristique pretium. Etiam quam lectus, pharetra sed tincidunt a, venenatis et erat. Maecenas eu commodo magna. Proin euismod tincidunt est, id tempor tellus rutrum non. Curabitur elementum orci sapien, nec vehicula mi consequat eget. Phasellus ac mollis ipsum. Nullam ornare semper imperdiet. In quis tincidunt diam. Vestibulum venenatis a enim ac pretium. Aliquam pretium orci augue, vitae sodales lorem sodales vel. Donec id luctus turpis, non condimentum augue.
+            Alternatively to providing PDB files for the protein partners, an RCSB PDB ID can be provided. This is a 4-letter code which identifies protein structures in the protein data bank (e.g. 3D5S). This option is not available for the ATTRACT easy interface.
             </p>
             
             <a name="partners-grid_name"><h3>Molecular grids</h3></a>
@@ -87,7 +92,7 @@
             
             <a name="partners-chains"><h3>Specifying structure chains</h3></a>
             <p>
-            Nunc orci eros, scelerisque vitae convallis ut, porttitor non risus. Aliquam congue vehicula egestas. Fusce sodales mollis turpis, ut feugiat velit porttitor suscipit. Nulla non nunc commodo, dictum mi sit amet, egestas est. Ut vestibulum faucibus tincidunt. Suspendisse at felis sit amet mauris placerat vehicula. Morbi tortor dolor, tempus condimentum mauris et, laoreet consectetur metus. Nunc rhoncus egestas convallis. Pellentesque lacus mauris, ornare sed velit in, bibendum sagittis quam. Nullam congue augue ut eros dignissim sollicitudin. Quisque fermentum condimentum tristique. Praesent a sem ante. Cras in tellus sagittis, varius diam eu, fermentum tellus. Quisque ornare elit a luctus sodales. Cras quis venenatis ante.
+            If you do not want to use all chains provided by the PDB file for docking, you can specify here which one to use (e.g. if there is a dimer in the provided PDB file, you may want to use only chain A or chain B in the docking). This option is not available for the ATTRACT easy interface.
             </p>
             
             <a name="partners-mol_reduced"><h3>Specifying structure chains</h3></a>
@@ -104,10 +109,11 @@
           <div class="doc-chapter">
             <a name="grids"><h2>Chapter 2: Grids</h2></a>
             <p>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent sed tellus a enim fermentum feugiat. Nullam viverra aliquam enim in sollicitudin. Fusce aliquam nunc vel purus posuere lacinia. Sed purus diam, pharetra at risus id, vehicula lacinia sem. Donec ac tempus turpis. Curabitur lectus odio, scelerisque ut magna non, tincidunt venenatis odio. Maecenas accumsan tempor dictum. Donec leo dolor, auctor condimentum ligula eget, mattis venenatis massa. Praesent ornare condimentum feugiat. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae;
+            Please note: using grids is VERY demanding in terms of memory. Do NOT use this option when your machine has little memory!<br/>
+            Calculating electrostatic and van der Waals interactions between the docking partners is computationally expensive. To significantly speed-up the docking process it is possible to use precalculated interaction grids in ATTRACT. The potential energy is calculated before the docking run and stored for each voxel. The actual potential energy for each atom is interpolated between eight voxels. Additionally, for each grid point a neighborlist is determined listing all the atoms which are within a certain range of this grid point. For all the atoms in the neighborlist the interactions will be calculated during the docking to calculate the correct short-range interactions. Typically the interactions in a range up to 10 A will be calculated directly and the potential energy value at the grid point will be corrected by this value.
             </p>
             <p>
-            Sed in enim eget mi tristique pretium. Etiam quam lectus, pharetra sed tincidunt a, venenatis et erat. Maecenas eu commodo magna. Proin euismod tincidunt est, id tempor tellus rutrum non. Curabitur elementum orci sapien, nec vehicula mi consequat eget. Phasellus ac mollis ipsum. Nullam ornare semper imperdiet. In quis tincidunt diam. Vestibulum venenatis a enim ac pretium. Aliquam pretium orci augue, vitae sodales lorem sodales vel. Donec id luctus turpis, non condimentum augue.
+            In principle for each molecule a grid has to be calculated or provided. However, for two body docking only a receptor grid has to be calculated when fixing the receptor's center of mass (which is what you normally want!).
             </p>
             <p>
             Ut eget ultricies nisl, non volutpat magna. Aliquam egestas, mauris vitae dapibus malesuada, eros augue laoreet urna, ut tempor nunc metus at enim. Curabitur molestie tristique mi, sit amet malesuada lorem. Sed at risus id massa varius ornare vitae sit amet odio. Mauris eleifend suscipit risus eu vulputate. Cras fringilla leo vitae laoreet sodales. Fusce pulvinar ligula dignissim est aliquet, non dignissim quam bibendum. Fusce a sollicitudin leo, vitae mattis lacus. Praesent sodales metus nec nulla egestas aliquam. Integer malesuada sapien sit amet odio ultrices, sit amet porta metus gravida. Praesent et consectetur enim. Aenean dui augue, luctus scelerisque erat vel, semper elementum erat. Donec volutpat pulvinar accumsan. Etiam nibh sem, aliquam in convallis et, commodo eu arcu. Morbi tempus semper turpis viverra tristique.
@@ -252,8 +258,14 @@
             Nullam eu libero aliquam, interdum libero at, varius eros. Mauris convallis libero sed sagittis aliquet. In eros est, convallis nec luctus id, convallis ac nunc. Sed euismod leo nec nunc vehicula facilisis. Sed feugiat vestibulum tortor id vestibulum. Sed fringilla elit quis felis blandit, vel vestibulum massa blandit. In ullamcorper lacus nisi, sed pretium magna egestas eget. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Duis neque purus, pretium placerat commodo in, vehicula vitae mi. In suscipit pretium laoreet. Nulla ornare dolor erat, tincidunt viverra leo tincidunt vitae. Nunc in lorem leo. Aliquam aliquam dignissim tempus. Duis dui sapien, lacinia a condimentum eget, condimentum eget velit.
             </p>
           </div>
+            <div class="Other">
+            <a name="Output file format"><h2>Chapter 9: Computation</h2></a>
+            <p>
+            ATTRACT uses a DOF (degrees of freedrom) file format to store protein complex structures. The protein complex structure can be decomposed into the structures of the individual proteins and their relative position and orientation to each other. For each structure the DOF file stores the degrees of freedom for each protein partner on a single line. It lists the rigid body degrees of freedom (three Euler angles for the orientation and the spatial position of the center of mass), then if applicable normal mode deformations and interface modes. ATTRACT internally applies these degrees of freedom to the given template structures (PDB files of the individual protein partners) to obtain the coordinates of the protein complex.
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent sed tellus a enim fermentum feugiat. Nullam viverra aliquam enim in sollicitudin. Fusce aliquam nunc vel purus posuere lacinia. Sed purus diam, pharetra at risus id, vehicula lacinia sem. Donec ac tempus turpis. Curabitur lectus odio, scelerisque ut magna non, tincidunt venenatis odio. Maecenas accumsan tempor dictum. Donec leo dolor, auctor condimentum ligula eget, mattis venenatis massa. Praesent ornare condimentum feugiat. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae;
+            </p>
           </div>
-          
+          </div>
       </section>
     </main> 
     
