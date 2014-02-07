@@ -1,7 +1,13 @@
+#!/usr/bin/python
+
+"""
+Command line tool to embed a Spyder model
+"""
+
 import sys, os
 import spyder, Spyder
 import attractmodel
-import resources
+from spyder.formtools import embed
 
 inputfile = sys.argv[1]
 inputdata = open(inputfile).read()
@@ -10,5 +16,5 @@ if len(inputdir): os.chdir(inputdir)
 spydertypename, spyderdict = spyder.core.parse(inputdata)
 spydertype = getattr(Spyder, spydertypename)
 model = spydertype.fromdict(spyderdict)
-resources.embed(model)
+embed(model)
 print repr(model)

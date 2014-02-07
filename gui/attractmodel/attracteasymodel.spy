@@ -134,5 +134,5 @@ Type AttractEasyModel {
   }
   
 }
-
+  
 Define AttractModel(AttractEasyModel) easy2model
