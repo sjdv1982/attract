@@ -47,6 +47,22 @@ def countilist(ilist1, a1, ilist2, a2):
       
   return count
 
+def collect_contacts(a1,a2,Y,rcut):
+  ilist1, ilist2 = [],[]
+  for i in range(len(a1)):
+    res1 = a1[i][1]
+    for j in range(len(a2)):
+      res2 = a2[j][1]
+      dist = Y[i][j]
+      if dist < rcut:
+	if not res1 in ilist1:
+	  ilist1.append(res1)
+                        
+	if not res2 in ilist2:
+	  ilist2.append(res2)
+	  
+  return ilist1, ilist2
+	  
 import math  
 import numpy as np
 from scipy.spatial.distance import cdist
@@ -61,28 +77,12 @@ def get_interface(a1, a2, output,output2,rcut):
     crd2 = np.matrix(crd2)
     Y = cdist(crd1,crd2,'euclidean')
     while (len(ilist1) < 8 or len(ilist2) < 8) and countilist(ilist1,a1,ilist2,a2) < 333:
-	for i in range(len(a1)):
-	  res1 = a1[i][1]
-	  for j in range(len(a2)):
-	    res2 = a2[j][1]
-	    dist = Y[i][j]
-	    if dist < rcut:
-	      if not res1 in ilist1:
-		ilist1.append(res1)
-                        
-	      if not res2 in ilist2:
-		ilist2.append(res2)
-                        
+	ilist1, ilist2 = collect_contacts(a1,a2,Y,rcut)             
         rcut += 0.5
      
-    count = 0
     while countilist(ilist1,a1,ilist2,a2) > 333:
-      if count%2 == 0 or count%3 == 0:
-	ilist1.pop()
-      else:
-	ilist2.pop()
-      
-      count += 1
+      rcut -= 0.5
+      ilist1, ilist2 = collect_contacts(a1,a2,Y,rcut)
       
     out = open(output, 'w')
     if len(ilist1) == 0:
