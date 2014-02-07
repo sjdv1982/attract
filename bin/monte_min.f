@@ -322,6 +322,9 @@ c     2 rr(ii+1),rr(ii+2),rr(ii+3),xaa(ii+1),xaa(ii+2),xaa(ii+3)
      3 locrests, has_locrests, seed,
      4 enew,energies0,delta,deltamorph)
 
+
+      write(ERROR_UNIT,*)'old/new energy',gesa,enew,ijk
+
 c      call minfor_mcm(cartstatehandle,ministatehandle,
 c     1 nhm, nihm, nlig, ens, phi, ssi, rot, xa, ya, za, morph, dlig,
 c     2 locrests, has_locrests, seed, label,
@@ -340,7 +343,7 @@ c      write (*,*),'Energy2', enew
      2 locrests, has_locrests, seed, label,
      3 enew, energies0, lablen)
 
-c      write(ERROR_UNIT,*)'minimized',enew,mcmtemp
+      write(ERROR_UNIT,*)'minimized',enew,ijk
       endif
 
       bol1=enew-gesa
@@ -364,7 +367,7 @@ c    2 rrot1,rrot2,rrot3,rrot4,sphi,phi(2),sssi,ssi(2),srot,rot(2)
       gesa=enew
       energies(:)=energies0(:)
 
-c      write(ERROR_UNIT,*)'mc step accepted',enew
+      write(ERROR_UNIT,*)'accepted',enew
 
 
 c      call minfor_mcm(cartstatehandle,ministatehandle,

@@ -142,7 +142,7 @@ extern "C" void print_struc3_(
 {
 
   ofstream out_data;
-  out_data.open("file.dat", ios::out | ios::app );
+  out_data.open("acc_steps.dat", ios::out | ios::app );
 
   nstruc += 1;
   //printf("#%d\n", nstruc);
@@ -170,31 +170,35 @@ extern "C" void print_struc3_(
     //printf("   ");
     out_data << "   ";
     if (morph[i] >= 0) {
-      printf("%.4f ", morph[i]);
+    //  printf("%.4f ", morph[i]);
     }
     else if (ens[i] > 0) {
-      printf("%d ", ens[i]);
+    //  printf("%d ", ens[i]);
     }
     //printf("%.6f %.6f %.6f %.4f %.4f %.4f",
       //phi[i], ssi[i], rot[i],
      // xa[i],  ya[i], za[i]
     //);
-   //out_data << phi[i] << " " << ssi[i] << " " << rot[i] << " " <<
-   //xa[i] << " " <<  ya[i] << " " << za[i] << "\n";
+   out_data << phi[i] << " " << ssi[i] << " " << rot[i] << " " <<
+   xa[i] << " " <<  ya[i] << " " << za[i] << "\n";
 
 
     if (has_locrests[i]) {
       for (int ii = 0; ii < 3; ii++) {
-        printf(" %.4f", locrests[i][ii]);
+        //printf(" %.4f", locrests[i][ii]);
+    	  out_data << " " << locrests[i][ii];
       }
     }
     for (int ii = 0; ii < nhm[i]; ii++) {
-      printf(" %.4f", dlig[i][ii]);
+      //printf(" %.4f", dlig[i][ii]);
+      out_data << " " << dlig[i][ii];
     }
     for (int ii = nhm[i]; ii < nhm[i]+nihm[i]; ii++) {
-          printf(" %.4f", dlig[i][ii]);
+          //printf(" %.4f", dlig[i][ii]);
+    	out_data << " " << dlig[i][ii];
         }
-    printf("\n");
+    //printf("\n");
+    out_data << "\n";
 
   }
   out_data.close();

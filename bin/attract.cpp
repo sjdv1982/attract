@@ -93,11 +93,7 @@ const int &seed, char *label, double &energy, double *energies, int &lablen);
 
 extern "C" void monte_(
 const int &cartstatehandle,const int &ministatehandle, 
-<<<<<<< TREE
-int *nhm, int*nihm, const int &nlig,
-=======
 int *nhm, int *nihm, const int &nlig, 
->>>>>>> MERGE-SOURCE
 int *ens,  double *phi, double *ssi, double *rot, double *xa, double *ya, double *za, double *morph,
 double *dlig, 
 double *locrests, int *has_locrests,
