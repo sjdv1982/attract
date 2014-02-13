@@ -59,6 +59,7 @@ c     integer dseed,i,ii,j,jj,k,kk,itr,nfun
       dimension nrens(maxlig)
       pointer(ptr_nrens,nrens)
       real*8 neomorph
+      integer, parameter :: ERROR_UNIT = 0
       pi=3.141592654d0
 
       do i=1, maxlig      
@@ -295,7 +296,7 @@ c    1 rr(ii+1),rr(ii+2),rr(ii+3),xaa(ii+1),xaa(ii+2),xaa(ii+3)
      3 locrests, has_locrests, seed,
      4 enew,energies0,delta,deltamorph)
 c  new energy 
-c      write (*,*),'Energy2', enew 
+c      write (ERROR_UNIT,*),'Energy2', enew 
       bol=enew-gesa
       if (mctemp.eq.0) then
       bol=sign(1.0d0,-bol)
@@ -307,7 +308,7 @@ c     call crand(dseed,2,rr)
       call GGUBS(dseed,2,rr)
 c     dseed = int(10000*rr(2))
       if(bol.gt.rr(1)) then
-c      write(*,*)'accept the step', bol, rr(1)
+c      write(ERROR_UNIT,*)'accept the step', bol, rr(1)
 c     write(*,*)
 c    1 'rrot1,rrot2,rrot3,rrot4,sphi,phi(i),sssi,ssi(i),srot,rot(i)',
 c    2 rrot1,rrot2,rrot3,rrot4,sphi,phi(2),sssi,ssi(2),srot,rot(2)
@@ -322,7 +323,7 @@ c    2 rrot1,rrot2,rrot3,rrot4,sphi,phi(2),sssi,ssi(2),srot,rot(2)
 c overwrite old xaa variables, see above
       else
 c do not overwrite xaa variables
-c      write(*,*)' step rejected'
+c      write(ERROR_UNIT,*)' step rejected'
       iaccept=0
       ens(i)=ensaa(i)
       if(iori.eq.1) then

@@ -40,7 +40,8 @@ def read(files):
             for res in ilist:
                 tmp =  [a for a in data if a[1] == res]# and len(re.findall('\AH', a[2])) == 0]
                 beads.extend(tmp)
-                
+          
+        beads.sort()
         beadslist.append(beads)
         lengthlist.append(len(data))
         atomlist.append(data)
@@ -58,12 +59,14 @@ def gen_mode(rflex, rlen, name, atomlist):
     if len(rflex) == 0:
         output += '\t0\n'
     else:
-        print "number of ligand hm is", len(rflex)*3
+        #print "number of ligand hm is", len(rflex)*3
+        output += '-1\n'
         for i, mode in enumerate(rflex):
-            for j in range(3):
-                output += '    '+str(3*i+j+1)+'    0.0\n'
-                modes = ['0' for k in range(3*rlen)] 
-                modes[3*int(mode[0]-1)+j] = '1'
+	    output += str(mode[0])+'\n'
+            #for j in range(3):
+                #output += '    '+str(3*i+j+1)+'    0.0\n'
+                #modes = ['0' for k in range(3*rlen)] 
+                #modes[3*int(mode[0]-1)+j] = '1'
                 #This uncommented part is for making hydrogens flexible in conjunction with the heavy atom they are attached to
                 # This was used to reduce the number of modes
                 #h = find_hatoms(mode[2], mode[3])
@@ -84,11 +87,11 @@ def gen_mode(rflex, rlen, name, atomlist):
                     #modes[3*int(mode[0]-1)+j] = '1'
                     
                     
-                for k in range(0,len(modes),6):
-                    outstring = ' '.join(modes[k:k+6])
-                    output += outstring+'\n'
+                #for k in range(0,len(modes),6):
+                    #outstring = ' '.join(modes[k:k+6])
+                    #output += outstring+'\n'
                 
-                output += '\n'
+                #output += '\n'
                 
     return output
 
@@ -152,18 +155,24 @@ if parse_arg(sys.argv):
     flexbeads, lenligands, atomlist = read(inputfiles)
     rcut = 3.0
     directory = os.path.split(inputfiles[1])[0]
+    if len(directory) == 0: directory = '.'
     inp = inputfiles[0].split('rl')[0]
     while (len(flexbeads[0])+len(flexbeads[1]))*3 > 1000 and rcut > 0:
         rcut -= 0.1
-        subprocess.call(['python','tools/interface.py',inputfiles[1],inputfiles[3],directory,str(rcut),'rlist-'+name,'llist-'+name])
+        subprocess.call(['python','tools/interface.py',directory+'/'+name+'.pdb',directory,name,str(rcut)])
         flexbeads, lenligands, atomlist = read(inputfiles)
         
     output = open(directory+'/flexm-'+name+'.dat','w')
+    outstring = ''
     for i, beads in enumerate(flexbeads):
         tmp = gen_mode(beads, lenligands[i], name, atomlist[i])
         if i == len(flexbeads)-1:
-            tmp = tmp[:-1]
+	    if tmp == '\t0\n':
+	      tmp = ''
+	
+	outstring += tmp
             
-        output.write(tmp)
+    outstring = outstring[:-1]
+    output.write(outstring)
         
     output.close()

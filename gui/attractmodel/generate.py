@@ -230,8 +230,10 @@ start=%s
 """ % m.start_structures_file.name
       start = m.start_structures_file.name
   elif m.search == "random":
-    ret += "python $ATTRACTTOOLS/randsearch.py %d %d > randsearch.dat\n" % \
-     (len(m.partners), m.structures)
+    fixre = ""
+    if m.fix_receptor: fixre = " --fix-receptor"
+    ret += "python $ATTRACTTOOLS/randsearch.py %d %d%s> randsearch.dat\n" % \
+     (len(m.partners), m.structures, fixre)
     ret += "start=randsearch.dat\n"    
     start = "randsearch.dat"
   else:
@@ -529,7 +531,6 @@ echo 'calculate %sligand RMSD'
 echo '**************************************************************'
 """ % bb_str      
   
-    fixresult = None 
     if m.fix_receptor == False: 
       fixresult = result + "-fixre"
       ret += "$ATTRACTDIR/fix_receptor %s %d%s > %s\n" % (result, len(m.partners), flexpar, fixresult)

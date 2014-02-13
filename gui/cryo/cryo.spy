@@ -2,7 +2,6 @@ Type CryoSimData {
   ResourceData_PDB pdb
   Float map_resolution_fitting = 40
   Float map_resolution_scoring = 20
-  Bool deconvolute = False
   form {
     pdb.name = "PDB from which the map will be simulated"
     pdb.type = "file"
@@ -14,7 +13,6 @@ Type CryoSimData {
     map_resolution_scoring.add_header(t)
     map_resolution_scoring.name = "Simulated map resolution (scoring) in angstroms"
     map_resolution_scoring.tooltip = t
-    deconvolute.name = "Deconvolute the assembly map"
   }  
 }
 
@@ -60,7 +58,6 @@ Type CryoData {
   *CryoMap map_fitting
   CryoMap map_scoring
   Bool generate_map_fitting = False
-  Bool deconvolute = False
   form {
     map_fitting.name = "Cryo-EM data for the assembly stage"
     map_scoring.name = "Cryo-EM data for the scoring stage"
@@ -68,7 +65,6 @@ Type CryoData {
     generate_map_fitting.add_header(t)
     generate_map_fitting.name = "Auto-generate assembly map"
     generate_map_fitting.tooltip = t
-    deconvolute.name = "Deconvolute the assembly map"
   }
   validate {
     assert generate_map_fitting or map_fitting is not None
@@ -227,6 +223,15 @@ Type CryoPartnerRun {
   *CryoSimData simdata 
   *CryoReference reference
   *CryoZoom cryozoom
+  
+  #***Computing and parallelization parameters***
+  Integer np = 1
+  ## form np.group = "Computing and parallelization parameters"
+  ## form np.name = "Number of processor cores"
+  Integer jobsize = 0
+  ## form jobsize.group = "Computing and parallelization parameters"
+  ## form jobsize.name = "Number of structures in a single job (leave blank to divide all structures equally over the cores)"
+  
   form {
     sequences.name = "Protein sequence definition"
     sequences.count_from_one = 1
@@ -327,12 +332,23 @@ Type CryoBodyRun {
   *CryoSimData simdata 
   *CryoReference reference
   *CryoZoom cryozoom
-  CryoInterBodyRestraintArray interbodyrestraints
+  
+  #***Sampling parameters***
+  CryoInterBodyRestraintArray interbodyrestraints  
   Float k_abs_ori = 2
   Float k_abs_trans = 2
   Float k_ibr_ori =  2
   Float k_ibr_trans = 0.1
   Float k_ibr_linker = 1
+  
+  #***Computing and parallelization parameters***
+  Integer np = 1
+  ## form np.group = "Computing and parallelization parameters"
+  ## form np.name = "Number of processor cores"
+  Integer jobsize = 0
+  ## form jobsize.group = "Computing and parallelization parameters"
+  ## form jobsize.name = "Number of structures in a single job (leave blank to divide all structures equally over the cores)"
+  
   form {
     sequences.name = "Protein sequence definition"
     sequences.count_from_one = 1
@@ -354,10 +370,15 @@ Type CryoBodyRun {
     interbodyrestraints.name = "Inter-body restraints"
     interbodyrestraints.length = 10
     k_abs_ori.name = "Force constant for absolute orientational restraints"
+    k_abs_ori.group = "Sampling parameters"
     k_abs_trans.name = "Force constant for absolute translational restraints"    
+    k_abs_trans.group = "Sampling parameters"
     k_ibr_ori.name = "Force constant for inter-body orientational restraints"
+    k_ibr_ori.group = "Sampling parameters"
     k_ibr_trans.name = "Force constant for inter-body translational restraints"
+    k_ibr_trans.group = "Sampling parameters"
     k_ibr_linker.name = "Force constant for inter-body linker restraints"
+    k_ibr_linker.group = "Sampling parameters"
   }  
   validate {
     assert len(bodies)
@@ -413,7 +434,8 @@ Type CryoBodyRun {
 }
 
 Define CryoBodyRun(CryoPartnerRun) partners2bodies
-Method generate(CryoBodyRun) generate
+Define AttractModel(CryoBodyRun) bodies2attractmodel
 
 #TODO: atom type mass table => sum of the EM map will be the mass of the sequence
 #TODO: positional restraints: rotation matrices as well, are they there yet?
+#TODO: remove menu interface from pdb2vol and include it in ATTRACT

@@ -9,11 +9,11 @@ try:
   import spyder, Spyder
   import spyder.htmlform
   import attractmodel
-  import form_model
+  import formeasy
   import attractsave
   from serverlib import serve_attract
 
-  r = serve_attract(Spyder.AttractModel, form_model, attractsave.deploy)
+  r = serve_attract(Spyder.AttractEasyModel, formeasy, attractsave.deploy_easy)
   print r
 except Exception, e:
   print traceback.format_exc() + "\n"
