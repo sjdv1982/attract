@@ -112,7 +112,7 @@ def webform(f, model=None,
   c.icon = "grid-icon"
   c.title = "Protein sequences"
   c.categoryname = "sequences"
-  c.description = "" #TODO
+  c.description = "Here you can define the sequences of the proteins that are present in your electron density map. They can be defined as SwissProt code or the sequence can be entered manually. It is also possible to derive the sequence from the assembly partner PDB (with chain). You can define subsequences to account for disordered regions, or if your construct only contains certain domains of the protein"
   c.members.append("sequences")   
   f.sequences.clonebutton = "Add sequence"
   f.sequences.clonelength = 50
@@ -181,12 +181,12 @@ A CryoPartner has different options for how it is to be converted into CryoBodie
     ### START b_mappings block
     for n in range(fp.sequencemappings.length):
       b = fp.new_group("b_mappings-%d" % n, "block")
-      b.title =  "Sequence mappings %d" % (n+1)      
+      #b.title =  "Sequence mappings %d" % (n+1)
+      b.title =  ""      
       b.has_switch = False          
       fp.sequencemappings[n].subsequences[None].span = True
       b.members.append("sequencemappings[%d]" % n)
       for nn in range(fp.sequencemappings[0].subsequences.length):
-	#fp.sequencemappings[n].subsequences[0].name = "1" #TODO: fix
         b.members.append("sequencemappings[%d].subsequences[%d]" % (n, nn))
       
     ### END b_mappings block
@@ -214,7 +214,7 @@ A CryoPartner has different options for how it is to be converted into CryoBodie
   c.title = "Symmetry"
   c.icon = "symmetry-icon"
   c.categoryname = "symmetry"
-  c.description = "" #TODO
+  c.description = "Define the symmetry of your electron density map. It is assumed that the primary symmetry axis is the Z axis. For D symmetry, you can define a secondary symmetry axis"
   b = f.new_group("b_symmetry", "block")
   b.title = c.title
   b.members.append("symmetry")
@@ -227,7 +227,7 @@ A CryoPartner has different options for how it is to be converted into CryoBodie
   c.title = "Cryo-EM data"
   c.icon = "cryoem-icon"
   c.categoryname = "cryoem"
-  c.description = "" #TODO
+  c.description = "Specify your electron density map here. It is recommended to downsample your map for the assembly stage, and to use the full-resolution map in scoring. For benchmarking and comparison, you can also specify a density map to be simulated from a PDB"
   b = f.new_group("b_cryodata", "block")
   b.title = f.cryodata.name
   f.cryodata.name = ""
@@ -262,7 +262,6 @@ A CryoPartner has different options for how it is to be converted into CryoBodie
     b.title = f.reference.sequencemappings[n].name
     b.members.append("reference.sequencemappings[%d]" % n)
     b.members.append("reference.sequencemappings[%d].subsequences" % n)
-    #f.reference.sequencemappings[n].subsequences[0].name = "1" #TODO: fix
     c.members.append(bname)
   ### END sequencemapping blocks
   

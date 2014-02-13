@@ -42,5 +42,5 @@ silk AttractEasyModel -m attractmodel -I $ATTRACTGUI --gui html \
 CRYO INTERFACE
 
 full web server, ATTRACT style:
-silk CryoPartnerRun -I $ATTRACTGUI -m cryo --gui html \
+silk CryoPartnerRun -I $ATTRACTGUI -m attractmodel -m cryo --gui html \
 -I $ATTRACTGUI/server --form form_cryo webform --view form_cryo html --webdir $ATTRACTGUI/server/html --webserver-pre form_cryo webserverform
