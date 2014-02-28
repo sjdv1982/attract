@@ -258,7 +258,10 @@ int prepare_axsym_dof(
         rotmatsym[5] = t*y*z + x*s;
         rotmatsym[6] = t*x*z + y*s;
         rotmatsym[7] = t*y*z - x*s;
-        rotmatsym[8] = t*z*z + c;  
+        rotmatsym[8] = t*z*z + c; 
+	//printf("%.3f %.3f %.3f\n", rotmatsym[0], rotmatsym[1], rotmatsym[2]);
+	//printf("%.3f %.3f %.3f\n", rotmatsym[3], rotmatsym[4], rotmatsym[5]);
+	//printf("%.3f %.3f %.3f\n\n", rotmatsym[6], rotmatsym[7], rotmatsym[8]);
 
         nr_symtrans++;
         symcopies[l][nr_symcopies[l]] = nlig;        
@@ -319,6 +322,11 @@ void apply_axsym(
     double rotmatd[9];
     matmult_(rotmatl, rotmatsym,rotmatd);
 
+    
+    //printf("%.3f %.3f %.3f\n", rotmatd[0], rotmatd[1], rotmatd[2]);
+    //printf("%.3f %.3f %.3f\n", rotmatd[3], rotmatd[4], rotmatd[5]);
+    //printf("%.3f %.3f %.3f\n\n", rotmatd[6], rotmatd[7], rotmatd[8]);
+    
     //Distill the euler angles from the new matrix
     phi[target] = atan2(rotmatd[5],rotmatd[2]);
     ssi[target] = acos(rotmatd[8]);
@@ -326,8 +334,18 @@ void apply_axsym(
     if (fabs(rotmatd[8]) >= 0.9999) { //gimbal lock
       phi[target] = 0;
       if (fabs(rotmatd[0]) >= 0.9999) {
-        ssi[target] = 0;	
-        rot[target] = 0;
+        if (rotmatd[0] < 0) {
+          rot[target] = pi;	
+        }
+        else {
+          rot[target] = 0;	
+        }
+        if (rotmatd[8] < 0) {
+          ssi[target] = pi;	
+        }
+        else {
+          ssi[target] = 0;	
+        }        
       }
       else {
         if (rotmatd[8] < 0) {

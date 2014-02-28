@@ -232,6 +232,9 @@ void parse_options(int ministatehandle, int cartstatehandle, int nlig, int argc,
     else if (!strcmp(arg,"--fix-receptor")) {
       ms.fixre = 1;
     }
+    else if (!strcmp(arg,"--ghost-ligands")) {
+      ms.ghost_ligands = 1;
+    }    
     else if (!strcmp(arg,"--only-rot")) {
       ms.itra = 0;
       ms.iori = 1;
