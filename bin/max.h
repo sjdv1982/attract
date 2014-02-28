@@ -1,12 +1,12 @@
 #ifndef MAX_H 
 #define MAX_H /* to make sure that we include only once... */
 
-const int MAXSTRUC = 200000; //only for deredundant
+const int MAXSTRUC = 10000; //only for deredundant
 const int MAXATOM = 10000;
 const int MAXRES = 3000;
 const int TOTMAXATOM = 100000;
 const int TOTMAXRES = 10000;
-const int MAXLIG = 10;
+const int MAXLIG = 100;
 const int MAXMODE = 10;
 const int MAXMOLPAIR = 2000000;
 const int MAXDOF = 1070; //100 ligands with modes and index modes, use 2 ligands for index modes only

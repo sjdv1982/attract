@@ -161,7 +161,7 @@ Type CryoZoom {
 }
 
 Type CryoSequence:Degenerate {
-  Enum mode("code","partner","body","sequence")
+  Enum mode("code","sequence","automatic")
   *String proteincode 
   *String sequence  
   *Integer index
@@ -174,9 +174,8 @@ Type CryoSequence:Degenerate {
     mode.name = "How is the protein sequence specified?"
     mode.optiontitles = (
      "Protein code (SwissProt)", 
-     "Automatic, from assembly partner", 
-     "Automatic, from assembly body",
      "Manually entered sequence",
+     "Automatic, from assembly partner/body",      
     )
     proteincode.name = "SwissProt code of the protein" 
     sequence.name = "Or: sequence of the protein (in FASTA format)"
@@ -188,27 +187,15 @@ Type CryoSequence:Degenerate {
     chain.length = 2
   }
   validate {
-    assert index > 0
-    if mode in ("partner", "body"): assert len(subsequences) == 0
-    if mode not in ("partner", "body"): assert chain is None
+    if mode == "code": assert proteincode is not None
+    if mode != "code": assert proteincode is None
+    if mode == "sequence": assert sequence is not None
+    if mode != "sequence": assert sequence is None
+    if mode == "automatic": assert index is not None
+    if mode == "automatic": assert len(subsequences) == 0
+    if mode != "automatic": assert index is None
+    if mode != "automatic": assert chain is None
   }
-  error {
-    'assert index > 0'
-    =>
-    ''
-
-    'if mode not in ("partner", "body"): assert chain is None'
-    =>
-    ''
-
-    'if mode is not None: assert mode in ("code","partner","body","sequence")'
-    =>
-    ''
-
-    'if mode in ("partner", "body"): assert len(subsequences) == 0'
-    =>
-    ''
-  }  
 }
 
 Type CryoPartnerRun {

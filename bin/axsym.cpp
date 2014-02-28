@@ -207,7 +207,7 @@ int prepare_axsym_dof(
     AxSymmetry &sym = axsyms[n];
     int nrsym = sym.symtype;
     int l = sym.ligand - 1;
-    if (nrsym < 1) {
+    if (nrsym < 0) {
       fprintf(stderr, "Symmetry type must be positive!\n");
       exit(1);
     }
@@ -217,7 +217,9 @@ int prepare_axsym_dof(
       if (forcefactor[ll] == 0) forcefactor[ll] = 1;
       double ff = forcefactor[ll] * nrsym;
       forcefactor[ll] = ff;
-      for (int nn = 1; nn < nrsym; nn++) {
+      int symcount = nrsym;
+      if (nrsym == 0) symcount = 2; //ncsym => just run the loop once
+      for (int nn = 1; nn < symcount; nn++) {
 
         //Copy DOF descriptors from the original
         nhm[nlig] = nhm[l];
@@ -232,7 +234,13 @@ int prepare_axsym_dof(
         csymtrans.targetligand = nlig;
         memcpy(csymtrans.origin, sym.origin, 3 * sizeof(double));
         
-        double angle = 2.0 * pi / nrsym * nn;      
+        double angle;
+        if (nrsym == 0) { //ncsym
+          angle = sym.angle / 180 * pi;
+        }
+        else {
+          angle = 2.0 * pi / nrsym * nn;        
+        }
 
         //Compute a symmetry matrix from the symmetry axis and the current angle
         double *rotmatsym = csymtrans.rotmatsym;

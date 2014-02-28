@@ -43,11 +43,11 @@ Type CryoSequenceMapping {
     chain.tooltip = t
     chain.length = 2
     index.name = "Index of the assembly sequence to map to"
-    t = "The sequence stretches to which the PDB is aligned; leave blank for automatic alignment"
-    subsequences[0].add_header(t)
+    t = "The sequence stretches to which the PDB is aligned; leave blank for automatic alignment"    
     subsequences.tooltip = t
     subsequences.length = 5
     subsequences.count_from_one = True
+    subsequences[0].add_header(t)
     subsequences.form = "soft"
     t = "It is possible to indicate symmetry shifts in the mapped PDB, causing linker restraints to be defined to bodies in the next/previous symmetry copy, instead of to bodies in the reference copy"
     shift.add_header(t)
