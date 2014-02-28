@@ -331,15 +331,16 @@ void apply_axsym(
     phi[target] = atan2(rotmatd[5],rotmatd[2]);
     ssi[target] = acos(rotmatd[8]);
     rot[target] = atan2(-rotmatd[7],-rotmatd[6]);       
+    if (fabs(rotmatd[6]) < 0.0001) rot[target] = pi;
     if (fabs(rotmatd[8]) >= 0.9999) { //gimbal lock
       phi[target] = 0;
       if (fabs(rotmatd[0]) >= 0.9999) {
-        if (rotmatd[0] < 0) {
-          rot[target] = pi;	
+        if (rotmatd[0] * rotmatd[8] < 0) {
+          rot[target] = pi;
         }
         else {
-          rot[target] = 0;	
-        }
+          rot[target] = 0;      
+        }        
         if (rotmatd[8] < 0) {
           ssi[target] = pi;	
         }
@@ -359,7 +360,6 @@ void apply_axsym(
       }
       if (rotmatd[1] < 0) rot[target] *= -1;        
     }
-
 
     //Copy other DOFs from the original
     morph[target] = morph[l];
