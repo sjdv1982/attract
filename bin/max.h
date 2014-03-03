@@ -16,6 +16,7 @@ const int MAXRESTRAINTS = 10000;
 const int MAXENS = 100; //maximum ensemble size
 const int MAXLENINDEXMODE = 10; //maximum number of nonzero entries in index modes
 const int MAXINDEXMODE = 1000; // maximum number of index modes for flexible interface
+const int MAXGRIDNEIGHBOUR = 200000000; //maximum size of total neighbour grid; 10 bytes per item 
 
 typedef double dof[MAXSTRUC][MAXLIG]; //only for deredundant
 typedef double modes[MAXSTRUC][MAXLIG][MAXMODE]; //only for deredundant
