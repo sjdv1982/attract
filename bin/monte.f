@@ -224,18 +224,29 @@ c       write(*,*)'phi(i),ssi(i),rot(i)',i,phi(i),ssi(i),rot(i)
         ssi(i) = acos(newrot(8))
         rot(i) = atan2(-newrot(7),-newrot(6))       
         if (abs(newrot(8)) >= 0.9999) then 
+c         gimbal lock        
           phi(i) = 0.0d0
           if (abs(newrot(0)) >= 0.9999) then
+            if (newrot(0) * newrot(8) < 0) then
+              rot(i) = pi
+            else
+              rot(i) = 0.0d0      
+            endif     
+            if (newrot(8) < 0) then
+              ssi(i) = pi
+            else
+              ssi(i) = 0.0d0
+            endif               
             ssi(i) = 0.0d0
             rot(i) = 0.0d0
           else          
-          if (newrot(8) < 0) then
-            ssi(i) = pi
-            rot(i) = -acos(-newrot(0))
-          else 
-            ssi(i) = 0.0d0
-            rot(i) = acos(newrot(0))
-          endif
+            if (newrot(8) < 0) then
+              ssi(i) = pi
+              rot(i) = -acos(-newrot(0))
+            else 
+              ssi(i) = 0.0d0
+              rot(i) = acos(newrot(0))
+            endif
           endif
           if (newrot(1) < 0) then
             rot(i) = -rot(i)

@@ -3,8 +3,7 @@
 import sys
 
 h = sys.argv[1]
-variables = {'MAXSTRUC':'','MAXATOM':'maxatom','MAXRES':'maxres','TOTMAXATOM':'totmaxatom','TOTMAXRES':'totmaxres','MAXLIG':'maxlig','MAXMODE':'maxmode','MAXMOLPAIR':'maxmolpair','MAXDOF':'maxdof','MAXATOMTYPES':'maxatomtypes',
-	     'MAXSELECTION':'maxselection','MAXRESTRAINTS':'','MAXENS':'maxens','MAXLENINDEXMODE':'maxlenindexmode','MAXINDEXMODE':'maxindexmode'}
+variables = {'MAXSTRUC':'','MAXRESTRAINTS':''}
 for line in open(h).readlines():
   if 'typedef' in line:
     continue
@@ -23,7 +22,10 @@ for line in open(h).readlines():
 	  item = item.replace(';','')
 	  
 	if 'MAX' in item:
-	  item = variables[item]
+	  if item in variables:
+	    item = variables[item]
+	  else:
+            item = item.lower()
 	  
       if item == '':
 	output = ''
