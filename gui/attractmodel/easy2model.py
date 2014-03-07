@@ -1,6 +1,4 @@
 def easy2model(emodel):
-  pass
-  
   partners = []
   for p in emodel.partners:
     pp = AttractPartnerInterface.empty()
@@ -9,7 +7,8 @@ def easy2model(emodel):
     pp.collect_pdb=p.pdbfile 
     pp.chain="All"
     pp.generate_modes=p.generate_modes
-    pp.nr_modes=p.nr_modes
+    if p.generate_modes:
+      pp.nr_modes=p.nr_modes
     pp.deflex=True
     pp.rmsd_pdb=p.rmsd_pdb
     pp.rmsd_bb=p.rmsd_bb
@@ -17,6 +16,7 @@ def easy2model(emodel):
       pp.ensemble = True
       pp.ensemble_size = p.ensemble_size
       pp.ensemblize = "random"
+    pp = AttractPartnerInterface(pp)
     partners.append(pp)
     
   if emodel.use_grids:
@@ -29,7 +29,7 @@ def easy2model(emodel):
 	    AttractIteration(rcut=50),AttractIteration(rcut=50)]
    
   gravity = 1 if emodel.gravity else 0
-  newmodel = AttractModel(partners=partners,grids=rgrid,nr_iterations=len(iter),iterations=iter,fix_receptor=True,search="syst",gravity=gravity,calc_lrmsd=emodel.calc_lrmsd,
+  newmodel = AttractModel(runname="easyrun",partners=partners,grids=rgrid,nr_iterations=len(iter),iterations=iter,fix_receptor=True,search="syst",gravity=gravity,calc_lrmsd=emodel.calc_lrmsd,
 	       calc_irmsd=emodel.calc_irmsd,calc_fnat=emodel.calc_fnat,nr_collect=emodel.nr_collect,np=emodel.np)
   
   return newmodel
