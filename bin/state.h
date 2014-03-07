@@ -6,7 +6,8 @@
 
 struct AxSymmetry {
   int ligand;
-  int symtype;
+  int symtype; //0 for ncsym
+  double angle; //only for ncsym
   double axis[3];
   double origin[3];
 };
@@ -100,7 +101,7 @@ struct CartState {
   int symtypes[MAXLIG];
   int sym[MAXLIG][MAXLIG];
 
-  /*axis symmetries*/
+  /*axis and non-crystallographic symmetries*/
   int nr_axsyms;
   AxSymmetry axsyms[MAXLIG];
   int nr_symcopies[MAXLIG];

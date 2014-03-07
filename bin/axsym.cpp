@@ -207,7 +207,7 @@ int prepare_axsym_dof(
     AxSymmetry &sym = axsyms[n];
     int nrsym = sym.symtype;
     int l = sym.ligand - 1;
-    if (nrsym < 1) {
+    if (nrsym < 0) {
       fprintf(stderr, "Symmetry type must be positive!\n");
       exit(1);
     }
@@ -217,7 +217,9 @@ int prepare_axsym_dof(
       if (forcefactor[ll] == 0) forcefactor[ll] = 1;
       double ff = forcefactor[ll] * nrsym;
       forcefactor[ll] = ff;
-      for (int nn = 1; nn < nrsym; nn++) {
+      int symcount = nrsym;
+      if (nrsym == 0) symcount = 2; //ncsym => just run the loop once
+      for (int nn = 1; nn < symcount; nn++) {
 
         //Copy DOF descriptors from the original
         nhm[nlig] = nhm[l];
@@ -232,7 +234,13 @@ int prepare_axsym_dof(
         csymtrans.targetligand = nlig;
         memcpy(csymtrans.origin, sym.origin, 3 * sizeof(double));
         
-        double angle = 2.0 * pi / nrsym * nn;      
+        double angle;
+        if (nrsym == 0) { //ncsym
+          angle = sym.angle / 180 * pi;
+        }
+        else {
+          angle = 2.0 * pi / nrsym * nn;        
+        }
 
         //Compute a symmetry matrix from the symmetry axis and the current angle
         double *rotmatsym = csymtrans.rotmatsym;
@@ -323,15 +331,16 @@ void apply_axsym(
     phi[target] = atan2(rotmatd[5],rotmatd[2]);
     ssi[target] = acos(rotmatd[8]);
     rot[target] = atan2(-rotmatd[7],-rotmatd[6]);       
+    if (fabs(rotmatd[6]) < 0.0001) rot[target] = pi;
     if (fabs(rotmatd[8]) >= 0.9999) { //gimbal lock
       phi[target] = 0;
       if (fabs(rotmatd[0]) >= 0.9999) {
-        if (rotmatd[0] < 0) {
-          rot[target] = pi;	
+        if (rotmatd[0] * rotmatd[8] < 0) {
+          rot[target] = pi;
         }
         else {
-          rot[target] = 0;	
-        }
+          rot[target] = 0;      
+        }        
         if (rotmatd[8] < 0) {
           ssi[target] = pi;	
         }
@@ -351,7 +360,6 @@ void apply_axsym(
       }
       if (rotmatd[1] < 0) rot[target] *= -1;        
     }
-
 
     //Copy other DOFs from the original
     morph[target] = morph[l];
