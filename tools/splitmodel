@@ -3,6 +3,10 @@
 import sys
 f = sys.argv[1]
 assert f.endswith(".pdb")
+template = f[:-4]
+if len(sys.argv) > 2: template = sys.argv[2]
+size = None
+if len(sys.argv) > 3: size = int(sys.argv[3])
 
 header = []
 count = 0
@@ -11,9 +15,14 @@ for l in open(f):
   if l.startswith("MODEL"): 
     if count > 0: ff.close()
     count += 1
-    ff = open(f[:-4]+"-"+str(count)+".pdb", "w")
+    target = template+"-"+str(count)+".pdb"
+    print target
+    ff = open(target, "w")
     for h in header: print >> ff, h
     continue
   if l.startswith("ENDMDL"): continue
   if count == 0: header.append(l)
   else: print >> ff, l
+
+if size is not None and count != size:
+  print("ERROR in splitmodel: model count should be %d, is %d" % (size, count))
