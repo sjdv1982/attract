@@ -30,45 +30,6 @@ Therefore, you can only define docking partners that are already in the reduced 
   ret += "if [ 1 -eq 1 ]; then ### move and change to disable parts of the protocol\n"
   ret += "$ATTRACTDIR/shm-clean\n\n"
 
-  modes_any = any((p.modes_file for p in m.partners))
-  aa_modes_any = any((p.aa_modes_file for p in m.partners))
-  if modes_any:
-    ret += """
-echo '**************************************************************'
-echo 'Assemble modes file...'
-echo '**************************************************************'
-cat /dev/null > hm-all.dat
-""" 
-    if aa_modes_any:
-      hm_all_aa = "hm-all-aa.dat"
-      ret += "cat /dev/null > hm-all-aa.dat\n"
-    else: 
-      hm_all_aa = "hm-all.dat"
-    ret += "\n"  
-    for p in m.partners:
-      if p.generate_modes: 
-        raise ValueError("Generating modes must currently be done manually") #TODO?
-      if p.moleculetype != "Protein": raise Exception #TODO: not yet implemented
-      if p.nr_modes in (None, 0) or  p.modes_file is None:
-        ret += "echo 0 >> hm-all.dat\n"
-        if aa_modes_any:
-          ret += "echo 0 >> hm-all-aa.dat\n"
-      elif p.nr_modes == 10:
-        ret += "cat %s >> hm-all.dat\n" % p.modes_file.name        
-        if aa_modes_any:
-          mf = p.modes_file.name
-          if p.aa_modes_file is not None: mf = p.aa_modes_file.name        
-          ret += "cat %s >> hm-all-aa.dat\n" % mf
-      else:
-        ret += "#select first %d modes...\n" % (p.nr_modes)
-        ret += "awk 'NF == 2 && $1 == %d{exit}{print $0}' %s >> hm-all.dat\n" % \
-         (p.nr_modes+1, p.modes_file.name)
-        if aa_modes_any:
-          mf = p.modes_file.name
-          if p.aa_modes_file is not None: mf = p.aa_modes_file.name
-          ret += "awk 'NF == 2 && $1 == %d{exit}{print $0}' %s >> hm-all-aa.dat\n" % \
-           (p.nr_modes+1, mf)         
-    ret += "\n"    
   filenames = []
   reduce_any = False
   reduced = set()
@@ -94,8 +55,58 @@ echo '**************************************************************'
       filenames.append(pdbname_reduced)
     else:        
       filenames.append(p.pdbfile.name) 
-    #TODO?: generate normal modes  
   if reduce_any: ret += "\n"
+
+  modes_any = any((p.modes_file or p.generate_modes for p in m.partners))
+  aa_modes_any = any((p.aa_modes_file or p.generate_modes for p in m.partners))
+  if modes_any:
+    ret += """
+echo '**************************************************************'
+echo 'Assemble modes file...'
+echo '**************************************************************'
+cat /dev/null > hm-all.dat
+""" 
+    if aa_modes_any:
+      hm_all_aa = "hm-all-aa.dat"
+      ret += "cat /dev/null > hm-all-aa.dat\n"
+    else: 
+      hm_all_aa = "hm-all.dat"
+    ret += "\n"  
+    for pnr,p in enumerate(m.partners):
+      modes_file_name = None
+      if p.modes_file is not None: modes_file_name = p.modes_file.name
+      aa_modes_file_name = None
+      if p.aa_modes_file is not None: aa_modes_file_name = p.aa_modes_file.name
+      if p.generate_modes: 
+        modes_file_name = "partner%d-hm.dat" % (pnr+1)
+        ret += "$ATTRACTDIR/modes %s\n" % filenames[pnr]
+        ret += "cat hm.dat > %s\n" % modes_file_name
+        if p.collect_pdb is not None:
+	  aa_modes_file_name = "partner%d-hm-aa.dat" % (pnr+1)
+          ret += "$ATTRACTDIR/modes %s\n" % p.collect_pdb.name
+          ret += "cat hm.dat > %s\n" % aa_modes_file_name
+        ret += "rm -f hm.dat\n"
+      if p.moleculetype != "Protein": raise Exception #TODO: not yet implemented
+      if p.nr_modes in (None, 0) or modes_file_name is None:
+        ret += "echo 0 >> hm-all.dat\n"
+        if aa_modes_any:
+          ret += "echo 0 >> hm-all-aa.dat\n"
+      elif p.nr_modes == 10:
+        ret += "cat %s >> hm-all.dat\n" % modes_file_name
+        if aa_modes_any:
+          mf = modes_file_name
+          if aa_modes_file_name is not None: mf = aa_modes_file_name
+          ret += "cat %s >> hm-all-aa.dat\n" % mf
+      else:
+        ret += "#select first %d modes...\n" % (p.nr_modes)
+        ret += "awk 'NF == 2 && $1 == %d{exit}{print $0}' %s >> hm-all.dat\n" % \
+         (p.nr_modes+1, modes_file_name)
+        if aa_modes_any:
+          mf = modes_file_name
+          if aa_modes_file_name is not None: mf = aa_modes_file_name
+          ret += "awk 'NF == 2 && $1 == %d{exit}{print $0}' %s >> hm-all-aa.dat\n" % \
+           (p.nr_modes+1, mf)         
+    ret += "\n"    
   
   if len(m.partners) == 2:
     partnerfiles = " ".join(filenames)
@@ -230,8 +241,10 @@ start=%s
 """ % m.start_structures_file.name
       start = m.start_structures_file.name
   elif m.search == "random":
-    ret += "python $ATTRACTTOOLS/randsearch.py %d %d > randsearch.dat\n" % \
-     (len(m.partners), m.structures)
+    fixre = ""
+    if m.fix_receptor: fixre = " --fix-receptor"
+    ret += "python $ATTRACTTOOLS/randsearch.py %d %d%s> randsearch.dat\n" % \
+     (len(m.partners), m.structures, fixre)
     ret += "start=randsearch.dat\n"    
     start = "randsearch.dat"
   else:
@@ -529,8 +542,7 @@ echo 'calculate %sligand RMSD'
 echo '**************************************************************'
 """ % bb_str      
   
-    fixresult = None 
-    if m.fix_receptor == False or m.search == "random": 
+    if m.fix_receptor == False: 
       fixresult = result + "-fixre"
       ret += "$ATTRACTDIR/fix_receptor %s %d%s > %s\n" % (result, len(m.partners), flexpar, fixresult)
       result = fixresult

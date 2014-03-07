@@ -131,6 +131,10 @@ axsymmetry: axsymmetry.o read_dof.o euler2rotmat.o matmult.o matinv.o \
                 print_struc.o state.h axsym.h axsym.o
 	$(CXX) $(CFLAGS) $^ -o $@ -lm
 
+ncsymmetry: ncsymmetry.o read_dof.o euler2rotmat.o matmult.o matinv.o \
+                print_struc.o state.h axsym.h axsym.o
+	$(CXX) $(CFLAGS) $^ -o $@ -lm
+	
 omp_threadnum: omp_threadnum.o
 	$(CXX) $(CFLAGS)  $^  -fopenmp -o $@
 
@@ -201,5 +205,5 @@ rest: read_pdb2.o
 all: max.fin attract attract-torque attract-infinite collect collectlib.so lrmsd rmsd calc_interior calc_no_interior make-grid \
  make-grid-omp make-grid-torque make-grid-torque-omp shm-grid \
  shm-grid-torque shm-clean systsearch map2map fix_receptor \
- omp_threadnum deredundant matrix-lrmsd rest emcorr gvm gvm-pdb axsymmetry
+ omp_threadnum deredundant matrix-lrmsd rest emcorr gvm gvm-pdb axsymmetry ncsymmetry
 

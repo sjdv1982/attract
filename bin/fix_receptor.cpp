@@ -230,8 +230,18 @@ int main(int argc, char *argv[]) {
       if (fabs(rotmatd[8]) >= 0.9999) { //gimbal lock
         phi[i] = 0;
         if (fabs(rotmatd[0]) >= 0.9999) {
-          ssi[i] = 0;	
-          rot[i] = 0;
+          if (rotmatd[0] * rotmatd[8] < 0) {
+            rot[i] = pi;     
+          }
+          else {
+            rot[i] = 0;      
+          }
+          if (rotmatd[8] < 0) {
+            ssi[i] = pi;     
+          }
+          else {
+            ssi[i] = 0;      
+          }        
         }
         else {
           if (rotmatd[8] < 0) {
