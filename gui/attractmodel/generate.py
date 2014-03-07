@@ -90,11 +90,13 @@ Therefore, you can only define docking partners that are already in the reduced 
           mname2 = dd + "-" + str(mnr+1) + "r.pdb"
           if mnr == 0: 
             filenames.append(mname2)
+            p.collect_pdb.name = mname1
+            
           ret += "$ATTRACTDIR/reduce %s > /dev/null\n" % mname1            
           reduced.add(mname2)
           ret += "echo %s >> %s\n" % (mname2, listensr)  
       ensemble_list = listensr
-      if p.collect_pdb is None:
+      if p.collect_pdb is not None:
         
         if collect_ensemble_list is None: collect_ensemble_list = listens      
     ensemble_lists.append(ensemble_list)
