@@ -16,7 +16,7 @@ def easy2model(emodel):
       pp.ensemble = True
       pp.ensemble_size = p.ensemble_size
       pp.ensemblize = "random"
-    pp.validate()
+    pp = AttractPartnerInterface(pp)
     partners.append(pp)
     
   if emodel.use_grids:
