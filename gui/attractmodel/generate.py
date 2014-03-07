@@ -442,7 +442,7 @@ echo '**************************************************************'
     ret += "\n"  
     result = outp
   result0 = result
-  if m.calc_lrmsd or m.calc_irmsd:
+  if m.calc_lrmsd or m.calc_irmsd or m.calc_fnat:
     deflex_any = any((p.deflex for p in m.partners))
     if deflex_any:
       ret += """
@@ -466,7 +466,7 @@ tmpf2=`mktemp`
             continue
           result = outp
           outp, outp2 = outp2, outp
-  if m.calc_lrmsd or m.calc_irmsd or m.calc_fnat:    
+
     any_bb = False
     rmsd_filenames = []
     for pnr in range(len(m.partners)):      
@@ -573,13 +573,6 @@ echo '**************************************************************'
     ret += "python $ATTRACTDIR/irmsd.py %s %s%s %s > %s\n" % (result, irmsd_allfilenames, flexpar, bbo, irmsdresult)
     ret += "\n"
 
-  if m.calc_lrmsd or m.calc_irmsd:
-    if deflex_any:
-      ret += "rm -f $tmpf $tmpf2\n"
-      result = result0
-    if m.fix_receptor == False:
-      ret += "rm -f %s\n" % fixresult
-
   if m.calc_fnat:      
     ret += """
 echo '**************************************************************'
@@ -595,6 +588,13 @@ echo '**************************************************************'
     ret += "python $ATTRACTDIR/fnat.py %s 5 %s%s > %s\n" % (result, fnat_allfilenames, flexpar, fnatresult)
     ret += "\n"
 
+  if m.calc_lrmsd or m.calc_irmsd or m.calc_fnat:
+    if deflex_any:
+      ret += "rm -f $tmpf $tmpf2\n"
+      result = result0
+    if m.fix_receptor == False:
+      ret += "rm -f %s\n" % fixresult
+    
   if m.collect:
     collect_filenames = filenames
     nr = m.nr_collect
