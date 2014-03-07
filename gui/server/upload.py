@@ -7,20 +7,31 @@ def serve_upload():
   webform = cgi.FieldStorage()
   if "protocolfile" not in webform: raise Exception ### TODO, nice error message
   data = webform["protocolfile"].value
+  interface = webform["interface"].value
   typ, content = spyder.core.parse(data)
   
-  if typ == "AttractModel": 
+  conversion = False
+  if interface == "auto":
+    interface = typ
+  else:
+    conversion = True
+  if interface == "AttractModel": 
     spydertype = Spyder.AttractModel    
     formlib = form
     cgiscript = "attractserver.py"
-  elif typ == "AttractEasyModel": 
+  elif interface == "AttractEasyModel": 
     spydertype = Spyder.AttractEasyModel    
     formlib = formeasy
     cgiscript = "attractserver-easy.py"
   else:    
-    raise ValueError(typ) ### TODO, nice error message
+    raise ValueError(interface) ### TODO, nice error message
   
-  model = spydertype.fromdict(content)
+  if conversion:
+    spydertype2 = getattr(Spyder, typ)
+    model = spydertype2.fromdict(content)
+    model = model.convert(spydertype)
+  else:    
+    model = spydertype.fromdict(content)
   import random
   from spyder.formtools import embed
   embed(model)   
