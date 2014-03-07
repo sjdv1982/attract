@@ -3,8 +3,20 @@ def easy2model(emodel):
   
   partners = []
   for p in emodel.partners:
-    pp = AttractPartnerInterface(pdbfile=p.pdbfile,chain="All",generate_modes=p.generate_modes,nr_modes=p.nr_modes,
-			       deflex=True,rmsd_pdb=p.rmsd_pdb,rmsd_bb=p.rmsd_bb)
+    pp = AttractPartnerInterface.empty()
+    pp.pdbfile=p.pdbfile
+    pp.is_reduced=False
+    pp.collect_pdb=p.pdbfile 
+    pp.chain="All"
+    pp.generate_modes=p.generate_modes
+    pp.nr_modes=p.nr_modes
+    pp.deflex=True
+    pp.rmsd_pdb=p.rmsd_pdb
+    pp.rmsd_bb=p.rmsd_bb
+    if p.ensemble_size > 0:
+      pp.ensemble = True
+      pp.ensemble_size = p.ensemble_size
+      pp.ensemblize = "random"
     partners.append(pp)
     
   if emodel.use_grids:
