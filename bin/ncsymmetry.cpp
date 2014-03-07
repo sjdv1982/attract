@@ -1,7 +1,7 @@
-//Applies explicit-axis symmetry to a DOF file
+//Applies explicit-axis non-crystallographic symmetry to a DOF file
 
-//usage: ./axsymmetry structures.dat 
-// <total number of ligands> <ligand> <symmetry> 
+//usage: ./ncsymmetry structures.dat 
+// <total number of ligands> <ligand> <angle> 
 // <axis x> <axis y> <axis z> 
 // <origin x> <origin y> <origin z>
 
@@ -45,7 +45,7 @@ static char *label;
 #include <cstdlib>
 
 void usage() {
-  fprintf(stderr, "usage: ./axsymmetry structures.dat\n  <total number of ligands> <ligand> <symmetry>\n  <axis x> <axis y> <axis z>\n  <origin x> <origin y> <origin z>\n");
+  fprintf(stderr, "usage: ./ncsymmetry structures.dat\n  <total number of ligands> <ligand> <angle>\n  <axis x> <axis y> <axis z>\n  <origin x> <origin y> <origin z>\n");
   exit(1);
 }
 
@@ -122,8 +122,8 @@ int main(int argc, char *argv[]) {
   for (int n = 0; n < nr_syms; n++) {
     AxSymmetry &sym = syms[n];
     sym.ligand = atoi(argv[8*n+3]);
-    sym.symtype = atoi(argv[8*n+4]);
-    sym.angle = 0;
+    sym.symtype = 0;
+    sym.angle = atoi(argv[8*n+4]);
     sym.axis[0] = atof(argv[8*n+5]);
     sym.axis[1] = atof(argv[8*n+6]);
     sym.axis[2] = atof(argv[8*n+7]);

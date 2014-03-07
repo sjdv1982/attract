@@ -3,18 +3,21 @@ Type AttractEasyPartnerInterface {
   ## form pdbfile.type = "file"
   ## form pdbfile.name = "Structure file"
   ResourceData_PDB pdbfile
+  Integer ensemble_size = 0
+  ## form ensemble_size.name = "If the PDB is a multi-model ensemble, specify the number of conformers"
         
   Bool generate_modes = False
-  ## form generate_modes.type = None
   Integer nr_modes = 5
   form {
+    use_rmsd.name = "Perform RMSD analysis"
+    generate_modes.name = "Generate harmonic modes"
     nr_modes.name = "Number of harmonic modes to select"
     nr_modes.type = "option"
     nr_modes.options = list(range(0,10+1))
     nr_modes.optiontitles = ["No modes"] + [str(v) for v in nr_modes.options[1:]]
   }
 
-  ## validate if nr_modes not in (None, 0): assert nr_modes >= 1 and nr_modes <= 10
+  ## validate if generate_modes: assert nr_modes >= 1 and nr_modes <= 10
     
   Bool use_rmsd = False
   *ResourceData_PDB rmsd_pdb
@@ -23,7 +26,8 @@ Type AttractEasyPartnerInterface {
   ## form rmsd_pdb.type = "file"
   Bool rmsd_bb = True
   ## form rmsd_bb.name = "Select only backbone atoms for RMSD calculation"
-  validate {
+  validate {    
+    if ensemble_size > 0: assert generate_modes == False
     if not use_rmsd:
       if rmsd_pdb is not None: raise spyder.core.ValidationError("You defined an PDB for RMSD calculation, which you disabled")
     else:
@@ -34,7 +38,7 @@ Type AttractEasyPartnerInterface {
     =>
     ''
 
-    'if nr_modes not in (None, 0): assert nr_modes >= 1 and nr_modes <= 10'
+    'if generate_modes: assert nr_modes >= 1 and nr_modes <= 10'
     =>
     'Number of harmonic modes must be between 1 and 10'
 
@@ -42,6 +46,9 @@ Type AttractEasyPartnerInterface {
     =>
     ''
 
+    'if ensemble_size > 0: assert generate_modes == False'
+    =>
+    'You can upload an ensemble of conformations, or generate harmonic modes, but not both'
   } 
 }
 

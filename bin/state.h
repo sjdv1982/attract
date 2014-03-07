@@ -6,7 +6,8 @@
 
 struct AxSymmetry {
   int ligand;
-  int symtype;
+  int symtype; //0 for ncsym
+  double angle; //only for ncsym
   double axis[3];
   double origin[3];
 };
@@ -100,7 +101,7 @@ struct CartState {
   int symtypes[MAXLIG];
   int sym[MAXLIG][MAXLIG];
 
-  /*axis symmetries*/
+  /*axis and non-crystallographic symmetries*/
   int nr_axsyms;
   AxSymmetry axsyms[MAXLIG];
   int nr_symcopies[MAXLIG];
@@ -169,6 +170,7 @@ struct MiniState {
   int gravity; //gravity modes: 0 = off, 1 = to global origin, 2 = to receptor origin, 3 = to all other centers;
   double rstk; //gravity force constant
   bool ghost;
+  bool ghost_ligands; //if enabled, ligands don't see each other, only the receptor
 };
 
 typedef int (&intarr)[TOTMAXATOM];

@@ -43,6 +43,7 @@ extern "C" int ministate_new_() {
   //ms.rstk = 0.015; //for second order restraints...; too much?
   ms.rstk = 0.2; //for harmonic restraints...
   ms.ghost = 0;
+  ms.ghost_ligands = 0;
   return ministatesize-1; 
 
 }
@@ -117,6 +118,10 @@ extern "C" void ministate_calc_pairlist_(const int &ministatehandle, const int  
    *  if we are not using grids (or if we are using torque grids), the receptor forces are already taken care of
    *  if we are using Monte Carlo, we don't care about forces and we never create a secondary molpair
    */
+  if ((!ms.fixre) && ms.ghost_ligands) {
+    fprintf(stderr, "With ghost ligands, you must fix the receptor");
+    exit(1);
+  }  
   for (int i = 0; i < cartstate.nlig; i++) {
     for (int j = i+1; j < cartstate.nlig; j++) {
       bool two_molpairs = 0;
@@ -139,8 +144,9 @@ extern "C" void ministate_calc_pairlist_(const int &ministatehandle, const int  
       }
       
       int m1 = i, m2 = j;      
+      int error = 0;
       if (ms.gridmode) {
-	int error = 0;
+	
 	if (two_molpairs){
 	  if (cartstate.grids[i] == NULL || cartstate.grids[j] == NULL) error = 1;
 	}
@@ -156,16 +162,18 @@ extern "C" void ministate_calc_pairlist_(const int &ministatehandle, const int  
 	  }
 	  if (cartstate.nhm[m1]) error = 2;
 	}  	
-	if (error == 1) {
-	  printf("ERROR: using a single grid is not possible! Please recheck your input (maybe you are using modes?)");
-	  exit(1);
-	}
-	else if (error == 2){
-	 printf("ERROR: when using modes on a ligand the grid for the other ligand has to be supplied!");
-	  exit(1); 
-	}
       }
-      
+      if (ms.ghost_ligands && m1 > 0) continue; //in ghost-ligand mode, skip the molpair if the first one isn't the receptor
+	
+      if (error == 1) {
+        printf("ERROR: using a single grid is not possible! Please recheck your input (maybe you are using modes?)\n");
+        exit(1);
+      }
+      else if (error == 2){
+        printf("ERROR: when using modes on a ligand the grid for the other ligand has to be supplied!\n");
+	exit(1); 
+      }
+            
       //printf("PAIR %d %d %d %d %d %d\n", i,j, is_grid, ms.gridmode, cartstate.grids[i],cartstate.grids[j]);          
       MolPair &mp = ms.pairs[molpairindex];
       mp.use_energy = 1;

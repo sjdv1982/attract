@@ -30,8 +30,79 @@ Therefore, you can only define docking partners that are already in the reduced 
   ret += "if [ 1 -eq 1 ]; then ### move and change to disable parts of the protocol\n"
   ret += "$ATTRACTDIR/shm-clean\n\n"
 
-  modes_any = any((p.modes_file for p in m.partners))
-  aa_modes_any = any((p.aa_modes_file for p in m.partners))
+  filenames = []
+  ensemble_lists = []
+  collect_ensemble_lists = []
+  reduce_any = False
+  reduced = set()
+  for pnr,p in enumerate(m.partners):
+    assert p.code is None #TODO: not implemented
+    #TODO: select chain
+    ensemble_list = None
+    if p.ensemble_list is not None: ensemble_list = p.ensemble_list.name
+    collect_ensemble_list = None    
+    if p.collect_ensemble_list is not None: collect_ensemble_list = p.collect_ensemble_list.name        
+    if p.is_reduced == False:
+      if not p.ensemble:
+        if reduce_any == False:
+          ret += """
+  echo '**************************************************************'
+  echo 'Reduce partner PDBs...'
+  echo '**************************************************************'
+  """
+  
+          reduce_any = True
+        pdbname = p.pdbfile.name
+        pdbname2 = os.path.split(pdbname)[1]
+        pdbname_reduced = pdbname2[:-4] + "r.pdb"
+        if pdbname_reduced not in reduced:
+          if pdbname2 != pdbname:
+            ret += "cat %s > %s\n" % (pdbname, pdbname2)
+          ret += "$ATTRACTDIR/reduce %s > /dev/null\n" % pdbname2
+          reduced.add(pdbname_reduced)
+        filenames.append(pdbname_reduced)
+    else:        
+      filenames.append(p.pdbfile.name) 
+    if p.ensemble:
+      d = "partner%d-ensemble" % (pnr+1)
+      ret += "rm -rf %s\n" % d
+      ret += "mkdir %s\n" % d
+      listens = d + ".list"
+      if not p.is_reduced:
+        listensr = d + "-r.list"
+      else:
+        listensr = listens
+      dd = d + "/model"
+      ret += "$ATTRACTTOOLS/splitmodel %s %s %d > %s\n" % (p.pdbfile.name, dd, p.ensemble_size, listens)
+      if not p.is_reduced:
+        ret += "cat /dev/null > %s\n" % listensr
+      if not p.is_reduced:
+        if reduce_any == False:
+            ret += """
+    echo '**************************************************************'
+    echo 'Reduce partner PDBs...'
+    echo '**************************************************************'
+    """      
+            reduce_any = True        
+      for mnr in range(p.ensemble_size):
+        mname1 = dd + "-" + str(mnr+1) + ".pdb"
+        if not p.is_reduced:
+          mname2 = dd + "-" + str(mnr+1) + "r.pdb"
+          if mnr == 0: 
+            filenames.append(mname2)
+          ret += "$ATTRACTDIR/reduce %s > /dev/null\n" % mname1            
+          reduced.add(mname2)
+          ret += "echo %s >> %s\n" % (mname2, listensr)  
+      ensemble_list = listensr
+      if p.collect_pdb is None:
+        
+        if collect_ensemble_list is None: collect_ensemble_list = listens      
+    ensemble_lists.append(ensemble_list)
+    collect_ensemble_lists.append(collect_ensemble_list)      
+  if reduce_any: ret += "\n"
+
+  modes_any = any((p.modes_file or p.generate_modes for p in m.partners))
+  aa_modes_any = any((p.aa_modes_file or p.generate_modes for p in m.partners))
   if modes_any:
     ret += """
 echo '**************************************************************'
@@ -45,57 +116,41 @@ cat /dev/null > hm-all.dat
     else: 
       hm_all_aa = "hm-all.dat"
     ret += "\n"  
-    for p in m.partners:
+    for pnr,p in enumerate(m.partners):
+      modes_file_name = None
+      if p.modes_file is not None: modes_file_name = p.modes_file.name
+      aa_modes_file_name = None
+      if p.aa_modes_file is not None: aa_modes_file_name = p.aa_modes_file.name
       if p.generate_modes: 
-        raise ValueError("Generating modes must currently be done manually") #TODO?
+        modes_file_name = "partner%d-hm.dat" % (pnr+1)
+        ret += "$ATTRACTDIR/modes %s\n" % filenames[pnr]
+        ret += "cat hm.dat > %s\n" % modes_file_name
+        if p.collect_pdb is not None:
+	  aa_modes_file_name = "partner%d-hm-aa.dat" % (pnr+1)
+          ret += "$ATTRACTDIR/modes %s\n" % p.collect_pdb.name
+          ret += "cat hm.dat > %s\n" % aa_modes_file_name
+        ret += "rm -f hm.dat\n"
       if p.moleculetype != "Protein": raise Exception #TODO: not yet implemented
-      if p.nr_modes in (None, 0) or  p.modes_file is None:
+      if p.nr_modes in (None, 0) or modes_file_name is None:
         ret += "echo 0 >> hm-all.dat\n"
         if aa_modes_any:
           ret += "echo 0 >> hm-all-aa.dat\n"
       elif p.nr_modes == 10:
-        ret += "cat %s >> hm-all.dat\n" % p.modes_file.name        
+        ret += "cat %s >> hm-all.dat\n" % modes_file_name
         if aa_modes_any:
-          mf = p.modes_file.name
-          if p.aa_modes_file is not None: mf = p.aa_modes_file.name        
+          mf = modes_file_name
+          if aa_modes_file_name is not None: mf = aa_modes_file_name
           ret += "cat %s >> hm-all-aa.dat\n" % mf
       else:
         ret += "#select first %d modes...\n" % (p.nr_modes)
         ret += "awk 'NF == 2 && $1 == %d{exit}{print $0}' %s >> hm-all.dat\n" % \
-         (p.nr_modes+1, p.modes_file.name)
+         (p.nr_modes+1, modes_file_name)
         if aa_modes_any:
-          mf = p.modes_file.name
-          if p.aa_modes_file is not None: mf = p.aa_modes_file.name
+          mf = modes_file_name
+          if aa_modes_file_name is not None: mf = aa_modes_file_name
           ret += "awk 'NF == 2 && $1 == %d{exit}{print $0}' %s >> hm-all-aa.dat\n" % \
            (p.nr_modes+1, mf)         
     ret += "\n"    
-  filenames = []
-  reduce_any = False
-  reduced = set()
-  for pnr,p in enumerate(m.partners):
-    assert p.code is None #TODO: not implemented
-    #TODO: select chain
-    if p.is_reduced == False:
-      if reduce_any == False:
-        ret += """
-echo '**************************************************************'
-echo 'Reduce partner PDBs...'
-echo '**************************************************************'
-"""      
-        reduce_any = True
-      pdbname = p.pdbfile.name
-      pdbname2 = os.path.split(pdbname)[1]
-      pdbname_reduced = pdbname2[:-4] + "r.pdb"
-      if pdbname_reduced not in reduced:
-        if pdbname2 != pdbname:
-          ret += "cat %s > %s\n" % (pdbname, pdbname2)
-        ret += "$ATTRACTDIR/reduce %s > /dev/null\n" % pdbname2
-        reduced.add(pdbname_reduced)
-      filenames.append(pdbname_reduced)
-    else:        
-      filenames.append(p.pdbfile.name) 
-    #TODO?: generate normal modes  
-  if reduce_any: ret += "\n"
   
   if len(m.partners) == 2:
     partnerfiles = " ".join(filenames)
@@ -150,8 +205,8 @@ name=%s
       else:
         grid_used[v] = pnr+1
       gridparams += " --grid %d %s" % (pnr+1, str(v))
-    if p.ensemble_list is not None:
-      ps = " --ens %d %s" % (pnr+1, p.ensemble_list.name)
+    if ensemble_lists[pnr] is not None:
+      ps = " --ens %d %s" % (pnr+1, ensemble_lists[pnr])
       params += ps
       scoreparams += ps
       ens_any = True
@@ -431,7 +486,7 @@ echo '**************************************************************'
     ret += "\n"  
     result = outp
   result0 = result
-  if m.calc_lrmsd or m.calc_irmsd:
+  if m.calc_lrmsd or m.calc_irmsd or m.calc_fnat:
     deflex_any = any((p.deflex for p in m.partners))
     if deflex_any:
       ret += """
@@ -455,7 +510,7 @@ tmpf2=`mktemp`
             continue
           result = outp
           outp, outp2 = outp2, outp
-  if m.calc_lrmsd or m.calc_irmsd or m.calc_fnat:    
+
     any_bb = False
     rmsd_filenames = []
     for pnr in range(len(m.partners)):      
@@ -522,8 +577,8 @@ echo '**************************************************************'
       else:
         flexpar = " --modes hm-all.dat"
     for pnr,p in enumerate(m.partners):
-      if p.deflex == False and p.ensemble_list is not None:
-        flexpar += " --ens %d %s" % (pnr+1,p.ensemble_list.name)
+      if p.deflex == False and ensemble_lists[pnr] is not None:
+        flexpar += " --ens %d %s" % (pnr+1,ensemble_lists[pnr])
   if m.calc_lrmsd:      
     ret += """
 echo '**************************************************************'
@@ -562,13 +617,6 @@ echo '**************************************************************'
     ret += "python $ATTRACTDIR/irmsd.py %s %s%s %s > %s\n" % (result, irmsd_allfilenames, flexpar, bbo, irmsdresult)
     ret += "\n"
 
-  if m.calc_lrmsd or m.calc_irmsd:
-    if deflex_any:
-      ret += "rm -f $tmpf $tmpf2\n"
-      result = result0
-    if m.fix_receptor == False:
-      ret += "rm -f %s\n" % fixresult
-
   if m.calc_fnat:      
     ret += """
 echo '**************************************************************'
@@ -584,6 +632,13 @@ echo '**************************************************************'
     ret += "python $ATTRACTDIR/fnat.py %s 5 %s%s > %s\n" % (result, fnat_allfilenames, flexpar, fnatresult)
     ret += "\n"
 
+  if m.calc_lrmsd or m.calc_irmsd or m.calc_fnat:
+    if deflex_any:
+      ret += "rm -f $tmpf $tmpf2\n"
+      result = result0
+    if m.fix_receptor == False:
+      ret += "rm -f %s\n" % fixresult
+    
   if m.collect:
     collect_filenames = filenames
     nr = m.nr_collect
@@ -605,10 +660,10 @@ echo '**************************************************************'
       else:
         flexpar_aa = " --modes hm-all.dat"    
     for pnr,p in enumerate(m.partners):
-      if p.collect_ensemble_list is not None:
-        flexpar_aa += " --ens %d %s" % (pnr+1,p.collect_ensemble_list.name)    
-      elif p.ensemble_list is not None:
-        flexpar_aa += " --ens %d %s" % (pnr+1,p.ensemble_list.name)    
+      if collect_ensemble_lists[pnr] is not None:
+        flexpar_aa += " --ens %d %s" % (pnr+1,collect_ensemble_lists[pnr])    
+      elif ensemble_lists[pnr] is not None:
+        flexpar_aa += " --ens %d %s" % (pnr+1,ensemble_lists[pnr])    
     ret += "$ATTRACTDIR/collect out_$name-top%d.dat %s%s > out_$name-top%d.pdb\n" % \
      (nr, collect_filenames, flexpar_aa, nr)
     ret += "\n"

@@ -128,6 +128,7 @@ def webform(f, model=None,
     b.members.append("mode")
     b.members.append("proteincode")
     b.members.append("sequence")
+    b.members.append("index")
     b.members.append("chain")
     ### END b_sequence block
     

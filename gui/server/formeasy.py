@@ -124,6 +124,10 @@ def webform(f, model=None, partnerslength=None):
     ff.name = "Structure file"
     ff.tooltip = "Upload PDB structure file"
     ff.tooltip_doc = "documentation.html#partners-structure_file"
+    ff.span = True
+    b.members.append("ensemble_size")
+    ff.tooltip_doc = "documentation.html#partners-ensemble_size"
+    ff.span = True
     ### END b_struc block
 
     ### START b_modes block
@@ -135,15 +139,11 @@ def webform(f, model=None, partnerslength=None):
     ff = fp.generate_modes
     ff.name = "Generate harmonic modes"
     ff.type = "switch"    
-    #ff = fp.modes_file
-    #ff = fp.generate_modes
-    #ff.name = "Or: generate harmonic modes automatically"
     ff = fp.nr_modes
     ff.name = "Number of modes to select"
     ff.type = "number"
     ff.min = 1
     ff.max = 10
-    #ff = fp.aa_modes_file
     ### END b_modes block
     
     ### START b_rmsd block
