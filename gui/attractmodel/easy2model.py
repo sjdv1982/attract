@@ -19,15 +19,17 @@ def easy2model(emodel):
     pp = AttractPartnerInterface(pp)
     partners.append(pp)
     
-  if emodel.use_grids and partners[0].nr_modes == 0:
-    partners[0].gridname = "receptorgrid"
-    rgrid = [AttractGrid(gridname="receptorgrid")]
-    iter = [AttractIteration(vmax=1000)]
-  elif emodel.use_grids and partners[0].nr_modes > 0:
+  if emodel.use_grids and partners[0].nr_modes > 0:
     partners[0].gridname = "receptorgrid"
     partners[1].gridname = "ligandgrid"
     rgrid = [AttractGrid(gridname="receptorgrid"),AttractGrid(gridname="ligandgrid")]
-    iter = [AttractIteration(vmax=1000)]    
+    iter = [AttractIteration(vmax=1000)]
+  
+  elif emodel.use_grids:
+    partners[0].gridname = "receptorgrid"
+    rgrid = [AttractGrid(gridname="receptorgrid")]
+    iter = [AttractIteration(vmax=1000)]
+    
   else:
     rgrid = []
     iter = [AttractIteration(vmax=50),AttractIteration(rcut=500,vmax=60),AttractIteration(rcut=100,vmax=60),
