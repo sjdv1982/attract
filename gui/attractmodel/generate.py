@@ -90,11 +90,13 @@ Therefore, you can only define docking partners that are already in the reduced 
           mname2 = dd + "-" + str(mnr+1) + "r.pdb"
           if mnr == 0: 
             filenames.append(mname2)
+            p.collect_pdb.name = mname1
+            
           ret += "$ATTRACTDIR/reduce %s > /dev/null\n" % mname1            
           reduced.add(mname2)
           ret += "echo %s >> %s\n" % (mname2, listensr)  
       ensemble_list = listensr
-      if p.collect_pdb is None:
+      if p.collect_pdb is not None:
         
         if collect_ensemble_list is None: collect_ensemble_list = listens      
     ensemble_lists.append(ensemble_list)
@@ -514,8 +516,8 @@ tmpf2=`mktemp`
     any_bb = False
     rmsd_filenames = []
     for pnr in range(len(m.partners)):      
-      filename = filenames[pnr]
       p = m.partners[pnr]
+      filename = filenames[pnr]
       if m.calc_lrmsd and p.rmsd_bb:
         if pnr > 0:
           if not any_bb:  
@@ -530,20 +532,22 @@ echo '**************************************************************'
           filename = filename2
       rmsd_filenames.append(filename)
     if m.calc_irmsd:
-      irmsd_filenames = rmsd_filenames[:]
+      irmsd_filenames = [None] * len(m.partners)
       irmsd_refenames = [None] * len(m.partners)
       for pnr in range(len(m.partners)):
-        filename = filenames[pnr]
         p = m.partners[pnr]
+        filename = p.pdbfile.name
+        irmsd_filenames[pnr] = filename
         if p.rmsd_pdb is not None:
           filename = p.rmsd_pdb.name
         irmsd_refenames[pnr] = filename
     if m.calc_fnat:
-      fnat_filenames = filenames[:]
+      fnat_filenames = [None] * len(m.partners)
       fnat_refenames = [None] * len(m.partners)
       for pnr in range(len(m.partners)):
-        filename = filenames[pnr]
         p = m.partners[pnr]
+        filename = p.pdbfile.name
+        fnat_filenames[pnr] = filename
         if p.rmsd_pdb is not None:
           filename = p.rmsd_pdb.name
         fnat_refenames[pnr] = filename

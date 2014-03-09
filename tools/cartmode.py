@@ -41,7 +41,7 @@ def read(files):
                 tmp =  [a for a in data if a[1] == res]# and len(re.findall('\AH', a[2])) == 0]
                 beads.extend(tmp)
           
-        beads.sort()
+        #beads.sort()
         beadslist.append(beads)
         lengthlist.append(len(data))
         atomlist.append(data)
