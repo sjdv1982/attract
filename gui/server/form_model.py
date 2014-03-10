@@ -173,7 +173,8 @@ def webform(f, model=None,
     b = fp.new_group("b_modes", "block")
     b.title = "Use harmonic modes"
     #insert placeholder boolean to determine the state of the Modes switch
-    fp._membernames.append("use_modes")
+    if "use_modes" not in fp._membernames:
+      fp._membernames.append("use_modes")
     fp._members["use_modes"] = fp._members["ensemble"].get_copy()        
     b.members.append("use_modes")
     b.has_switch = True
@@ -216,7 +217,8 @@ def webform(f, model=None,
     b = fp.new_group("b_rmsd", "block")
     b.title = "RMSD calculation"
     #insert placeholder boolean to determine the state of the RMSD switch
-    fp._membernames.append("rmsd")
+    if "rmsd" not in fp._membernames:
+      fp._membernames.append("rmsd")
     fp._members["rmsd"] = fp._members["ensemble"].get_copy()
     b.members.append("rmsd")
     b.has_switch = True
@@ -471,8 +473,10 @@ def webserverform(webdict, form=None, spydertype=None):
     pass
   webdict["nr_iterations"] = nr_iterations
   return f
-  
-def html(form, cgi, spyderobj, newtab=False):
+
+header0 = header
+footer0 = footer  
+def html(form, cgi, spyderobj, newtab=False, header=header0, footer=footer0):
   import random
   import attracthtmlform 
   args = dict (
