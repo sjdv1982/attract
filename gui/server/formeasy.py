@@ -199,8 +199,7 @@ def webform(f, model=None, partnerslength=None):
   ### END computation block
 
   return f
-  
-import spyder.htmlform
+
 def webserverform(webdict, form=None, spydertype=None):
   if spydertype is not None: form = spydertype._form()
   f = webform(
@@ -209,14 +208,9 @@ def webserverform(webdict, form=None, spydertype=None):
   )  
   return f
   
-def html(form, cgi,newtab=False):
-  import attracthtmlform 
-  html = attracthtmlform.htmlform(
-   form=form, cgi=cgi, 
-   header=header, footer=footer, header_indentation = 12, 
-   newtab=newtab
-  )
-  return html
+def html(form, cgi, spyderobj, newtab=False):
+  from form_model import html
+  return html(form, cgi, spyderobj, newtab)
   
   
   
