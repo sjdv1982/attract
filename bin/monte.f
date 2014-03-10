@@ -370,7 +370,7 @@ c if ligand flex is included store deformation factor in every mode in dlig(j)
       jj = 0
       do 240 j=1,nlig
       do 241 i=1,nihm(j)
-      dlig(nhm(j)+i,j)=xaa(ju0+jj+i)
+      dlig(ju0+i,j)=xaa(ju0+jj+i)
   241 continue
       jj = jj + nihm(j)
   240 continue
