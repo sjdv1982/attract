@@ -43,7 +43,7 @@ def serve_upload():
   model.tofile(fname)
   
   f = spydertype._form()
-  f = formlib.webform(f)
+  f = formlib.webform(f, model)
   header = formlib.header.replace("<head>", "<head>\n        <base href=\"%s\" target=\"_blank\">" % webdir, 1)
   html = attracthtmlform.htmlform(
     obj=model, 
