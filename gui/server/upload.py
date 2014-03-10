@@ -7,20 +7,31 @@ def serve_upload():
   webform = cgi.FieldStorage()
   if "protocolfile" not in webform: raise Exception ### TODO, nice error message
   data = webform["protocolfile"].value
+  interface = webform["interface"].value
   typ, content = spyder.core.parse(data)
   
-  if typ == "AttractModel": 
+  conversion = False
+  if interface == "auto":
+    interface = typ
+  else:
+    conversion = True
+  if interface == "AttractModel": 
     spydertype = Spyder.AttractModel    
-    formlib = form
+    formlib = form_model
     cgiscript = "attractserver.py"
-  elif typ == "AttractEasyModel": 
+  elif interface == "AttractEasyModel": 
     spydertype = Spyder.AttractEasyModel    
     formlib = formeasy
     cgiscript = "attractserver-easy.py"
   else:    
-    raise ValueError(typ) ### TODO, nice error message
+    raise ValueError(interface) ### TODO, nice error message
   
-  model = spydertype.fromdict(content)
+  if conversion:
+    spydertype2 = getattr(Spyder, typ)
+    model = spydertype2.fromdict(content)
+    model = model.convert(spydertype)
+  else:    
+    model = spydertype.fromdict(content)
   import random
   from spyder.formtools import embed
   embed(model)   
@@ -31,17 +42,15 @@ def serve_upload():
   os.chdir(mydir)
   model.tofile(fname)
   
-  for p in model.partners: 
-    p.rmsd, p.use_modes = None, None #"virtual" form attributes defined in form.webform
   f = spydertype._form()
-  f = formlib.webform(f, model)
+  f = formlib.webform(f)
   header = formlib.header.replace("<head>", "<head>\n        <base href=\"%s\" target=\"_blank\">" % webdir, 1)
   html = attracthtmlform.htmlform(
     obj=model, 
     form=f, 
     cgi=cgidir+cgiscript, 
     header=header, 
-    footer=form.footer, 
+    footer=formlib.footer, 
     header_indentation = 12,
     hidden = {"_tmpresource":mydir+"/"+fname},
   )
@@ -56,7 +65,7 @@ try:
   import spyder.htmlform
   import attractmodel
   import attracthtmlform
-  import form, formeasy
+  import form_model, formeasy
 
   r = serve_upload()
   print r

@@ -452,7 +452,9 @@ def webform(f, model=None,
 
   return f
 
+import os
 import spyder.htmlform
+
 def webserverform(webdict, form=None, spydertype=None):
   if spydertype is not None: form = spydertype._form()
   f = webform(
@@ -470,12 +472,25 @@ def webserverform(webdict, form=None, spydertype=None):
   webdict["nr_iterations"] = nr_iterations
   return f
   
-def html(form, cgi,newtab=False):
+def html(form, cgi, spyderobj, newtab=False):
+  import random
   import attracthtmlform 
-  html = attracthtmlform.htmlform(
-  form=form, cgi=cgi, 
-  header=header, footer=footer, header_indentation = 12, 
-  newtab=newtab
+  args = dict (
+   obj=spyderobj,
+   form=form, cgi=cgi, 
+   header=header, footer=footer, header_indentation = 12, 
+   newtab=newtab,
   )
+  if spyderobj is not None:
+    from spyder.formtools import embed
+    embed(spyderobj)
+    mydir = "run" + str(random.randint(1,1000000))  
+    fname = "attract.web"
+    os.chdir("/tmp/")
+    os.mkdir(mydir)
+    os.chdir(mydir)
+    spyderobj.tofile(fname)    
+    args["hidden"] = {"_tmpresource":mydir+"/"+fname}
+  html = attracthtmlform.htmlform(**args)
   return html
   

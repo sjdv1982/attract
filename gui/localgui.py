@@ -2,7 +2,7 @@ from functools import partial
 import attractsave
 
 
-def buttons(form):
+def buttons(form, obj):
   form.add_button("Generate shell script", "after")
   form.add_button("Save", "after")
 

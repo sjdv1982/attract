@@ -5,7 +5,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
     
     <head>
-        <title>ATTRACT Easy Online</title>
+        <title>ATTRACT Online</title>
         
         <meta charset="utf-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
@@ -33,9 +33,14 @@
             <nav id="form-category-navigation" class="row">
               <ul>
                 <li id="view-page1"><a id="nav-block-partners" class="puzzle-icon">Partners</a></li>
-                <li id="view-page2"><a id="nav-block-energy" class="energy-icon">Energy and Interaction</a></li>
-                <li id="view-page3"><a id="nav-block-analysis" class="analysis-icon">Analysis</a></li>
-                <li id="view-page4"><a id="nav-block-computation" class="computation-icon">Computation</a></li>
+                <li id="view-page2"><a id="nav-block-grids" class="grid-icon">Grids</a></li>
+                <li id="view-page3"><a id="nav-block-iterations" class="iteration-icon">Iteration</a></li>
+                <li id="view-page4"><a id="nav-block-sampling" class="sampling-icon">Sampling</a></li>
+                <li id="view-page5"><a id="nav-block-energy" class="energy-icon">Energy and Interaction</a></li>
+                <li id="view-page6"><a id="nav-block-cryoem" class="cryo-icon">Cryo-em</a></li>
+                <li id="view-page7"><a id="nav-block-symmetry" class="symmetry-icon">Symmetry</a></li>
+                <li id="view-page8"><a id="nav-block-analysis" class="analysis-icon">Analysis</a></li>
+                <li id="view-page9"><a id="nav-block-computation" class="computation-icon">Computation</a></li>
               </ul>
             </nav>
             
@@ -66,261 +71,363 @@
               <div id="close-app" class="button close-icon-active float-right"></div>
               
             </header>
-            <form encType="multipart/form-data" action="http://attract.ph.tum.de/cgi/services/ATTRACT/attractserver-easy.py" method="post" target="_blank">
+            <form encType="multipart/form-data" action="http://localhost:7455/" method="post">
 
-              <div id="page1" class="category-container">
-                <div class="form-category-description">
-                  <div class="large-icon puzzle-icon"></div>
-                  <div class="description">
-                    <h2>Docking partners</h2>
-                    <p>Define 2 docking partners by uploading a PDB structure file.</p>
-                  </div>
+              <input type="hidden" name="_tmpresource" value="run821555/attract.web">
 
-                  <div class="category-controls">
-                  </div>
-
-                </div>
-
-                <!-- UI CONTAINER FOR FORM ELEMENTS OF A CATEGORY SELECTED IN CATEGORY NAVIGATION MENU -->
-                <div class="form-category">
-
-                  <div id="block-partners-0" class="level1 active">
-
-                    <div class="controls">
-                      <div class="title"><h4>Docking partners 1</h4></div>
-                      <div class="button reload-icon reload-form-block"><div class="controls-tooltip"><p>Restore default values</p></div></div>
+                <div id="page1" class="category-container">
+                  <div class="form-category-description">
+                    <div class="large-icon puzzle-icon"></div>
+                    <div class="description">
+                      <h2>Docking partners</h2>
+                      <p>Define 2 docking partners by uploading a PDB structure file.</p>
                     </div>
 
-                    <div class="level1-container">
-
-                      <div class="level2">
-
-                        <div class="group-container">
-
-                          <div class="field-container">
-                            <div class="title"><h3>Structure Sources</h3></div>
-                          </div>
-
-                          <div class="field-container">
-                            <div class="title"><p>Structure file</p></div>
-                            <div class="tooltip"><div class="tooltip-body"><a href="documentation.html#partners-structure_file" target="_blank">Upload PDB structure file</a></div></div>
-                            <div class="field-item file align-right">
-                              <input type="file" name="partners-0-pdbfile" id="partners-0-pdbfile">
-                            </div>
-                          </div>
-                        </div> <!-- END: group-container -->
-                      </div> <!-- END: level2 -->
-
-                      <div class="level2">
-
-                        <div class="field-container">
-                          <div class="title"><h3>Generate harmonic modes</h3></div>
-                          <div class="field-item switch align-left">
-                            <input type="checkbox" name="partners-0-generate_modes" id="partners-0-generate_modes" value="">
-                            <label for="partners-0-generate_modes">Off</label>
-                            <label for="partners-0-generate_modes">On</label>
-                            <span class="toggle"></span>
-                          </div>
-                        </div>
-
-                        <div class="group-container">
-
-
-                          <div class="field-container">
-                            <div class="title"><p>Number of modes to select</p></div>
-                            <div class="field-item number align-right">
-                              <input type="number" name="partners-0-nr_modes" id="partners-0-nr_modes" value = "5" min="1" max="10">
-                            </div>
-                          </div>
-                        </div> <!-- END: group-container -->
-                      </div> <!-- END: level2 -->
-
-                      <div class="level2">
-
-                        <div class="field-container">
-                          <div class="title"><h3>RMSD calculation</h3></div>
-                          <div class="field-item switch align-left">
-                            <input type="checkbox" name="partners-0-use_rmsd" id="partners-0-use_rmsd" value="">
-                            <label for="partners-0-use_rmsd">Off</label>
-                            <label for="partners-0-use_rmsd">On</label>
-                            <span class="toggle"></span>
-                          </div>
-                        </div>
-
-                        <div class="group-container">
-
-
-                          <div class="field-container">
-                            <div class="title"><p>Reference RMSD PDB file</p></div>
-                            <div class="field-item file align-right">
-                              <input type="file" name="partners-0-rmsd_pdb" id="partners-0-rmsd_pdb">
-                            </div>
-                          </div>
-
-                          <div class="field-container">
-                            <div class="title"><p>Select only backbone atoms for RMSD calculation</p></div>
-                            <div class="field-item checkbox align-right">
-                              <input type="checkbox" name="partners-0-rmsd_bb" id="partners-0-rmsd_bb" value="" checked="checked">
-                            </div>
-                          </div>
-                        </div> <!-- END: group-container -->
-                      </div> <!-- END: level2 -->
-                    </div><!-- END: level1-container -->
-                  </div><!-- END: level1 -->
-
-                </div><!-- END: UI container -->
-              </div>
-
-              <div id="page2" class="category-container">
-                <div class="form-category-description">
-                  <div class="large-icon energy-icon"></div>
-                  <div class="description">
-                    <h2>Energy and Interaction</h2>
-                    <p></p>
-                  </div>
-                </div>
-
-                <!-- UI CONTAINER FOR FORM ELEMENTS OF A CATEGORY SELECTED IN CATEGORY NAVIGATION MENU -->
-                <div class="form-category">
-
-                  <div id="block-energy-0" class="level1 active">
-
-                    <div class="controls">
-                      <div class="title"><h4>Energy and Interaction</h4></div>
-                      <div class="button reload-icon reload-form-block"><div class="controls-tooltip"><p>Restore default values</p></div></div>
+                    <div class="category-controls">
                     </div>
 
-                    <div class="level1-container">
-
-                      <div class="level2">
-
-                        <div class="group-container">
-
-
-                          <div class="field-container">
-                            <div class="title"><p>Perform grid-accelerated docking</p></div>
-                            <div class="field-item checkbox align-right">
-                              <input type="checkbox" name="use_grids" id="use_grids" value="">
-                            </div>
-                          </div>
-
-                          <div class="field-container">
-                            <div class="title"><p>Gravity</p></div>
-                            <div class="field-item checkbox align-right">
-                              <input type="checkbox" name="gravity" id="gravity" value="">
-                            </div>
-                          </div>
-                        </div> <!-- END: group-container -->
-                      </div> <!-- END: level2 -->
-                    </div><!-- END: level1-container -->
-                  </div><!-- END: level1 -->
-
-                </div><!-- END: UI container -->
-              </div>
-
-              <div id="page3" class="category-container">
-                <div class="form-category-description">
-                  <div class="large-icon analysis-icon"></div>
-                  <div class="description">
-                    <h2>Analysis</h2>
-                    <p></p>
                   </div>
-                </div>
 
-                <!-- UI CONTAINER FOR FORM ELEMENTS OF A CATEGORY SELECTED IN CATEGORY NAVIGATION MENU -->
-                <div class="form-category">
+                  <!-- UI CONTAINER FOR FORM ELEMENTS OF A CATEGORY SELECTED IN CATEGORY NAVIGATION MENU -->
+                  <div class="form-category">
 
-                  <div id="block-analysis-0" class="level1 active">
+                    <div id="block-partners-0" class="level1 active">
 
-                    <div class="controls">
-                      <div class="title"><h4>Analysis</h4></div>
-                      <div class="button reload-icon reload-form-block"><div class="controls-tooltip"><p>Restore default values</p></div></div>
-                    </div>
+                      <div class="controls">
+                        <div class="title"><h4>Docking partners 1</h4></div>
+                        <div class="button reload-icon reload-form-block"><div class="controls-tooltip"><p>Restore default values</p></div></div>
+                      </div>
 
-                    <div class="level1-container">
+                      <div class="level1-container">
 
-                      <div class="level2">
+                        <div class="level2">
 
-                        <div class="group-container">
-
-                          <div class="group-inline clearfix">
+                          <div class="group-container">
 
                             <div class="field-container">
-                              <div class="title"><p>Calculate ligand RMSD after docking</p></div>
-                              <div class="field-item checkbox align-right">
-                                <input type="checkbox" name="calc_lrmsd" id="calc_lrmsd" value="">
+                              <div class="title"><h3>Structure Sources</h3></div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p><em><mark>&lt;Embedded resource&gt;:</mark>&nbsp;&nbsp;&nbsp;</em>Structure file</p></div>
+                              <div class="tooltip"><div class="tooltip-body"><a href="documentation.html#partners-ensemble_size" target="_blank">Upload PDB structure file</a></div></div>
+                              <div class="field-item file align-right">
+                                <input type="file" name="partners-0-pdbfile" id="partners-0-pdbfile">
                               </div>
                             </div>
 
                             <div class="field-container">
-                              <div class="title"><p>Calculate interface RMSD after docking</p></div>
-                              <div class="field-item checkbox align-right">
-                                <input type="checkbox" name="calc_irmsd" id="calc_irmsd" value="">
+                              <div class="title"><p>If the PDB is a multi-model ensemble, specify the number of conformers</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="partners-0-ensemble_size" id="partners-0-ensemble_size" value = "0">
+                              </div>
+                            </div>
+                          </div> <!-- END: group-container -->
+                        </div> <!-- END: level2 -->
+
+                        <div class="level2">
+
+                          <div class="field-container">
+                            <div class="title"><h3>Generate harmonic modes</h3></div>
+                            <div class="field-item switch align-left">
+                              <input type="checkbox" name="partners-0-generate_modes" id="partners-0-generate_modes" value="">
+                              <label for="partners-0-generate_modes">Off</label>
+                              <label for="partners-0-generate_modes">On</label>
+                              <span class="toggle"></span>
+                            </div>
+                          </div>
+
+                          <div class="group-container">
+
+
+                            <div class="field-container">
+                              <div class="title"><p>Number of modes to select</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="partners-0-nr_modes" id="partners-0-nr_modes" value = "5" min="1" max="10">
+                              </div>
+                            </div>
+                          </div> <!-- END: group-container -->
+                        </div> <!-- END: level2 -->
+
+                        <div class="level2">
+
+                          <div class="field-container">
+                            <div class="title"><h3>RMSD calculation</h3></div>
+                            <div class="field-item switch align-left">
+                              <input type="checkbox" name="partners-0-use_rmsd" id="partners-0-use_rmsd" value="" checked="checked">
+                              <label for="partners-0-use_rmsd">Off</label>
+                              <label for="partners-0-use_rmsd">On</label>
+                              <span class="toggle"></span>
+                            </div>
+                          </div>
+
+                          <div class="group-container">
+
+
+                            <div class="field-container">
+                              <div class="title"><p><em><mark>&lt;Embedded resource&gt;:</mark>&nbsp;&nbsp;&nbsp;</em>Reference RMSD PDB file</p></div>
+                              <div class="field-item file align-right">
+                                <input type="file" name="partners-0-rmsd_pdb" id="partners-0-rmsd_pdb">
                               </div>
                             </div>
 
-                          </div> <!--END: group-inline -->
+                            <div class="field-container">
+                              <div class="title"><p>Select only backbone atoms for RMSD calculation</p></div>
+                              <div class="field-item checkbox align-right">
+                                <input type="checkbox" name="partners-0-rmsd_bb" id="partners-0-rmsd_bb" value="" checked="checked">
+                              </div>
+                            </div>
+                          </div> <!-- END: group-container -->
+                        </div> <!-- END: level2 -->
+                      </div><!-- END: level1-container -->
+                    </div><!-- END: level1 -->
+
+
+                    <div id="block-partners-0" class="level1 active">
+
+                      <div class="controls">
+                        <div class="title"><h4>Docking partners 2</h4></div>
+                        <div class="button reload-icon reload-form-block"><div class="controls-tooltip"><p>Restore default values</p></div></div>
+                      </div>
+
+                      <div class="level1-container">
+
+                        <div class="level2">
+
+                          <div class="group-container">
+
+                            <div class="field-container">
+                              <div class="title"><h3>Structure Sources</h3></div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p><em><mark>&lt;Embedded resource&gt;:</mark>&nbsp;&nbsp;&nbsp;</em>Structure file</p></div>
+                              <div class="tooltip"><div class="tooltip-body"><a href="documentation.html#partners-ensemble_size" target="_blank">Upload PDB structure file</a></div></div>
+                              <div class="field-item file align-right">
+                                <input type="file" name="partners-1-pdbfile" id="partners-1-pdbfile">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>If the PDB is a multi-model ensemble, specify the number of conformers</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="partners-1-ensemble_size" id="partners-1-ensemble_size" value = "0">
+                              </div>
+                            </div>
+                          </div> <!-- END: group-container -->
+                        </div> <!-- END: level2 -->
+
+                        <div class="level2">
 
                           <div class="field-container">
-                            <div class="title"><p>Calculate fraction of native contacts after docking</p></div>
-                            <div class="field-item checkbox align-right">
-                              <input type="checkbox" name="calc_fnat" id="calc_fnat" value="">
+                            <div class="title"><h3>Generate harmonic modes</h3></div>
+                            <div class="field-item switch align-left">
+                              <input type="checkbox" name="partners-1-generate_modes" id="partners-1-generate_modes" value="">
+                              <label for="partners-1-generate_modes">Off</label>
+                              <label for="partners-1-generate_modes">On</label>
+                              <span class="toggle"></span>
                             </div>
                           </div>
 
+                          <div class="group-container">
+
+
+                            <div class="field-container">
+                              <div class="title"><p>Number of modes to select</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="partners-1-nr_modes" id="partners-1-nr_modes" value = "5" min="1" max="10">
+                              </div>
+                            </div>
+                          </div> <!-- END: group-container -->
+                        </div> <!-- END: level2 -->
+
+                        <div class="level2">
+
                           <div class="field-container">
-                            <div class="title"><p>Number of structures to collect as PDB file</p></div>
-                            <div class="field-item number align-right">
-                              <input type="number" name="nr_collect" id="nr_collect" value = "50">
+                            <div class="title"><h3>RMSD calculation</h3></div>
+                            <div class="field-item switch align-left">
+                              <input type="checkbox" name="partners-1-use_rmsd" id="partners-1-use_rmsd" value="" checked="checked">
+                              <label for="partners-1-use_rmsd">Off</label>
+                              <label for="partners-1-use_rmsd">On</label>
+                              <span class="toggle"></span>
                             </div>
                           </div>
-                        </div> <!-- END: group-container -->
-                      </div> <!-- END: level2 -->
-                    </div><!-- END: level1-container -->
-                  </div><!-- END: level1 -->
 
-                </div><!-- END: UI container -->
-              </div>
+                          <div class="group-container">
 
-              <div id="page4" class="category-container">
-                <div class="form-category-description">
-                  <div class="large-icon computation-icon"></div>
-                  <div class="description">
-                    <h2>Computation</h2>
-                    <p></p>
-                  </div>
+
+                            <div class="field-container">
+                              <div class="title"><p><em><mark>&lt;Embedded resource&gt;:</mark>&nbsp;&nbsp;&nbsp;</em>Reference RMSD PDB file</p></div>
+                              <div class="field-item file align-right">
+                                <input type="file" name="partners-1-rmsd_pdb" id="partners-1-rmsd_pdb">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Select only backbone atoms for RMSD calculation</p></div>
+                              <div class="field-item checkbox align-right">
+                                <input type="checkbox" name="partners-1-rmsd_bb" id="partners-1-rmsd_bb" value="" checked="checked">
+                              </div>
+                            </div>
+                          </div> <!-- END: group-container -->
+                        </div> <!-- END: level2 -->
+                      </div><!-- END: level1-container -->
+                    </div><!-- END: level1 -->
+
+                  </div><!-- END: UI container -->
                 </div>
 
-                <!-- UI CONTAINER FOR FORM ELEMENTS OF A CATEGORY SELECTED IN CATEGORY NAVIGATION MENU -->
-                <div class="form-category">
-
-                  <div id="block-computation-0" class="level1 active">
-
-                    <div class="controls">
-                      <div class="title"><h4>Computation</h4></div>
-                      <div class="button reload-icon reload-form-block"><div class="controls-tooltip"><p>Restore default values</p></div></div>
+                <div id="page2" class="category-container">
+                  <div class="form-category-description">
+                    <div class="large-icon energy-icon"></div>
+                    <div class="description">
+                      <h2>Energy and Interaction</h2>
+                      <p></p>
                     </div>
+                  </div>
 
-                    <div class="level1-container">
+                  <!-- UI CONTAINER FOR FORM ELEMENTS OF A CATEGORY SELECTED IN CATEGORY NAVIGATION MENU -->
+                  <div class="form-category">
 
-                      <div class="level2">
+                    <div id="block-energy-0" class="level1 active">
 
-                        <div class="group-container">
+                      <div class="controls">
+                        <div class="title"><h4>Energy and Interaction</h4></div>
+                        <div class="button reload-icon reload-form-block"><div class="controls-tooltip"><p>Restore default values</p></div></div>
+                      </div>
+
+                      <div class="level1-container">
+
+                        <div class="level2">
+
+                          <div class="group-container">
 
 
-                          <div class="field-container">
-                            <div class="title"><p>Number of processor cores</p></div>
-                            <div class="field-item number align-right">
-                              <input type="number" name="np" id="np" value = "1">
+                            <div class="field-container">
+                              <div class="title"><p>Perform grid-accelerated docking</p></div>
+                              <div class="field-item checkbox align-right">
+                                <input type="checkbox" name="use_grids" id="use_grids" value="">
+                              </div>
                             </div>
-                          </div>
-                        </div> <!-- END: group-container -->
-                      </div> <!-- END: level2 -->
-                    </div><!-- END: level1-container -->
-                  </div><!-- END: level1 -->
 
-                </div><!-- END: UI container -->
-              </div>
+                            <div class="field-container">
+                              <div class="title"><p>Gravity</p></div>
+                              <div class="field-item checkbox align-right">
+                                <input type="checkbox" name="gravity" id="gravity" value="">
+                              </div>
+                            </div>
+                          </div> <!-- END: group-container -->
+                        </div> <!-- END: level2 -->
+                      </div><!-- END: level1-container -->
+                    </div><!-- END: level1 -->
+
+                  </div><!-- END: UI container -->
+                </div>
+
+                <div id="page3" class="category-container">
+                  <div class="form-category-description">
+                    <div class="large-icon analysis-icon"></div>
+                    <div class="description">
+                      <h2>Analysis</h2>
+                      <p></p>
+                    </div>
+                  </div>
+
+                  <!-- UI CONTAINER FOR FORM ELEMENTS OF A CATEGORY SELECTED IN CATEGORY NAVIGATION MENU -->
+                  <div class="form-category">
+
+                    <div id="block-analysis-0" class="level1 active">
+
+                      <div class="controls">
+                        <div class="title"><h4>Analysis</h4></div>
+                        <div class="button reload-icon reload-form-block"><div class="controls-tooltip"><p>Restore default values</p></div></div>
+                      </div>
+
+                      <div class="level1-container">
+
+                        <div class="level2">
+
+                          <div class="group-container">
+
+                            <div class="group-inline clearfix">
+
+                              <div class="field-container">
+                                <div class="title"><p>Calculate ligand RMSD after docking</p></div>
+                                <div class="field-item checkbox align-right">
+                                  <input type="checkbox" name="calc_lrmsd" id="calc_lrmsd" value="" checked="checked">
+                                </div>
+                              </div>
+
+                              <div class="field-container">
+                                <div class="title"><p>Calculate interface RMSD after docking</p></div>
+                                <div class="field-item checkbox align-right">
+                                  <input type="checkbox" name="calc_irmsd" id="calc_irmsd" value="" checked="checked">
+                                </div>
+                              </div>
+
+                            </div> <!--END: group-inline -->
+
+                            <div class="field-container">
+                              <div class="title"><p>Calculate fraction of native contacts after docking</p></div>
+                              <div class="field-item checkbox align-right">
+                                <input type="checkbox" name="calc_fnat" id="calc_fnat" value="" checked="checked">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Number of structures to collect as PDB file</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="nr_collect" id="nr_collect" value = "50">
+                              </div>
+                            </div>
+                          </div> <!-- END: group-container -->
+                        </div> <!-- END: level2 -->
+                      </div><!-- END: level1-container -->
+                    </div><!-- END: level1 -->
+
+                  </div><!-- END: UI container -->
+                </div>
+
+                <div id="page4" class="category-container">
+                  <div class="form-category-description">
+                    <div class="large-icon computation-icon"></div>
+                    <div class="description">
+                      <h2>Computation</h2>
+                      <p></p>
+                    </div>
+                  </div>
+
+                  <!-- UI CONTAINER FOR FORM ELEMENTS OF A CATEGORY SELECTED IN CATEGORY NAVIGATION MENU -->
+                  <div class="form-category">
+
+                    <div id="block-computation-0" class="level1 active">
+
+                      <div class="controls">
+                        <div class="title"><h4>Computation</h4></div>
+                        <div class="button reload-icon reload-form-block"><div class="controls-tooltip"><p>Restore default values</p></div></div>
+                      </div>
+
+                      <div class="level1-container">
+
+                        <div class="level2">
+
+                          <div class="group-container">
+
+
+                            <div class="field-container">
+                              <div class="title"><p>Number of processor cores</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="np" id="np" value = "4">
+                              </div>
+                            </div>
+                          </div> <!-- END: group-container -->
+                        </div> <!-- END: level2 -->
+                      </div><!-- END: level1-container -->
+                    </div><!-- END: level1 -->
+
+                  </div><!-- END: UI container -->
+                </div>
+              </input>
             </form><!-- END: form -->           
             
         </section>
