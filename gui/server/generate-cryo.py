@@ -9,5 +9,5 @@ cgi = sys.argv[1]
 
 f = CryoPartnerRun._form()
 f = form_cryo.webform(f)
-html = form_cryo.html(f, cgi, newtab=True)
+html = form_cryo.html(f, cgi, None, newtab=True)
 print(html)

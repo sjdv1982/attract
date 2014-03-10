@@ -8,5 +8,5 @@ cgi = sys.argv[1]
 
 f = AttractModel._form()
 f = form_model.webform(f)
-html = form_model.html(f, cgi, newtab=True)
+html = form_model.html(f, cgi, None, newtab=True)
 print(html)
