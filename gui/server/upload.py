@@ -17,7 +17,7 @@ def serve_upload():
     conversion = True
   if interface == "AttractModel": 
     spydertype = Spyder.AttractModel    
-    formlib = form
+    formlib = form_model
     cgiscript = "attractserver.py"
   elif interface == "AttractEasyModel": 
     spydertype = Spyder.AttractEasyModel    
@@ -42,17 +42,15 @@ def serve_upload():
   os.chdir(mydir)
   model.tofile(fname)
   
-  for p in model.partners: 
-    p.rmsd, p.use_modes = None, None #"virtual" form attributes defined in form.webform
   f = spydertype._form()
-  f = formlib.webform(f, model)
+  f = formlib.webform(f)
   header = formlib.header.replace("<head>", "<head>\n        <base href=\"%s\" target=\"_blank\">" % webdir, 1)
   html = attracthtmlform.htmlform(
     obj=model, 
     form=f, 
     cgi=cgidir+cgiscript, 
     header=header, 
-    footer=form.footer, 
+    footer=formlib.footer, 
     header_indentation = 12,
     hidden = {"_tmpresource":mydir+"/"+fname},
   )
@@ -67,7 +65,7 @@ try:
   import spyder.htmlform
   import attractmodel
   import attracthtmlform
-  import form, formeasy
+  import form_model, formeasy
 
   r = serve_upload()
   print r
