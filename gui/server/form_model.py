@@ -473,8 +473,10 @@ def webserverform(webdict, form=None, spydertype=None):
     pass
   webdict["nr_iterations"] = nr_iterations
   return f
-  
-def html(form, cgi, spyderobj, newtab=False):
+
+header0 = header
+footer0 = footer  
+def html(form, cgi, spyderobj, newtab=False, header=header0, footer=footer0):
   import random
   import attracthtmlform 
   args = dict (
