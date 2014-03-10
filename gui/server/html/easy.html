@@ -73,7 +73,7 @@
             </header>
             <form encType="multipart/form-data" action="http://localhost:7455/" method="post">
 
-              <input type="hidden" name="_tmpresource" value="run384780/attract.web">
+              <input type="hidden" name="_tmpresource" value="run821555/attract.web">
 
                 <div id="page1" class="category-container">
                   <div class="form-category-description">
@@ -175,6 +175,98 @@
                               <div class="title"><p>Select only backbone atoms for RMSD calculation</p></div>
                               <div class="field-item checkbox align-right">
                                 <input type="checkbox" name="partners-0-rmsd_bb" id="partners-0-rmsd_bb" value="" checked="checked">
+                              </div>
+                            </div>
+                          </div> <!-- END: group-container -->
+                        </div> <!-- END: level2 -->
+                      </div><!-- END: level1-container -->
+                    </div><!-- END: level1 -->
+
+
+                    <div id="block-partners-0" class="level1 active">
+
+                      <div class="controls">
+                        <div class="title"><h4>Docking partners 2</h4></div>
+                        <div class="button reload-icon reload-form-block"><div class="controls-tooltip"><p>Restore default values</p></div></div>
+                      </div>
+
+                      <div class="level1-container">
+
+                        <div class="level2">
+
+                          <div class="group-container">
+
+                            <div class="field-container">
+                              <div class="title"><h3>Structure Sources</h3></div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p><em><mark>&lt;Embedded resource&gt;:</mark>&nbsp;&nbsp;&nbsp;</em>Structure file</p></div>
+                              <div class="tooltip"><div class="tooltip-body"><a href="documentation.html#partners-ensemble_size" target="_blank">Upload PDB structure file</a></div></div>
+                              <div class="field-item file align-right">
+                                <input type="file" name="partners-1-pdbfile" id="partners-1-pdbfile">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>If the PDB is a multi-model ensemble, specify the number of conformers</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="partners-1-ensemble_size" id="partners-1-ensemble_size" value = "0">
+                              </div>
+                            </div>
+                          </div> <!-- END: group-container -->
+                        </div> <!-- END: level2 -->
+
+                        <div class="level2">
+
+                          <div class="field-container">
+                            <div class="title"><h3>Generate harmonic modes</h3></div>
+                            <div class="field-item switch align-left">
+                              <input type="checkbox" name="partners-1-generate_modes" id="partners-1-generate_modes" value="">
+                              <label for="partners-1-generate_modes">Off</label>
+                              <label for="partners-1-generate_modes">On</label>
+                              <span class="toggle"></span>
+                            </div>
+                          </div>
+
+                          <div class="group-container">
+
+
+                            <div class="field-container">
+                              <div class="title"><p>Number of modes to select</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="partners-1-nr_modes" id="partners-1-nr_modes" value = "5" min="1" max="10">
+                              </div>
+                            </div>
+                          </div> <!-- END: group-container -->
+                        </div> <!-- END: level2 -->
+
+                        <div class="level2">
+
+                          <div class="field-container">
+                            <div class="title"><h3>RMSD calculation</h3></div>
+                            <div class="field-item switch align-left">
+                              <input type="checkbox" name="partners-1-use_rmsd" id="partners-1-use_rmsd" value="" checked="checked">
+                              <label for="partners-1-use_rmsd">Off</label>
+                              <label for="partners-1-use_rmsd">On</label>
+                              <span class="toggle"></span>
+                            </div>
+                          </div>
+
+                          <div class="group-container">
+
+
+                            <div class="field-container">
+                              <div class="title"><p><em><mark>&lt;Embedded resource&gt;:</mark>&nbsp;&nbsp;&nbsp;</em>Reference RMSD PDB file</p></div>
+                              <div class="field-item file align-right">
+                                <input type="file" name="partners-1-rmsd_pdb" id="partners-1-rmsd_pdb">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Select only backbone atoms for RMSD calculation</p></div>
+                              <div class="field-item checkbox align-right">
+                                <input type="checkbox" name="partners-1-rmsd_bb" id="partners-1-rmsd_bb" value="" checked="checked">
                               </div>
                             </div>
                           </div> <!-- END: group-container -->
