@@ -8,5 +8,5 @@ cgi = sys.argv[1]
 
 f = AttractEasyModel._form()
 f = formeasy.webform(f)
-html = formeasy.html(f, cgi, newtab=True)
+html = formeasy.html(f, cgi, None, newtab=True)
 print(html)

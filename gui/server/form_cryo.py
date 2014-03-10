@@ -196,7 +196,8 @@ A CryoPartner has different options for how it is to be converted into CryoBodie
     #insert placeholder boolean to determine the state of the Advanced switch
     b = fp.new_group("b_advanced", "block")
     b.title =  "Advanced settings"
-    fp._membernames.append("use_advanced")
+    if "use_advanced" not in fp._membernames:
+      fp._membernames.append("use_advanced")
     sw = f.cryozoom._members["pre_mini"].get_copy()        
     sw.name = "Use advanced settings"
     sw.type = "switch"
@@ -330,4 +331,4 @@ def webserverform(webdict, form=None, spydertype=None):
   
 def html(form, cgi, spyderobj, newtab=False):
   from form_model import html
-  return html(form, cgi, spyderobj, newtab)
+  return html(form, cgi, spyderobj, newtab, header=header)

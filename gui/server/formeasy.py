@@ -210,7 +210,7 @@ def webserverform(webdict, form=None, spydertype=None):
   
 def html(form, cgi, spyderobj, newtab=False):
   from form_model import html
-  return html(form, cgi, spyderobj, newtab)
+  return html(form, cgi, spyderobj, newtab, header=header)
   
   
   
