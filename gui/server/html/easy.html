@@ -73,17 +73,23 @@
             </header>
             <form encType="multipart/form-data" action="http://localhost:7455/" method="post">
 
-              <input type="hidden" name="_tmpresource" value="run821555/attract.web">
+              <input type="hidden" name="_tmpresource" value="run964631/attract.web">
 
                 <div id="page1" class="category-container">
                   <div class="form-category-description">
                     <div class="large-icon puzzle-icon"></div>
                     <div class="description">
                       <h2>Docking partners</h2>
-                      <p>Define 2 docking partners by uploading a PDB structure file.</p>
+                      <p>Define up to 10 docking partners by uploading a PDB structure file or identifying them by their 
+            RCSB Protein Databank ID. Ensemble structures are allowed.</p>
                     </div>
 
                     <div class="category-controls">
+                      <div class="field-container">
+                        <div class="field-item button align-right">
+                          <input type="button" value="Add partner" id="block-partners-add" onClick="cloneBlock('block-partners-',10);">
+                        </div>
+                      </div>
                     </div>
 
                   </div>
@@ -96,6 +102,7 @@
                       <div class="controls">
                         <div class="title"><h4>Docking partners 1</h4></div>
                         <div class="button reload-icon reload-form-block"><div class="controls-tooltip"><p>Restore default values</p></div></div>
+                        <div id="remove-block-partners-0" class="button close-icon"><div class="controls-tooltip"><p>Remove partner</p></div></div>
                       </div>
 
                       <div class="level1-container">
@@ -107,19 +114,78 @@
                             <div class="field-container">
                               <div class="title"><h3>Structure Sources</h3></div>
                             </div>
+                            <div class="group-inline clearfix">
 
-                            <div class="field-container">
-                              <div class="title"><p><em><mark>&lt;Embedded resource&gt;:</mark>&nbsp;&nbsp;&nbsp;</em>Structure file</p></div>
-                              <div class="tooltip"><div class="tooltip-body"><a href="documentation.html#partners-ensemble_size" target="_blank">Upload PDB structure file</a></div></div>
-                              <div class="field-item file align-right">
-                                <input type="file" name="partners-0-pdbfile" id="partners-0-pdbfile">
+                              <div class="field-container">
+                                <div class="title"><p><em><mark>&lt;Embedded resource&gt;:</mark>&nbsp;&nbsp;&nbsp;</em>Structure file</p></div>
+                                <div class="tooltip"><div class="tooltip-body"><a href="documentation.html#partners-structure_file" target="_blank">Upload PDB structure file</a></div></div>
+                                <div class="field-item file align-right">
+                                  <input type="file" name="partners-0-pdbfile" id="partners-0-pdbfile">
+                                </div>
                               </div>
-                            </div>
+
+                              <div class="field-container">
+                                <div class="title"><p>Or define?</p></div>
+                                <div class="tooltip"><div class="tooltip-body"><a href="documentation.html#partners-rcsb_pdbid" target="_blank">RCSB PDB ID</a></div></div>
+                                <div class="field-item text align-right">
+                                  <input type="text" name="partners-0-code" id="partners-0-code" value="" maxlength="4" placeholder="RCSB PDB id">
+                                </div>
+                              </div>
+
+                            </div> <!--END: group-inline -->
+                            <div class="group-inline clearfix">
+
+                              <div class="field-container">
+                                <div class="title"><p>Name of the grid for this molecule</p></div>
+                                <div class="tooltip"><div class="tooltip-body"><a href="documentation.html#partners-grid_name" target="_blank">Grid name</a></div></div>
+                                <div class="field-item text align-right">
+                                  <input type="text" name="partners-0-gridname" id="partners-0-gridname" value="receptorgrid">
+                                </div>
+                              </div>
+
+                              <div class="field-container">
+                                <div class="title"><p>Which chain must be used?</p></div>
+                                <div class="tooltip"><div class="tooltip-body"><a href="documentation.html#partners-chains" target="_blank">Which chain ID</a></div></div>
+                                <div class="field-item select align-right">
+                                  <select name="partners-0-chain" id="partners-0-chain">
+                                    <option value="All" selected>All</option>
+                                    <option value="A">A</option>
+                                    <option value="B">B</option>
+                                    <option value="C">C</option>
+                                    <option value="D">D</option>
+                                    <option value="E">E</option>
+                                    <option value="F">F</option>
+                                    <option value="G">G</option>
+                                    <option value="H">H</option>
+                                    <option value="I">I</option>
+                                    <option value="J">J</option>
+                                    <option value="K">K</option>
+                                    <option value="L">L</option>
+                                    <option value="M">M</option>
+                                    <option value="N">N</option>
+                                    <option value="O">O</option>
+                                    <option value="P">P</option>
+                                    <option value="Q">Q</option>
+                                    <option value="R">R</option>
+                                    <option value="S">S</option>
+                                    <option value="T">T</option>
+                                    <option value="U">U</option>
+                                    <option value="V">V</option>
+                                    <option value="W">W</option>
+                                    <option value="X">X</option>
+                                    <option value="Y">Y</option>
+                                    <option value="Z">Z</option>
+                                  </select>
+                                </div>
+                              </div>
+
+                            </div> <!--END: group-inline -->
 
                             <div class="field-container">
-                              <div class="title"><p>If the PDB is a multi-model ensemble, specify the number of conformers</p></div>
-                              <div class="field-item number align-right">
-                                <input type="number" name="partners-0-ensemble_size" id="partners-0-ensemble_size" value = "0">
+                              <div class="title"><p>The molecule is in reduced form</p></div>
+                              <div class="tooltip"><div class="tooltip-body"><a href="documentation.html#partners-mol_reduced" target="_blank">Reduced or not</a></div></div>
+                              <div class="field-item checkbox align-right">
+                                <input type="checkbox" name="partners-0-is_reduced" id="partners-0-is_reduced" value="">
                               </div>
                             </div>
                           </div> <!-- END: group-container -->
@@ -128,22 +194,94 @@
                         <div class="level2">
 
                           <div class="field-container">
-                            <div class="title"><h3>Generate harmonic modes</h3></div>
+                            <div class="title"><h3>Use harmonic modes</h3></div>
                             <div class="field-item switch align-left">
-                              <input type="checkbox" name="partners-0-generate_modes" id="partners-0-generate_modes" value="">
-                              <label for="partners-0-generate_modes">Off</label>
-                              <label for="partners-0-generate_modes">On</label>
+                              <input type="checkbox" name="partners-0-use_modes" id="partners-0-use_modes" value="">
+                              <label for="partners-0-use_modes">Off</label>
+                              <label for="partners-0-use_modes">On</label>
                               <span class="toggle"></span>
                             </div>
                           </div>
 
                           <div class="group-container">
 
+                            <div class="group-inline clearfix">
+
+                              <div class="field-container">
+                                <div class="title"><p>Harmonic modes file</p></div>
+                                <div class="field-item file align-right">
+                                  <input type="file" name="partners-0-modes_file" id="partners-0-modes_file">
+                                </div>
+                              </div>
+
+                              <div class="field-container">
+                                <div class="title"><p>Or: generate harmonic modes automatically</p></div>
+                                <div class="field-item checkbox align-right">
+                                  <input type="checkbox" name="partners-0-generate_modes" id="partners-0-generate_modes" value="">
+                                </div>
+                              </div>
+
+                            </div> <!--END: group-inline -->
+                            <div class="group-inline clearfix">
+
+                              <div class="field-container">
+                                <div class="title"><p>Number of modes to select</p></div>
+                                <div class="field-item number align-right">
+                                  <input type="number" name="partners-0-nr_modes" id="partners-0-nr_modes" value = "5" min="1" max="10">
+                                </div>
+                              </div>
+
+                              <div class="field-container">
+                                <div class="title"><p>All-atom harmonic modes file (for RMSD/collect)</p></div>
+                                <div class="field-item file align-right">
+                                  <input type="file" name="partners-0-aa_modes_file" id="partners-0-aa_modes_file">
+                                </div>
+                              </div>
+
+                            </div> <!--END: group-inline -->
+                          </div> <!-- END: group-container -->
+                        </div> <!-- END: level2 -->
+
+                        <div class="level2">
+
+                          <div class="field-container">
+                            <div class="title"><h3>Use ensembles</h3></div>
+                            <div class="field-item switch align-left">
+                              <input type="checkbox" name="partners-0-ensemble" id="partners-0-ensemble" value="" checked="checked">
+                              <label for="partners-0-ensemble">Off</label>
+                              <label for="partners-0-ensemble">On</label>
+                              <span class="toggle"></span>
+                            </div>
+                          </div>
+
+                          <div class="group-container">
+
+                            <div class="group-inline clearfix">
+
+                              <div class="field-container">
+                                <div class="title"><p>Or: You can supply an ensemble list file</p></div>
+                                <div class="field-item file align-right">
+                                  <input type="file" name="partners-0-ensemble_list" id="partners-0-ensemble_list">
+                                </div>
+                              </div>
+
+                              <div class="field-container">
+                                <div class="title"><p>Number of conformers in the ensemble</p></div>
+                                <div class="field-item number align-right">
+                                  <input type="number" name="partners-0-ensemble_size" id="partners-0-ensemble_size" value = "11" min="1">
+                                </div>
+                              </div>
+
+                            </div> <!--END: group-inline -->
 
                             <div class="field-container">
-                              <div class="title"><p>Number of modes to select</p></div>
-                              <div class="field-item number align-right">
-                                <input type="number" name="partners-0-nr_modes" id="partners-0-nr_modes" value = "5" min="1" max="10">
+                              <div class="title"><p>Ensemble search</p></div>
+                              <div class="field-item select align-right">
+                                <select name="partners-0-ensemblize" id="partners-0-ensemblize">
+                                  <option value="random">Random</option>
+                                  <option value="all" selected>All</option>
+                                  <option value="custom">Custom (none)</option>
+                                </select>
                               </div>
                             </div>
                           </div> <!-- END: group-container -->
@@ -154,20 +292,37 @@
                           <div class="field-container">
                             <div class="title"><h3>RMSD calculation</h3></div>
                             <div class="field-item switch align-left">
-                              <input type="checkbox" name="partners-0-use_rmsd" id="partners-0-use_rmsd" value="" checked="checked">
-                              <label for="partners-0-use_rmsd">Off</label>
-                              <label for="partners-0-use_rmsd">On</label>
+                              <input type="checkbox" name="partners-0-rmsd" id="partners-0-rmsd" value="" checked="checked">
+                              <label for="partners-0-rmsd">Off</label>
+                              <label for="partners-0-rmsd">On</label>
                               <span class="toggle"></span>
                             </div>
                           </div>
 
                           <div class="group-container">
 
+                            <div class="group-inline clearfix">
+
+                              <div class="field-container">
+                                <div class="title"><p><em><mark>&lt;Embedded resource&gt;:</mark>&nbsp;&nbsp;&nbsp;</em>Reference RMSD PDB file</p></div>
+                                <div class="field-item file align-right">
+                                  <input type="file" name="partners-0-rmsd_pdb" id="partners-0-rmsd_pdb">
+                                </div>
+                              </div>
+
+                              <div class="field-container">
+                                <div class="title"><p><em><mark>&lt;Embedded resource&gt;:</mark>&nbsp;&nbsp;&nbsp;</em>Collect PDB file</p></div>
+                                <div class="field-item file align-right">
+                                  <input type="file" name="partners-0-collect_pdb" id="partners-0-collect_pdb">
+                                </div>
+                              </div>
+
+                            </div> <!--END: group-inline -->
 
                             <div class="field-container">
-                              <div class="title"><p><em><mark>&lt;Embedded resource&gt;:</mark>&nbsp;&nbsp;&nbsp;</em>Reference RMSD PDB file</p></div>
+                              <div class="title"><p>Collect ensemble list file</p></div>
                               <div class="field-item file align-right">
-                                <input type="file" name="partners-0-rmsd_pdb" id="partners-0-rmsd_pdb">
+                                <input type="file" name="partners-0-collect_ensemble_list" id="partners-0-collect_ensemble_list">
                               </div>
                             </div>
 
@@ -175,6 +330,14 @@
                               <div class="title"><p>Select only backbone atoms for RMSD calculation</p></div>
                               <div class="field-item checkbox align-right">
                                 <input type="checkbox" name="partners-0-rmsd_bb" id="partners-0-rmsd_bb" value="" checked="checked">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Remove flexibility</p></div>
+                              <div class="tooltip"><div class="tooltip-body"><a href="documentation.html#partners-no_flex" target="_blank">Remove flexibility</a></div></div>
+                              <div class="field-item checkbox align-right">
+                                <input type="checkbox" name="partners-0-deflex" id="partners-0-deflex" value="" checked="checked">
                               </div>
                             </div>
                           </div> <!-- END: group-container -->
@@ -188,6 +351,7 @@
                       <div class="controls">
                         <div class="title"><h4>Docking partners 2</h4></div>
                         <div class="button reload-icon reload-form-block"><div class="controls-tooltip"><p>Restore default values</p></div></div>
+                        <div id="remove-block-partners-0" class="button close-icon"><div class="controls-tooltip"><p>Remove partner</p></div></div>
                       </div>
 
                       <div class="level1-container">
@@ -199,19 +363,78 @@
                             <div class="field-container">
                               <div class="title"><h3>Structure Sources</h3></div>
                             </div>
+                            <div class="group-inline clearfix">
 
-                            <div class="field-container">
-                              <div class="title"><p><em><mark>&lt;Embedded resource&gt;:</mark>&nbsp;&nbsp;&nbsp;</em>Structure file</p></div>
-                              <div class="tooltip"><div class="tooltip-body"><a href="documentation.html#partners-ensemble_size" target="_blank">Upload PDB structure file</a></div></div>
-                              <div class="field-item file align-right">
-                                <input type="file" name="partners-1-pdbfile" id="partners-1-pdbfile">
+                              <div class="field-container">
+                                <div class="title"><p><em><mark>&lt;Embedded resource&gt;:</mark>&nbsp;&nbsp;&nbsp;</em>Structure file</p></div>
+                                <div class="tooltip"><div class="tooltip-body"><a href="documentation.html#partners-structure_file" target="_blank">Upload PDB structure file</a></div></div>
+                                <div class="field-item file align-right">
+                                  <input type="file" name="partners-1-pdbfile" id="partners-1-pdbfile">
+                                </div>
                               </div>
-                            </div>
+
+                              <div class="field-container">
+                                <div class="title"><p>Or define?</p></div>
+                                <div class="tooltip"><div class="tooltip-body"><a href="documentation.html#partners-rcsb_pdbid" target="_blank">RCSB PDB ID</a></div></div>
+                                <div class="field-item text align-right">
+                                  <input type="text" name="partners-1-code" id="partners-1-code" value="" maxlength="4" placeholder="RCSB PDB id">
+                                </div>
+                              </div>
+
+                            </div> <!--END: group-inline -->
+                            <div class="group-inline clearfix">
+
+                              <div class="field-container">
+                                <div class="title"><p>Name of the grid for this molecule</p></div>
+                                <div class="tooltip"><div class="tooltip-body"><a href="documentation.html#partners-grid_name" target="_blank">Grid name</a></div></div>
+                                <div class="field-item text align-right">
+                                  <input type="text" name="partners-1-gridname" id="partners-1-gridname" value="">
+                                </div>
+                              </div>
+
+                              <div class="field-container">
+                                <div class="title"><p>Which chain must be used?</p></div>
+                                <div class="tooltip"><div class="tooltip-body"><a href="documentation.html#partners-chains" target="_blank">Which chain ID</a></div></div>
+                                <div class="field-item select align-right">
+                                  <select name="partners-1-chain" id="partners-1-chain">
+                                    <option value="All" selected>All</option>
+                                    <option value="A">A</option>
+                                    <option value="B">B</option>
+                                    <option value="C">C</option>
+                                    <option value="D">D</option>
+                                    <option value="E">E</option>
+                                    <option value="F">F</option>
+                                    <option value="G">G</option>
+                                    <option value="H">H</option>
+                                    <option value="I">I</option>
+                                    <option value="J">J</option>
+                                    <option value="K">K</option>
+                                    <option value="L">L</option>
+                                    <option value="M">M</option>
+                                    <option value="N">N</option>
+                                    <option value="O">O</option>
+                                    <option value="P">P</option>
+                                    <option value="Q">Q</option>
+                                    <option value="R">R</option>
+                                    <option value="S">S</option>
+                                    <option value="T">T</option>
+                                    <option value="U">U</option>
+                                    <option value="V">V</option>
+                                    <option value="W">W</option>
+                                    <option value="X">X</option>
+                                    <option value="Y">Y</option>
+                                    <option value="Z">Z</option>
+                                  </select>
+                                </div>
+                              </div>
+
+                            </div> <!--END: group-inline -->
 
                             <div class="field-container">
-                              <div class="title"><p>If the PDB is a multi-model ensemble, specify the number of conformers</p></div>
-                              <div class="field-item number align-right">
-                                <input type="number" name="partners-1-ensemble_size" id="partners-1-ensemble_size" value = "0">
+                              <div class="title"><p>The molecule is in reduced form</p></div>
+                              <div class="tooltip"><div class="tooltip-body"><a href="documentation.html#partners-mol_reduced" target="_blank">Reduced or not</a></div></div>
+                              <div class="field-item checkbox align-right">
+                                <input type="checkbox" name="partners-1-is_reduced" id="partners-1-is_reduced" value="">
                               </div>
                             </div>
                           </div> <!-- END: group-container -->
@@ -220,22 +443,95 @@
                         <div class="level2">
 
                           <div class="field-container">
-                            <div class="title"><h3>Generate harmonic modes</h3></div>
+                            <div class="title"><h3>Use harmonic modes</h3></div>
                             <div class="field-item switch align-left">
-                              <input type="checkbox" name="partners-1-generate_modes" id="partners-1-generate_modes" value="">
-                              <label for="partners-1-generate_modes">Off</label>
-                              <label for="partners-1-generate_modes">On</label>
+                              <input type="checkbox" name="partners-1-use_modes" id="partners-1-use_modes" value="">
+                              <label for="partners-1-use_modes">Off</label>
+                              <label for="partners-1-use_modes">On</label>
                               <span class="toggle"></span>
                             </div>
                           </div>
 
                           <div class="group-container">
 
+                            <div class="group-inline clearfix">
+
+                              <div class="field-container">
+                                <div class="title"><p>Harmonic modes file</p></div>
+                                <div class="field-item file align-right">
+                                  <input type="file" name="partners-1-modes_file" id="partners-1-modes_file">
+                                </div>
+                              </div>
+
+                              <div class="field-container">
+                                <div class="title"><p>Or: generate harmonic modes automatically</p></div>
+                                <div class="field-item checkbox align-right">
+                                  <input type="checkbox" name="partners-1-generate_modes" id="partners-1-generate_modes" value="">
+                                </div>
+                              </div>
+
+                            </div> <!--END: group-inline -->
+                            <div class="group-inline clearfix">
+
+                              <div class="field-container">
+                                <div class="title"><p>Number of modes to select</p></div>
+                                <div class="field-item number align-right">
+                                  <input type="number" name="partners-1-nr_modes" id="partners-1-nr_modes" value = "5" min="1" max="10">
+                                </div>
+                              </div>
+
+                              <div class="field-container">
+                                <div class="title"><p>All-atom harmonic modes file (for RMSD/collect)</p></div>
+                                <div class="field-item file align-right">
+                                  <input type="file" name="partners-1-aa_modes_file" id="partners-1-aa_modes_file">
+                                </div>
+                              </div>
+
+                            </div> <!--END: group-inline -->
+                          </div> <!-- END: group-container -->
+                        </div> <!-- END: level2 -->
+
+                        <div class="level2">
+
+                          <div class="field-container">
+                            <div class="title"><h3>Use ensembles</h3></div>
+                            <div class="field-item switch align-left">
+                              <input type="checkbox" name="partners-1-ensemble" id="partners-1-ensemble" value="">
+                              <label for="partners-1-ensemble">Off</label>
+                              <label for="partners-1-ensemble">On</label>
+                              <span class="toggle"></span>
+                            </div>
+                          </div>
+
+                          <div class="group-container">
+
+                            <div class="group-inline clearfix">
+
+                              <div class="field-container">
+                                <div class="title"><p>Or: You can supply an ensemble list file</p></div>
+                                <div class="field-item file align-right">
+                                  <input type="file" name="partners-1-ensemble_list" id="partners-1-ensemble_list">
+                                </div>
+                              </div>
+
+                              <div class="field-container">
+                                <div class="title"><p>Number of conformers in the ensemble</p></div>
+                                <div class="field-item number align-right">
+                                  <input type="number" name="partners-1-ensemble_size" id="partners-1-ensemble_size" min="1">
+                                </div>
+                              </div>
+
+                            </div> <!--END: group-inline -->
 
                             <div class="field-container">
-                              <div class="title"><p>Number of modes to select</p></div>
-                              <div class="field-item number align-right">
-                                <input type="number" name="partners-1-nr_modes" id="partners-1-nr_modes" value = "5" min="1" max="10">
+                              <div class="title"><p>Ensemble search</p></div>
+                              <div class="field-item select align-right">
+                                <select name="partners-1-ensemblize" id="partners-1-ensemblize">
+                                  <option value="" selected></option>
+                                  <option value="random">Random</option>
+                                  <option value="all">All</option>
+                                  <option value="custom">Custom (none)</option>
+                                </select>
                               </div>
                             </div>
                           </div> <!-- END: group-container -->
@@ -246,20 +542,37 @@
                           <div class="field-container">
                             <div class="title"><h3>RMSD calculation</h3></div>
                             <div class="field-item switch align-left">
-                              <input type="checkbox" name="partners-1-use_rmsd" id="partners-1-use_rmsd" value="" checked="checked">
-                              <label for="partners-1-use_rmsd">Off</label>
-                              <label for="partners-1-use_rmsd">On</label>
+                              <input type="checkbox" name="partners-1-rmsd" id="partners-1-rmsd" value="" checked="checked">
+                              <label for="partners-1-rmsd">Off</label>
+                              <label for="partners-1-rmsd">On</label>
                               <span class="toggle"></span>
                             </div>
                           </div>
 
                           <div class="group-container">
 
+                            <div class="group-inline clearfix">
+
+                              <div class="field-container">
+                                <div class="title"><p><em><mark>&lt;Embedded resource&gt;:</mark>&nbsp;&nbsp;&nbsp;</em>Reference RMSD PDB file</p></div>
+                                <div class="field-item file align-right">
+                                  <input type="file" name="partners-1-rmsd_pdb" id="partners-1-rmsd_pdb">
+                                </div>
+                              </div>
+
+                              <div class="field-container">
+                                <div class="title"><p><em><mark>&lt;Embedded resource&gt;:</mark>&nbsp;&nbsp;&nbsp;</em>Collect PDB file</p></div>
+                                <div class="field-item file align-right">
+                                  <input type="file" name="partners-1-collect_pdb" id="partners-1-collect_pdb">
+                                </div>
+                              </div>
+
+                            </div> <!--END: group-inline -->
 
                             <div class="field-container">
-                              <div class="title"><p><em><mark>&lt;Embedded resource&gt;:</mark>&nbsp;&nbsp;&nbsp;</em>Reference RMSD PDB file</p></div>
+                              <div class="title"><p>Collect ensemble list file</p></div>
                               <div class="field-item file align-right">
-                                <input type="file" name="partners-1-rmsd_pdb" id="partners-1-rmsd_pdb">
+                                <input type="file" name="partners-1-collect_ensemble_list" id="partners-1-collect_ensemble_list">
                               </div>
                             </div>
 
@@ -267,6 +580,14 @@
                               <div class="title"><p>Select only backbone atoms for RMSD calculation</p></div>
                               <div class="field-item checkbox align-right">
                                 <input type="checkbox" name="partners-1-rmsd_bb" id="partners-1-rmsd_bb" value="" checked="checked">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Remove flexibility</p></div>
+                              <div class="tooltip"><div class="tooltip-body"><a href="documentation.html#partners-no_flex" target="_blank">Remove flexibility</a></div></div>
+                              <div class="field-item checkbox align-right">
+                                <input type="checkbox" name="partners-1-deflex" id="partners-1-deflex" value="" checked="checked">
                               </div>
                             </div>
                           </div> <!-- END: group-container -->
@@ -278,6 +599,541 @@
                 </div>
 
                 <div id="page2" class="category-container">
+                  <div class="form-category-description">
+                    <div class="large-icon grid-icon"></div>
+                    <div class="description">
+                      <h2>Grids</h2>
+                      <p></p>
+                    </div>
+
+                    <div class="category-controls">
+                      <div class="field-container">
+                        <div class="field-item button align-right">
+                          <input type="button" value="Add grid" id="block-grids-add" onClick="cloneBlock('block-grids-',5);">
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+
+                  <!-- UI CONTAINER FOR FORM ELEMENTS OF A CATEGORY SELECTED IN CATEGORY NAVIGATION MENU -->
+                  <div class="form-category">
+
+                    <div id="block-grids-0" class="level1 active">
+
+                      <div class="controls">
+                        <div class="title"><h4>Grid 1</h4></div>
+                        <div class="button reload-icon reload-form-block"><div class="controls-tooltip"><p>Restore default values</p></div></div>
+                        <div id="remove-block-grids-0" class="button close-icon"><div class="controls-tooltip"><p>Remove partner</p></div></div>
+                      </div>
+
+                      <div class="level1-container">
+
+                        <div class="level2">
+
+                          <div class="group-container">
+
+                            <div class="group-inline clearfix">
+
+                              <div class="field-container">
+                                <div class="title"><p>Name of this grid</p></div>
+                                <div class="field-item text align-right">
+                                  <input type="text" name="grids-0-gridname" id="grids-0-gridname" value="receptorgrid" placeholder="name...">
+                                </div>
+                              </div>
+
+                              <div class="field-container">
+                                <div class="title"><p>Path to grid file if previously generated</p></div>
+                                <div class="field-item text align-right">
+                                  <input type="text" name="grids-0-gridfile" id="grids-0-gridfile" value="">
+                                </div>
+                              </div>
+
+                            </div> <!--END: group-inline -->
+                            <div class="group-inline clearfix">
+
+                              <div class="field-container">
+                                <div class="title"><p>Plateau distance (A) for grid calculation</p></div>
+                                <div class="field-item number align-right">
+                                  <input type="number" name="grids-0-plateau_distance" id="grids-0-plateau_distance" value = "10.0">
+                                </div>
+                              </div>
+
+                              <div class="field-container">
+                                <div class="title"><p>Neighbor list cutoff (A) for grid calculation</p></div>
+                                <div class="field-item number align-right">
+                                  <input type="number" name="grids-0-neighbour_distance" id="grids-0-neighbour_distance" value = "12.0">
+                                </div>
+                              </div>
+
+                            </div> <!--END: group-inline -->
+                            <div class="group-inline clearfix">
+
+                              <div class="field-container">
+                                <div class="title"><p>Calculate grid using OpenMP?</p></div>
+                                <div class="field-item checkbox align-right">
+                                  <input type="checkbox" name="grids-0-omp" id="grids-0-omp" value="">
+                                </div>
+                              </div>
+
+                              <div class="field-container">
+                                <div class="title"><p>Is the grid a torque grid?</p></div>
+                                <div class="field-item checkbox align-right">
+                                  <input type="checkbox" name="grids-0-torque" id="grids-0-torque" value="">
+                                </div>
+                              </div>
+
+                            </div> <!--END: group-inline -->
+                            <div class="group-inline clearfix">
+
+                              <div class="field-container">
+                                <div class="title"><p>Mask the protein interior before grid calculation</p></div>
+                                <div class="field-item checkbox align-right">
+                                  <input type="checkbox" name="grids-0-mask_interior" id="grids-0-mask_interior" value="">
+                                </div>
+                              </div>
+
+                              <div class="field-container">
+                                <div class="title"><p>Calculate long-range potentials on the grid</p></div>
+                                <div class="field-item checkbox align-right">
+                                  <input type="checkbox" name="grids-0-calc_potentials" id="grids-0-calc_potentials" value="" checked="checked">
+                                </div>
+                              </div>
+
+                            </div> <!--END: group-inline -->
+                          </div> <!-- END: group-container -->
+                        </div> <!-- END: level2 -->
+                      </div><!-- END: level1-container -->
+                    </div><!-- END: level1 -->
+
+                  </div><!-- END: UI container -->
+                </div>
+
+                <div id="page3" class="category-container">
+                  <div class="form-category-description">
+                    <div class="large-icon iteration-icon"></div>
+                    <div class="description">
+                      <h2>Iteration</h2>
+                      <p></p>
+                    </div>
+
+                    <div class="category-controls">
+                      <div class="field-container">
+                        <div class="field-item button align-right">
+                          <input type="button" value="Add iteration" id="block-iterations-add" onClick="cloneBlock('block-iterations-',5);">
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+
+                  <!-- UI CONTAINER FOR FORM ELEMENTS OF A CATEGORY SELECTED IN CATEGORY NAVIGATION MENU -->
+                  <div class="form-category">
+
+                    <div id="block-iterations-zoom-in-0" class="level1 active">
+
+                      <div class="controls">
+                        <div class="title"><h4>Zoom-in protocol</h4></div>
+                        <div class="button reload-icon reload-form-block"><div class="controls-tooltip"><p>Restore default values</p></div></div>
+                      </div>
+
+                      <div class="level1-container">
+
+                        <div class="level2">
+
+                          <div class="group-container">
+
+
+                            <div class="field-container">
+                              <div class="title"><p>Use zoom-in protocol: ignores the parameters for the individual iterations</p></div>
+                              <div class="field-item checkbox align-right">
+                                <input type="checkbox" name="zoom" id="zoom" value="">
+                              </div>
+                            </div>
+                            <div class="group-inline clearfix">
+
+                              <div class="field-container">
+                                <div class="title"><p>number of structures to select after each iteration</p></div>
+                                <div class="field-item number align-right">
+                                  <input type="number" name="zoom_select" id="zoom_select" value = "1000">
+                                </div>
+                              </div>
+
+                              <div class="field-container">
+                                <div class="title"><p>Cloning factor</p></div>
+                                <div class="field-item number align-right">
+                                  <input type="number" name="zoom_clone" id="zoom_clone" value = "20">
+                                </div>
+                              </div>
+
+                            </div> <!--END: group-inline -->
+                            <div class="group-inline clearfix">
+
+                              <div class="field-container">
+                                <div class="title"><p>Rotational displacement (radians)</p></div>
+                                <div class="field-item number align-right">
+                                  <input type="number" name="zoom_ori" id="zoom_ori" value = "0.25">
+                                </div>
+                              </div>
+
+                              <div class="field-container">
+                                <div class="title"><p>Translation displacement (angstroms)</p></div>
+                                <div class="field-item number align-right">
+                                  <input type="number" name="zoom_trans" id="zoom_trans" value = "5.0">
+                                </div>
+                              </div>
+
+                            </div> <!--END: group-inline -->
+                          </div> <!-- END: group-container -->
+                        </div> <!-- END: level2 -->
+
+                        <div class="level2">
+
+                          <div class="group-container">
+
+                            <div class="field-container">
+                              <div class="title"><h3>Zoom-in protocol: First iteration</h3></div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>The nonbonded pairlist distance cutoff (rcut) (in A**2) during this iteration</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="zoom_it_initial-rcut" id="zoom_it_initial-rcut" value = "1500.0">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>The maximum number of energy minimization or Monte Carlo steps (vmax)</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="zoom_it_initial-vmax" id="zoom_it_initial-vmax" value = "100">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Trajectory mode: only minimize the first structure, and output the structure after every minimization step</p></div>
+                              <div class="field-item checkbox align-right">
+                                <input type="checkbox" name="zoom_it_initial-traj" id="zoom_it_initial-traj" value="">
+                              </div>
+                            </div>
+                          </div> <!-- END: group-container -->
+                        </div> <!-- END: level2 -->
+
+                        <div class="level2">
+
+                          <div class="field-container">
+                            <div class="title"><h3>Enable Monte Carlo mode</h3></div>
+                            <div class="field-item switch align-left">
+                              <input type="checkbox" name="zoom_it_initial-mc" id="zoom_it_initial-mc" value="">
+                              <label for="zoom_it_initial-mc">Off</label>
+                              <label for="zoom_it_initial-mc">On</label>
+                              <span class="toggle"></span>
+                            </div>
+                          </div>
+
+                          <div class="group-container">
+
+
+                            <div class="field-container">
+                              <div class="title"><p>Temperature (in kT)</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="zoom_it_initial-mctemp" id="zoom_it_initial-mctemp" value = "3.5">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Rotation step size (in radians)</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="zoom_it_initial-mcscalerot" id="zoom_it_initial-mcscalerot" value = "0.05">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Translation step size (in angstroms)</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="zoom_it_initial-mcscalecenter" id="zoom_it_initial-mcscalecenter" value = "0.1">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Mode deformation step size (in angstroms)</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="zoom_it_initial-mcscalemode" id="zoom_it_initial-mcscalemode" value = "0.1">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Probability to switch between ensemble conformers</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="zoom_it_initial-mcensprob" id="zoom_it_initial-mcensprob" value = "0.1">
+                              </div>
+                            </div>
+                          </div> <!-- END: group-container -->
+                        </div> <!-- END: level2 -->
+
+                        <div class="level2">
+
+                          <div class="group-container">
+
+                            <div class="field-container">
+                              <div class="title"><h3>Zoom-in protocol: subsequent iterations</h3></div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>The nonbonded pairlist distance cutoff (rcut) (in A**2) during this iteration</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="zoom_it_subsequent-rcut" id="zoom_it_subsequent-rcut" value = "1500.0">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>The maximum number of energy minimization or Monte Carlo steps (vmax)</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="zoom_it_subsequent-vmax" id="zoom_it_subsequent-vmax" value = "100">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Trajectory mode: only minimize the first structure, and output the structure after every minimization step</p></div>
+                              <div class="field-item checkbox align-right">
+                                <input type="checkbox" name="zoom_it_subsequent-traj" id="zoom_it_subsequent-traj" value="">
+                              </div>
+                            </div>
+                          </div> <!-- END: group-container -->
+                        </div> <!-- END: level2 -->
+
+                        <div class="level2">
+
+                          <div class="field-container">
+                            <div class="title"><h3>Enable Monte Carlo mode</h3></div>
+                            <div class="field-item switch align-left">
+                              <input type="checkbox" name="zoom_it_subsequent-mc" id="zoom_it_subsequent-mc" value="">
+                              <label for="zoom_it_subsequent-mc">Off</label>
+                              <label for="zoom_it_subsequent-mc">On</label>
+                              <span class="toggle"></span>
+                            </div>
+                          </div>
+
+                          <div class="group-container">
+
+
+                            <div class="field-container">
+                              <div class="title"><p>Temperature (in kT)</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="zoom_it_subsequent-mctemp" id="zoom_it_subsequent-mctemp" value = "3.5">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Rotation step size (in radians)</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="zoom_it_subsequent-mcscalerot" id="zoom_it_subsequent-mcscalerot" value = "0.05">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Translation step size (in angstroms)</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="zoom_it_subsequent-mcscalecenter" id="zoom_it_subsequent-mcscalecenter" value = "0.1">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Mode deformation step size (in angstroms)</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="zoom_it_subsequent-mcscalemode" id="zoom_it_subsequent-mcscalemode" value = "0.1">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Probability to switch between ensemble conformers</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="zoom_it_subsequent-mcensprob" id="zoom_it_subsequent-mcensprob" value = "0.1">
+                              </div>
+                            </div>
+                          </div> <!-- END: group-container -->
+                        </div> <!-- END: level2 -->
+                      </div><!-- END: level1-container -->
+                    </div><!-- END: level1 -->
+
+
+                    <div id="block-iterations-0" class="level1 active">
+
+                      <div class="controls">
+                        <div class="title"><h4>Iteration 1</h4></div>
+                        <div class="button reload-icon reload-form-block"><div class="controls-tooltip"><p>Restore default values</p></div></div>
+                        <div id="remove-block-iterations-0" class="button close-icon"><div class="controls-tooltip"><p>Remove partner</p></div></div>
+                      </div>
+
+                      <div class="level1-container">
+
+                        <div class="level2">
+
+                          <div class="group-container">
+
+
+                            <div class="field-container">
+                              <div class="title"><p>The nonbonded pairlist distance cutoff (rcut) (in A**2) during this iteration</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="iterations-0-rcut" id="iterations-0-rcut" value = "1500.0">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>The maximum number of energy minimization or Monte Carlo steps (vmax)</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="iterations-0-vmax" id="iterations-0-vmax" value = "1000">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Trajectory mode: only minimize the first structure, and output the structure after every minimization step</p></div>
+                              <div class="field-item checkbox align-right">
+                                <input type="checkbox" name="iterations-0-traj" id="iterations-0-traj" value="">
+                              </div>
+                            </div>
+                          </div> <!-- END: group-container -->
+                        </div> <!-- END: level2 -->
+
+                        <div class="level2">
+
+                          <div class="field-container">
+                            <div class="title"><h3>Enable Monte Carlo mode</h3></div>
+                            <div class="field-item switch align-left">
+                              <input type="checkbox" name="iterations-0-mc" id="iterations-0-mc" value="">
+                              <label for="iterations-0-mc">Off</label>
+                              <label for="iterations-0-mc">On</label>
+                              <span class="toggle"></span>
+                            </div>
+                          </div>
+
+                          <div class="group-container">
+
+
+                            <div class="field-container">
+                              <div class="title"><p>Temperature (in kT)</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="iterations-0-mctemp" id="iterations-0-mctemp" value = "3.5">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Rotation step size (in radians)</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="iterations-0-mcscalerot" id="iterations-0-mcscalerot" value = "0.05">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Translation step size (in angstroms)</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="iterations-0-mcscalecenter" id="iterations-0-mcscalecenter" value = "0.1">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Mode deformation step size (in angstroms)</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="iterations-0-mcscalemode" id="iterations-0-mcscalemode" value = "0.1">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Probability to switch between ensemble conformers</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="iterations-0-mcensprob" id="iterations-0-mcensprob" value = "0.1">
+                              </div>
+                            </div>
+                          </div> <!-- END: group-container -->
+                        </div> <!-- END: level2 -->
+                      </div><!-- END: level1-container -->
+                    </div><!-- END: level1 -->
+
+                  </div><!-- END: UI container -->
+                </div>
+
+                <div id="page4" class="category-container">
+                  <div class="form-category-description">
+                    <div class="large-icon sampling-icon"></div>
+                    <div class="description">
+                      <h2>Sampling</h2>
+                      <p></p>
+                    </div>
+                  </div>
+
+                  <!-- UI CONTAINER FOR FORM ELEMENTS OF A CATEGORY SELECTED IN CATEGORY NAVIGATION MENU -->
+                  <div class="form-category">
+
+                    <div id="block-sampling-0" class="level1 active">
+
+                      <div class="controls">
+                        <div class="title"><h4>Sampling</h4></div>
+                        <div class="button reload-icon reload-form-block"><div class="controls-tooltip"><p>Restore default values</p></div></div>
+                      </div>
+
+                      <div class="level1-container">
+
+                        <div class="level2">
+
+                          <div class="group-container">
+
+
+                            <div class="field-container">
+                              <div class="title"><p>Fix the receptor during docking</p></div>
+                              <div class="field-item checkbox align-right">
+                                <input type="checkbox" name="fix_receptor" id="fix_receptor" value="" checked="checked">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Docking search</p></div>
+                              <div class="field-item select align-right">
+                                <select name="search" id="search">
+                                  <option value="syst">Systematic</option>
+                                  <option value="random">Random</option>
+                                  <option value="custom" selected>Custom</option>
+                                </select>
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Number of structures for random search</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="structures" id="structures" value = "10000">
+                              </div>
+                            </div>
+                            <div class="field-container">
+                              <div class="title"><h3>Custom search files: supply a starting structures file, OR: rotations and/or translations files</h3></div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Starting structures file for custom search</p></div>
+                              <div class="field-item file align-right">
+                                <input type="file" name="start_structures_file" id="start_structures_file">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Rotations file for custom search</p></div>
+                              <div class="field-item file align-right">
+                                <input type="file" name="rotations_file" id="rotations_file">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p><em><mark>&lt;Embedded resource&gt;:</mark>&nbsp;&nbsp;&nbsp;</em>Translations file for custom search</p></div>
+                              <div class="field-item file align-right">
+                                <input type="file" name="translations_file" id="translations_file">
+                              </div>
+                            </div>
+                          </div> <!-- END: group-container -->
+                        </div> <!-- END: level2 -->
+                      </div><!-- END: level1-container -->
+                    </div><!-- END: level1 -->
+
+                  </div><!-- END: UI container -->
+                </div>
+
+                <div id="page5" class="category-container">
                   <div class="form-category-description">
                     <div class="large-icon energy-icon"></div>
                     <div class="description">
@@ -304,16 +1160,57 @@
 
 
                             <div class="field-container">
-                              <div class="title"><p>Perform grid-accelerated docking</p></div>
-                              <div class="field-item checkbox align-right">
-                                <input type="checkbox" name="use_grids" id="use_grids" value="">
+                              <div class="title"><p>Gravity</p></div>
+                              <div class="field-item select align-right">
+                                <select name="gravity" id="gravity">
+                                  <option value="0" selected>No gravity</option>
+                                  <option value="1">To global origin</option>
+                                  <option value="2">To receptor</option>
+                                  <option value="3">Between all ligands</option>
+                                  <option value="4">Cryo-EM pre-assembly stage gravity</option>
+                                  <option value="5">Cryo-EM assembly stage gravity</option>
+                                </select>
                               </div>
                             </div>
 
                             <div class="field-container">
-                              <div class="title"><p>Gravity</p></div>
+                              <div class="title"><p>Restraining force constant</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="rstk" id="rstk" value = "0.2">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Which forcefield is to be used?</p></div>
+                              <div class="field-item select align-right">
+                                <select name="forcefield" id="forcefield">
+                                  <option value="ATTRACT" selected>ATTRACT</option>
+                                  <option value="OPLSX">OPLSX</option>
+                                </select>
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Enable ghost mode, forcefield is turned off</p></div>
                               <div class="field-item checkbox align-right">
-                                <input type="checkbox" name="gravity" id="gravity" value="">
+                                <input type="checkbox" name="ghost" id="ghost" value="">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Epsilon constant for the electrostatic energy term</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="epsilon" id="epsilon" value = "15.0">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Use constant (cdie) or distance-dependent (rdie) dielectric</p></div>
+                              <div class="field-item select align-right">
+                                <select name="dielec" id="dielec">
+                                  <option value="cdie">cdie</option>
+                                  <option value="rdie" selected>rdie</option>
+                                </select>
                               </div>
                             </div>
                           </div> <!-- END: group-container -->
@@ -324,7 +1221,319 @@
                   </div><!-- END: UI container -->
                 </div>
 
-                <div id="page3" class="category-container">
+                <div id="page6" class="category-container">
+                  <div class="form-category-description">
+                    <div class="large-icon cryo-icon"></div>
+                    <div class="description">
+                      <h2>Cryo-EM</h2>
+                      <p></p>
+                    </div>
+                  </div>
+
+                  <!-- UI CONTAINER FOR FORM ELEMENTS OF A CATEGORY SELECTED IN CATEGORY NAVIGATION MENU -->
+                  <div class="form-category">
+
+                    <div id="block-cryoem-0" class="level1 active">
+
+                      <div class="controls">
+                        <div class="title"><h4>Cryo-EM</h4></div>
+                        <div class="button reload-icon reload-form-block"><div class="controls-tooltip"><p>Restore default values</p></div></div>
+                      </div>
+
+                      <div class="level1-container">
+
+                        <div class="level2">
+
+                          <div class="group-container">
+
+
+                            <div class="field-container">
+                              <div class="title"><p>Cryo-EM density map (SITUS format)</p></div>
+                              <div class="field-item file align-right">
+                                <input type="file" name="cryoem_data" id="cryoem_data">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Cryo-EM density map resolution (in angstroms)</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="cryoem_resolution" id="cryoem_resolution">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Cryo-EM scoring criterion</p></div>
+                              <div class="field-item select align-right">
+                                <select name="cryoem_scoring_mode" id="cryoem_scoring_mode">
+                                  <option value="no" selected>No separate scoring step with a higher-resolution map</option>
+                                  <option value="attract">ATTRACT energy</option>
+                                  <option value="gvm">GVM score</option>
+                                  <option value="cc">cross-correlation</option>
+                                </select>
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Cryo-EM density map used in scoring (SITUS format)</p></div>
+                              <div class="field-item file align-right">
+                                <input type="file" name="cryoem_scoring_data" id="cryoem_scoring_data">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Cryo-EM scoring density map resolution (in angstroms)</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="cryoem_scoring_resolution" id="cryoem_scoring_resolution">
+                              </div>
+                            </div>
+                          </div> <!-- END: group-container -->
+                        </div> <!-- END: level2 -->
+                      </div><!-- END: level1-container -->
+                    </div><!-- END: level1 -->
+
+                  </div><!-- END: UI container -->
+                </div>
+
+                <div id="page7" class="category-container">
+                  <div class="form-category-description">
+                    <div class="large-icon symmetry-icon"></div>
+                    <div class="description">
+                      <h2>Symmetry</h2>
+                            <p>You can use generative symmetry or distance-restrained symmetry. If you want to use generative symmetry:</p>
+        <ul>
+          <li>Provide an explicit symmetry axis and origin</li>
+          <li>Specify a single reference symmetry partner</li>
+          <li>In the Docking Partner section, only define the reference partner structure</li>
+        </ul>
+        If you want to use distance-restrained symmetry:
+        <ul>
+          <li>Do not provide explicit symmetry axis and origin</li>
+          <li>Specify all symmetry partners that are to be restrained</li>
+          <li>In the Docking Partner section, specify all partner structures, which must be identical</li>
+        </ul>
+                    </div>
+
+                    <div class="category-controls">
+                      <div class="field-container">
+                        <div class="field-item button align-right">
+                          <input type="button" value="Add partner" id="block-symmetry-add" onClick="cloneBlock('block-symmetry-',5);">
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+
+                  <!-- UI CONTAINER FOR FORM ELEMENTS OF A CATEGORY SELECTED IN CATEGORY NAVIGATION MENU -->
+                  <div class="form-category">
+
+                    <div id="block-symmetry-0" class="level1 active">
+
+                      <div class="controls">
+                        <div class="title"><h4>Symmetry 1</h4></div>
+                        <div class="button reload-icon reload-form-block"><div class="controls-tooltip"><p>Restore default values</p></div></div>
+                        <div id="remove-block-symmetry-0" class="button close-icon"><div class="controls-tooltip"><p>Remove partner</p></div></div>
+                      </div>
+
+                      <div class="level1-container">
+
+                        <div class="level2">
+
+                          <div class="group-container">
+
+                            <div class="group-inline clearfix">
+
+                              <div class="field-container">
+                                <div class="title"><h3>Generative symmetry axis</h3></div>
+                              </div>
+
+                              <div class="field-container">
+                                <div class="title"><h3>Origin for generative symmetry axis</h3></div>
+                              </div>
+
+                            </div> <!--END: group-inline -->
+
+                            <div class="group-inline clearfix">
+
+                              <div class="field-container">
+                                <div class="title"><p>X</p></div>
+                                <div class="field-item number align-right">
+                                  <input type="number" name="symmetries-0-symmetry_axis-x" id="symmetries-0-symmetry_axis-x" value = "0.0">
+                                </div>
+                              </div>
+
+                              <div class="field-container">
+                                <div class="title"><p>X</p></div>
+                                <div class="field-item number align-right">
+                                  <input type="number" name="symmetries-0-symmetry_origin-x" id="symmetries-0-symmetry_origin-x" value = "0.0">
+                                </div>
+                              </div>
+
+                            </div> <!--END: group-inline -->
+                            <div class="group-inline clearfix">
+
+                              <div class="field-container">
+                                <div class="title"><p>Y</p></div>
+                                <div class="field-item number align-right">
+                                  <input type="number" name="symmetries-0-symmetry_axis-y" id="symmetries-0-symmetry_axis-y" value = "0.0">
+                                </div>
+                              </div>
+
+                              <div class="field-container">
+                                <div class="title"><p>Y</p></div>
+                                <div class="field-item number align-right">
+                                  <input type="number" name="symmetries-0-symmetry_origin-y" id="symmetries-0-symmetry_origin-y" value = "0.0">
+                                </div>
+                              </div>
+
+                            </div> <!--END: group-inline -->
+                            <div class="group-inline clearfix">
+
+                              <div class="field-container">
+                                <div class="title"><p>Z</p></div>
+                                <div class="field-item number align-right">
+                                  <input type="number" name="symmetries-0-symmetry_axis-z" id="symmetries-0-symmetry_axis-z" value = "0.0">
+                                </div>
+                              </div>
+
+                              <div class="field-container">
+                                <div class="title"><p>Z</p></div>
+                                <div class="field-item number align-right">
+                                  <input type="number" name="symmetries-0-symmetry_origin-z" id="symmetries-0-symmetry_origin-z" value = "0.0">
+                                </div>
+                              </div>
+
+                            </div> <!--END: group-inline -->
+
+                            <div class="field-container">
+                              <div class="title"><p>Symmetry type</p></div>
+                              <div class="field-item select align-right">
+                                <select name="symmetries-0-symmetry" id="symmetries-0-symmetry">
+                                  <option value="Cx" selected>Cx</option>
+                                  <option value="Dx">Dx</option>
+                                </select>
+                              </div>
+                            </div>
+                          </div> <!-- END: group-container -->
+                        </div> <!-- END: level2 -->
+
+                        <div class="level2">
+
+                          <div class="group-container">
+
+                            <div class="field-container">
+                              <div class="title"><h3>Symmetry partners</h3></div>
+                            </div>
+                            <div class="group-inline clearfix">
+
+                              <div class="field-container">
+                                <div class="title"><p>1</p></div>
+                                <div class="field-item number align-right">
+                                  <input type="number" name="symmetries-0-partners-0" id="symmetries-0-partners-0">
+                                </div>
+                              </div>
+
+                              <div class="field-container">
+                                <div class="title"><p>2</p></div>
+                                <div class="field-item number align-right">
+                                  <input type="number" name="symmetries-0-partners-1" id="symmetries-0-partners-1">
+                                </div>
+                              </div>
+
+                            </div> <!--END: group-inline -->
+                            <div class="group-inline clearfix">
+
+                              <div class="field-container">
+                                <div class="title"><p>3</p></div>
+                                <div class="field-item number align-right">
+                                  <input type="number" name="symmetries-0-partners-2" id="symmetries-0-partners-2">
+                                </div>
+                              </div>
+
+                              <div class="field-container">
+                                <div class="title"><p>4</p></div>
+                                <div class="field-item number align-right">
+                                  <input type="number" name="symmetries-0-partners-3" id="symmetries-0-partners-3">
+                                </div>
+                              </div>
+
+                            </div> <!--END: group-inline -->
+                            <div class="group-inline clearfix">
+
+                              <div class="field-container">
+                                <div class="title"><p>5</p></div>
+                                <div class="field-item number align-right">
+                                  <input type="number" name="symmetries-0-partners-4" id="symmetries-0-partners-4">
+                                </div>
+                              </div>
+
+                              <div class="field-container">
+                                <div class="title"><p>6</p></div>
+                                <div class="field-item number align-right">
+                                  <input type="number" name="symmetries-0-partners-5" id="symmetries-0-partners-5">
+                                </div>
+                              </div>
+
+                            </div> <!--END: group-inline -->
+                            <div class="group-inline clearfix">
+
+                              <div class="field-container">
+                                <div class="title"><p>7</p></div>
+                                <div class="field-item number align-right">
+                                  <input type="number" name="symmetries-0-partners-6" id="symmetries-0-partners-6">
+                                </div>
+                              </div>
+
+                              <div class="field-container">
+                                <div class="title"><p>8</p></div>
+                                <div class="field-item number align-right">
+                                  <input type="number" name="symmetries-0-partners-7" id="symmetries-0-partners-7">
+                                </div>
+                              </div>
+
+                            </div> <!--END: group-inline -->
+                            <div class="group-inline clearfix">
+
+                              <div class="field-container">
+                                <div class="title"><p>9</p></div>
+                                <div class="field-item number align-right">
+                                  <input type="number" name="symmetries-0-partners-8" id="symmetries-0-partners-8">
+                                </div>
+                              </div>
+
+                              <div class="field-container">
+                                <div class="title"><p>10</p></div>
+                                <div class="field-item number align-right">
+                                  <input type="number" name="symmetries-0-partners-9" id="symmetries-0-partners-9">
+                                </div>
+                              </div>
+
+                            </div> <!--END: group-inline -->
+                            <div class="group-inline clearfix">
+
+                              <div class="field-container">
+                                <div class="title"><p>11</p></div>
+                                <div class="field-item number align-right">
+                                  <input type="number" name="symmetries-0-partners-10" id="symmetries-0-partners-10">
+                                </div>
+                              </div>
+
+                              <div class="field-container">
+                                <div class="title"><p>12</p></div>
+                                <div class="field-item number align-right">
+                                  <input type="number" name="symmetries-0-partners-11" id="symmetries-0-partners-11">
+                                </div>
+                              </div>
+
+                            </div> <!--END: group-inline -->
+                          </div> <!-- END: group-container -->
+                        </div> <!-- END: level2 -->
+                      </div><!-- END: level1-container -->
+                    </div><!-- END: level1 -->
+
+                  </div><!-- END: UI container -->
+                </div>
+
+                <div id="page8" class="category-container">
                   <div class="form-category-description">
                     <div class="large-icon analysis-icon"></div>
                     <div class="description">
@@ -352,6 +1561,40 @@
                             <div class="group-inline clearfix">
 
                               <div class="field-container">
+                                <div class="title"><p>Perform a rescoring step after docking</p></div>
+                                <div class="field-item checkbox align-right">
+                                  <input type="checkbox" name="rescoring" id="rescoring" value="" checked="checked">
+                                </div>
+                              </div>
+
+                              <div class="field-container">
+                                <div class="title"><p>Sort the final structures according to ATTRACT energy</p></div>
+                                <div class="field-item checkbox align-right">
+                                  <input type="checkbox" name="sort" id="sort" value="" checked="checked">
+                                </div>
+                              </div>
+
+                            </div> <!--END: group-inline -->
+                            <div class="group-inline clearfix">
+
+                              <div class="field-container">
+                                <div class="title"><p>Remove redundant structures after docking</p></div>
+                                <div class="field-item checkbox align-right">
+                                  <input type="checkbox" name="deredundant" id="deredundant" value="" checked="checked">
+                                </div>
+                              </div>
+
+                              <div class="field-container">
+                                <div class="title"><p>Ignore ensemble conformers for redundancy</p></div>
+                                <div class="field-item checkbox align-right">
+                                  <input type="checkbox" name="deredundant_ignorens" id="deredundant_ignorens" value="" checked="checked">
+                                </div>
+                              </div>
+
+                            </div> <!--END: group-inline -->
+                            <div class="group-inline clearfix">
+
+                              <div class="field-container">
                                 <div class="title"><p>Calculate ligand RMSD after docking</p></div>
                                 <div class="field-item checkbox align-right">
                                   <input type="checkbox" name="calc_lrmsd" id="calc_lrmsd" value="" checked="checked">
@@ -366,16 +1609,33 @@
                               </div>
 
                             </div> <!--END: group-inline -->
+                            <div class="group-inline clearfix">
+
+                              <div class="field-container">
+                                <div class="title"><p>Calculate fraction of native contacts after docking</p></div>
+                                <div class="field-item checkbox align-right">
+                                  <input type="checkbox" name="calc_fnat" id="calc_fnat" value="" checked="checked">
+                                </div>
+                              </div>
+
+                              <div class="field-container">
+                                <div class="title"><p>Collect the structures as PDBs after docking</p></div>
+                                <div class="field-item checkbox align-right">
+                                  <input type="checkbox" name="collect" id="collect" value="" checked="checked">
+                                </div>
+                              </div>
+
+                            </div> <!--END: group-inline -->
 
                             <div class="field-container">
-                              <div class="title"><p>Calculate fraction of native contacts after docking</p></div>
-                              <div class="field-item checkbox align-right">
-                                <input type="checkbox" name="calc_fnat" id="calc_fnat" value="" checked="checked">
+                              <div class="title"><p>The nonbonded pairlist distance cutoff (rcut) (in A**2) during rescoring</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="rcut_rescoring" id="rcut_rescoring" value = "50.0">
                               </div>
                             </div>
 
                             <div class="field-container">
-                              <div class="title"><p>Number of structures to collect as PDB file</p></div>
+                              <div class="title"><p>Number of structures to collect</p></div>
                               <div class="field-item number align-right">
                                 <input type="number" name="nr_collect" id="nr_collect" value = "50">
                               </div>
@@ -388,7 +1648,7 @@
                   </div><!-- END: UI container -->
                 </div>
 
-                <div id="page4" class="category-container">
+                <div id="page9" class="category-container">
                   <div class="form-category-description">
                     <div class="large-icon computation-icon"></div>
                     <div class="description">
@@ -418,6 +1678,27 @@
                               <div class="title"><p>Number of processor cores</p></div>
                               <div class="field-item number align-right">
                                 <input type="number" name="np" id="np" value = "4">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Number of structures in a single job (leave blank to divide all structures equally over the cores)</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="jobsize" id="jobsize" value = "0">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Header for docking protocol script</p></div>
+                              <div class="field-item textarea align-right">
+                                <textarea name="header" rows="25" id="header"></textarea>
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Footer for docking protocol script</p></div>
+                              <div class="field-item textarea align-right">
+                                <textarea name="footer" rows="5" id="footer"></textarea>
                               </div>
                             </div>
                           </div> <!-- END: group-container -->
