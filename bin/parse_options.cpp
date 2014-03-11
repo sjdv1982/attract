@@ -48,7 +48,7 @@ void mctemp_usage() {
 }
 
 void mcmtemp_usage() {
- fprintf(stderr, "--mcmtemp option usage: --mcmtemp <temperature in KT>\n");
+ fprintf(stderr, "--mcmtemp option usage: --mcmtemp <maximal energy difference>\n");
   exit(1);
 }
 

@@ -8,6 +8,8 @@ c
 c  variable metric minimizer (Harwell subroutine lib.  as in Jumna with modifications)
 c     minimizes a single structure
 
+c     this is modified version of monte.f using monte carlo plus minimization
+c     calls a modified minfor.f subroutine, called minfor_mcm.f
       implicit none
 
 c     Parameters
@@ -59,8 +61,13 @@ c     integer dseed,i,ii,j,jj,k,kk,itr,nfun
       dimension nrens(maxlig)
       pointer(ptr_nrens,nrens)
       real*8 neomorph
+      real*8 iiaccept
       integer, parameter:: ERROR_UNIT = 0
+      real*8 ratio
+
       pi=3.141592654d0
+      iiaccept=0d0
+      ratio=0d0
 
 
 
@@ -114,13 +121,13 @@ c     dseed=seed
         iori = 1
         itra = 1
       endif
-c intial energy evaluation
-c
-      call energy(cartstatehandle,ministatehandle,
-     1 iab,iori,itra,ieig,iindex,fixre,gridmode,
-     2 ens,phi,ssi,rot,xa,ya,za,morph,dlig,
-     3 locrests, has_locrests, seed,
-     4 gesa,energies,delta,deltamorph)
+
+      call minfor_mcm(cartstatehandle,ministatehandle,
+     1 nhm, nihm, nlig, ens, phi, ssi, rot, xa, ya, za, morph, dlig,
+     2 locrests, has_locrests, seed, label,
+     3 gesa, energies, lablen)
+
+c      write(ERROR_UNIT,*)'first min',gesa
 
       if (iscore.eq.2) then
         call print_struc2(seed,label,gesa,energies,nlig,
@@ -261,7 +268,10 @@ c       write(*,*)'new ii,c,phi,ssi,rot',i,ii,c,phi(i),ssi(i),rot(i)
 c make a move in HM direction and update x, y(1,i) and y(2,i) and dlig(j)
 c     call crand(dseed,ju+1,rr)
       call GGUBS(dseed,jn+4,rr)
+c      call GGNML(dseed,jn+4,rr)
+c     write(ERROR_UNIT,*)'rr',rr(ii+1)
 c     dseed = int(10000*rr(ju+1))
+
       if(ieig.eq.1) then
       kk = 0
       do 1180 k=1,nlig
@@ -280,6 +290,10 @@ c     dseed = int(10000*rr(ju+1))
       kk = kk+ nihm(k)
  1280 continue
       endif
+
+
+
+
 c make a translation of the ligand center
       if(itra.eq.1) then
       do 1220 i=1+fixre,nlig
@@ -288,14 +302,7 @@ c make a translation of the ligand center
       ya(i)=ya(i)+scalecenter*(0.5d0-rr(ii+2))
       za(i)=za(i)+scalecenter*(0.5d0-rr(ii+3))
 
-
-
-c     gaussian
-c      xa(i)=xa(i)+scalecenter*(sqrt(-log(rr(ii+1))))*(0.5d0-rr(ii+2))
-c      ya(i)=ya(i)+scalecenter*(sqrt(-log(rr(ii+3))))*(0.5d0-rr(ii+4))
-c      za(i)=za(i)+scalecenter*(sqrt(-log(rr(ii+5))))*(0.5d0-rr(ii+6))
-
-c      write(ERROR_UNIT,*)'xa',
+c     write(ERROR_UNIT,*)'xa',
 c     1 scalecenter*(sqrt(-log(rr(ii+1))))*(0.5-rr(ii+2)),
 c     2 scalecenter*(sqrt(-log(rr(ii+1))))*(0.5d0-rr(ii+2))
 
@@ -316,6 +323,7 @@ c     2 rr(ii+1),rr(ii+2),rr(ii+3),xaa(ii+1),xaa(ii+2),xaa(ii+3)
        endif
       enddo
 
+
       call energy(cartstatehandle,ministatehandle,
      1 iab,iori,itra,ieig,iindex,fixre,gridmode,
      2 ens,phi,ssi,rot,xa,ya,za,morph,dlig,
@@ -325,14 +333,6 @@ c     2 rr(ii+1),rr(ii+2),rr(ii+3),xaa(ii+1),xaa(ii+2),xaa(ii+3)
 
       write(ERROR_UNIT,*)'old/new energy',gesa,enew,ijk
 
-c      call minfor_mcm(cartstatehandle,ministatehandle,
-c     1 nhm, nihm, nlig, ens, phi, ssi, rot, xa, ya, za, morph, dlig,
-c     2 locrests, has_locrests, seed, label,
-c     3 enew, energies0, lablen)
-
-
-c      new energy
-c      write (*,*),'Energy2', enew
 
       bol2=enew-gesa
 
@@ -343,7 +343,8 @@ c      write (*,*),'Energy2', enew
      2 locrests, has_locrests, seed, label,
      3 enew, energies0, lablen)
 
-      write(ERROR_UNIT,*)'minimized',enew,ijk
+
+      write(ERROR_UNIT,*)'minimized',enew,gesa,ijk
       endif
 
       bol1=enew-gesa
@@ -351,10 +352,7 @@ c      write (*,*),'Energy2', enew
       bol1=sign(1.0d0,-bol1)
       else
       bol1=exp(-bol1/mctemp)
-c      bol2=exp(-bol2/mcmtemp)
-c      write(ERROR_UNIT,*)'bol1, bol2',bol1,bol2
       endif
-c      write(*,*)'exp(bol)',enew,gesa,enew-gesa,bol
 c     call crand(dseed,2,rr)
       call GGUBS(dseed,2,rr)
 c     dseed = int(10000*rr(2))
@@ -369,19 +367,10 @@ c    2 rrot1,rrot2,rrot3,rrot4,sphi,phi(2),sssi,ssi(2),srot,rot(2)
 
       write(ERROR_UNIT,*)'accepted',enew
 
-
-c      call minfor_mcm(cartstatehandle,ministatehandle,
-c     1 nhm, nihm, nlig, ens, phi, ssi, rot, xa, ya, za, morph, dlig,
-c     2 locrests, has_locrests, seed, label,
-c     3 enew, energies0, lablen)
-
-c      gesa=enew
-c      energies(:)=energies0(:)
-
-c      endif
-
-
       iaccept=1
+      iiaccept=iiaccept + 1
+
+
       if (iscore.eq.2) then
       call print_struc2(seed,label,gesa,energies,nlig,
      1  ens,phi,ssi,rot,xa,ya,za,locrests,morph,
@@ -392,6 +381,16 @@ c overwrite old xaa variables, see above
 c do not overwrite xaa variables
 c      write(*,*)' step rejected'
       iaccept=0
+
+c check acceptance ratio and break if it's too low
+c      if (ijk.gt.50) then
+c      ratio = iiaccept / ijk
+c      write(ERROR_UNIT,*)'acceptance ratio',ratio
+c      if (ratio.lt.0.1) then
+c      exit
+c      endif
+c      endif
+
       ens(i)=ensaa(i)
       if(iori.eq.1) then
       do 1118 i=1+fixre,nlig
@@ -422,16 +421,38 @@ c if ligand flex is included store deformation factor in every mode in dlig(j)
   230 continue
       endif
 
+c      if(iindex.eq.1) then
+c      jj = 0
+c      do 240 j=1,nlig
+c      do 241 i=1,nihm(j)
+c      dlig(nhm(j)+i,j)=xaa(ju0+jj+i)
+c  241 continue
+c      jj = jj + nihm(j)
+c  240 continue
+c      endif
+
       if(iindex.eq.1) then
       jj = 0
       do 240 j=1,nlig
       do 241 i=1,nihm(j)
-      dlig(nhm(j)+i,j)=xaa(ju0+jj+i)
+      dlig(ju0+i,j)=xaa(ju0+jj+i)
   241 continue
       jj = jj + nihm(j)
   240 continue
       endif
-      endif
+
+
+c            if(iindex.eq.1) then
+c      jj = 0
+c      do 140 j=1,nlig
+c      do 141 i=1,nihm(j)
+c      xaa(ju0+jj+i)= dlig(ju0+i,j)
+c  141 continue
+c      jj = jj + nihm(j)
+c  140 continue
+c      endif
+c wrong position of endif ? see below
+c      endif
 
       jj = jn0
       do i=1,nlig
@@ -441,8 +462,12 @@ c if ligand flex is included store deformation factor in every mode in dlig(j)
        endif
       enddo
 
+      endif
+c should be here, corrected
+
 
  4000 continue
+
 
 c     Clean up
       call ministate_free_pairlist(ministatehandle)

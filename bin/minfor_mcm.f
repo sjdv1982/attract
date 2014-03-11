@@ -9,6 +9,9 @@ c
 c  variable metric minimizer (Harwell subroutine lib.  as in Jumna with modifications)
 c     minimizes a single structure
 
+c     modified version of minfor.f for the --mcm option, not calculating
+c     pairlist, not deleting it in the end of subroutine
+
       implicit none
 
 c     Parameters
