@@ -59,7 +59,8 @@ def deploy_easy(model, dir):
   d = dir + "/"
   if dir in (None, "", ".", "./"): d = ""
   elif dir.endswith("/"): d = dir
-  for n,p in enumerate(model.partners):
-    _deploy(p.pdbfile,d+"partner-%d.pdb" % (n+1))
-    _deploy(p.rmsd_pdb,d+"partner-rmsd-%d.pdb" % (n+1))
+  _deploy(model.partners[0].pdbfile,d+"receptor.pdb")
+  _deploy(model.partners[0].rmsd_pdb,d+"receptor-rmsd.pdb")
+  _deploy(model.partners[1].pdbfile,d+"ligand.pdb")
+  _deploy(model.partners[1].rmsd_pdb,d+"ligand-rmsd.pdb")
   

@@ -2,7 +2,7 @@ webdir = "http://www.attract.ph.tum.de/services/ATTRACT/"
 localdir = "/home/server/services/ATTRACT/html/"
 resultdir = "results/"
 
-import os, sys, cgi
+import os, sys, cgi, datetime
 
 def serve_attract(spydertype, formlib, deploy):
   import spyder
@@ -25,7 +25,8 @@ def serve_attract(spydertype, formlib, deploy):
   embed(newmodel)
   import random
   mydir = "run" + str(random.randint(1,1000000))
-  fname = "attract.web"
+  date = (datetime.datetime.now()).isoformat()
+  fname = "attract%s.web" % date
   os.chdir(localdir + resultdir)
   os.mkdir(mydir)
   os.chdir(mydir)
@@ -42,7 +43,7 @@ def serve_attract(spydertype, formlib, deploy):
   os.chdir("..")
   ret = []
   ret.append("You can download your self-contained parameter file <a href='%s'>here</a>" % (webdir+resultdir+mydir+"/"+fname))
-  aname = "attract.tgz"
+  aname = "attract%s.tgz" % date
   os.system("tar czf %s attract" % aname)
   ret.append("You can download an archive with executable shell script, all docking files, and linked parameter file <a href='%s'>here</a>" % (webdir+resultdir+mydir+"/"+aname))
   return "\n".join(ret)
