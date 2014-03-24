@@ -36,7 +36,7 @@ def easy2model(emodel):
 	    AttractIteration(rcut=50),AttractIteration(rcut=50)]
    
   gravity = 1 if emodel.gravity else 0
-  newmodel = AttractModel(runname="easyrun",partners=partners,grids=rgrid,nr_iterations=len(iter),iterations=iter,fix_receptor=True,search="syst",gravity=gravity,calc_lrmsd=emodel.calc_lrmsd,
+  newmodel = AttractModel(runname=emodel.runname,partners=partners,grids=rgrid,nr_iterations=len(iter),iterations=iter,fix_receptor=True,search="syst",gravity=gravity,calc_lrmsd=emodel.calc_lrmsd,
 	       calc_irmsd=emodel.calc_irmsd,calc_fnat=emodel.calc_fnat,nr_collect=emodel.nr_collect,np=emodel.np)
   
   return newmodel

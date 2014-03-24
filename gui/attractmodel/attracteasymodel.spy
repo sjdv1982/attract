@@ -54,12 +54,14 @@ Type AttractEasyPartnerInterface {
 
 
 Type AttractEasyModel {
+  String runname = "easyrun"
   AttractEasyPartnerInterfaceArray partners[2]
   form {
     partners.name = "Docking partners"
-    for n in range(2):
-      partners[n].name = "Docking partner %d" % (n+1)
-      partners[n].group = "Docking partner %d" % (n+1)
+    partners[0].name = "receptor"
+    partners[0].name = "receptor"
+    partners[1].name = "ligand"
+    partners[1].name = "ligand"
   }
   
 
