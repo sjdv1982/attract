@@ -86,8 +86,9 @@ Type AttractPartnerInterface {
   ## validate if nr_modes not in (None, 0): assert nr_modes >= 1 and nr_modes <= 10
     
   Bool ensemble = False
+  ## form ensemble.name = "The PDB is a multi-model ensemble"
   *ResourceData_TXT_FileList_PDB ensemble_list
-  ## form ensemble_list.name = "Ensemble list file"
+  ## form ensemble_list.name = "Or: You can supply an ensemble list file"
   ## form ensemble_list.type = "file"
   *Integer ensemble_size
   ## form ensemble_size.name = "Number of conformers in the ensemble"
@@ -142,7 +143,12 @@ Type AttractPartnerInterface {
        raise spyder.core.ValidationError("Please upload a PDB file or provide a PDB code, not both")
     if chain not in ("All", "A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"):
        raise spyder.core.ValidationError("Please provide a chain")  
-    assert (ensemble_size is None) == (ensemble_list is None) == (ensemblize == None)
+    if ensemble:
+      assert ensemble_list is None
+      assert ensemble_size is not None
+      assert ensemblize is not None
+    else:
+      assert (ensemble_size is None) == (ensemble_list is None) == (ensemblize is None)
     assert is_reduced == False or code is None
   }
 }
@@ -499,7 +505,6 @@ Type AttractModel {
   *String header = ""
   ## form header.group = "Computing and parallelization parameters"
   ## form header.name = "Header for docking protocol script"
-  ## form header.default = "#PBS -l nodes=1:ppn=12\n#PBS -l walltime=6:30:00\n#PBS -j oe\ncd $PBS_O_WORKDIR\n\nATTRACTDIR=/home/sjoerd/data/work/attract/bin\nATTRACTTOOLS=/home/sjoerd/data/work/attract/tools\n"
   ## form header.type = "textarea"
   ## form header.cols = 80
   ## form header.rows = 50

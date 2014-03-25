@@ -1,0 +1,2 @@
+#!/bin/sh
+silk.py AttractEasyModel -m attractmodel -I $ATTRACTGUI --form localgui buttons --logic localgui logic $@
