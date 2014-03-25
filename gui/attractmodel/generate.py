@@ -27,6 +27,7 @@ Therefore, you can only define docking partners that are already in the reduced 
   cleanupfiles = []
   if (m.header is not None):
     ret = m.header + "\n\n"
+  ret += "trap 'killall -9 attract;exit' 2\n"
   ret += "if [ 1 -eq 1 ]; then ### move and change to disable parts of the protocol\n"
   ret += "$ATTRACTDIR/shm-clean\n\n"
 
