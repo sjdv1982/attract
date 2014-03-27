@@ -127,7 +127,7 @@ c     dseed=seed
      2 locrests, has_locrests, seed, label,
      3 gesa, energies, lablen)
 
-c      write(ERROR_UNIT,*)'first min',gesa
+
 
       if (iscore.eq.2) then
         call print_struc2(seed,label,gesa,energies,nlig,
@@ -421,15 +421,6 @@ c if ligand flex is included store deformation factor in every mode in dlig(j)
   230 continue
       endif
 
-c      if(iindex.eq.1) then
-c      jj = 0
-c      do 240 j=1,nlig
-c      do 241 i=1,nihm(j)
-c      dlig(nhm(j)+i,j)=xaa(ju0+jj+i)
-c  241 continue
-c      jj = jj + nihm(j)
-c  240 continue
-c      endif
 
       if(iindex.eq.1) then
       jj = 0
@@ -441,19 +432,6 @@ c      endif
   240 continue
       endif
 
-
-c            if(iindex.eq.1) then
-c      jj = 0
-c      do 140 j=1,nlig
-c      do 141 i=1,nihm(j)
-c      xaa(ju0+jj+i)= dlig(ju0+i,j)
-c  141 continue
-c      jj = jj + nihm(j)
-c  140 continue
-c      endif
-c wrong position of endif ? see below
-c      endif
-
       jj = jn0
       do i=1,nlig
        if (morph(i).ge.0) then
@@ -463,7 +441,6 @@ c      endif
       enddo
 
       endif
-c should be here, corrected
 
 
  4000 continue
