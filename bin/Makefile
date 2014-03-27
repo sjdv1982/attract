@@ -1,5 +1,5 @@
 OBJ0= read_hm.o read_dof.o read_parameters.o read_pdb.o write_pdb.o print_struc.o \
-  cartstate.o euler2rotmat.o rotate.o forcerotscale.o deform.o minfor.o monte.o \
+  cartstate.o euler2rotmat.o rotate.o forcerotscale.o deform.o minfor.o minfor_mcm.o monte.o monte_min.o \
   mc11a.o GGUBS.o parse_options.o select.o pairgen.o  pairenergy.o energy.o \
   globalenergy.o matmult.o matinv.o prox.o reset_forces.o ligmin.o \
   ligmin_index.o rota.o trans.o em/situs/lib_vio.o em/situs/lib_pio.o em/situs/lib_err.o \
