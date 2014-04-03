@@ -56,7 +56,12 @@ for h in header: print h
 clusterlist = []
 for line in open(cluster).readlines():
   tmp = line.split()
-  clusterlist.append(int(tmp[3])) #select first representative of cluster
+  if len(tmp) > 4 and int(tmp[3]) < int(tmp[4]):
+    clusterlist.append(int(tmp[3])) #select lowest energy representative of cluster
+  elif len(tmp) > 4:
+    clusterlist.append(int(tmp[4]))
+  else:
+    clusterlist.append(int(tmp[3]))
   
 stnr = 0
 st2nr = 0

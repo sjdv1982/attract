@@ -352,6 +352,16 @@ Type AttractModel {
     else:
       assert rotations_file is not None or translations_file is not None
       assert len(partners) == 2
+      
+    if search == "random":
+      check = False
+      for g in grids:
+        if g.gridname is not None:
+          check = True
+          
+      if check:
+        for p in partners:
+          assert p.gridname is not None
   }   
   form {
     fix_receptor.group = "Sampling parameters"
