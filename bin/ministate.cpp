@@ -19,13 +19,15 @@ extern "C" int ministate_new_() {
   ministatesize++;
   //default settings
   ms.imc = 0;
-  ms.mctemp = 3.5;
+  ms.mctemp = 1.0;
+  ms.mcmtemp = 15.0;
   ms.mcscalerot = 0.05;
   ms.mcscalecenter = 0.1;
   ms.mcscalemode = 3;
   ms.mcensprob = 0.05;
   ms.iscore = 0;
-  ms.ivmax = 100; 
+  ms.ivmax = 100;
+  ms.imcmax = 100;
   ms.iori = 1;
   ms.itra = 1; 
   ms.ieig = 0;
@@ -69,11 +71,24 @@ extern "C" void ministate_f_minfor_(const int &handle, int &iscore, int &ivmax, 
   fixre = ms.fixre; gridmode = ms.gridmode;
 }
 
-extern "C" void ministate_f_monte_(const int &handle, int &iscore, int &ivmax, int &iori, int &itra, int &ieig, int &iindex, int &fixre, int &gridmode, double &mctemp, double &mcscalerot, double &mcscalecenter, double &mcscalemode, double &mcensprob) {
+extern "C" void ministate_f_minfor_min_(const int &handle, int &iscore, int &ivmax, int &iori, int &itra, int &ieig, int &iindex, int &fixre, int &gridmode) {
   MiniState &ms = *ministates[handle];
-  iscore=ms.iscore; ivmax = ms.ivmax;iori = ms.iori;itra = ms.itra;ieig = ms.ieig; iindex=ms.iindex;
+  iscore=ms.iscore; ivmax = ms.ivmax;iori = ms.iori;itra = ms.itra;ieig = ms.ieig;iindex = ms.iindex;
+  fixre = ms.fixre; gridmode = ms.gridmode;
+}
+
+extern "C" void ministate_f_monte_(const int &handle, int &iscore, int &imcmax, int &iori, int &itra, int &ieig, int &iindex, int &fixre, int &gridmode, double &mctemp, double &mcscalerot, double &mcscalecenter, double &mcscalemode, double &mcensprob) {
+  MiniState &ms = *ministates[handle];
+  iscore=ms.iscore; imcmax = ms.imcmax;iori = ms.iori;itra = ms.itra;ieig = ms.ieig; iindex=ms.iindex;
   fixre = ms.fixre; gridmode = ms.gridmode; 
   mctemp = ms.mctemp; mcscalerot = ms.mcscalerot; mcscalecenter = ms.mcscalecenter; mcscalemode = ms.mcscalemode; mcensprob = ms.mcensprob;
+}
+
+extern "C" void ministate_f_monte_min_(const int &handle, int &iscore, int &imcmax, int &iori, int &itra, int &ieig, int &iindex, int &fixre, int &gridmode, double &mctemp, double &mcmtemp, double &mcscalerot, double &mcscalecenter, double &mcscalemode, double &mcensprob) {
+  MiniState &ms = *ministates[handle];
+  iscore=ms.iscore; imcmax = ms.imcmax;iori = ms.iori;itra = ms.itra;ieig = ms.ieig; iindex=ms.iindex;
+  fixre = ms.fixre; gridmode = ms.gridmode;
+  mctemp = ms.mctemp; mcmtemp = ms.mcmtemp; mcscalerot = ms.mcscalerot; mcscalecenter = ms.mcscalecenter; mcscalemode = ms.mcscalemode; mcensprob = ms.mcensprob;
 }
 
 extern "C" void ministate_f_disre_(const int &handle, int &gravity, double &rstk) {
@@ -102,12 +117,12 @@ extern "C" void ministate_calc_pairlist_(const int &ministatehandle, const int  
    * It also checks for inconsistencies like receptor modes + torque grids 
    */
   MiniState &ms = *ministates[ministatehandle];
-  
   CartState &cartstate = cartstate_get(cartstatehandle);
   if (ms.pairs != NULL) {
     fprintf(stderr, "Memory leak, ms.pairs is not NULL!");
     exit(1);
   }
+  //printf("%d", ms.imc);
   ms.pairs = new MolPair[cartstate.nlig*(cartstate.nlig-1)]; 
   memset(ms.pairs, 0, cartstate.nlig*(cartstate.nlig-1)*sizeof(MolPair));
   int molpairindex = 0;
@@ -242,7 +257,7 @@ extern "C" void molpair_get_rl_(
  int &receptor,int &ligand,Grid *&gridptr, int &use_energy
 ) {
   int ministatehandle = int(molpairhandle/MAXMOLPAIR); //rounds down...
-  MiniState &ms = *ministates[ministatehandle]; 
+  MiniState &ms = *ministates[ministatehandle];
   MolPair &mp = ms.pairs[molpairhandle-MAXMOLPAIR*ministatehandle-1];
   receptor = mp.receptor;
   ligand = mp.ligand;
