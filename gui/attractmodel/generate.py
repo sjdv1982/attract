@@ -327,7 +327,7 @@ echo '**************************************************************'
         start2 = "start-ens%d.dat" % (pnr+1)
       else:
         start2 = os.path.splitext(start)[0] + "-ens%d.dat" % (pnr+1)
-      ret += "python $ATTRACTTOOLS/ensemblize.py %s %d %d %s > %s\n" % \
+      ret += "python $ATTRACTTOOLS/ensemblize.py %s %d %d %s  > %s\n" % \
        (start, p.ensemble_size, pnr+1, p.ensemblize, start2)
       start = start2
       inp = start 
