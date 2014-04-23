@@ -57,6 +57,8 @@ def prepare_input(start,pdbA,pdbB,current,name,attracttools):
   current = str(current)
   directorypath = os.path.split(pdbA)[0]
   if len(directorypath) == 0: directorypath = '.'
+  if os.path.exists(directorypath+'/flexm-'+current+name+'.dat'):
+    return (directorypath+'/flexm-'+current+name+'.dat',os.path.splitext(pdbA)[0]+'_'+current+name+'.txt',os.path.splitext(pdbB)[0]+'_'+current+name+'.txt')
   subprocess.call(attracttools+'/../bin/collect '+start+' '+pdbA+' '+pdbB+' > '+directorypath+'/'+current+name+'.pdb',shell=True)
   subprocess.call(['python',attracttools+'/interface.py',directorypath+'/'+current+name+'.pdb',directorypath,current+name])
   count = 0
@@ -102,7 +104,7 @@ def run_docking(datain):
     restfile2 = ''
     directory = os.path.split(args[1])[0]
     if len(directory) == 0: directorypath = '.'
-	attracttools = os.path.split(attract)[0]+'/../tools'
+    attracttools = os.path.split(attract)[0]+'/../tools'
     if otf:
 	imodefile, restfile1, restfile2 = prepare_input(start,args[1],args[2],current,name,attracttools)
     

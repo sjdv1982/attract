@@ -381,7 +381,7 @@ Type AttractModel {
     gravity.options = (0,1,2,3,4,5)
     gravity.optiontitles = ("No gravity", "To global origin", "To receptor", "Between all ligands", "Cryo-EM pre-assembly stage gravity", "Cryo-EM assembly stage gravity")
   }  
-  *Float rstk = 0.2
+  *Float rstk = 0.01
   form {
     rstk.name = "Restraining force constant"
     rstk.digits = 4
