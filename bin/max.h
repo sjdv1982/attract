@@ -1,7 +1,7 @@
 #ifndef MAX_H 
 #define MAX_H /* to make sure that we include only once... */
 
-const int MAXSTRUC = 50000; //only for deredundant
+const int MAXSTRUC = 100000; //only for deredundant
 const int MAXATOM = 10000;
 const int MAXRES = 3000;
 const int TOTMAXATOM = 100000;
