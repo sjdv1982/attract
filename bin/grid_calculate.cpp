@@ -314,7 +314,11 @@ void Grid::calculate(int cartstatehandle, int ligand, const char *interior_grid,
     biggrid = new Potential[gridx2*gridy2*gridz2];
     memset(biggrid, 0, gridx2*gridy2*gridz2*sizeof(Potential));
   }
-  neighbours = new Neighbour[MAXGRIDNEIGHBOUR]; 
+  neighbours = new Neighbour[MAXGRIDNEIGHBOUR];
+  if (neighbours == NULL) {
+    fprintf(stderr, "Could not allocate memory for %d Neighbours\n");
+    exit(1);
+  }
   
   //Set up distances 
   Coor *dis0 = new Coor[nratoms]; 
