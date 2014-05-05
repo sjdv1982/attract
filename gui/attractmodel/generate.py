@@ -27,6 +27,7 @@ Therefore, you can only define docking partners that are already in the reduced 
   cleanupfiles = []
   if (m.header is not None):
     ret = m.header + "\n\n"
+  ret += 'trap "kill -- -$BASHPID" 2\n'
   ret += "if [ 1 -eq 1 ]; then ### move and change to disable parts of the protocol\n"
   ret += "$ATTRACTDIR/shm-clean\n\n"
 
@@ -326,7 +327,7 @@ echo '**************************************************************'
         start2 = "start-ens%d.dat" % (pnr+1)
       else:
         start2 = os.path.splitext(start)[0] + "-ens%d.dat" % (pnr+1)
-      ret += "python $ATTRACTTOOLS/ensemblize.py %s %d %d %s > %s\n" % \
+      ret += "python $ATTRACTTOOLS/ensemblize.py %s %d %d %s  > %s\n" % \
        (start, p.ensemble_size, pnr+1, p.ensemblize, start2)
       start = start2
       inp = start 
@@ -538,6 +539,8 @@ echo '**************************************************************'
         p = m.partners[pnr]
         filename = p.pdbfile.name
         irmsd_filenames[pnr] = filename
+        if p.ensemble_size > 0:
+	  irmsd_filenames[pnr] = p.collect_pdb.name
         if p.rmsd_pdb is not None:
           filename = p.rmsd_pdb.name
         irmsd_refenames[pnr] = filename
@@ -548,6 +551,8 @@ echo '**************************************************************'
         p = m.partners[pnr]
         filename = p.pdbfile.name
         fnat_filenames[pnr] = filename
+        if p.ensemble_size > 0:
+	    fnat_filenames[pnr] = p.collect_pdb.name
         if p.rmsd_pdb is not None:
           filename = p.rmsd_pdb.name
         fnat_refenames[pnr] = filename

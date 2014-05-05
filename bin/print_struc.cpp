@@ -1,6 +1,10 @@
 #include "max.h"
 #include <cstdio>
 #include <cstring>
+#include <iostream>
+#include <fstream>
+using namespace std;
+
 
 int nstruc = 0;
 
@@ -70,6 +74,7 @@ extern "C" void print_struc_(
 }
 
 extern "C" void print_struc2_(
+
  const int &seed,
  char *label0, 
  const double &energy,
@@ -90,7 +95,6 @@ extern "C" void print_struc2_(
  const int *has_locrests,
  const int &len_label
 ) {
-
  print_struc_(
   seed,
   label0, 

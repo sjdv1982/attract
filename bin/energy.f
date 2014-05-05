@@ -67,10 +67,14 @@ c  it will be folded into delta by axsym_fold_grads
       xnull = 0.0d0
       e = xnull
 
+
+
       call apply_axsym(cartstatehandle, morph, ens, 
      1 phi, ssi, rot, xa, ya, za, dlig, locrests)
+
            
       call ministate_ghost(ministatehandle, ghost)
+
       
       call ministate_get_molpairhandles(
      1 ministatehandle, molpairhandles, molpairs)
@@ -78,11 +82,13 @@ c  it will be folded into delta by axsym_fold_grads
       call cartstate_get_nlig_nhm(cartstatehandle,
      1 nlig,ptr_nhm,ptr_nihm)
  
+
       call cartstate_get_forcerot(cartstatehandle,ptr_ff,ptr_frot)
 
 c
 c  all variables without lig-hm
 c
+
       jb=3*iori*(nlig-fixre)+3*itra*(nlig-fixre)
 c  only trans or ori
       jl=3*iori*(nlig-fixre)
@@ -129,6 +135,7 @@ c  iterate over all pairs: call pairenergy...
      5 ens(idl+1),phi(idl+1),ssi(idl+1),rot(idl+1),
      6 xa(idl+1),ya(idl+1),za(idl+1),morph(idl+1),dlig(:,idl+1),
      7 pairenergies, deltar, deltal, deltamorphr, deltamorphl)
+
 c      write(ERROR_UNIT,*)'deltar',(deltar(i),i=1,jn)
 c      write(ERROR_UNIT,*)'deltal',(deltal(i),i=1,jn)
 c  ...and sum up the energies and deltas            
@@ -209,6 +216,7 @@ c     write(ERROR_UNIT, *) "Pair energy:", pairenergies(i)
 c     endif ghost.eq.0
 c       write(ERROR_UNIT,*)'delta0',(delta0(i),i=1,jn)
 30    continue
+
       call globalenergy(
      1	cartstatehandle, ministatehandle,
      2  ens,phi,ssi,rot,xa,ya,za,morph,dlig,

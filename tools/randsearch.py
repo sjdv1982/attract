@@ -51,7 +51,7 @@ import random
 if seed != -1:
   random.seed(seed)
 
-rsq = 75 * 75
+rsq = 35 * 35
 from math import *
 
 def adjust(x,y,z):
