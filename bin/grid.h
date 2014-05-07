@@ -5,6 +5,17 @@
 #include  "prox.h"
 #include  <cstdio>
 
+// Check GCC
+#if __GNUC__
+#if __x86_64__ || __ppc64__
+#define ARCHITECTURE 64
+#else
+#define ARCHITECTURE 32
+#endif
+#else
+#define ARCHITECTURE 64 //if not GCC, by default assume 64 bit
+#endif
+
 typedef double Coor[3]; /*Coor is double[3]*/
 typedef float Coorf[3]; /*Coorf is float[3]*/
 
@@ -32,6 +43,7 @@ struct Voxel {
 };
 
 struct Grid {
+  unsigned short architecture; //32 or 64 bits
   double gridspacing; /* 0.9 A */
   int gridextension; /* 32; always make this number even!*/
   double plateaudis; /* 10 A */
