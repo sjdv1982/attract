@@ -2,8 +2,9 @@ import sys
 def read_topology(atom, resn):
   bonds = []
   angles = []
-  bbbonds = [('N','HN'),('N','H'),('N','CA'),('CA','C'),('C','O')]
-  bbangles = [('HN','N','CA'),('H','N','CA'),('N','CA','C'),('CA','C','O')]
+  bbbonds = [('N','HN'),('N','H'),('N','CA'),('CA','C'),('C','O'),('N','HT1'),('N','HT2'),('N','HT3'),('C','OXT')]
+  bbangles = [('HN','N','CA'),('H','N','CA'),('N','CA','C'),('CA','C','O'),('HT1','N','HT2'),('HT2','N','HT3'),('HT1','N','HT3'),('HT1','N','CA'),('HT2','N','CA'),('HT3','N','CA'),
+	      ('O','C','OXT'),('CA','C','OXT')]
   if resn == 'CYS':
     allbonds = bbbonds + [('CA','HA'),('CA','CB'),('CB','HB1'),('CB','HB2'),('CB','SG'),('SG','HG')]
     allangles = bbangles + [('N','CA','HA'),('N','CA','CB'),('CB','CA','HA'),('C','CA','HA'),('CA','CB','HB1'),('CA','CB','HB2'),('HB1','CB','HB2'),

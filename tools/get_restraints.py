@@ -243,7 +243,7 @@ if __name__ == "__main__":
     else:    
         nbonds, pdb, name, c, offset, atomid = make_model(sys.argv)
         cut = 31
-        while len(nbonds) > 5000 and cut > 0:
+        while len(nbonds) > 9000 and cut > 0:
             cut -= 5
             nbonds, pdb, name, c, offset, atomid = make_model(sys.argv,cut)
           

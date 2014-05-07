@@ -53,13 +53,13 @@ def read_file(file1):
 
 import subprocess
 #prepare input for on the fly flexible interface refinement
-def prepare_input(start,pdbA,pdbB,current,name,attracttools):
+def prepare_input(start,pdbA,pdbB,current,name,attracttools,ensemble=''):
   current = str(current)
   directorypath = os.path.split(pdbA)[0]
   if len(directorypath) == 0: directorypath = '.'
   if os.path.exists(directorypath+'/flexm-'+current+name+'.dat'):
     return (directorypath+'/flexm-'+current+name+'.dat',os.path.splitext(pdbA)[0]+'_'+current+name+'.txt',os.path.splitext(pdbB)[0]+'_'+current+name+'.txt')
-  subprocess.call(attracttools+'/../bin/collect '+start+' '+pdbA+' '+pdbB+' > '+directorypath+'/'+current+name+'.pdb',shell=True)
+  subprocess.call(attracttools+'/../bin/collect '+start+' '+pdbA+' '+pdbB+' '+ensemble+' > '+directorypath+'/'+current+name+'.pdb',shell=True)
   subprocess.call(['python',attracttools+'/interface.py',directorypath+'/'+current+name+'.pdb',directorypath,current+name])
   count = 0
   if not os.path.exists(directorypath+'/'+current+name+'rlist.txt'):
@@ -103,10 +103,14 @@ def run_docking(datain):
     restfile1 = ''
     restfile2 = ''
     directory = os.path.split(args[1])[0]
-    if len(directory) == 0: directorypath = '.'
+    if len(directory) == 0: directory = '.'
     attracttools = os.path.split(attract)[0]+'/../tools'
+    ensemble = ''
+    if '--ens' in args:
+      i = args.index('--ens')
+      ensemble = ' '.join(args[i:i+3])
     if otf:
-	imodefile, restfile1, restfile2 = prepare_input(start,args[1],args[2],current,name,attracttools)
+	imodefile, restfile1, restfile2 = prepare_input(start,args[1],args[2],current,name,attracttools,ensemble)
     
     else:
 	imodefile = directory+'/flexm-'+name+'.dat'

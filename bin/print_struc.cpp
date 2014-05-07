@@ -3,10 +3,13 @@
 #include <cstring>
 #include <iostream>
 #include <fstream>
+#include <ctime>
 using namespace std;
 
 
 int nstruc = 0;
+bool has_flushed = 0;
+time_t last_flush;
 
 extern "C" void print_struc_(
  const int &seed,
@@ -70,7 +73,12 @@ extern "C" void print_struc_(
         }
     printf("\n"); 
   }
-  //fflush(stdout);
+  time_t curr_time = time(NULL);
+  if (!has_flushed || difftime(curr_time, last_flush) > 10) {    
+    fflush(stdout);
+    has_flushed = 1;
+    last_flush = curr_time;
+  }  
 }
 
 extern "C" void print_struc2_(
