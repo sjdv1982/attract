@@ -70,5 +70,6 @@ for i in range(20):
     pos = 3 * (resindex - 1)
     for n in range(3):
       print vec[pos+n],
+    print  
       
   print
