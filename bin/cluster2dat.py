@@ -56,12 +56,16 @@ for h in header: print h
 clusterlist = []
 for line in open(cluster).readlines():
   tmp = line.split()
+<<<<<<< TREE
   if len(tmp) > 4 and int(tmp[3]) < int(tmp[4]):
     clusterlist.append(int(tmp[3])) #select lowest energy representative of cluster
   elif len(tmp) > 4:
     clusterlist.append(int(tmp[4]))
   else:
     clusterlist.append(int(tmp[3]))
+=======
+  clusterlist.append(int(tmp[3])) #select center of cluster
+>>>>>>> MERGE-SOURCE
   
 stnr = 0
 st2nr = 0
