@@ -56,7 +56,7 @@ for h in header: print h
 clusterlist = []
 for line in open(cluster).readlines():
   tmp = line.split()
-  clusterlist.append(int(tmp[3])) #select first representative of cluster
+  clusterlist.append(int(tmp[3])) #select center of cluster
   
 stnr = 0
 st2nr = 0

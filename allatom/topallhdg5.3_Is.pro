@@ -785,7 +785,7 @@ residue NEP
 end
 
 
-residue HIS
+residue HIP
   group
     atom N   type=NH1     charge=-0.570 end
     atom HN  type=H       charge= 0.370 end

@@ -127,6 +127,10 @@ deredundant: deredundant.o read_dof.o euler2rotmat.o matmult.o \
                 print_struc.o state.h
 	$(CXX) $(CFLAGS) $^ -o $@ -lm
 
+deredundant-lim: deredundant-lim.o read_dof.o euler2rotmat.o matmult.o \
+                print_struc.o state.h
+	$(CXX) $(CFLAGS) $^ -o $@ -lm
+
 axsymmetry: axsymmetry.o read_dof.o euler2rotmat.o matmult.o matinv.o \
                 print_struc.o state.h axsym.h axsym.o
 	$(CXX) $(CFLAGS) $^ -o $@ -lm

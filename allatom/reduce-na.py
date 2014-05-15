@@ -35,7 +35,8 @@ his = {}
 
 repl = (
   ("H2''", "HO2'"),
-)  
+)
+toremove='False'				# added by Isaure
 for lnr in range(len(vmdlines)):
   l = vmdlines[lnr]
   lsplit=l.split()  					# added by Isaure
