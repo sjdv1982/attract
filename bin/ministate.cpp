@@ -157,9 +157,11 @@ extern "C" void ministate_calc_pairlist_(const int &ministatehandle, const int  
       else { /*use no grids at all*/
 	two_molpairs = 0;
       }
-      
       int m1 = i, m2 = j;      
-      int error = 0;
+      
+      if (ms.ghost_ligands && m1 > 0) continue; //in ghost-ligand mode, skip the molpair if the first one isn't the receptor
+      //printf("PAIR %d %d %d %d %d %d\n", i,j, is_grid, ms.gridmode, cartstate.grids[i],cartstate.grids[j]);          
+      
       if (ms.gridmode) {
 	
 	if (two_molpairs){
@@ -178,7 +180,6 @@ extern "C" void ministate_calc_pairlist_(const int &ministatehandle, const int  
 	  if (cartstate.nhm[m1]) error = 2;
 	}  	
       }
-      if (ms.ghost_ligands && m1 > 0) continue; //in ghost-ligand mode, skip the molpair if the first one isn't the receptor
 	
       if (error == 1) {
         printf("ERROR: using a single grid is not possible! Please recheck your input (maybe you are using modes?)\n");
