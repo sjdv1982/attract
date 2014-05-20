@@ -7,23 +7,28 @@ modefile = None
 imodefile = None
 output = None
 anr = 0
-if len(sys.argv) < 4:
-  raise Exception("Please supply a multi-model PDB file, a cutoff and a number of bound PDB files")
+if len(sys.argv) < 7 :
+  raise Exception("Please supply a multi-model PDB file, a cutoff,  the 1st and last ligand residues, and bound PDB files")
 
 cutoff = float(sys.argv[2])
 cutoffsq = cutoff*cutoff
+BEG=int(sys.argv[3])
+END=int(sys.argv[4])
 
 bounds = []
 
 def read_multi_pdb(f):  
   endmodel = False
+  lig=0 
   allcoor = [[]]
   coor = allcoor[-1]
   for l in open(f):
-    if l.startswith("MODEL"):      
+    if l.startswith("MODEL"):
+      lig=0 
       allcoor = [[]]
       coor = allcoor[-1]
     if l.startswith("TER"):
+      lig=1 
       allcoor.append([])
       coor = allcoor[-1]
     if l.startswith("ENDMDL"):      
@@ -31,18 +36,22 @@ def read_multi_pdb(f):
       allcoor = [coor for coor in allcoor if len(coor)]
       yield allcoor     
     if not l.startswith("ATOM"): continue
+    if lig==0:
+      if int(l.split()[4]) < BEG or int(l.split()[4]) > END: continue
     x,y,z = (float(f) for f in (l[30:38],l[38:46],l[46:54]))
     coor.append((x,y,z))
     endmodel = False
   allcoor = [coor for coor in allcoor if len(coor)]
   if not endmodel: yield allcoor
 
-def read_pdb(f):
+def read_pdf(f,lig):
   ret, res, resnam = [], [],{}
   curr_resid = None
   resindex = 0
   for l in open(f):
     if not l.startswith("ATOM"): continue
+    if lig==0:
+      if int(l.split()[4]) < BEG or int(l.split()[4]) > END: continue
     x,y,z = (float(f) for f in (l[30:38],l[38:46],l[46:54]))
     ret.append((x,y,z))
     resid = l[21:26]
@@ -53,18 +62,24 @@ def read_pdb(f):
     res.append(resindex)  
   return ret, res, resnam
   
-bounds = sys.argv[3:]
+bounds = sys.argv[5:]
 
 boundatoms = []
 boundres = []
 boundresnam = []
 boundsizes = []
-for b in bounds:
-  atoms, res, resnam = read_pdb(b)
-  boundatoms.append(atoms)
-  boundsizes.append(len(atoms))
-  boundres.append(res)
-  boundresnam.append(resnam)
+
+atoms, res, resnam = read_pdf(bounds[0],0)
+boundatoms.append(atoms)
+boundsizes.append(len(atoms))
+boundres.append(res)
+boundresnam.append(resnam)
+
+atoms, res, resnam = read_pdf(bounds[1],1)
+boundatoms.append(atoms)
+boundsizes.append(len(atoms))
+boundres.append(res)
+boundresnam.append(resnam)
 
   
 #print("START")
@@ -105,7 +120,7 @@ offsets = []
 for atoms in boundatoms:
   offsets.append(allatoms)
   allatoms += len(atoms)
-offsets.append(allatoms)  
+offsets.append(allatoms)
 mask0 = numpy.array([False] * allatoms)
 for partner1, mask1, partner2, mask2 in contacts0:
   maskA = mask0.copy()
@@ -144,5 +159,6 @@ for i in read_multi_pdb(sys.argv[1]):
     #print(mindistance)
     if mindistance < cutoffsq:
       fcount += 1
-  f.write("%.2f" % (float(fcount)/len(contacts)) +'\n')
+  num=0.01*round(100*(float(fcount)/len(contacts)))
+  f.write('%.3f\n'%num)
     
