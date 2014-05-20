@@ -26,7 +26,7 @@ def read(files):
     lengthlist = []
     atomlist = []
     for i in range(0,len(files),2):
-        ilist = np.loadtxt(files[i],dtype=int,ndmin=1)
+        ilist = np.loadtxt(files[i],dtype=int)
         # Make list of corresponding beads
         data = []
         for line in open(files[i+1]):
