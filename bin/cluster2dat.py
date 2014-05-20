@@ -20,12 +20,9 @@ def read_next_struc(lines, firstline):
       lenstruc += 1
       continue
     if mode == 1:
-      if l[:2] == "##":
-	ret0.append(l)
-      else:
-	mode = 2
-    if mode == 2:
-      ret1.append(l)
+      if l[:2] == "##":	ret0.append(l)
+      else:	mode = 2
+    if mode == 2:      ret1.append(l)
   if len(ret0) or len(ret1):
     yield ret0,ret1
   
@@ -56,17 +53,9 @@ for h in header: print h
 clusterlist = []
 for line in open(cluster).readlines():
   tmp = line.split()
-<<<<<<< TREE
-  if len(tmp) > 4 and int(tmp[3]) < int(tmp[4]):
-    clusterlist.append(int(tmp[3])) #select lowest energy representative of cluster
-  elif len(tmp) > 4:
-    clusterlist.append(int(tmp[4]))
-  else:
-    clusterlist.append(int(tmp[3]))
-=======
-  clusterlist.append(int(tmp[3])) #select center of cluster
->>>>>>> MERGE-SOURCE
-  
+  if sys.argv[3] == 'best':  clusterlist.append(min([int(truc) for truc in tmp[4:]])) #select best scored in cluster
+  if sys.argv[3] == 'center': clusterlist.append(min([int(truc) for truc in tmp[3:]])) #select best scored in cluster
+
 stnr = 0
 st2nr = 0
 for s in structures:
