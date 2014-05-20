@@ -1,4 +1,4 @@
-      subroutine minfor(
+      subroutine minfor_mcm(
      1 cartstatehandle,ministatehandle,
      2 nhm, nihm, nlig,
      3 ens, phi, ssi, rot, xa, ya, za, morph, dlig,
@@ -8,6 +8,9 @@
 c
 c  variable metric minimizer (Harwell subroutine lib.  as in Jumna with modifications)
 c     minimizes a single structure
+
+c     modified version of minfor.f for the --mcm option, not calculating
+c     pairlist, not deleting it in the end of subroutine
 
       implicit none
 
@@ -63,9 +66,11 @@ c     Local variables
 
 
 
-      call ministate_f_minfor(ministatehandle,
+
+      call ministate_f_minfor_min(ministatehandle,
      1 iscore,ivmax,iori,itra,ieig,iindex,fixre,gridmode)
      
+      
 
 c     always calculate both forces and energies      
       iab = 1
@@ -107,8 +112,13 @@ c  only trans or ori
       enddo
 
 
-      call ministate_calc_pairlist(ministatehandle,cartstatehandle)
-      call cartstate_get_nrens(cartstatehandle, ptr_nrens)
+
+c      call ministate_calc_pairlist(ministatehandle,cartstatehandle)
+  
+
+c      call cartstate_get_nrens(cartstatehandle, ptr_nrens)
+
+      
 
       nfun=0
       itr=0
@@ -135,7 +145,9 @@ c     set some variables for the first iteration
       do i=jn0+1,jn
        delta(i) = deltamorph(i-jn0)
       enddo     
-
+      
+      
+      
       if (iscore.eq.1) then
        write(*,*), 'Energy:', gesa 
        write(*,'(6f12.3)'), 
@@ -178,11 +190,11 @@ c     set some variables for the first iteration
          j = j + nihm(i)
        endif
        enddo      
-       go to 256
-      else if (iscore.eq.2) then
-        call print_struc2(seed,label,gesa,energies,nlig,
-     1  ens,phi,ssi,rot,xa,ya,za,locrests,morph,
-     2  nhm,nihm,dlig,has_locrests,lablen)
+c       go to 256
+c      else if (iscore.eq.2) then
+c        call print_struc2(seed,label,gesa,energies,nlig,
+c     1  ens,phi,ssi,rot,xa,ya,za,locrests,morph,
+c     2  nhm,nihm,dlig,has_locrests,lablen)
       endif     
       
 110   fa=gesa
@@ -429,11 +441,11 @@ c     store this function value if it is the smallest so far
       if (gl2.ge.gl1) go to 220
 200   isfv=3
       gesa=fb
-      if (iscore.eq.2) then
-        call print_struc2(seed,label,gesa,energies,nlig,
-     1  ens,phi,ssi,rot,xa,ya,za,locrests,morph,
-     2  nhm,nihm,dlig,has_locrests,lablen)
-      endif           
+c      if (iscore.eq.2) then
+c        call print_struc2(seed,label,gesa,energies,nlig,
+c     1  ens,phi,ssi,rot,xa,ya,za,locrests,morph,
+c     2  nhm,nihm,dlig,has_locrests,lablen)
+c      endif           
       do i=1,jn
        g(i)=gb(i)
       enddo
@@ -504,16 +516,16 @@ c     at this stage the whole calculation is complete
       do i=jn0+1,jn
        delta(i) = deltamorph(i-jn0)
       enddo     
-      if (iscore.eq.2) then
-        call print_struc2(seed,label,gesa,energies,nlig,
-     1  ens,phi,ssi,rot,xa,ya,za,locrests,morph,
-     2  nhm,nihm,dlig,has_locrests,lablen)
-      endif     
+c     if (iscore.eq.2) then
+c        call print_struc2(seed,label,gesa,energies,nlig,
+c     1  ens,phi,ssi,rot,xa,ya,za,locrests,morph,
+c     2  nhm,nihm,dlig,has_locrests,lablen)
+c      endif     
 
       do 255 i=1,jn
 255   g(i)=-delta(i)
  
-256   call ministate_free_pairlist(ministatehandle)      
+c256   call ministate_free_pairlist(ministatehandle)      
 c      write (ERROR_UNIT,*),'Final energy:', gesa
 
       return
@@ -553,6 +565,7 @@ c     branch if the rank of the new matrix is deficient
 c     begin another iteration
       dff=fa-fb
       fa=fb
-c     write(ERROR_UNIT,*) "New Energy", fa, dff
+c      write(ERROR_UNIT,*) "New Energy", fa, dff
+      
       go to 135
       end

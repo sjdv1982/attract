@@ -103,9 +103,16 @@
 
                           <div class="field-container">
                             <div class="title"><p>Structure file</p></div>
-                            <div class="tooltip"><div class="tooltip-body"><a href="documentation.html#partners-structure_file" target="_blank">Upload PDB structure file</a></div></div>
+                            <div class="tooltip"><div class="tooltip-body"><a href="documentation.html#partners-ensemble_size" target="_blank">Upload PDB structure file</a></div></div>
                             <div class="field-item file align-right">
                               <input type="file" name="partners-0-pdbfile" id="partners-0-pdbfile">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>If the PDB is a multi-model ensemble, specify the number of conformers</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="partners-0-ensemble_size" id="partners-0-ensemble_size" value = "0">
                             </div>
                           </div>
                         </div> <!-- END: group-container -->

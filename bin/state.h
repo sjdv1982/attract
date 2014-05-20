@@ -6,7 +6,8 @@
 
 struct AxSymmetry {
   int ligand;
-  int symtype;
+  int symtype; //0 for ncsym
+  double angle; //only for ncsym
   double axis[3];
   double origin[3];
 };
@@ -100,7 +101,7 @@ struct CartState {
   int symtypes[MAXLIG];
   int sym[MAXLIG][MAXLIG];
 
-  /*axis symmetries*/
+  /*axis and non-crystallographic symmetries*/
   int nr_axsyms;
   AxSymmetry axsyms[MAXLIG];
   int nr_symcopies[MAXLIG];
@@ -145,14 +146,16 @@ struct Restraint {
 struct MiniState {
   MolPair *pairs;
   int npairs;
-  int imc;     //Monte Carlo mode: 0 = off (minfor), 1 = on (monte)
+  int imc;     //Monte Carlo mode: 0 = off (minfor), 1 = (monte) 2 = (mc_min)
   double mctemp; //Monte Carlo temperature (in KT)
+  double mcmtemp; //MCM temperature (in KT)
   double mcscalerot; //Monte Carlo rotation step size (in radians)
   double mcscalecenter; //Monte Carlo translation step size (in A)
   double mcscalemode; //Monte Carlo mode step size (in mode A)
   double mcensprob; //Monte Carlo probability of switching ensemble copies
   int iscore;  //scoring mode: 0 = normal, 1 = scoring, 2 = trajectory
   int ivmax; //max steps
+  int imcmax; //max MC steps
   int iori;  //enable orientations
   int itra;  //enable translations
   int ieig;  //enable mode displacement

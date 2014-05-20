@@ -128,6 +128,7 @@ def webform(f, model=None,
     b.members.append("mode")
     b.members.append("proteincode")
     b.members.append("sequence")
+    b.members.append("index")
     b.members.append("chain")
     ### END b_sequence block
     
@@ -195,7 +196,8 @@ A CryoPartner has different options for how it is to be converted into CryoBodie
     #insert placeholder boolean to determine the state of the Advanced switch
     b = fp.new_group("b_advanced", "block")
     b.title =  "Advanced settings"
-    fp._membernames.append("use_advanced")
+    if "use_advanced" not in fp._membernames:
+      fp._membernames.append("use_advanced")
     sw = f.cryozoom._members["pre_mini"].get_copy()        
     sw.name = "Use advanced settings"
     sw.type = "switch"
@@ -318,7 +320,6 @@ A CryoPartner has different options for how it is to be converted into CryoBodie
     
   return f
 
-import spyder.htmlform
 def webserverform(webdict, form=None, spydertype=None):
   if spydertype is not None: form = spydertype._form()
   f = webform(
@@ -328,12 +329,6 @@ def webserverform(webdict, form=None, spydertype=None):
   )  
   return f
   
-def html(form, cgi,newtab=False):
-  import attracthtmlform 
-  html = attracthtmlform.htmlform(
-   form=form, cgi=cgi, 
-   header=header, footer=footer, header_indentation = 12, 
-   newtab=newtab
-  )
-  return html
-  
+def html(form, cgi, spyderobj, newtab=False):
+  from form_model import html
+  return html(form, cgi, spyderobj, newtab, header=header)

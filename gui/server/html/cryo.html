@@ -76,7 +76,7 @@
                   <div class="large-icon grid-icon"></div>
                   <div class="description">
                     <h2>Protein sequences</h2>
-                    <p></p>
+                    <p>Here you can define the sequences of the proteins that are present in your electron density map. They can be defined as SwissProt code or the sequence can be entered manually. It is also possible to derive the sequence from the assembly partner PDB (with chain). You can define subsequences to account for disordered regions, or if your construct only contains certain domains of the protein</p>
                   </div>
 
                   <div class="category-controls">
@@ -141,25 +141,18 @@
                             </div>
 
                             <div class="field-container">
-                              <div class="title"><p>Protein chain</p></div>
-                              <div class="field-item text align-right">
-                                <input type="text" name="sequences-0-chain" id="sequences-0-chain" value="" maxlength="2">
+                              <div class="title"><p>Index</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="sequences-0-index" id="sequences-0-index">
                               </div>
                             </div>
 
                           </div> <!--END: group-inline -->
-                        </div> <!-- END: group-container -->
-                      </div> <!-- END: level2 -->
-
-                      <div class="level2">
-
-                        <div class="group-container">
-
 
                           <div class="field-container">
-                            <div class="title"><p>Index</p></div>
-                            <div class="field-item number align-right">
-                              <input type="number" name="sequences-0-index" id="sequences-0-index">
+                            <div class="title"><p>Protein chain</p></div>
+                            <div class="field-item text align-right">
+                              <input type="text" name="sequences-0-chain" id="sequences-0-chain" value="" maxlength="2">
                             </div>
                           </div>
                         </div> <!-- END: group-container -->
@@ -172,80 +165,74 @@
                           <div class="field-container">
                             <div class="title"><h3>subsequences</h3></div>
                           </div>
-                          <div class="group-inline clearfix">
-                            <div class="field-container">
-                              <div class="title"><h3>1</h3></div>
-                            </div>
+                          <div class="field-container">
+                            <div class="title"><h3>1</h3></div>
+                          </div>
 
-                            <div class="field-container">
-                              <div class="title"><p>First number</p></div>
-                              <div class="field-item number align-right">
-                                <input type="number" name="sequences-0-subsequences-0-start" id="sequences-0-subsequences-0-start">
-                              </div>
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="sequences-0-subsequences-0-start" id="sequences-0-subsequences-0-start">
                             </div>
+                          </div>
 
-                            <div class="field-container">
-                              <div class="title"><p>Last number</p></div>
-                              <div class="field-item number align-right">
-                                <input type="number" name="sequences-0-subsequences-0-end" id="sequences-0-subsequences-0-end">
-                              </div>
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="sequences-0-subsequences-0-end" id="sequences-0-subsequences-0-end">
                             </div>
-                            <div class="field-container">
-                              <div class="title"><h3>2</h3></div>
-                            </div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>2</h3></div>
+                          </div>
 
-                            <div class="field-container">
-                              <div class="title"><p>First number</p></div>
-                              <div class="field-item number align-right">
-                                <input type="number" name="sequences-0-subsequences-1-start" id="sequences-0-subsequences-1-start">
-                              </div>
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="sequences-0-subsequences-1-start" id="sequences-0-subsequences-1-start">
                             </div>
+                          </div>
 
-                            <div class="field-container">
-                              <div class="title"><p>Last number</p></div>
-                              <div class="field-item number align-right">
-                                <input type="number" name="sequences-0-subsequences-1-end" id="sequences-0-subsequences-1-end">
-                              </div>
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="sequences-0-subsequences-1-end" id="sequences-0-subsequences-1-end">
                             </div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>3</h3></div>
+                          </div>
 
-                          </div> <!--END: group-inline -->
-                          <div class="group-inline clearfix">
-                            <div class="field-container">
-                              <div class="title"><h3>3</h3></div>
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="sequences-0-subsequences-2-start" id="sequences-0-subsequences-2-start">
                             </div>
+                          </div>
 
-                            <div class="field-container">
-                              <div class="title"><p>First number</p></div>
-                              <div class="field-item number align-right">
-                                <input type="number" name="sequences-0-subsequences-2-start" id="sequences-0-subsequences-2-start">
-                              </div>
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="sequences-0-subsequences-2-end" id="sequences-0-subsequences-2-end">
                             </div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><h3>4</h3></div>
+                          </div>
 
-                            <div class="field-container">
-                              <div class="title"><p>Last number</p></div>
-                              <div class="field-item number align-right">
-                                <input type="number" name="sequences-0-subsequences-2-end" id="sequences-0-subsequences-2-end">
-                              </div>
+                          <div class="field-container">
+                            <div class="title"><p>First number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="sequences-0-subsequences-3-start" id="sequences-0-subsequences-3-start">
                             </div>
-                            <div class="field-container">
-                              <div class="title"><h3>4</h3></div>
-                            </div>
+                          </div>
 
-                            <div class="field-container">
-                              <div class="title"><p>First number</p></div>
-                              <div class="field-item number align-right">
-                                <input type="number" name="sequences-0-subsequences-3-start" id="sequences-0-subsequences-3-start">
-                              </div>
+                          <div class="field-container">
+                            <div class="title"><p>Last number</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="sequences-0-subsequences-3-end" id="sequences-0-subsequences-3-end">
                             </div>
-
-                            <div class="field-container">
-                              <div class="title"><p>Last number</p></div>
-                              <div class="field-item number align-right">
-                                <input type="number" name="sequences-0-subsequences-3-end" id="sequences-0-subsequences-3-end">
-                              </div>
-                            </div>
-
-                          </div> <!--END: group-inline -->
+                          </div>
                           <div class="field-container">
                             <div class="title"><h3>5</h3></div>
                           </div>
@@ -366,25 +353,54 @@ A CryoPartner has different options for how it is to be converted into CryoBodie
                         <div class="group-container">
 
                           <div class="field-container">
-                            <div class="title"><h3>Sequence mappings 1</h3></div>
+                            <div class="title"><h3></h3></div>
                           </div>
-                          <div class="field-container">
-                            <div class="title"><h3>1</h3></div>
-                          </div>
-
-                          <div class="field-container">
-                            <div class="title"><p>First number</p></div>
-                            <div class="field-item number align-right">
-                              <input type="number" name="partners-0-sequencemappings-0-subsequences-0-start" id="partners-0-sequencemappings-0-subsequences-0-start">
+                          <div class="group-inline clearfix">
+                            <div class="field-container">
+                              <div class="title"><h3>Mapping to assembly sequences 1</h3></div>
                             </div>
-                          </div>
 
-                          <div class="field-container">
-                            <div class="title"><p>Last number</p></div>
-                            <div class="field-item number align-right">
-                              <input type="number" name="partners-0-sequencemappings-0-subsequences-0-end" id="partners-0-sequencemappings-0-subsequences-0-end">
+                            <div class="field-container">
+                              <div class="title"><p>chain</p></div>
+                              <div class="tooltip"><div class="tooltip-body">You may select a chain of the mapped PDB, or leave it blank</div></div>
+                              <div class="field-item text align-right">
+                                <input type="text" name="partners-0-sequencemappings-0-chain" id="partners-0-sequencemappings-0-chain" value="" maxlength="2">
+                              </div>
                             </div>
-                          </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Index of the assembly sequence to map to</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="partners-0-sequencemappings-0-index" id="partners-0-sequencemappings-0-index">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Symmetry shift</p></div>
+                              <div class="tooltip"><div class="tooltip-body">It is possible to indicate symmetry shifts in the mapped PDB, causing linker restraints to be defined to bodies in the next/previous symmetry copy, instead of to bodies in the reference copy</div></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="partners-0-sequencemappings-0-shift" id="partners-0-sequencemappings-0-shift">
+                              </div>
+                            </div>
+                            <div class="field-container">
+                              <div class="title"><h3>1</h3></div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>First number</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="partners-0-sequencemappings-0-subsequences-0-start" id="partners-0-sequencemappings-0-subsequences-0-start">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Last number</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="partners-0-sequencemappings-0-subsequences-0-end" id="partners-0-sequencemappings-0-subsequences-0-end">
+                              </div>
+                            </div>
+
+                          </div> <!--END: group-inline -->
                           <div class="field-container">
                             <div class="title"><h3>2</h3></div>
                           </div>
@@ -453,32 +469,6 @@ A CryoPartner has different options for how it is to be converted into CryoBodie
                               <input type="number" name="partners-0-sequencemappings-0-subsequences-4-end" id="partners-0-sequencemappings-0-subsequences-4-end">
                             </div>
                           </div>
-                          <div class="field-container">
-                            <div class="title"><h3>Mapping to assembly sequences 1</h3></div>
-                          </div>
-
-                          <div class="field-container">
-                            <div class="title"><p>chain</p></div>
-                            <div class="tooltip"><div class="tooltip-body">You may select a chain of the mapped PDB, or leave it blank</div></div>
-                            <div class="field-item text align-right">
-                              <input type="text" name="partners-0-sequencemappings-0-chain" id="partners-0-sequencemappings-0-chain" value="" maxlength="2">
-                            </div>
-                          </div>
-
-                          <div class="field-container">
-                            <div class="title"><p>Index of the assembly sequence to map to</p></div>
-                            <div class="field-item number align-right">
-                              <input type="number" name="partners-0-sequencemappings-0-index" id="partners-0-sequencemappings-0-index">
-                            </div>
-                          </div>
-
-                          <div class="field-container">
-                            <div class="title"><p>Symmetry shift</p></div>
-                            <div class="tooltip"><div class="tooltip-body">It is possible to indicate symmetry shifts in the mapped PDB, causing linker restraints to be defined to bodies in the next/previous symmetry copy, instead of to bodies in the reference copy</div></div>
-                            <div class="field-item number align-right">
-                              <input type="number" name="partners-0-sequencemappings-0-shift" id="partners-0-sequencemappings-0-shift">
-                            </div>
-                          </div>
                         </div> <!-- END: group-container -->
                       </div> <!-- END: level2 -->
 
@@ -487,25 +477,54 @@ A CryoPartner has different options for how it is to be converted into CryoBodie
                         <div class="group-container">
 
                           <div class="field-container">
-                            <div class="title"><h3>Sequence mappings 2</h3></div>
+                            <div class="title"><h3></h3></div>
                           </div>
-                          <div class="field-container">
-                            <div class="title"><h3>1</h3></div>
-                          </div>
-
-                          <div class="field-container">
-                            <div class="title"><p>First number</p></div>
-                            <div class="field-item number align-right">
-                              <input type="number" name="partners-0-sequencemappings-1-subsequences-0-start" id="partners-0-sequencemappings-1-subsequences-0-start">
+                          <div class="group-inline clearfix">
+                            <div class="field-container">
+                              <div class="title"><h3>Mapping to assembly sequences 2</h3></div>
                             </div>
-                          </div>
 
-                          <div class="field-container">
-                            <div class="title"><p>Last number</p></div>
-                            <div class="field-item number align-right">
-                              <input type="number" name="partners-0-sequencemappings-1-subsequences-0-end" id="partners-0-sequencemappings-1-subsequences-0-end">
+                            <div class="field-container">
+                              <div class="title"><p>chain</p></div>
+                              <div class="tooltip"><div class="tooltip-body">You may select a chain of the mapped PDB, or leave it blank</div></div>
+                              <div class="field-item text align-right">
+                                <input type="text" name="partners-0-sequencemappings-1-chain" id="partners-0-sequencemappings-1-chain" value="" maxlength="2">
+                              </div>
                             </div>
-                          </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Index of the assembly sequence to map to</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="partners-0-sequencemappings-1-index" id="partners-0-sequencemappings-1-index">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Symmetry shift</p></div>
+                              <div class="tooltip"><div class="tooltip-body">It is possible to indicate symmetry shifts in the mapped PDB, causing linker restraints to be defined to bodies in the next/previous symmetry copy, instead of to bodies in the reference copy</div></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="partners-0-sequencemappings-1-shift" id="partners-0-sequencemappings-1-shift">
+                              </div>
+                            </div>
+                            <div class="field-container">
+                              <div class="title"><h3>1</h3></div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>First number</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="partners-0-sequencemappings-1-subsequences-0-start" id="partners-0-sequencemappings-1-subsequences-0-start">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Last number</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="partners-0-sequencemappings-1-subsequences-0-end" id="partners-0-sequencemappings-1-subsequences-0-end">
+                              </div>
+                            </div>
+
+                          </div> <!--END: group-inline -->
                           <div class="field-container">
                             <div class="title"><h3>2</h3></div>
                           </div>
@@ -574,32 +593,6 @@ A CryoPartner has different options for how it is to be converted into CryoBodie
                               <input type="number" name="partners-0-sequencemappings-1-subsequences-4-end" id="partners-0-sequencemappings-1-subsequences-4-end">
                             </div>
                           </div>
-                          <div class="field-container">
-                            <div class="title"><h3>Mapping to assembly sequences 2</h3></div>
-                          </div>
-
-                          <div class="field-container">
-                            <div class="title"><p>chain</p></div>
-                            <div class="tooltip"><div class="tooltip-body">You may select a chain of the mapped PDB, or leave it blank</div></div>
-                            <div class="field-item text align-right">
-                              <input type="text" name="partners-0-sequencemappings-1-chain" id="partners-0-sequencemappings-1-chain" value="" maxlength="2">
-                            </div>
-                          </div>
-
-                          <div class="field-container">
-                            <div class="title"><p>Index of the assembly sequence to map to</p></div>
-                            <div class="field-item number align-right">
-                              <input type="number" name="partners-0-sequencemappings-1-index" id="partners-0-sequencemappings-1-index">
-                            </div>
-                          </div>
-
-                          <div class="field-container">
-                            <div class="title"><p>Symmetry shift</p></div>
-                            <div class="tooltip"><div class="tooltip-body">It is possible to indicate symmetry shifts in the mapped PDB, causing linker restraints to be defined to bodies in the next/previous symmetry copy, instead of to bodies in the reference copy</div></div>
-                            <div class="field-item number align-right">
-                              <input type="number" name="partners-0-sequencemappings-1-shift" id="partners-0-sequencemappings-1-shift">
-                            </div>
-                          </div>
                         </div> <!-- END: group-container -->
                       </div> <!-- END: level2 -->
 
@@ -608,25 +601,54 @@ A CryoPartner has different options for how it is to be converted into CryoBodie
                         <div class="group-container">
 
                           <div class="field-container">
-                            <div class="title"><h3>Sequence mappings 3</h3></div>
+                            <div class="title"><h3></h3></div>
                           </div>
-                          <div class="field-container">
-                            <div class="title"><h3>1</h3></div>
-                          </div>
-
-                          <div class="field-container">
-                            <div class="title"><p>First number</p></div>
-                            <div class="field-item number align-right">
-                              <input type="number" name="partners-0-sequencemappings-2-subsequences-0-start" id="partners-0-sequencemappings-2-subsequences-0-start">
+                          <div class="group-inline clearfix">
+                            <div class="field-container">
+                              <div class="title"><h3>Mapping to assembly sequences 3</h3></div>
                             </div>
-                          </div>
 
-                          <div class="field-container">
-                            <div class="title"><p>Last number</p></div>
-                            <div class="field-item number align-right">
-                              <input type="number" name="partners-0-sequencemappings-2-subsequences-0-end" id="partners-0-sequencemappings-2-subsequences-0-end">
+                            <div class="field-container">
+                              <div class="title"><p>chain</p></div>
+                              <div class="tooltip"><div class="tooltip-body">You may select a chain of the mapped PDB, or leave it blank</div></div>
+                              <div class="field-item text align-right">
+                                <input type="text" name="partners-0-sequencemappings-2-chain" id="partners-0-sequencemappings-2-chain" value="" maxlength="2">
+                              </div>
                             </div>
-                          </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Index of the assembly sequence to map to</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="partners-0-sequencemappings-2-index" id="partners-0-sequencemappings-2-index">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Symmetry shift</p></div>
+                              <div class="tooltip"><div class="tooltip-body">It is possible to indicate symmetry shifts in the mapped PDB, causing linker restraints to be defined to bodies in the next/previous symmetry copy, instead of to bodies in the reference copy</div></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="partners-0-sequencemappings-2-shift" id="partners-0-sequencemappings-2-shift">
+                              </div>
+                            </div>
+                            <div class="field-container">
+                              <div class="title"><h3>1</h3></div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>First number</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="partners-0-sequencemappings-2-subsequences-0-start" id="partners-0-sequencemappings-2-subsequences-0-start">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Last number</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="partners-0-sequencemappings-2-subsequences-0-end" id="partners-0-sequencemappings-2-subsequences-0-end">
+                              </div>
+                            </div>
+
+                          </div> <!--END: group-inline -->
                           <div class="field-container">
                             <div class="title"><h3>2</h3></div>
                           </div>
@@ -693,32 +715,6 @@ A CryoPartner has different options for how it is to be converted into CryoBodie
                             <div class="title"><p>Last number</p></div>
                             <div class="field-item number align-right">
                               <input type="number" name="partners-0-sequencemappings-2-subsequences-4-end" id="partners-0-sequencemappings-2-subsequences-4-end">
-                            </div>
-                          </div>
-                          <div class="field-container">
-                            <div class="title"><h3>Mapping to assembly sequences 3</h3></div>
-                          </div>
-
-                          <div class="field-container">
-                            <div class="title"><p>chain</p></div>
-                            <div class="tooltip"><div class="tooltip-body">You may select a chain of the mapped PDB, or leave it blank</div></div>
-                            <div class="field-item text align-right">
-                              <input type="text" name="partners-0-sequencemappings-2-chain" id="partners-0-sequencemappings-2-chain" value="" maxlength="2">
-                            </div>
-                          </div>
-
-                          <div class="field-container">
-                            <div class="title"><p>Index of the assembly sequence to map to</p></div>
-                            <div class="field-item number align-right">
-                              <input type="number" name="partners-0-sequencemappings-2-index" id="partners-0-sequencemappings-2-index">
-                            </div>
-                          </div>
-
-                          <div class="field-container">
-                            <div class="title"><p>Symmetry shift</p></div>
-                            <div class="tooltip"><div class="tooltip-body">It is possible to indicate symmetry shifts in the mapped PDB, causing linker restraints to be defined to bodies in the next/previous symmetry copy, instead of to bodies in the reference copy</div></div>
-                            <div class="field-item number align-right">
-                              <input type="number" name="partners-0-sequencemappings-2-shift" id="partners-0-sequencemappings-2-shift">
                             </div>
                           </div>
                         </div> <!-- END: group-container -->
@@ -805,7 +801,7 @@ A CryoPartner has different options for how it is to be converted into CryoBodie
                   <div class="large-icon symmetry-icon"></div>
                   <div class="description">
                     <h2>Symmetry</h2>
-                    <p></p>
+                    <p>Define the symmetry of your electron density map. It is assumed that the primary symmetry axis is the Z axis. For D symmetry, you can define a secondary symmetry axis</p>
                   </div>
                 </div>
 
@@ -885,7 +881,7 @@ A CryoPartner has different options for how it is to be converted into CryoBodie
                   <div class="large-icon cryoem-icon"></div>
                   <div class="description">
                     <h2>Cryo-EM data</h2>
-                    <p></p>
+                    <p>Specify your electron density map here. It is recommended to downsample your map for the assembly stage, and to use the full-resolution map in scoring. For benchmarking and comparison, you can also specify a density map to be simulated from a PDB</p>
                   </div>
                 </div>
 
@@ -1021,6 +1017,36 @@ A CryoPartner has different options for how it is to be converted into CryoBodie
                 <!-- UI CONTAINER FOR FORM ELEMENTS OF A CATEGORY SELECTED IN CATEGORY NAVIGATION MENU -->
                 <div class="form-category">
 
+                  <div id="block-b_reference-0" class="level1 active">
+
+                    <div class="controls">
+                      <div class="title"><h4>Reference</h4></div>
+                      <div class="button reload-icon reload-form-block"><div class="controls-tooltip"><p>Restore default values</p></div></div>
+                    </div>
+
+                    <div class="level1-container">
+
+                      <div class="level2">
+
+                        <div class="group-container">
+
+                          <div class="field-container">
+                            <div class="title"><h3>Reference structure</h3></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Reference structure</p></div>
+                            <div class="tooltip"><div class="tooltip-body">PDB that contains the true structure</div></div>
+                            <div class="field-item file align-right">
+                              <input type="file" name="reference-pdb" id="reference-pdb">
+                            </div>
+                          </div>
+                        </div> <!-- END: group-container -->
+                      </div> <!-- END: level2 -->
+                    </div><!-- END: level1-container -->
+                  </div><!-- END: level1 -->
+
+
                   <div id="block-b_reference-0-0" class="level1 active">
 
                     <div class="controls">
@@ -1029,6 +1055,42 @@ A CryoPartner has different options for how it is to be converted into CryoBodie
                     </div>
 
                     <div class="level1-container">
+
+                      <div class="level2">
+
+                        <div class="group-container">
+
+                          <div class="field-container">
+                            <div class="title"><h3>Mapping to assembly sequences 1</h3></div>
+                          </div>
+                          <div class="group-inline clearfix">
+
+                            <div class="field-container">
+                              <div class="title"><p>chain</p></div>
+                              <div class="tooltip"><div class="tooltip-body">You may select a chain of the mapped PDB, or leave it blank</div></div>
+                              <div class="field-item text align-right">
+                                <input type="text" name="reference-sequencemappings-0-chain" id="reference-sequencemappings-0-chain" value="" maxlength="2">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Index of the assembly sequence to map to</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="reference-sequencemappings-0-index" id="reference-sequencemappings-0-index">
+                              </div>
+                            </div>
+
+                          </div> <!--END: group-inline -->
+
+                          <div class="field-container">
+                            <div class="title"><p>Symmetry shift</p></div>
+                            <div class="tooltip"><div class="tooltip-body">It is possible to indicate symmetry shifts in the mapped PDB, causing linker restraints to be defined to bodies in the next/previous symmetry copy, instead of to bodies in the reference copy</div></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-0-shift" id="reference-sequencemappings-0-shift">
+                            </div>
+                          </div>
+                        </div> <!-- END: group-container -->
+                      </div> <!-- END: level2 -->
 
                       <div class="level2">
 
@@ -1124,42 +1186,6 @@ A CryoPartner has different options for how it is to be converted into CryoBodie
                           </div>
                         </div> <!-- END: group-container -->
                       </div> <!-- END: level2 -->
-
-                      <div class="level2">
-
-                        <div class="group-container">
-
-                          <div class="field-container">
-                            <div class="title"><h3>Mapping to assembly sequences 1</h3></div>
-                          </div>
-                          <div class="group-inline clearfix">
-
-                            <div class="field-container">
-                              <div class="title"><p>chain</p></div>
-                              <div class="tooltip"><div class="tooltip-body">You may select a chain of the mapped PDB, or leave it blank</div></div>
-                              <div class="field-item text align-right">
-                                <input type="text" name="reference-sequencemappings-0-chain" id="reference-sequencemappings-0-chain" value="" maxlength="2">
-                              </div>
-                            </div>
-
-                            <div class="field-container">
-                              <div class="title"><p>Index of the assembly sequence to map to</p></div>
-                              <div class="field-item number align-right">
-                                <input type="number" name="reference-sequencemappings-0-index" id="reference-sequencemappings-0-index">
-                              </div>
-                            </div>
-
-                          </div> <!--END: group-inline -->
-
-                          <div class="field-container">
-                            <div class="title"><p>Symmetry shift</p></div>
-                            <div class="tooltip"><div class="tooltip-body">It is possible to indicate symmetry shifts in the mapped PDB, causing linker restraints to be defined to bodies in the next/previous symmetry copy, instead of to bodies in the reference copy</div></div>
-                            <div class="field-item number align-right">
-                              <input type="number" name="reference-sequencemappings-0-shift" id="reference-sequencemappings-0-shift">
-                            </div>
-                          </div>
-                        </div> <!-- END: group-container -->
-                      </div> <!-- END: level2 -->
                     </div><!-- END: level1-container -->
                   </div><!-- END: level1 -->
 
@@ -1172,6 +1198,42 @@ A CryoPartner has different options for how it is to be converted into CryoBodie
                     </div>
 
                     <div class="level1-container">
+
+                      <div class="level2">
+
+                        <div class="group-container">
+
+                          <div class="field-container">
+                            <div class="title"><h3>Mapping to assembly sequences 2</h3></div>
+                          </div>
+                          <div class="group-inline clearfix">
+
+                            <div class="field-container">
+                              <div class="title"><p>chain</p></div>
+                              <div class="tooltip"><div class="tooltip-body">You may select a chain of the mapped PDB, or leave it blank</div></div>
+                              <div class="field-item text align-right">
+                                <input type="text" name="reference-sequencemappings-1-chain" id="reference-sequencemappings-1-chain" value="" maxlength="2">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Index of the assembly sequence to map to</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="reference-sequencemappings-1-index" id="reference-sequencemappings-1-index">
+                              </div>
+                            </div>
+
+                          </div> <!--END: group-inline -->
+
+                          <div class="field-container">
+                            <div class="title"><p>Symmetry shift</p></div>
+                            <div class="tooltip"><div class="tooltip-body">It is possible to indicate symmetry shifts in the mapped PDB, causing linker restraints to be defined to bodies in the next/previous symmetry copy, instead of to bodies in the reference copy</div></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-1-shift" id="reference-sequencemappings-1-shift">
+                            </div>
+                          </div>
+                        </div> <!-- END: group-container -->
+                      </div> <!-- END: level2 -->
 
                       <div class="level2">
 
@@ -1267,42 +1329,6 @@ A CryoPartner has different options for how it is to be converted into CryoBodie
                           </div>
                         </div> <!-- END: group-container -->
                       </div> <!-- END: level2 -->
-
-                      <div class="level2">
-
-                        <div class="group-container">
-
-                          <div class="field-container">
-                            <div class="title"><h3>Mapping to assembly sequences 2</h3></div>
-                          </div>
-                          <div class="group-inline clearfix">
-
-                            <div class="field-container">
-                              <div class="title"><p>chain</p></div>
-                              <div class="tooltip"><div class="tooltip-body">You may select a chain of the mapped PDB, or leave it blank</div></div>
-                              <div class="field-item text align-right">
-                                <input type="text" name="reference-sequencemappings-1-chain" id="reference-sequencemappings-1-chain" value="" maxlength="2">
-                              </div>
-                            </div>
-
-                            <div class="field-container">
-                              <div class="title"><p>Index of the assembly sequence to map to</p></div>
-                              <div class="field-item number align-right">
-                                <input type="number" name="reference-sequencemappings-1-index" id="reference-sequencemappings-1-index">
-                              </div>
-                            </div>
-
-                          </div> <!--END: group-inline -->
-
-                          <div class="field-container">
-                            <div class="title"><p>Symmetry shift</p></div>
-                            <div class="tooltip"><div class="tooltip-body">It is possible to indicate symmetry shifts in the mapped PDB, causing linker restraints to be defined to bodies in the next/previous symmetry copy, instead of to bodies in the reference copy</div></div>
-                            <div class="field-item number align-right">
-                              <input type="number" name="reference-sequencemappings-1-shift" id="reference-sequencemappings-1-shift">
-                            </div>
-                          </div>
-                        </div> <!-- END: group-container -->
-                      </div> <!-- END: level2 -->
                     </div><!-- END: level1-container -->
                   </div><!-- END: level1 -->
 
@@ -1315,6 +1341,42 @@ A CryoPartner has different options for how it is to be converted into CryoBodie
                     </div>
 
                     <div class="level1-container">
+
+                      <div class="level2">
+
+                        <div class="group-container">
+
+                          <div class="field-container">
+                            <div class="title"><h3>Mapping to assembly sequences 3</h3></div>
+                          </div>
+                          <div class="group-inline clearfix">
+
+                            <div class="field-container">
+                              <div class="title"><p>chain</p></div>
+                              <div class="tooltip"><div class="tooltip-body">You may select a chain of the mapped PDB, or leave it blank</div></div>
+                              <div class="field-item text align-right">
+                                <input type="text" name="reference-sequencemappings-2-chain" id="reference-sequencemappings-2-chain" value="" maxlength="2">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Index of the assembly sequence to map to</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="reference-sequencemappings-2-index" id="reference-sequencemappings-2-index">
+                              </div>
+                            </div>
+
+                          </div> <!--END: group-inline -->
+
+                          <div class="field-container">
+                            <div class="title"><p>Symmetry shift</p></div>
+                            <div class="tooltip"><div class="tooltip-body">It is possible to indicate symmetry shifts in the mapped PDB, causing linker restraints to be defined to bodies in the next/previous symmetry copy, instead of to bodies in the reference copy</div></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-2-shift" id="reference-sequencemappings-2-shift">
+                            </div>
+                          </div>
+                        </div> <!-- END: group-container -->
+                      </div> <!-- END: level2 -->
 
                       <div class="level2">
 
@@ -1410,42 +1472,6 @@ A CryoPartner has different options for how it is to be converted into CryoBodie
                           </div>
                         </div> <!-- END: group-container -->
                       </div> <!-- END: level2 -->
-
-                      <div class="level2">
-
-                        <div class="group-container">
-
-                          <div class="field-container">
-                            <div class="title"><h3>Mapping to assembly sequences 3</h3></div>
-                          </div>
-                          <div class="group-inline clearfix">
-
-                            <div class="field-container">
-                              <div class="title"><p>chain</p></div>
-                              <div class="tooltip"><div class="tooltip-body">You may select a chain of the mapped PDB, or leave it blank</div></div>
-                              <div class="field-item text align-right">
-                                <input type="text" name="reference-sequencemappings-2-chain" id="reference-sequencemappings-2-chain" value="" maxlength="2">
-                              </div>
-                            </div>
-
-                            <div class="field-container">
-                              <div class="title"><p>Index of the assembly sequence to map to</p></div>
-                              <div class="field-item number align-right">
-                                <input type="number" name="reference-sequencemappings-2-index" id="reference-sequencemappings-2-index">
-                              </div>
-                            </div>
-
-                          </div> <!--END: group-inline -->
-
-                          <div class="field-container">
-                            <div class="title"><p>Symmetry shift</p></div>
-                            <div class="tooltip"><div class="tooltip-body">It is possible to indicate symmetry shifts in the mapped PDB, causing linker restraints to be defined to bodies in the next/previous symmetry copy, instead of to bodies in the reference copy</div></div>
-                            <div class="field-item number align-right">
-                              <input type="number" name="reference-sequencemappings-2-shift" id="reference-sequencemappings-2-shift">
-                            </div>
-                          </div>
-                        </div> <!-- END: group-container -->
-                      </div> <!-- END: level2 -->
                     </div><!-- END: level1-container -->
                   </div><!-- END: level1 -->
 
@@ -1458,6 +1484,42 @@ A CryoPartner has different options for how it is to be converted into CryoBodie
                     </div>
 
                     <div class="level1-container">
+
+                      <div class="level2">
+
+                        <div class="group-container">
+
+                          <div class="field-container">
+                            <div class="title"><h3>Mapping to assembly sequences 4</h3></div>
+                          </div>
+                          <div class="group-inline clearfix">
+
+                            <div class="field-container">
+                              <div class="title"><p>chain</p></div>
+                              <div class="tooltip"><div class="tooltip-body">You may select a chain of the mapped PDB, or leave it blank</div></div>
+                              <div class="field-item text align-right">
+                                <input type="text" name="reference-sequencemappings-3-chain" id="reference-sequencemappings-3-chain" value="" maxlength="2">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Index of the assembly sequence to map to</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="reference-sequencemappings-3-index" id="reference-sequencemappings-3-index">
+                              </div>
+                            </div>
+
+                          </div> <!--END: group-inline -->
+
+                          <div class="field-container">
+                            <div class="title"><p>Symmetry shift</p></div>
+                            <div class="tooltip"><div class="tooltip-body">It is possible to indicate symmetry shifts in the mapped PDB, causing linker restraints to be defined to bodies in the next/previous symmetry copy, instead of to bodies in the reference copy</div></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-3-shift" id="reference-sequencemappings-3-shift">
+                            </div>
+                          </div>
+                        </div> <!-- END: group-container -->
+                      </div> <!-- END: level2 -->
 
                       <div class="level2">
 
@@ -1553,42 +1615,6 @@ A CryoPartner has different options for how it is to be converted into CryoBodie
                           </div>
                         </div> <!-- END: group-container -->
                       </div> <!-- END: level2 -->
-
-                      <div class="level2">
-
-                        <div class="group-container">
-
-                          <div class="field-container">
-                            <div class="title"><h3>Mapping to assembly sequences 4</h3></div>
-                          </div>
-                          <div class="group-inline clearfix">
-
-                            <div class="field-container">
-                              <div class="title"><p>chain</p></div>
-                              <div class="tooltip"><div class="tooltip-body">You may select a chain of the mapped PDB, or leave it blank</div></div>
-                              <div class="field-item text align-right">
-                                <input type="text" name="reference-sequencemappings-3-chain" id="reference-sequencemappings-3-chain" value="" maxlength="2">
-                              </div>
-                            </div>
-
-                            <div class="field-container">
-                              <div class="title"><p>Index of the assembly sequence to map to</p></div>
-                              <div class="field-item number align-right">
-                                <input type="number" name="reference-sequencemappings-3-index" id="reference-sequencemappings-3-index">
-                              </div>
-                            </div>
-
-                          </div> <!--END: group-inline -->
-
-                          <div class="field-container">
-                            <div class="title"><p>Symmetry shift</p></div>
-                            <div class="tooltip"><div class="tooltip-body">It is possible to indicate symmetry shifts in the mapped PDB, causing linker restraints to be defined to bodies in the next/previous symmetry copy, instead of to bodies in the reference copy</div></div>
-                            <div class="field-item number align-right">
-                              <input type="number" name="reference-sequencemappings-3-shift" id="reference-sequencemappings-3-shift">
-                            </div>
-                          </div>
-                        </div> <!-- END: group-container -->
-                      </div> <!-- END: level2 -->
                     </div><!-- END: level1-container -->
                   </div><!-- END: level1 -->
 
@@ -1601,6 +1627,42 @@ A CryoPartner has different options for how it is to be converted into CryoBodie
                     </div>
 
                     <div class="level1-container">
+
+                      <div class="level2">
+
+                        <div class="group-container">
+
+                          <div class="field-container">
+                            <div class="title"><h3>Mapping to assembly sequences 5</h3></div>
+                          </div>
+                          <div class="group-inline clearfix">
+
+                            <div class="field-container">
+                              <div class="title"><p>chain</p></div>
+                              <div class="tooltip"><div class="tooltip-body">You may select a chain of the mapped PDB, or leave it blank</div></div>
+                              <div class="field-item text align-right">
+                                <input type="text" name="reference-sequencemappings-4-chain" id="reference-sequencemappings-4-chain" value="" maxlength="2">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Index of the assembly sequence to map to</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="reference-sequencemappings-4-index" id="reference-sequencemappings-4-index">
+                              </div>
+                            </div>
+
+                          </div> <!--END: group-inline -->
+
+                          <div class="field-container">
+                            <div class="title"><p>Symmetry shift</p></div>
+                            <div class="tooltip"><div class="tooltip-body">It is possible to indicate symmetry shifts in the mapped PDB, causing linker restraints to be defined to bodies in the next/previous symmetry copy, instead of to bodies in the reference copy</div></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-4-shift" id="reference-sequencemappings-4-shift">
+                            </div>
+                          </div>
+                        </div> <!-- END: group-container -->
+                      </div> <!-- END: level2 -->
 
                       <div class="level2">
 
@@ -1696,42 +1758,6 @@ A CryoPartner has different options for how it is to be converted into CryoBodie
                           </div>
                         </div> <!-- END: group-container -->
                       </div> <!-- END: level2 -->
-
-                      <div class="level2">
-
-                        <div class="group-container">
-
-                          <div class="field-container">
-                            <div class="title"><h3>Mapping to assembly sequences 5</h3></div>
-                          </div>
-                          <div class="group-inline clearfix">
-
-                            <div class="field-container">
-                              <div class="title"><p>chain</p></div>
-                              <div class="tooltip"><div class="tooltip-body">You may select a chain of the mapped PDB, or leave it blank</div></div>
-                              <div class="field-item text align-right">
-                                <input type="text" name="reference-sequencemappings-4-chain" id="reference-sequencemappings-4-chain" value="" maxlength="2">
-                              </div>
-                            </div>
-
-                            <div class="field-container">
-                              <div class="title"><p>Index of the assembly sequence to map to</p></div>
-                              <div class="field-item number align-right">
-                                <input type="number" name="reference-sequencemappings-4-index" id="reference-sequencemappings-4-index">
-                              </div>
-                            </div>
-
-                          </div> <!--END: group-inline -->
-
-                          <div class="field-container">
-                            <div class="title"><p>Symmetry shift</p></div>
-                            <div class="tooltip"><div class="tooltip-body">It is possible to indicate symmetry shifts in the mapped PDB, causing linker restraints to be defined to bodies in the next/previous symmetry copy, instead of to bodies in the reference copy</div></div>
-                            <div class="field-item number align-right">
-                              <input type="number" name="reference-sequencemappings-4-shift" id="reference-sequencemappings-4-shift">
-                            </div>
-                          </div>
-                        </div> <!-- END: group-container -->
-                      </div> <!-- END: level2 -->
                     </div><!-- END: level1-container -->
                   </div><!-- END: level1 -->
 
@@ -1744,6 +1770,42 @@ A CryoPartner has different options for how it is to be converted into CryoBodie
                     </div>
 
                     <div class="level1-container">
+
+                      <div class="level2">
+
+                        <div class="group-container">
+
+                          <div class="field-container">
+                            <div class="title"><h3>Mapping to assembly sequences 6</h3></div>
+                          </div>
+                          <div class="group-inline clearfix">
+
+                            <div class="field-container">
+                              <div class="title"><p>chain</p></div>
+                              <div class="tooltip"><div class="tooltip-body">You may select a chain of the mapped PDB, or leave it blank</div></div>
+                              <div class="field-item text align-right">
+                                <input type="text" name="reference-sequencemappings-5-chain" id="reference-sequencemappings-5-chain" value="" maxlength="2">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Index of the assembly sequence to map to</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="reference-sequencemappings-5-index" id="reference-sequencemappings-5-index">
+                              </div>
+                            </div>
+
+                          </div> <!--END: group-inline -->
+
+                          <div class="field-container">
+                            <div class="title"><p>Symmetry shift</p></div>
+                            <div class="tooltip"><div class="tooltip-body">It is possible to indicate symmetry shifts in the mapped PDB, causing linker restraints to be defined to bodies in the next/previous symmetry copy, instead of to bodies in the reference copy</div></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-5-shift" id="reference-sequencemappings-5-shift">
+                            </div>
+                          </div>
+                        </div> <!-- END: group-container -->
+                      </div> <!-- END: level2 -->
 
                       <div class="level2">
 
@@ -1839,42 +1901,6 @@ A CryoPartner has different options for how it is to be converted into CryoBodie
                           </div>
                         </div> <!-- END: group-container -->
                       </div> <!-- END: level2 -->
-
-                      <div class="level2">
-
-                        <div class="group-container">
-
-                          <div class="field-container">
-                            <div class="title"><h3>Mapping to assembly sequences 6</h3></div>
-                          </div>
-                          <div class="group-inline clearfix">
-
-                            <div class="field-container">
-                              <div class="title"><p>chain</p></div>
-                              <div class="tooltip"><div class="tooltip-body">You may select a chain of the mapped PDB, or leave it blank</div></div>
-                              <div class="field-item text align-right">
-                                <input type="text" name="reference-sequencemappings-5-chain" id="reference-sequencemappings-5-chain" value="" maxlength="2">
-                              </div>
-                            </div>
-
-                            <div class="field-container">
-                              <div class="title"><p>Index of the assembly sequence to map to</p></div>
-                              <div class="field-item number align-right">
-                                <input type="number" name="reference-sequencemappings-5-index" id="reference-sequencemappings-5-index">
-                              </div>
-                            </div>
-
-                          </div> <!--END: group-inline -->
-
-                          <div class="field-container">
-                            <div class="title"><p>Symmetry shift</p></div>
-                            <div class="tooltip"><div class="tooltip-body">It is possible to indicate symmetry shifts in the mapped PDB, causing linker restraints to be defined to bodies in the next/previous symmetry copy, instead of to bodies in the reference copy</div></div>
-                            <div class="field-item number align-right">
-                              <input type="number" name="reference-sequencemappings-5-shift" id="reference-sequencemappings-5-shift">
-                            </div>
-                          </div>
-                        </div> <!-- END: group-container -->
-                      </div> <!-- END: level2 -->
                     </div><!-- END: level1-container -->
                   </div><!-- END: level1 -->
 
@@ -1887,6 +1913,42 @@ A CryoPartner has different options for how it is to be converted into CryoBodie
                     </div>
 
                     <div class="level1-container">
+
+                      <div class="level2">
+
+                        <div class="group-container">
+
+                          <div class="field-container">
+                            <div class="title"><h3>Mapping to assembly sequences 7</h3></div>
+                          </div>
+                          <div class="group-inline clearfix">
+
+                            <div class="field-container">
+                              <div class="title"><p>chain</p></div>
+                              <div class="tooltip"><div class="tooltip-body">You may select a chain of the mapped PDB, or leave it blank</div></div>
+                              <div class="field-item text align-right">
+                                <input type="text" name="reference-sequencemappings-6-chain" id="reference-sequencemappings-6-chain" value="" maxlength="2">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Index of the assembly sequence to map to</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="reference-sequencemappings-6-index" id="reference-sequencemappings-6-index">
+                              </div>
+                            </div>
+
+                          </div> <!--END: group-inline -->
+
+                          <div class="field-container">
+                            <div class="title"><p>Symmetry shift</p></div>
+                            <div class="tooltip"><div class="tooltip-body">It is possible to indicate symmetry shifts in the mapped PDB, causing linker restraints to be defined to bodies in the next/previous symmetry copy, instead of to bodies in the reference copy</div></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-6-shift" id="reference-sequencemappings-6-shift">
+                            </div>
+                          </div>
+                        </div> <!-- END: group-container -->
+                      </div> <!-- END: level2 -->
 
                       <div class="level2">
 
@@ -1982,42 +2044,6 @@ A CryoPartner has different options for how it is to be converted into CryoBodie
                           </div>
                         </div> <!-- END: group-container -->
                       </div> <!-- END: level2 -->
-
-                      <div class="level2">
-
-                        <div class="group-container">
-
-                          <div class="field-container">
-                            <div class="title"><h3>Mapping to assembly sequences 7</h3></div>
-                          </div>
-                          <div class="group-inline clearfix">
-
-                            <div class="field-container">
-                              <div class="title"><p>chain</p></div>
-                              <div class="tooltip"><div class="tooltip-body">You may select a chain of the mapped PDB, or leave it blank</div></div>
-                              <div class="field-item text align-right">
-                                <input type="text" name="reference-sequencemappings-6-chain" id="reference-sequencemappings-6-chain" value="" maxlength="2">
-                              </div>
-                            </div>
-
-                            <div class="field-container">
-                              <div class="title"><p>Index of the assembly sequence to map to</p></div>
-                              <div class="field-item number align-right">
-                                <input type="number" name="reference-sequencemappings-6-index" id="reference-sequencemappings-6-index">
-                              </div>
-                            </div>
-
-                          </div> <!--END: group-inline -->
-
-                          <div class="field-container">
-                            <div class="title"><p>Symmetry shift</p></div>
-                            <div class="tooltip"><div class="tooltip-body">It is possible to indicate symmetry shifts in the mapped PDB, causing linker restraints to be defined to bodies in the next/previous symmetry copy, instead of to bodies in the reference copy</div></div>
-                            <div class="field-item number align-right">
-                              <input type="number" name="reference-sequencemappings-6-shift" id="reference-sequencemappings-6-shift">
-                            </div>
-                          </div>
-                        </div> <!-- END: group-container -->
-                      </div> <!-- END: level2 -->
                     </div><!-- END: level1-container -->
                   </div><!-- END: level1 -->
 
@@ -2030,6 +2056,42 @@ A CryoPartner has different options for how it is to be converted into CryoBodie
                     </div>
 
                     <div class="level1-container">
+
+                      <div class="level2">
+
+                        <div class="group-container">
+
+                          <div class="field-container">
+                            <div class="title"><h3>Mapping to assembly sequences 8</h3></div>
+                          </div>
+                          <div class="group-inline clearfix">
+
+                            <div class="field-container">
+                              <div class="title"><p>chain</p></div>
+                              <div class="tooltip"><div class="tooltip-body">You may select a chain of the mapped PDB, or leave it blank</div></div>
+                              <div class="field-item text align-right">
+                                <input type="text" name="reference-sequencemappings-7-chain" id="reference-sequencemappings-7-chain" value="" maxlength="2">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Index of the assembly sequence to map to</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="reference-sequencemappings-7-index" id="reference-sequencemappings-7-index">
+                              </div>
+                            </div>
+
+                          </div> <!--END: group-inline -->
+
+                          <div class="field-container">
+                            <div class="title"><p>Symmetry shift</p></div>
+                            <div class="tooltip"><div class="tooltip-body">It is possible to indicate symmetry shifts in the mapped PDB, causing linker restraints to be defined to bodies in the next/previous symmetry copy, instead of to bodies in the reference copy</div></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-7-shift" id="reference-sequencemappings-7-shift">
+                            </div>
+                          </div>
+                        </div> <!-- END: group-container -->
+                      </div> <!-- END: level2 -->
 
                       <div class="level2">
 
@@ -2125,42 +2187,6 @@ A CryoPartner has different options for how it is to be converted into CryoBodie
                           </div>
                         </div> <!-- END: group-container -->
                       </div> <!-- END: level2 -->
-
-                      <div class="level2">
-
-                        <div class="group-container">
-
-                          <div class="field-container">
-                            <div class="title"><h3>Mapping to assembly sequences 8</h3></div>
-                          </div>
-                          <div class="group-inline clearfix">
-
-                            <div class="field-container">
-                              <div class="title"><p>chain</p></div>
-                              <div class="tooltip"><div class="tooltip-body">You may select a chain of the mapped PDB, or leave it blank</div></div>
-                              <div class="field-item text align-right">
-                                <input type="text" name="reference-sequencemappings-7-chain" id="reference-sequencemappings-7-chain" value="" maxlength="2">
-                              </div>
-                            </div>
-
-                            <div class="field-container">
-                              <div class="title"><p>Index of the assembly sequence to map to</p></div>
-                              <div class="field-item number align-right">
-                                <input type="number" name="reference-sequencemappings-7-index" id="reference-sequencemappings-7-index">
-                              </div>
-                            </div>
-
-                          </div> <!--END: group-inline -->
-
-                          <div class="field-container">
-                            <div class="title"><p>Symmetry shift</p></div>
-                            <div class="tooltip"><div class="tooltip-body">It is possible to indicate symmetry shifts in the mapped PDB, causing linker restraints to be defined to bodies in the next/previous symmetry copy, instead of to bodies in the reference copy</div></div>
-                            <div class="field-item number align-right">
-                              <input type="number" name="reference-sequencemappings-7-shift" id="reference-sequencemappings-7-shift">
-                            </div>
-                          </div>
-                        </div> <!-- END: group-container -->
-                      </div> <!-- END: level2 -->
                     </div><!-- END: level1-container -->
                   </div><!-- END: level1 -->
 
@@ -2173,6 +2199,42 @@ A CryoPartner has different options for how it is to be converted into CryoBodie
                     </div>
 
                     <div class="level1-container">
+
+                      <div class="level2">
+
+                        <div class="group-container">
+
+                          <div class="field-container">
+                            <div class="title"><h3>Mapping to assembly sequences 9</h3></div>
+                          </div>
+                          <div class="group-inline clearfix">
+
+                            <div class="field-container">
+                              <div class="title"><p>chain</p></div>
+                              <div class="tooltip"><div class="tooltip-body">You may select a chain of the mapped PDB, or leave it blank</div></div>
+                              <div class="field-item text align-right">
+                                <input type="text" name="reference-sequencemappings-8-chain" id="reference-sequencemappings-8-chain" value="" maxlength="2">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Index of the assembly sequence to map to</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="reference-sequencemappings-8-index" id="reference-sequencemappings-8-index">
+                              </div>
+                            </div>
+
+                          </div> <!--END: group-inline -->
+
+                          <div class="field-container">
+                            <div class="title"><p>Symmetry shift</p></div>
+                            <div class="tooltip"><div class="tooltip-body">It is possible to indicate symmetry shifts in the mapped PDB, causing linker restraints to be defined to bodies in the next/previous symmetry copy, instead of to bodies in the reference copy</div></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-8-shift" id="reference-sequencemappings-8-shift">
+                            </div>
+                          </div>
+                        </div> <!-- END: group-container -->
+                      </div> <!-- END: level2 -->
 
                       <div class="level2">
 
@@ -2268,42 +2330,6 @@ A CryoPartner has different options for how it is to be converted into CryoBodie
                           </div>
                         </div> <!-- END: group-container -->
                       </div> <!-- END: level2 -->
-
-                      <div class="level2">
-
-                        <div class="group-container">
-
-                          <div class="field-container">
-                            <div class="title"><h3>Mapping to assembly sequences 9</h3></div>
-                          </div>
-                          <div class="group-inline clearfix">
-
-                            <div class="field-container">
-                              <div class="title"><p>chain</p></div>
-                              <div class="tooltip"><div class="tooltip-body">You may select a chain of the mapped PDB, or leave it blank</div></div>
-                              <div class="field-item text align-right">
-                                <input type="text" name="reference-sequencemappings-8-chain" id="reference-sequencemappings-8-chain" value="" maxlength="2">
-                              </div>
-                            </div>
-
-                            <div class="field-container">
-                              <div class="title"><p>Index of the assembly sequence to map to</p></div>
-                              <div class="field-item number align-right">
-                                <input type="number" name="reference-sequencemappings-8-index" id="reference-sequencemappings-8-index">
-                              </div>
-                            </div>
-
-                          </div> <!--END: group-inline -->
-
-                          <div class="field-container">
-                            <div class="title"><p>Symmetry shift</p></div>
-                            <div class="tooltip"><div class="tooltip-body">It is possible to indicate symmetry shifts in the mapped PDB, causing linker restraints to be defined to bodies in the next/previous symmetry copy, instead of to bodies in the reference copy</div></div>
-                            <div class="field-item number align-right">
-                              <input type="number" name="reference-sequencemappings-8-shift" id="reference-sequencemappings-8-shift">
-                            </div>
-                          </div>
-                        </div> <!-- END: group-container -->
-                      </div> <!-- END: level2 -->
                     </div><!-- END: level1-container -->
                   </div><!-- END: level1 -->
 
@@ -2316,6 +2342,42 @@ A CryoPartner has different options for how it is to be converted into CryoBodie
                     </div>
 
                     <div class="level1-container">
+
+                      <div class="level2">
+
+                        <div class="group-container">
+
+                          <div class="field-container">
+                            <div class="title"><h3>Mapping to assembly sequences 10</h3></div>
+                          </div>
+                          <div class="group-inline clearfix">
+
+                            <div class="field-container">
+                              <div class="title"><p>chain</p></div>
+                              <div class="tooltip"><div class="tooltip-body">You may select a chain of the mapped PDB, or leave it blank</div></div>
+                              <div class="field-item text align-right">
+                                <input type="text" name="reference-sequencemappings-9-chain" id="reference-sequencemappings-9-chain" value="" maxlength="2">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Index of the assembly sequence to map to</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="reference-sequencemappings-9-index" id="reference-sequencemappings-9-index">
+                              </div>
+                            </div>
+
+                          </div> <!--END: group-inline -->
+
+                          <div class="field-container">
+                            <div class="title"><p>Symmetry shift</p></div>
+                            <div class="tooltip"><div class="tooltip-body">It is possible to indicate symmetry shifts in the mapped PDB, causing linker restraints to be defined to bodies in the next/previous symmetry copy, instead of to bodies in the reference copy</div></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="reference-sequencemappings-9-shift" id="reference-sequencemappings-9-shift">
+                            </div>
+                          </div>
+                        </div> <!-- END: group-container -->
+                      </div> <!-- END: level2 -->
 
                       <div class="level2">
 
@@ -2407,72 +2469,6 @@ A CryoPartner has different options for how it is to be converted into CryoBodie
                             <div class="title"><p>Last number</p></div>
                             <div class="field-item number align-right">
                               <input type="number" name="reference-sequencemappings-9-subsequences-4-end" id="reference-sequencemappings-9-subsequences-4-end">
-                            </div>
-                          </div>
-                        </div> <!-- END: group-container -->
-                      </div> <!-- END: level2 -->
-
-                      <div class="level2">
-
-                        <div class="group-container">
-
-                          <div class="field-container">
-                            <div class="title"><h3>Mapping to assembly sequences 10</h3></div>
-                          </div>
-                          <div class="group-inline clearfix">
-
-                            <div class="field-container">
-                              <div class="title"><p>chain</p></div>
-                              <div class="tooltip"><div class="tooltip-body">You may select a chain of the mapped PDB, or leave it blank</div></div>
-                              <div class="field-item text align-right">
-                                <input type="text" name="reference-sequencemappings-9-chain" id="reference-sequencemappings-9-chain" value="" maxlength="2">
-                              </div>
-                            </div>
-
-                            <div class="field-container">
-                              <div class="title"><p>Index of the assembly sequence to map to</p></div>
-                              <div class="field-item number align-right">
-                                <input type="number" name="reference-sequencemappings-9-index" id="reference-sequencemappings-9-index">
-                              </div>
-                            </div>
-
-                          </div> <!--END: group-inline -->
-
-                          <div class="field-container">
-                            <div class="title"><p>Symmetry shift</p></div>
-                            <div class="tooltip"><div class="tooltip-body">It is possible to indicate symmetry shifts in the mapped PDB, causing linker restraints to be defined to bodies in the next/previous symmetry copy, instead of to bodies in the reference copy</div></div>
-                            <div class="field-item number align-right">
-                              <input type="number" name="reference-sequencemappings-9-shift" id="reference-sequencemappings-9-shift">
-                            </div>
-                          </div>
-                        </div> <!-- END: group-container -->
-                      </div> <!-- END: level2 -->
-                    </div><!-- END: level1-container -->
-                  </div><!-- END: level1 -->
-
-
-                  <div id="block-b_reference-0" class="level1 active">
-
-                    <div class="controls">
-                      <div class="title"><h4>Reference</h4></div>
-                      <div class="button reload-icon reload-form-block"><div class="controls-tooltip"><p>Restore default values</p></div></div>
-                    </div>
-
-                    <div class="level1-container">
-
-                      <div class="level2">
-
-                        <div class="group-container">
-
-                          <div class="field-container">
-                            <div class="title"><h3>Reference structure</h3></div>
-                          </div>
-
-                          <div class="field-container">
-                            <div class="title"><p>Reference structure</p></div>
-                            <div class="tooltip"><div class="tooltip-body">PDB that contains the true structure</div></div>
-                            <div class="field-item file align-right">
-                              <input type="file" name="reference-pdb" id="reference-pdb">
                             </div>
                           </div>
                         </div> <!-- END: group-container -->

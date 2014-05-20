@@ -314,7 +314,11 @@ void Grid::calculate(int cartstatehandle, int ligand, const char *interior_grid,
     biggrid = new Potential[gridx2*gridy2*gridz2];
     memset(biggrid, 0, gridx2*gridy2*gridz2*sizeof(Potential));
   }
-  neighbours = new Neighbour[100000000]; //max 100 million neighbours
+  neighbours = new Neighbour[MAXGRIDNEIGHBOUR];
+  if (neighbours == NULL) {
+    fprintf(stderr, "Could not allocate memory for %d Neighbours\n");
+    exit(1);
+  }
   
   //Set up distances 
   Coor *dis0 = new Coor[nratoms]; 
@@ -505,7 +509,7 @@ int &nr_neighbours, Neighbour *neighbours, Neighbour *neigh
     if (dsq >= neighbourdissq) continue;
     Neighbour &nb = neigh[neighboursize];
     neighboursize++;
-    if (neighboursize == 32766) fprintf(stderr, "Neighbour overflow\n");
+    if (neighboursize == 32766) {fprintf(stderr, "Neighbour overflow\n"); exit(1);}
     nb.type = 2;
     if (dsq <= plateaudissq) nb.type = 1;    
     nb.index = n;
@@ -515,6 +519,7 @@ int &nr_neighbours, Neighbour *neighbours, Neighbour *neigh
     #pragma omp critical
 {  
     neighbourlist = nr_neighbours+1;
+    if (nr_neighbours+neighboursize > MAXGRIDNEIGHBOUR) {fprintf(stderr, "Total neighbour grid size overflow\n"); exit(1);}
     memcpy(neighbours+nr_neighbours, neigh, neighboursize*sizeof(Neighbour));
     nr_neighbours += neighboursize;
 }

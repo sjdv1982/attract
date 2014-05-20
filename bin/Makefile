@@ -1,5 +1,5 @@
 OBJ0= read_hm.o read_dof.o read_parameters.o read_pdb.o write_pdb.o print_struc.o \
-  cartstate.o euler2rotmat.o rotate.o forcerotscale.o deform.o minfor.o monte.o \
+  cartstate.o euler2rotmat.o rotate.o forcerotscale.o deform.o minfor.o minfor_mcm.o monte.o monte_min.o \
   mc11a.o GGUBS.o parse_options.o select.o pairgen.o  pairenergy.o energy.o \
   globalenergy.o matmult.o matinv.o prox.o reset_forces.o ligmin.o \
   ligmin_index.o rota.o trans.o em/situs/lib_vio.o em/situs/lib_pio.o em/situs/lib_err.o \
@@ -135,6 +135,10 @@ axsymmetry: axsymmetry.o read_dof.o euler2rotmat.o matmult.o matinv.o \
                 print_struc.o state.h axsym.h axsym.o
 	$(CXX) $(CFLAGS) $^ -o $@ -lm
 
+ncsymmetry: ncsymmetry.o read_dof.o euler2rotmat.o matmult.o matinv.o \
+                print_struc.o state.h axsym.h axsym.o
+	$(CXX) $(CFLAGS) $^ -o $@ -lm
+	
 omp_threadnum: omp_threadnum.o
 	$(CXX) $(CFLAGS)  $^  -fopenmp -o $@
 
@@ -205,5 +209,5 @@ rest: read_pdb2.o
 all: max.fin attract attract-torque attract-infinite collect collectlib.so lrmsd rmsd calc_interior calc_no_interior make-grid \
  make-grid-omp make-grid-torque make-grid-torque-omp shm-grid \
  shm-grid-torque shm-clean systsearch map2map fix_receptor \
- omp_threadnum deredundant matrix-lrmsd rest emcorr gvm gvm-pdb axsymmetry
+ omp_threadnum deredundant matrix-lrmsd rest emcorr gvm gvm-pdb axsymmetry ncsymmetry
 

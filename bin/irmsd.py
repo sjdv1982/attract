@@ -256,6 +256,7 @@ f1 = sys.stdout
 if output is not None:
   f1 = open(output,'w')
 while 1:
+  sys.stdout.flush()
   result = collectlib.collect_next()
   if result: break
   nstruc += 1

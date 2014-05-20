@@ -43,6 +43,7 @@ double neighbourdis0, bool (&alphabet0)[MAXATOMTYPES]) {
   plateaudissqinv = 1.0/plateaudissq;
   neighbourdis = neighbourdis0;
   neighbourdissq = neighbourdis * neighbourdis;
+  architecture = ARCHITECTURE;
   //Pre-compute the scale-down-distance ratios
   int size_ratio  = int(10000*plateaudissq);
   _ratio = new double[size_ratio];
@@ -67,6 +68,12 @@ void Grid::read(const char *filename) {
   FILE *f = fopen(filename, "rb");  
   if (f == NULL) error(filename);
 
+  read = fread(&architecture, sizeof(short),1,f);  
+  if (architecture != ARCHITECTURE) {
+    fprintf(stderr, "Reading error in grid file %s, grid was computed on %d bit, but we are on %d bit\n", filename, architecture, ARCHITECTURE);
+    exit(1);
+  }  
+  if (!read) error(filename);  
   read = fread(&gridspacing, sizeof(double),1,f);  
   if (!read) error(filename);
   read = fread(&gridextension, sizeof(int),1,f);
@@ -262,6 +269,7 @@ void Grid::write(const char *filename) {
     close(fshm2);
   }  
     
+  fwrite(&architecture, sizeof(unsigned short),1,f);      
   fwrite(&gridspacing, sizeof(double),1,f);  
   fwrite(&gridextension, sizeof(int),1,f);
   fwrite(&plateaudis, sizeof(double),1,f);  
