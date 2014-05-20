@@ -7,7 +7,7 @@ modefile = None
 imodefile = None
 output = None
 anr = 0
-if len(sys.argv) < 5 or not len(sys.argv) % 2:
+if len(sys.argv) < 4:
   raise Exception("Please supply a multi-model PDB file, a cutoff and a number of bound PDB files")
 
 cutoff = float(sys.argv[2])
@@ -144,5 +144,5 @@ for i in read_multi_pdb(sys.argv[1]):
     #print(mindistance)
     if mindistance < cutoffsq:
       fcount += 1
-  f.write(str(float(fcount)/len(contacts))+'\n')
+  f.write("%.2f" % (float(fcount)/len(contacts)) +'\n')
     
