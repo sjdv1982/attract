@@ -1,50 +1,41 @@
 import sys
 
 import numpy
-import collectlibpy as collectlib
 
 ensfiles = []
 modefile = None
 imodefile = None
 output = None
 anr = 0
-while 1:
-  anr += 1
-
-  if anr > len(sys.argv)-1: break  
-  arg = sys.argv[anr]
-  
-  if anr <= len(sys.argv)-3 and arg == "--ens":
-    ensfiles.append((sys.argv[anr+1],sys.argv[anr+2]))
-    sys.argv = sys.argv[:anr] + sys.argv[anr+3:]
-    anr -= 3
-    continue
-
-  if anr <= len(sys.argv)-2 and arg == "--modes":
-    modefile = sys.argv[anr+1]
-    sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
-    anr -= 2
-    continue
-  
-  if anr <= len(sys.argv)-2 and arg == "--imodes":
-    imodefile = sys.argv[anr+1]
-    sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
-    anr -= 2
-    continue
-  
-  if anr <= len(sys.argv)-2 and arg == "--output":
-    output = sys.argv[anr+1]
-    sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
-    anr -= 2
-    continue
-if len(sys.argv) < 5 or not len(sys.argv) % 2:
-  raise Exception("Please supply a .DAT file, a cutoff and an even number of PDB files (unbound, bound)")
+if len(sys.argv) < 4:
+  raise Exception("Please supply a multi-model PDB file, a cutoff and a number of bound PDB files")
 
 cutoff = float(sys.argv[2])
 cutoffsq = cutoff*cutoff
 
-unbounds = []
 bounds = []
+
+def read_multi_pdb(f):  
+  endmodel = False
+  allcoor = [[]]
+  coor = allcoor[-1]
+  for l in open(f):
+    if l.startswith("MODEL"):      
+      allcoor = [[]]
+      coor = allcoor[-1]
+    if l.startswith("TER"):
+      allcoor.append([])
+      coor = allcoor[-1]
+    if l.startswith("ENDMDL"):      
+      endmodel = True
+      allcoor = [coor for coor in allcoor if len(coor)]
+      yield allcoor     
+    if not l.startswith("ATOM"): continue
+    x,y,z = (float(f) for f in (l[30:38],l[38:46],l[46:54]))
+    coor.append((x,y,z))
+    endmodel = False
+  allcoor = [coor for coor in allcoor if len(coor)]
+  if not endmodel: yield allcoor
 
 def read_pdb(f):
   ret, res, resnam = [], [],{}
@@ -62,61 +53,20 @@ def read_pdb(f):
     res.append(resindex)  
   return ret, res, resnam
   
-for n in range(3, len(sys.argv), 2):
-  unbounds.append(sys.argv[n])
-  bounds.append(sys.argv[n+1])
-
-initargs = [sys.argv[1]] + unbounds
-if modefile: initargs += ["--modes", modefile]
-if imodefile: initargs += ["--imodes", imodefile]
-for nr, ensfile in ensfiles:
-  initargs += ["--ens", nr, ensfile]
-
-collectlib.collect_init(initargs)
+bounds = sys.argv[3:]
 
 boundatoms = []
 boundres = []
 boundresnam = []
+boundsizes = []
 for b in bounds:
   atoms, res, resnam = read_pdb(b)
   boundatoms.append(atoms)
+  boundsizes.append(len(atoms))
   boundres.append(res)
   boundresnam.append(resnam)
 
-unboundatoms = []
-unboundres = []
-unboundresnam = []
-for ub in unbounds:
-  atoms, res, resnam = read_pdb(ub)
-  unboundatoms.append(atoms)
-  unboundres.append(res)
-  unboundresnam.append(resnam)
   
-boundsizes = [len(b) for b in boundatoms]
-unboundsizes = [len(ub) for ub in unboundatoms]
-start = 0
-for inr,i in enumerate(collectlib.ieins[:len(unbounds)]):
-  collectsize = i-start
-  if collectsize != unboundsizes[inr]:
-    raise Exception(
-"Parsing difference between collect and Python: PDB %s: %d vs %d atoms" % (unbounds[inr], collectsize, unboundsizes[inr])
-)
-  start = i
-
-for bname, ubname, bres, ubres, bresnam, ubresnam in \
- zip(bounds,unbounds,boundres,unboundres, boundresnam, unboundresnam):
-  if len(bres) != len(ubres):
-    print("ERROR: Different number of atoms: %s: %d, %s: %d" % (ubname, len(ubres), bname, len(bres)))
-  if bres != ubres:
-    for pos,item in enumerate(zip(bres, ubres)):
-      rb, rub = item
-      rbnam = bresnam[rb]
-      rubnam = bresnam[rub]
-      if rb != rub:
-        raise Exception("Residue layout differs: %s and %s, atom %d: '%s'(residue %d) - '%s'(residue %d) " 
-         % (ubname, bname, pos+1, rbnam, rb, rubnam, rub))
-
-
 #print("START")
 p = []
 masks = []
@@ -170,12 +120,21 @@ f = sys.stdout
 if output is not None:
   f = open(output,'w')
   
-while 1:
-  result = collectlib.collect_next()
-  if result: break
-  nstruc += 1
-  coor = collectlib.collect_all_coor()
+start = 0
+for i in read_multi_pdb(sys.argv[1]):
+  if len(i) != len(boundsizes):
+      raise Exception(
+"Chain size difference between PDB and templates: %d vs %d chains, %s vs %s residues" % (len(i), len(boundsizes), [len(ii) for ii in i], boundsizes)
+    )
+  for chainnr, chain in enumerate(i):
+    if len(chain) != boundsizes[chainnr]:
+      raise Exception(
+"Atom size difference between PDB and template: PDB %s: %d vs %d atoms" % (bounds[chainnr], len(chain), boundsizes[chainnr])
+    )
+  coor = []
+  for chain in i: coor += chain
   coor = numpy.array(coor)
+  nstruc += 1
   fcount = 0
   for maskA, maskB in contacts:
     coorA = coor[maskA]
