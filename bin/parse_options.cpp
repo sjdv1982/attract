@@ -52,6 +52,12 @@ void mctemp_usage() {
   exit(1);
 }
 
+void mcmtemp_usage() {
+ fprintf(stderr, "--mcmtemp option usage: --mcmtemp <maximal energy difference>\n");
+  exit(1);
+}
+
+
 void epsilon_usage() {
  fprintf(stderr, "--epsilon option usage: --epsilon <dielectric constant; 1=vacuum>\n");
   exit(1);
@@ -113,6 +119,11 @@ void vmax_usage() {
   exit(1);
 }
 
+void mcmax_usage() {
+ fprintf(stderr, "--mcmax option usage: --mcmax <maximum number of MC steps>\n");
+  exit(1);
+}
+
 void rest_usage() {
  fprintf(stderr, "--rest option usage: --rest <restraint file>\n");
   exit(1);
@@ -160,6 +171,9 @@ void parse_options(int ministatehandle, int cartstatehandle, int nlig, int argc,
     if (!strcmp(arg,"--mc")) {
       ms.imc = 1;
     }
+    else if (!strcmp(arg, "--mcm")) {
+    	ms.imc = 2;
+    }
     else if (!strcmp(arg,"--lambda")) {
       if (argc-n < 2) lambda_usage();    
       double lambda = atof(argv[n+1]);
@@ -189,6 +203,13 @@ void parse_options(int ministatehandle, int cartstatehandle, int nlig, int argc,
       ms.mctemp = mctemp;
       n += 1;
     }    
+    else if (!strcmp(arg,"--mcmtemp")) {
+      if (argc-n < 2) mcmtemp_usage();
+      double mcmtemp = atof(argv[n+1]);
+      if (mcmtemp < 0) mcmtemp_usage();
+      ms.mcmtemp = mcmtemp;
+      n += 1;
+    }
     else if (!strcmp(arg,"--mcensprob")) {
       if (argc-n < 2) mcensprob_usage();    
       double mcensprob = atof(argv[n+1]);
@@ -412,6 +433,13 @@ void parse_options(int ministatehandle, int cartstatehandle, int nlig, int argc,
       int vmax = atoi(argv[n+1]);
       if (vmax <= 0) vmax_usage();
       ms.ivmax = vmax;
+      n += 1;
+    }
+    else if (!strcmp(arg,"--mcmax")) {
+      if (argc-n < 2) mcmax_usage();
+      int mcmax = atoi(argv[n+1]);
+      if (mcmax <= 0) mcmax_usage();
+      ms.imcmax = mcmax;
       n += 1;
     }
     else if (!strcmp(arg,"--proxlim")) {

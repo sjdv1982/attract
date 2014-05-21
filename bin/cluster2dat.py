@@ -20,12 +20,9 @@ def read_next_struc(lines, firstline):
       lenstruc += 1
       continue
     if mode == 1:
-      if l[:2] == "##":
-	ret0.append(l)
-      else:
-	mode = 2
-    if mode == 2:
-      ret1.append(l)
+      if l[:2] == "##":	ret0.append(l)
+      else:	mode = 2
+    if mode == 2:      ret1.append(l)
   if len(ret0) or len(ret1):
     yield ret0,ret1
   
@@ -56,8 +53,9 @@ for h in header: print h
 clusterlist = []
 for line in open(cluster).readlines():
   tmp = line.split()
-  clusterlist.append(int(tmp[3])) #select first representative of cluster
-  
+  if sys.argv[3] == 'best':  clusterlist.append(min([int(truc) for truc in tmp[4:]])) #select best scored in cluster
+  if sys.argv[3] == 'center': clusterlist.append(min([int(truc) for truc in tmp[3:]])) #select best scored in cluster
+
 stnr = 0
 st2nr = 0
 for s in structures:
