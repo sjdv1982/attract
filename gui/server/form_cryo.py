@@ -112,7 +112,7 @@ def webform(f, model=None,
   c.icon = "grid-icon"
   c.title = "Protein sequences"
   c.categoryname = "sequences"
-  c.description = "" #TODO
+  c.description = "Here you can define the sequences of the proteins that are present in your electron density map. They can be defined as SwissProt code or the sequence can be entered manually. It is also possible to derive the sequence from the assembly partner PDB (with chain). You can define subsequences to account for disordered regions, or if your construct only contains certain domains of the protein"
   c.members.append("sequences")   
   f.sequences.clonebutton = "Add sequence"
   f.sequences.clonelength = 50
@@ -128,10 +128,12 @@ def webform(f, model=None,
     b.members.append("mode")
     b.members.append("proteincode")
     b.members.append("sequence")
+    b.members.append("index")
     b.members.append("chain")
     ### END b_sequence block
     
     fp.subsequences.length = 5
+    fp.subsequences[None].span = True
     
   ### START partners category
   f.partners.length = partnerslength      
@@ -180,20 +182,22 @@ A CryoPartner has different options for how it is to be converted into CryoBodie
     ### START b_mappings block
     for n in range(fp.sequencemappings.length):
       b = fp.new_group("b_mappings-%d" % n, "block")
-      b.title =  "Sequence mappings %d" % (n+1)      
+      #b.title =  "Sequence mappings %d" % (n+1)
+      b.title =  ""      
       b.has_switch = False          
       fp.sequencemappings[n].subsequences[None].span = True
-      for nn in range(fp.sequencemappings[0].subsequences.length): #TODO: swap
-	fp.sequencemappings[n].subsequences[0].name = "1" #TODO: fix
+      b.members.append("sequencemappings[%d]" % n)
+      for nn in range(fp.sequencemappings[0].subsequences.length):
         b.members.append("sequencemappings[%d].subsequences[%d]" % (n, nn))
-      b.members.append("sequencemappings[%d]" % n) #TODO: swap
+      
     ### END b_mappings block
     
     ### START b_advanced block    
     #insert placeholder boolean to determine the state of the Advanced switch
     b = fp.new_group("b_advanced", "block")
     b.title =  "Advanced settings"
-    fp._membernames.append("use_advanced")
+    if "use_advanced" not in fp._membernames:
+      fp._membernames.append("use_advanced")
     sw = f.cryozoom._members["pre_mini"].get_copy()        
     sw.name = "Use advanced settings"
     sw.type = "switch"
@@ -212,7 +216,7 @@ A CryoPartner has different options for how it is to be converted into CryoBodie
   c.title = "Symmetry"
   c.icon = "symmetry-icon"
   c.categoryname = "symmetry"
-  c.description = "" #TODO
+  c.description = "Define the symmetry of your electron density map. It is assumed that the primary symmetry axis is the Z axis. For D symmetry, you can define a secondary symmetry axis"
   b = f.new_group("b_symmetry", "block")
   b.title = c.title
   b.members.append("symmetry")
@@ -225,7 +229,7 @@ A CryoPartner has different options for how it is to be converted into CryoBodie
   c.title = "Cryo-EM data"
   c.icon = "cryoem-icon"
   c.categoryname = "cryoem"
-  c.description = "" #TODO
+  c.description = "Specify your electron density map here. It is recommended to downsample your map for the assembly stage, and to use the full-resolution map in scoring. For benchmarking and comparison, you can also specify a density map to be simulated from a PDB"
   b = f.new_group("b_cryodata", "block")
   b.title = f.cryodata.name
   f.cryodata.name = ""
@@ -245,24 +249,23 @@ A CryoPartner has different options for how it is to be converted into CryoBodie
   c.icon = "analysis-icon"
   c.categoryname = "reference"
   c.description = "If you want to compare the assembly result against a known reference structure, you can define it here"
-  
-  ### START sequencemapping blocks #TODO: swap 1
+
+  ### START reference block 
+  b = f.new_group("b_reference", "block")
+  b.title = "Reference"
+  b.members.append("reference")
+  c.members.append("b_reference")      
+  ### END reference block  
+  ### START sequencemapping blocks 
   for n in range(f.reference.sequencemappings.length):
     f.reference.sequencemappings[n].subsequences[None].span = True
     bname = "b_reference-%d" % n
     b = f.new_group(bname, "block")
     b.title = f.reference.sequencemappings[n].name
-    b.members.append("reference.sequencemappings[%d].subsequences" % n) #TODO: swap 2
-    b.members.append("reference.sequencemappings[%d]" % n) #TODO: swap 2    
-    f.reference.sequencemappings[n].subsequences[0].name = "1" #TODO: fix
+    b.members.append("reference.sequencemappings[%d]" % n)
+    b.members.append("reference.sequencemappings[%d].subsequences" % n)
     c.members.append(bname)
   ### END sequencemapping blocks
-  ### START reference block #TODO: swap 1
-  b = f.new_group("b_reference", "block") #TODO: swap 1
-  b.title = "Reference"
-  b.members.append("reference")
-  c.members.append("b_reference")      
-  ### END reference block
   
   ### END reference category
 
@@ -317,7 +320,6 @@ A CryoPartner has different options for how it is to be converted into CryoBodie
     
   return f
 
-import spyder.htmlform
 def webserverform(webdict, form=None, spydertype=None):
   if spydertype is not None: form = spydertype._form()
   f = webform(
@@ -327,12 +329,6 @@ def webserverform(webdict, form=None, spydertype=None):
   )  
   return f
   
-def html(form, cgi,newtab=False):
-  import attracthtmlform 
-  html = attracthtmlform.htmlform(
-   form=form, cgi=cgi, 
-   header=header, footer=footer, header_indentation = 12, 
-   newtab=newtab
-  )
-  return html
-  
+def html(form, cgi, spyderobj, newtab=False):
+  from form_model import html
+  return html(form, cgi, spyderobj, newtab, header=header)

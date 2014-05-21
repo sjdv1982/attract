@@ -123,6 +123,7 @@ int main(int argc, char *argv[]) {
     AxSymmetry &sym = syms[n];
     sym.ligand = atoi(argv[8*n+3]);
     sym.symtype = atoi(argv[8*n+4]);
+    sym.angle = 0;
     sym.axis[0] = atof(argv[8*n+5]);
     sym.axis[1] = atof(argv[8*n+6]);
     sym.axis[2] = atof(argv[8*n+7]);

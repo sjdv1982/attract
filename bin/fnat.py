@@ -99,7 +99,7 @@ for inr,i in enumerate(collectlib.ieins[:len(unbounds)]):
   collectsize = i-start
   if collectsize != unboundsizes[inr]:
     raise Exception(
-"Parsing difference between collect and Python: PDB %s: %d vs %d atoms" % (unbounds[inr], collectsize, unboundsizes[i])
+"Parsing difference between collect and Python: PDB %s: %d vs %d atoms" % (unbounds[inr], collectsize, unboundsizes[inr])
 )
   start = i
 
@@ -185,5 +185,5 @@ while 1:
     #print(mindistance)
     if mindistance < cutoffsq:
       fcount += 1
-  f.write(str(float(fcount)/len(contacts))+'\n')
+  f.write("%.2f" % (float(fcount)/len(contacts)) +'\n')
     

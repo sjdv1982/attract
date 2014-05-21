@@ -61,9 +61,12 @@ c     Local variables
       xnull=0.0d0
       dga=xnull
 
+
+
       call ministate_f_minfor(ministatehandle,
      1 iscore,ivmax,iori,itra,ieig,iindex,fixre,gridmode)
      
+
 c     always calculate both forces and energies      
       iab = 1
 
@@ -103,9 +106,10 @@ c  only trans or ori
        d(i)=xnull
       enddo
 
+
       call ministate_calc_pairlist(ministatehandle,cartstatehandle)
       call cartstate_get_nrens(cartstatehandle, ptr_nrens)
-     
+
       nfun=0
       itr=0
       np=jn+1

@@ -3,7 +3,7 @@
 #Currently, all but atom-related statements are ignored
 #Note: +C and -C modifiers are ignored! 
 
-allspecies = ("atom", "angle", "bond", "improper","impr","dono", "donor", "acce", "acceptor", "dihed", "dihedral")
+allspecies = ("atom", "angle", "bond", "improper","impr","dono", "donor", "acce", "acceptor", "dihed", "dihedral", "group", "grou")
 
 def tokenize(s):
   s = s.lower()
@@ -120,6 +120,8 @@ class PResidue(object):
       self.commands.append((mode, species, a))
     elif mode == "modify":
       assert tokens[-1] == "end"
+      if len(tokens) == 3:
+        return
       a = Atom.partparse(tokens[1:-1])
       self.commands.append((mode, species, a))
     elif mode == "delete":
@@ -136,6 +138,7 @@ def parse_stream(stream):
   mode = 0
   linenr = 0
   for line in stream:
+    line = line.replace("{","").replace("}","")
     linenr += 1
     l = line.rstrip("\n").rstrip("\r")
     tokens = tokenize(l)
@@ -163,7 +166,11 @@ def parse_stream(stream):
       res.add(tokens[0],tokens[1:])
     elif typename == "PResidue":
       if tokens[0] == "group": continue
-      res.add_command(tokens[0], tokens[1:])
+      try:
+        res.add_command(tokens[0], tokens[1:])
+      except:
+        print "Line %d: %s" % (linenr, line)
+        raise
       
     #print res.__class__.__name__, name, tokens
   return residues, presidues

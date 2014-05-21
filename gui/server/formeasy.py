@@ -88,18 +88,13 @@ def _assign_category(f, category, groupname, span = False):
     ff.group = None
     if span: ff.span = True
 
-def webform(f, model=None,
- partnerslength=None, gridslength=None, iterationslength=None, symmetrieslength=None,
-):
+def webform(f, model=None, partnerslength=None):
   if model is not None:
     if partnerslength is None:
       partnerslength = max(1,len(model.partners))
-    if iterationslength is None:
-      iterationslength = max(1,len(model.iterations))
 
   else:  
     if partnerslength is None: partnerslength = 1
-    if iterationslength is None: iterationslength = 1
   import copy
   f = copy.deepcopy(f)
   
@@ -129,6 +124,10 @@ def webform(f, model=None,
     ff.name = "Structure file"
     ff.tooltip = "Upload PDB structure file"
     ff.tooltip_doc = "documentation.html#partners-structure_file"
+    ff.span = True
+    b.members.append("ensemble_size")
+    ff.tooltip_doc = "documentation.html#partners-ensemble_size"
+    ff.span = True
     ### END b_struc block
 
     ### START b_modes block
@@ -140,15 +139,11 @@ def webform(f, model=None,
     ff = fp.generate_modes
     ff.name = "Generate harmonic modes"
     ff.type = "switch"    
-    #ff = fp.modes_file
-    #ff = fp.generate_modes
-    #ff.name = "Or: generate harmonic modes automatically"
     ff = fp.nr_modes
     ff.name = "Number of modes to select"
     ff.type = "number"
     ff.min = 1
     ff.max = 10
-    #ff = fp.aa_modes_file
     ### END b_modes block
     
     ### START b_rmsd block
@@ -159,7 +154,7 @@ def webform(f, model=None,
     b.members.append("rmsd_pdb")
     b.members.append("rmsd_bb")
     ff = fp.use_rmsd
-    ff.default = True
+    ff.default = False
     ff.type = "switch" 
     ff.name = "RMSD calculation"
     ff = fp.rmsd_pdb
@@ -204,27 +199,18 @@ def webform(f, model=None,
   ### END computation block
 
   return f
-  
-import spyder.htmlform
+
 def webserverform(webdict, form=None, spydertype=None):
   if spydertype is not None: form = spydertype._form()
   f = webform(
    form,
    partnerslength = 2,
-   gridslength = 0,
-   symmetrieslength = 0,
-   iterationslength = 0,
   )  
   return f
   
-def html(form, cgi,newtab=False):
-  import attracthtmlform 
-  html = attracthtmlform.htmlform(
-  form=form, cgi=cgi, 
-  header=header, footer=footer, header_indentation = 12, 
-  newtab=newtab
-  )
-  return html
+def html(form, cgi, spyderobj, newtab=False):
+  from form_model import html
+  return html(form, cgi, spyderobj, newtab, header=header)
   
   
   

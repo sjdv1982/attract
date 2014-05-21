@@ -20,14 +20,13 @@ def make_interfacelist(ilist, pdb):
     # Make list of corresponding atoms
     receptor = []
     receptorid = []
-    count = 0
-    for line in open(pdb):
+    data = open(pdb).readlines()
+    data = [x for x in data if 'ATOM' in x]
+    for count,line in enumerate(data):
         tmp = line.replace('-',' -')
         list = tmp.split()
-        if len(list) > 0 and list[0] == 'ATOM':
-	    count += 1
-            receptor.append((count,int(list[4]),float(list[5]),float(list[6]),float(list[7])))
-            receptorid.append((list[3],list[4],list[2],list[1]))
+        receptor.append((count+1,int(list[4]),float(list[5]),float(list[6]),float(list[7])))
+        receptorid.append((list[3],list[4],list[2],list[1]))
             
     ratoms = []
     if len(rlist) > 0:
@@ -37,15 +36,20 @@ def make_interfacelist(ilist, pdb):
                  
     return ratoms, receptor, receptorid  
 
-def find_neighbors(atom, xr, sigma2, c, rc2):   
+from scipy.spatial.distance import cdist
+def find_neighbors(atom, xr, sigma2, c, rc):   
     tmp0, tmp1, x0, y0, z0  = xr[atom-1]
+    r1 = np.matrix([[x0,y0,z0]])
+    r2 = [[x,y,z] for id, res, x, y, z in xr]
+    r2 = np.matrix(r2)
+    Y = cdist(r1,r2,'euclidean')
     nlist = []
-    for id, res, x, y, z in xr:
-        if id != atom:
-             r2 = (x0-x)**2 + (y0-y)**2 + (z0-z)**2
-             #detect atoms in vicinity
-             if r2 < rc2: 
-                 nlist.append((atom, id, math.sqrt(r2)))
+    for j in range(len(xr)):
+        if j == atom-1:
+	  continue
+        dist = Y[0][j]
+        if dist < rc:
+            nlist.append((atom, j+1, dist))
                  
     return nlist
   
@@ -54,11 +58,11 @@ def find_neighbors(atom, xr, sigma2, c, rc2):
 def make_model(filelist,nlistcut=30):
     directory, pdb, interface, name = filelist[1:5]
     offset = 0
-    if len(filelist) > 5:
+    if len(filelist) > 5 and not filelist[5] == '--strong':
         offset = int(filelist[5])
     
     c = 100.0
-    if len(filelist) > 6:
+    if len(filelist) > 6 and not filelist[6] == '--strong':
         c = float(filelist[6])
         
     interfacelist, atomlist, atomid = make_interfacelist(interface, pdb)
@@ -73,8 +77,7 @@ def make_model(filelist,nlistcut=30):
         nlist = []
         rc = 5.0
         while len(nlist) < nlistcut:
-            rc2 = rc*rc
-            nlist = find_neighbors(atom, atomlist, 9.0, c, rc2)
+            nlist = find_neighbors(atom, atomlist, 9.0, c, rc)
             rc += 1.0
             
         for item in nlist:
@@ -103,11 +106,11 @@ def make_model(filelist,nlistcut=30):
 		    if not (atom, n, 1, item[2]) in nbonds and not (n, atom, 1, item[2]) in nbonds:
 		      nbonds.append((atom, n, 1, item[2])) #Write 1-2 bonds
 		      
-		  elif resi2 == resi + 1 and (natom, n2) in [('O','N'),('C','HN'),('C','CA'),('CA','N')]:
+		  elif resi2 == resi + 1 and (natom, n2) in [('O','N'),('C','HN'),('C','H'),('C','CA'),('CA','N')]:
 		    if not (atom, n, 2, item[2]) in nbonds and not (n, atom, 2, item[2]) in nbonds:
 		      nbonds.append((atom, n, 2, item[2])) #Write 1-3 bonds
 		      
-		  elif resi2 == resi - 1 and (natom, n2) in [('N','O'),('CA','C'),('HN','C'),('N','CA')]:
+		  elif resi2 == resi - 1 and (natom, n2) in [('N','O'),('CA','C'),('H','C'),('HN','C'),('N','CA')]:
 		    if not (atom, n, 2, item[2]) in nbonds and not (n, atom, 2, item[2]) in nbonds:
 		      nbonds.append((atom, n, 2, item[2])) #Write 1-3 bonds
 		      
@@ -147,7 +150,7 @@ def make_model(filelist,nlistcut=30):
 
     return nbonds, pdb, name, c, offset, atomid  
   
-def write_output(nbonds, pdb, name, c, offset, atomid):
+def write_output(nbonds, pdb, name, c, offset, atomid,strong=1.0):
     sel = []
     output = os.path.splitext(pdb)[0]+'_'+name+'.txt'
     #print output
@@ -183,14 +186,14 @@ def write_output(nbonds, pdb, name, c, offset, atomid):
             #Write 1-2 bonds with Hinsen model elastic bonds
             sel1 = res1[0]+res1[1]+'_'+res1[2]+res1[3]
             sel2 = res2[0]+res2[1]+'_'+res2[2]+res2[3]
-            out.write(sel1+' '+sel2+' 4 '+str(bond[3])+' '+str(1000.0)+'\n')
+            out.write(sel1+' '+sel2+' 4 '+str(bond[3])+' '+str(1000.0*strong)+'\n')
             countb += 1
         
         elif bond[2] == 2:# and len(re.findall('\AH',res1[2])) == 0 and len(re.findall('\AH',res2[2])) == 0:
             #Write 1-3 bonds to fix angles
             sel1 = res1[0]+res1[1]+'_'+res1[2]+res1[3]
             sel2 = res2[0]+res2[1]+'_'+res2[2]+res2[3]
-            out.write(sel1+' '+sel2+' 4 '+str(bond[3])+' '+str(100.0)+'\n')
+            out.write(sel1+' '+sel2+' 4 '+str(bond[3])+' '+str(100.0*strong)+'\n')
             counta += 1
             
         #Write restraints for other parts of the elastic network with force constant
@@ -212,7 +215,7 @@ def write_output(nbonds, pdb, name, c, offset, atomid):
                 if bond[3] < mindist:
                     mindist = bond[3]
                 
-                out.write(sel1+' '+sel2+' 5 '+str(mindist)+' '+str(1.0)+'\n')  
+                out.write(sel1+' '+sel2+' 5 '+str(mindist)+' '+str(1.0*strong)+'\n')  
                 countc += 1
     
     out.close()    
@@ -243,5 +246,9 @@ if __name__ == "__main__":
         while len(nbonds) > 5000 and cut > 0:
             cut -= 5
             nbonds, pdb, name, c, offset, atomid = make_model(sys.argv,cut)
-            
-        write_output(nbonds,pdb,name,c,offset,atomid)
+          
+        if '--strong' in sys.argv:
+	  write_output(nbonds,pdb,name,c,offset,atomid,10.0)
+	  
+	else:
+	  write_output(nbonds,pdb,name,c,offset,atomid)

@@ -8,7 +8,7 @@
 #include <cmath>
 #include <cstdio>
 
-#define MAXMATRIXSTRUC 50000
+#define MAXMATRIXSTRUC 100000
 
 extern int cartstate_new(int argc, char *argv[],bool single=0);
 

@@ -43,6 +43,7 @@ extern "C" int ministate_new_() {
   //ms.rstk = 0.015; //for second order restraints...; too much?
   ms.rstk = 0.2; //for harmonic restraints...
   ms.ghost = 0;
+  ms.ghost_ligands = 0;
   return ministatesize-1; 
 
 }
@@ -117,6 +118,10 @@ extern "C" void ministate_calc_pairlist_(const int &ministatehandle, const int  
    *  if we are not using grids (or if we are using torque grids), the receptor forces are already taken care of
    *  if we are using Monte Carlo, we don't care about forces and we never create a secondary molpair
    */
+  if ((!ms.fixre) && ms.ghost_ligands) {
+    fprintf(stderr, "With ghost ligands, you must fix the receptor");
+    exit(1);
+  }  
   for (int i = 0; i < cartstate.nlig; i++) {
     for (int j = i+1; j < cartstate.nlig; j++) {
       bool two_molpairs = 0;
@@ -137,8 +142,11 @@ extern "C" void ministate_calc_pairlist_(const int &ministatehandle, const int  
       else { /*use no grids at all*/
 	two_molpairs = 0;
       }
-      
       int m1 = i, m2 = j;      
+      
+      if (ms.ghost_ligands && m1 > 0) continue; //in ghost-ligand mode, skip the molpair if the first one isn't the receptor
+      //printf("PAIR %d %d %d %d %d %d\n", i,j, is_grid, ms.gridmode, cartstate.grids[i],cartstate.grids[j]);          
+      
       if (ms.gridmode) {
 	int error = 0;
 	if (two_molpairs){
@@ -165,8 +173,6 @@ extern "C" void ministate_calc_pairlist_(const int &ministatehandle, const int  
 	  exit(1); 
 	}
       }
-      
-      //printf("PAIR %d %d %d %d %d %d\n", i,j, is_grid, ms.gridmode, cartstate.grids[i],cartstate.grids[j]);          
       MolPair &mp = ms.pairs[molpairindex];
       mp.use_energy = 1;
       mp.receptor = m1;

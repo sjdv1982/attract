@@ -2,8 +2,8 @@ import sys
 def read_topology(atom, resn):
   bonds = []
   angles = []
-  bbbonds = [('N','HN'),('N','CA'),('CA','C'),('C','O')]
-  bbangles = [('HN','N','CA'),('N','CA','C'),('CA','C','O')]
+  bbbonds = [('N','HN'),('N','H'),('N','CA'),('CA','C'),('C','O')]
+  bbangles = [('HN','N','CA'),('H','N','CA'),('N','CA','C'),('CA','C','O')]
   if resn == 'CYS':
     allbonds = bbbonds + [('CA','HA'),('CA','CB'),('CB','HB1'),('CB','HB2'),('CB','SG'),('SG','HG')]
     allangles = bbangles + [('N','CA','HA'),('N','CA','CB'),('CB','CA','HA'),('C','CA','HA'),('CA','CB','HB1'),('CA','CB','HB2'),('HB1','CB','HB2'),

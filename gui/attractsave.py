@@ -54,4 +54,13 @@ def deploy(model, dir):
   _deploy(model.start_structures_file,d+"startstruc.dat")
   _deploy(model.rotations_file,d+"rotations.dat")
   _deploy(model.translations_file,d+"translations.dat")
-    
+
+def deploy_easy(model, dir):
+  d = dir + "/"
+  if dir in (None, "", ".", "./"): d = ""
+  elif dir.endswith("/"): d = dir
+  _deploy(model.partners[0].pdbfile,d+"receptor.pdb")
+  _deploy(model.partners[0].rmsd_pdb,d+"receptor-rmsd.pdb")
+  _deploy(model.partners[1].pdbfile,d+"ligand.pdb")
+  _deploy(model.partners[1].rmsd_pdb,d+"ligand-rmsd.pdb")
+  

@@ -286,17 +286,20 @@ extern "C" void read_indexmode_(const char *hmfile_, const char *hmword_, const 
       currpos = 0;
       reading = 1;
       count = 0;
-      // Initialize index mode
+      // Initialize index modes
       for (int c=0; c< MAXLENINDEXMODE; c++){
-         if (multi){
-           	eigl_multi[c][currmode-1][currlig-1] = -1;
-           	val_eigl_multi[c][currmode-1][currlig-1] = 0;
-          	}
-         else{
-           	eigl_mono[c][currmode-1] = -1;
-           	val_eigl_mono[c][currmode-1] = 0;
-           	}
+	for (int c2=0; c2< MAXINDEXMODE; c2++){
+	  if (multi){
+		  eigl_multi[c][c2][currlig-1] = -1;
+		  val_eigl_multi[c][c2][currlig-1] = 0;
+		  }
+	  else{
+		  eigl_mono[c][c2] = -1;
+		  val_eigl_mono[c][c2] = 0;
+		  }
+	}
       }
+      
       continue;
     }
 
@@ -312,13 +315,13 @@ extern "C" void read_indexmode_(const char *hmfile_, const char *hmword_, const 
       if (multi) {
     	  if ( fields[n] != 0 ){
     		  if ( count < MAXLENINDEXMODE ){
-    		  eigl_multi[count][currmode-1][currlig-1] = 3*(fields[n]-1);
-    		  val_eigl_multi[count][currmode-1][currlig-1] = 1.0;
-    		  eigl_multi[count][currmode][currlig-1] = 3*(fields[n]-1)+1;
+    		  eigl_multi[count][currmode][currlig-1] = 3*(fields[n]-1);
     		  val_eigl_multi[count][currmode][currlig-1] = 1.0;
-    		  eigl_multi[count][currmode+1][currlig-1] = 3*(fields[n]-1)+2;
+    		  eigl_multi[count][currmode+1][currlig-1] = 3*(fields[n]-1)+1;
     		  val_eigl_multi[count][currmode+1][currlig-1] = 1.0;
-    	//	  fprintf(stderr,"Nonzero %i %i %i %f\n", currlig-1, currmode-1, currpos+n, fields[n]);
+    		  eigl_multi[count][currmode+2][currlig-1] = 3*(fields[n]-1)+2;
+    		  val_eigl_multi[count][currmode+2][currlig-1] = 1.0;
+    		  //fprintf(stderr,"Nonzero %i %i %i\n", currlig-1, currmode, fields[n]);
     		  count ++;
     		  }
     		  else{
@@ -331,12 +334,12 @@ extern "C" void read_indexmode_(const char *hmfile_, const char *hmword_, const 
       else {
     	  if (fields[n] != 0.0){
     		  if ( count < MAXLENINDEXMODE ){
-    		  eigl_mono[count][currmode-1] = 3*(fields[n]-1);
-    		  val_eigl_mono[count][currmode-1] = 1.0;
-    		  eigl_mono[count][currmode] = 3*(fields[n]-1)+1;
+    		  eigl_mono[count][currmode] = 3*(fields[n]-1);
     		  val_eigl_mono[count][currmode] = 1.0;
-    		  eigl_mono[count][currmode+1] = 3*(fields[n]-1)+2;
+    		  eigl_mono[count][currmode+1] = 3*(fields[n]-1)+1;
     		  val_eigl_mono[count][currmode+1] = 1.0;
+    		  eigl_mono[count][currmode+2] = 3*(fields[n]-1)+2;
+    		  val_eigl_mono[count][currmode+2] = 1.0;
     		  count ++;
     		  }
     		  else{

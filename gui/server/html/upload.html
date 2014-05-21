@@ -63,7 +63,7 @@
               <div id="close-app" class="button close-icon-active float-right"></div>
               
             </header>
-            <form encType="multipart/form-data" action="http://localhost/cgi/services/attractcgi/upload.py" method="post">
+            <form encType="multipart/form-data" action="http://attract.ph.tum.de/cgi/services/ATTRACT/upload.py" method="post">
 
               <div id="page1" class="category-container">
                 <div class="form-category-description">
@@ -99,9 +99,27 @@
                                 <input type="file" name="protocolfile" id="protocolfile">
                               </div>
                             </div>
-
                         </div> <!-- END: group-container -->
                       </div> <!-- END: level2 -->
+
+                      <div class="level2">
+
+                        <div class="group-container">
+                        
+                            <div class="field-container">
+                              <div class="title"><p>Data model</p></div>
+                              <div class="field-item select align-right">
+                                <select name="interface" id="interface">
+                                  <option value="auto" selected>Automatic</option>
+                                  <option value="AttractEasyModel">Easy interface</option>
+                                  <option value="AttractModel">Full interface</option>
+                                  <option value="CryoPartnerRun">ATTRACT-EM</option>
+                                </select>
+                              </div>
+                            </div>                            
+                        </div> <!-- END: group-container -->
+                      </div> <!-- END: level2 -->
+
                     </div><!-- END: level1-container -->
                   </div><!-- END: level1 -->
 

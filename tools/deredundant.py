@@ -29,8 +29,9 @@ stnr = 0
 st2nr = 0
 lim = 0.02
 if len(sys.argv) > 2:
-  lim = float(sys.argv[2])
-  
+#  lim = float(sys.argv[2])
+   lim = float(sys.argv[3])	#changed by Isaure
+
 okdofs = []
 for d,s in zip(dofs, structures):
   stnr += 1

@@ -42,10 +42,21 @@ void axsym_usage() {
   exit(1);
 }
 
+void ncsym_usage() {
+  fprintf(stderr, "--ncsym option usage: --axsym <ligand> <angle in degrees>\n  <axis x> <axis y> <axis z>\n  <origin x> <origin y> <origin z>\n");
+  exit(1);
+}
+
 void mctemp_usage() {
  fprintf(stderr, "--mctemp option usage: --mctemp <temperature in KT>\n");
   exit(1);
 }
+
+void mcmtemp_usage() {
+ fprintf(stderr, "--mcmtemp option usage: --mcmtemp <maximal energy difference>\n");
+  exit(1);
+}
+
 
 void epsilon_usage() {
  fprintf(stderr, "--epsilon option usage: --epsilon <dielectric constant; 1=vacuum>\n");
@@ -108,6 +119,11 @@ void vmax_usage() {
   exit(1);
 }
 
+void mcmax_usage() {
+ fprintf(stderr, "--mcmax option usage: --mcmax <maximum number of MC steps>\n");
+  exit(1);
+}
+
 void rest_usage() {
  fprintf(stderr, "--rest option usage: --rest <restraint file>\n");
   exit(1);
@@ -155,6 +171,9 @@ void parse_options(int ministatehandle, int cartstatehandle, int nlig, int argc,
     if (!strcmp(arg,"--mc")) {
       ms.imc = 1;
     }
+    else if (!strcmp(arg, "--mcm")) {
+    	ms.imc = 2;
+    }
     else if (!strcmp(arg,"--lambda")) {
       if (argc-n < 2) lambda_usage();    
       double lambda = atof(argv[n+1]);
@@ -184,6 +203,13 @@ void parse_options(int ministatehandle, int cartstatehandle, int nlig, int argc,
       ms.mctemp = mctemp;
       n += 1;
     }    
+    else if (!strcmp(arg,"--mcmtemp")) {
+      if (argc-n < 2) mcmtemp_usage();
+      double mcmtemp = atof(argv[n+1]);
+      if (mcmtemp < 0) mcmtemp_usage();
+      ms.mcmtemp = mcmtemp;
+      n += 1;
+    }
     else if (!strcmp(arg,"--mcensprob")) {
       if (argc-n < 2) mcensprob_usage();    
       double mcensprob = atof(argv[n+1]);
@@ -227,6 +253,9 @@ void parse_options(int ministatehandle, int cartstatehandle, int nlig, int argc,
     else if (!strcmp(arg,"--fix-receptor")) {
       ms.fixre = 1;
     }
+    else if (!strcmp(arg,"--ghost-ligands")) {
+      ms.ghost_ligands = 1;
+    }    
     else if (!strcmp(arg,"--only-rot")) {
       ms.itra = 0;
       ms.iori = 1;
@@ -306,6 +335,7 @@ void parse_options(int ministatehandle, int cartstatehandle, int nlig, int argc,
       AxSymmetry &sym = c.axsyms[c.nr_axsyms];  
       sym.ligand = atoi(argv[n+1]);
       sym.symtype = atoi(argv[n+2]);
+      sym.angle = 0;
       sym.axis[0] = atof(argv[n+3]);
       sym.axis[1] = atof(argv[n+4]);
       sym.axis[2] = atof(argv[n+5]);
@@ -315,6 +345,21 @@ void parse_options(int ministatehandle, int cartstatehandle, int nlig, int argc,
       c.nr_axsyms++;
       n += 8;
     }
+    else if (!strcmp(arg,"--ncsym")) {
+      if (argc-n < 3) ncsym_usage();
+      AxSymmetry &sym = c.axsyms[c.nr_axsyms];  
+      sym.ligand = atoi(argv[n+1]);
+      sym.symtype = 0;
+      sym.angle = atof(argv[n+2]);
+      sym.axis[0] = atof(argv[n+3]);
+      sym.axis[1] = atof(argv[n+4]);
+      sym.axis[2] = atof(argv[n+5]);
+      sym.origin[0] = atof(argv[n+6]);
+      sym.origin[1] = atof(argv[n+7]);
+      sym.origin[2] = atof(argv[n+8]);  
+      c.nr_axsyms++;
+      n += 8;
+    }    
     else if (!strcmp(arg,"--ens") || (!strcmp(arg,"--ensemble"))) {
       if (argc-n < 3) ens_usage();
       int lig = atoi(argv[n+1]);
@@ -388,6 +433,13 @@ void parse_options(int ministatehandle, int cartstatehandle, int nlig, int argc,
       int vmax = atoi(argv[n+1]);
       if (vmax <= 0) vmax_usage();
       ms.ivmax = vmax;
+      n += 1;
+    }
+    else if (!strcmp(arg,"--mcmax")) {
+      if (argc-n < 2) mcmax_usage();
+      int mcmax = atoi(argv[n+1]);
+      if (mcmax <= 0) mcmax_usage();
+      ms.imcmax = mcmax;
       n += 1;
     }
     else if (!strcmp(arg,"--proxlim")) {

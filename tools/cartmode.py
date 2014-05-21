@@ -41,7 +41,7 @@ def read(files):
                 tmp =  [a for a in data if a[1] == res]# and len(re.findall('\AH', a[2])) == 0]
                 beads.extend(tmp)
           
-        beads.sort()
+        #beads.sort()
         beadslist.append(beads)
         lengthlist.append(len(data))
         atomlist.append(data)
@@ -155,7 +155,7 @@ if parse_arg(sys.argv):
     flexbeads, lenligands, atomlist = read(inputfiles)
     rcut = 3.0
     directory = os.path.split(inputfiles[1])[0]
-    if not len(directory): directory = "."
+    if len(directory) == 0: directory = '.'
     inp = inputfiles[0].split('rl')[0]
     while (len(flexbeads[0])+len(flexbeads[1]))*3 > 1000 and rcut > 0:
         rcut -= 0.1

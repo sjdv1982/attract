@@ -17,3 +17,5 @@ tools/*.pyc
 .scinotes
 max.fin
 *.TYPES
+gui/server/html/attract.tgz
+gui/server/html/index.html

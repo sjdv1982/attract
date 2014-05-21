@@ -224,18 +224,29 @@ c       write(*,*)'phi(i),ssi(i),rot(i)',i,phi(i),ssi(i),rot(i)
         ssi(i) = acos(newrot(8))
         rot(i) = atan2(-newrot(7),-newrot(6))       
         if (abs(newrot(8)) >= 0.9999) then 
+c         gimbal lock        
           phi(i) = 0.0d0
           if (abs(newrot(0)) >= 0.9999) then
+            if (newrot(0) * newrot(8) < 0) then
+              rot(i) = pi
+            else
+              rot(i) = 0.0d0      
+            endif     
+            if (newrot(8) < 0) then
+              ssi(i) = pi
+            else
+              ssi(i) = 0.0d0
+            endif               
             ssi(i) = 0.0d0
             rot(i) = 0.0d0
           else          
-          if (newrot(8) < 0) then
-            ssi(i) = pi
-            rot(i) = -acos(-newrot(0))
-          else 
-            ssi(i) = 0.0d0
-            rot(i) = acos(newrot(0))
-          endif
+            if (newrot(8) < 0) then
+              ssi(i) = pi
+              rot(i) = -acos(-newrot(0))
+            else 
+              ssi(i) = 0.0d0
+              rot(i) = acos(newrot(0))
+            endif
           endif
           if (newrot(1) < 0) then
             rot(i) = -rot(i)
@@ -359,7 +370,7 @@ c if ligand flex is included store deformation factor in every mode in dlig(j)
       jj = 0
       do 240 j=1,nlig
       do 241 i=1,nihm(j)
-      dlig(nhm(j)+i,j)=xaa(ju0+jj+i)
+      dlig(ju0+i,j)=xaa(ju0+jj+i)
   241 continue
       jj = jj + nihm(j)
   240 continue
