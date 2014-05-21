@@ -19,13 +19,15 @@ extern "C" int ministate_new_() {
   ministatesize++;
   //default settings
   ms.imc = 0;
-  ms.mctemp = 3.5;
+  ms.mctemp = 1.0;
+  ms.mcmtemp = 15.0;
   ms.mcscalerot = 0.05;
   ms.mcscalecenter = 0.1;
   ms.mcscalemode = 3;
   ms.mcensprob = 0.05;
   ms.iscore = 0;
-  ms.ivmax = 100; 
+  ms.ivmax = 100;
+  ms.imcmax = 100;
   ms.iori = 1;
   ms.itra = 1; 
   ms.ieig = 0;
@@ -69,11 +71,24 @@ extern "C" void ministate_f_minfor_(const int &handle, int &iscore, int &ivmax, 
   fixre = ms.fixre; gridmode = ms.gridmode;
 }
 
-extern "C" void ministate_f_monte_(const int &handle, int &iscore, int &ivmax, int &iori, int &itra, int &ieig, int &iindex, int &fixre, int &gridmode, double &mctemp, double &mcscalerot, double &mcscalecenter, double &mcscalemode, double &mcensprob) {
+extern "C" void ministate_f_minfor_min_(const int &handle, int &iscore, int &ivmax, int &iori, int &itra, int &ieig, int &iindex, int &fixre, int &gridmode) {
   MiniState &ms = *ministates[handle];
-  iscore=ms.iscore; ivmax = ms.ivmax;iori = ms.iori;itra = ms.itra;ieig = ms.ieig; iindex=ms.iindex;
+  iscore=ms.iscore; ivmax = ms.ivmax;iori = ms.iori;itra = ms.itra;ieig = ms.ieig;iindex = ms.iindex;
+  fixre = ms.fixre; gridmode = ms.gridmode;
+}
+
+extern "C" void ministate_f_monte_(const int &handle, int &iscore, int &imcmax, int &iori, int &itra, int &ieig, int &iindex, int &fixre, int &gridmode, double &mctemp, double &mcscalerot, double &mcscalecenter, double &mcscalemode, double &mcensprob) {
+  MiniState &ms = *ministates[handle];
+  iscore=ms.iscore; imcmax = ms.imcmax;iori = ms.iori;itra = ms.itra;ieig = ms.ieig; iindex=ms.iindex;
   fixre = ms.fixre; gridmode = ms.gridmode; 
   mctemp = ms.mctemp; mcscalerot = ms.mcscalerot; mcscalecenter = ms.mcscalecenter; mcscalemode = ms.mcscalemode; mcensprob = ms.mcensprob;
+}
+
+extern "C" void ministate_f_monte_min_(const int &handle, int &iscore, int &imcmax, int &iori, int &itra, int &ieig, int &iindex, int &fixre, int &gridmode, double &mctemp, double &mcmtemp, double &mcscalerot, double &mcscalecenter, double &mcscalemode, double &mcensprob) {
+  MiniState &ms = *ministates[handle];
+  iscore=ms.iscore; imcmax = ms.imcmax;iori = ms.iori;itra = ms.itra;ieig = ms.ieig; iindex=ms.iindex;
+  fixre = ms.fixre; gridmode = ms.gridmode;
+  mctemp = ms.mctemp; mcmtemp = ms.mcmtemp; mcscalerot = ms.mcscalerot; mcscalecenter = ms.mcscalecenter; mcscalemode = ms.mcscalemode; mcensprob = ms.mcensprob;
 }
 
 extern "C" void ministate_f_disre_(const int &handle, int &gravity, double &rstk) {
@@ -102,12 +117,12 @@ extern "C" void ministate_calc_pairlist_(const int &ministatehandle, const int  
    * It also checks for inconsistencies like receptor modes + torque grids 
    */
   MiniState &ms = *ministates[ministatehandle];
-  
   CartState &cartstate = cartstate_get(cartstatehandle);
   if (ms.pairs != NULL) {
     fprintf(stderr, "Memory leak, ms.pairs is not NULL!");
     exit(1);
   }
+  //printf("%d", ms.imc);
   ms.pairs = new MolPair[cartstate.nlig*(cartstate.nlig-1)]; 
   memset(ms.pairs, 0, cartstate.nlig*(cartstate.nlig-1)*sizeof(MolPair));
   int molpairindex = 0;
@@ -142,13 +157,11 @@ extern "C" void ministate_calc_pairlist_(const int &ministatehandle, const int  
       else { /*use no grids at all*/
 	two_molpairs = 0;
       }
+      
       int m1 = i, m2 = j;      
-      
-      if (ms.ghost_ligands && m1 > 0) continue; //in ghost-ligand mode, skip the molpair if the first one isn't the receptor
-      //printf("PAIR %d %d %d %d %d %d\n", i,j, is_grid, ms.gridmode, cartstate.grids[i],cartstate.grids[j]);          
-      
+      int error = 0;
       if (ms.gridmode) {
-	int error = 0;
+	
 	if (two_molpairs){
 	  if (cartstate.grids[i] == NULL || cartstate.grids[j] == NULL) error = 1;
 	}
@@ -164,15 +177,19 @@ extern "C" void ministate_calc_pairlist_(const int &ministatehandle, const int  
 	  }
 	  if (cartstate.nhm[m1]) error = 2;
 	}  	
-	if (error == 1) {
-	  printf("ERROR: using a single grid is not possible! Please recheck your input (maybe you are using modes?)");
-	  exit(1);
-	}
-	else if (error == 2){
-	 printf("ERROR: when using modes on a ligand the grid for the other ligand has to be supplied!");
-	  exit(1); 
-	}
       }
+      if (ms.ghost_ligands && m1 > 0) continue; //in ghost-ligand mode, skip the molpair if the first one isn't the receptor
+	
+      if (error == 1) {
+        printf("ERROR: using a single grid is not possible! Please recheck your input (maybe you are using modes?)\n");
+        exit(1);
+      }
+      else if (error == 2){
+        printf("ERROR: when using modes on a ligand the grid for the other ligand has to be supplied!\n");
+	exit(1); 
+      }
+            
+      //printf("PAIR %d %d %d %d %d %d\n", i,j, is_grid, ms.gridmode, cartstate.grids[i],cartstate.grids[j]);          
       MolPair &mp = ms.pairs[molpairindex];
       mp.use_energy = 1;
       mp.receptor = m1;
@@ -240,7 +257,7 @@ extern "C" void molpair_get_rl_(
  int &receptor,int &ligand,Grid *&gridptr, int &use_energy
 ) {
   int ministatehandle = int(molpairhandle/MAXMOLPAIR); //rounds down...
-  MiniState &ms = *ministates[ministatehandle]; 
+  MiniState &ms = *ministates[ministatehandle];
   MolPair &mp = ms.pairs[molpairhandle-MAXMOLPAIR*ministatehandle-1];
   receptor = mp.receptor;
   ligand = mp.ligand;
