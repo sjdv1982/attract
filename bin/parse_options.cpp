@@ -43,7 +43,7 @@ void axsym_usage() {
 }
 
 void ncsym_usage() {
-  fprintf(stderr, "--ncsym option usage: --axsym <ligand> <angle in degrees>\n  <axis x> <axis y> <axis z>\n  <origin x> <origin y> <origin z>\n");
+  fprintf(stderr, "--ncsym option usage: --ncsym <ligand> <angle in degrees>\n  <axis x> <axis y> <axis z>\n  <origin x> <origin y> <origin z>\n");
   exit(1);
 }
 
