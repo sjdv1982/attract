@@ -115,8 +115,6 @@ def webform(f, model=None,
   
   f.partners.length = partnerslength
   
-  f.runname.type = None
-
   ### START partners category
   c = f.new_group("c_partners", "category")
   c.page = 1
@@ -450,6 +448,7 @@ def webform(f, model=None,
   c.description = ""
   f.header.rows = 25
   _assign_category(f, c, "Computing and parallelization parameters", span = True)
+  c.members.insert(0, "runname")
   ### END computation category
 
   return f

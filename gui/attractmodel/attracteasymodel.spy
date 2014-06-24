@@ -55,6 +55,10 @@ Type AttractEasyPartnerInterface {
 
 Type AttractEasyModel {
   String runname = "easyrun"
+  form {
+    runname.add_header("Please supply a name for your docking run (one word)")
+    runname.name = "Name of the docking run"
+  }    
   AttractEasyPartnerInterfaceArray partners[2]
   form {
     partners.name = "Docking partners"

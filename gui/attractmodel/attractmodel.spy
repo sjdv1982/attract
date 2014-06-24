@@ -2,6 +2,7 @@ Type Data_ATTRACT_Structures:Data{}
 Type Data_ATTRACT_Rotations:Data{}
 Type Data_ATTRACT_Translations:Data{}
 Type Data_ATTRACT_Modes:Data{}
+Type Data_ATTRACT_Restraints:Data{}
 Type Data_CryoEM_SITUS:Data{}
 
 Type Data_TXT_FileList_PDB:Data{}
@@ -224,10 +225,10 @@ Type AttractIteration {
 }
 
 Type AttractModel {
-  *String runname
+  String runname = "attract"
   form {
     runname.add_header("Please supply a name for your docking run (one word)")
-    runname.name = "Name"
+    runname.name = "Name of the docking run"
   }  
   validate {
     if runname is not None:
@@ -333,12 +334,15 @@ Type AttractModel {
   ## form rotations_file.type = "file"
   *ResourceData_ATTRACT_Translations translations_file
   ## form translations_file.type = "file"
+  *ResourceData_ATTRACT_Restraints restraints_file
+  ## form restraints_file.type = "file"  
   form {
     start_structures_file.add_header("Custom search files")
     start_structures_file.add_header("For a custom search, supply a starting structures file, OR: rotations and/or translations files")
     start_structures_file.name = "Starting structures file for custom search"
     rotations_file.name = "Rotations file for custom search"
     translations_file.name = "Translations file for custom search"
+    restraints_file.name = "ATTRACT restraints file"
   }
   validate {
     if search != "custom":
@@ -370,6 +374,7 @@ Type AttractModel {
     start_structures_file.group = "Sampling parameters"
     rotations_file.group = "Sampling parameters"
     translations_file.group = "Sampling parameters"
+    restraints_file.group = "Sampling parameters"
   }
   #*** 
 

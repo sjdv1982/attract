@@ -196,6 +196,7 @@ def webform(f, model=None, partnerslength=None):
   c.categoryname = "computation"
   c.description = ""
   _assign_category(f, c, "Computing and parallelization parameters", span = True)
+  c.members.insert(0, "runname")
   ### END computation block
 
   return f
