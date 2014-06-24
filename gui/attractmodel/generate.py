@@ -31,6 +31,7 @@ Therefore, you can only define docking partners that are already in the reduced 
   ret += "if [ 1 -eq 1 ]; then ### move and change to disable parts of the protocol\n"
   ret += "$ATTRACTDIR/shm-clean\n\n"
 
+  partnercode = ""
   filenames = []
   ensemble_lists = []
   collect_ensemble_lists = []
@@ -46,44 +47,46 @@ Therefore, you can only define docking partners that are already in the reduced 
     if p.is_reduced == False:
       if not p.ensemble:
         if reduce_any == False:
-          ret += """
-  echo '**************************************************************'
-  echo 'Reduce partner PDBs...'
-  echo '**************************************************************'
-  """
+          partnercode += """
+echo '**************************************************************'
+echo 'Reduce partner PDBs...'
+echo '**************************************************************'
+"""
   
           reduce_any = True
         pdbname = p.pdbfile.name
         pdbname2 = os.path.split(pdbname)[1]
+        if pdbname2.count(".") > 1:
+          raise ValueError("The 'reduce' program does not support PDB files with double extension: '%s'" % pdbname2)
         pdbname_reduced = pdbname2[:-4] + "r.pdb"
         if pdbname_reduced not in reduced:
           if pdbname2 != pdbname:
-            ret += "cat %s > %s\n" % (pdbname, pdbname2)
-          ret += "$ATTRACTDIR/reduce %s > /dev/null\n" % pdbname2
+            partnercode += "cat %s > %s\n" % (pdbname, pdbname2)
+          partnercode += "$ATTRACTDIR/reduce %s > /dev/null\n" % pdbname2
           reduced.add(pdbname_reduced)
         filenames.append(pdbname_reduced)
     else:        
       filenames.append(p.pdbfile.name) 
     if p.ensemble:
       d = "partner%d-ensemble" % (pnr+1)
-      ret += "rm -rf %s\n" % d
-      ret += "mkdir %s\n" % d
+      partnercode += "rm -rf %s\n" % d
+      partnercode += "mkdir %s\n" % d
       listens = d + ".list"
       if not p.is_reduced:
         listensr = d + "-r.list"
       else:
         listensr = listens
       dd = d + "/model"
-      ret += "$ATTRACTTOOLS/splitmodel %s %s %d > %s\n" % (p.pdbfile.name, dd, p.ensemble_size, listens)
+      partnercode += "$ATTRACTTOOLS/splitmodel %s %s %d > %s\n" % (p.pdbfile.name, dd, p.ensemble_size, listens)
       if not p.is_reduced:
-        ret += "cat /dev/null > %s\n" % listensr
+        partnercode += "cat /dev/null > %s\n" % listensr
       if not p.is_reduced:
         if reduce_any == False:
-            ret += """
-    echo '**************************************************************'
-    echo 'Reduce partner PDBs...'
-    echo '**************************************************************'
-    """      
+            partnercode += """
+echo '**************************************************************'
+echo 'Reduce partner PDBs...'
+echo '**************************************************************'
+"""      
             reduce_any = True        
       for mnr in range(p.ensemble_size):
         mname1 = dd + "-" + str(mnr+1) + ".pdb"
@@ -93,21 +96,21 @@ Therefore, you can only define docking partners that are already in the reduced 
             filenames.append(mname2)
             p.collect_pdb.name = mname1
             
-          ret += "$ATTRACTDIR/reduce %s > /dev/null\n" % mname1            
+          partnercode += "$ATTRACTDIR/reduce %s > /dev/null\n" % mname1            
           reduced.add(mname2)
-          ret += "echo %s >> %s\n" % (mname2, listensr)  
+          partnercode += "echo %s >> %s\n" % (mname2, listensr)  
       ensemble_list = listensr
       if p.collect_pdb is not None:
         
         if collect_ensemble_list is None: collect_ensemble_list = listens      
     ensemble_lists.append(ensemble_list)
     collect_ensemble_lists.append(collect_ensemble_list)      
-  if reduce_any: ret += "\n"
+  if reduce_any: partnercode += "\n"
 
   modes_any = any((p.modes_file or p.generate_modes for p in m.partners))
   aa_modes_any = any((p.aa_modes_file or p.generate_modes for p in m.partners))
   if modes_any:
-    ret += """
+    partnercode += """
 echo '**************************************************************'
 echo 'Assemble modes file...'
 echo '**************************************************************'
@@ -115,10 +118,10 @@ cat /dev/null > hm-all.dat
 """ 
     if aa_modes_any:
       hm_all_aa = "hm-all-aa.dat"
-      ret += "cat /dev/null > hm-all-aa.dat\n"
+      partnercode += "cat /dev/null > hm-all-aa.dat\n"
     else: 
       hm_all_aa = "hm-all.dat"
-    ret += "\n"  
+    partnercode += "\n"  
     for pnr,p in enumerate(m.partners):
       modes_file_name = None
       if p.modes_file is not None: modes_file_name = p.modes_file.name
@@ -126,48 +129,48 @@ cat /dev/null > hm-all.dat
       if p.aa_modes_file is not None: aa_modes_file_name = p.aa_modes_file.name
       if p.generate_modes: 
         modes_file_name = "partner%d-hm.dat" % (pnr+1)
-        ret += "$ATTRACTDIR/modes %s\n" % filenames[pnr]
-        ret += "cat hm.dat > %s\n" % modes_file_name
+        partnercode += "$ATTRACTDIR/modes %s\n" % filenames[pnr]
+        partnercode += "cat hm.dat > %s\n" % modes_file_name
         if p.collect_pdb is not None:
 	  aa_modes_file_name = "partner%d-hm-aa.dat" % (pnr+1)
-          ret += "$ATTRACTDIR/modes %s\n" % p.collect_pdb.name
-          ret += "cat hm.dat > %s\n" % aa_modes_file_name
-        ret += "rm -f hm.dat\n"
+          partnercode += "$ATTRACTDIR/modes %s\n" % p.collect_pdb.name
+          partnercode += "cat hm.dat > %s\n" % aa_modes_file_name
+        partnercode += "rm -f hm.dat\n"
       if p.moleculetype != "Protein": raise Exception #TODO: not yet implemented
       if p.nr_modes in (None, 0) or modes_file_name is None:
-        ret += "echo 0 >> hm-all.dat\n"
+        partnercode += "echo 0 >> hm-all.dat\n"
         if aa_modes_any:
-          ret += "echo 0 >> hm-all-aa.dat\n"
+          partnercode += "echo 0 >> hm-all-aa.dat\n"
       elif p.nr_modes == 10:
-        ret += "cat %s >> hm-all.dat\n" % modes_file_name
+        partnercode += "cat %s >> hm-all.dat\n" % modes_file_name
         if aa_modes_any:
           mf = modes_file_name
           if aa_modes_file_name is not None: mf = aa_modes_file_name
-          ret += "cat %s >> hm-all-aa.dat\n" % mf
+          partnercode += "cat %s >> hm-all-aa.dat\n" % mf
       else:
-        ret += "#select first %d modes...\n" % (p.nr_modes)
-        ret += "awk 'NF == 2 && $1 == %d{exit}{print $0}' %s >> hm-all.dat\n" % \
+        partnercode += "#select first %d modes...\n" % (p.nr_modes)
+        partnercode += "awk 'NF == 2 && $1 == %d{exit}{print $0}' %s >> hm-all.dat\n" % \
          (p.nr_modes+1, modes_file_name)
         if aa_modes_any:
           mf = modes_file_name
           if aa_modes_file_name is not None: mf = aa_modes_file_name
-          ret += "awk 'NF == 2 && $1 == %d{exit}{print $0}' %s >> hm-all-aa.dat\n" % \
+          partnercode += "awk 'NF == 2 && $1 == %d{exit}{print $0}' %s >> hm-all-aa.dat\n" % \
            (p.nr_modes+1, mf)         
-    ret += "\n"    
+    partnercode += "\n"    
   
   if len(m.partners) == 2:
     partnerfiles = " ".join(filenames)
   else:
     partnerfiles = "partners.pdb"
-    ret += """
+    partnercode += """
 echo '**************************************************************'
 echo 'Concatenate partner PDBs...'
 echo '**************************************************************'
 echo %d > partners.pdb
 """ % len(m.partners)
     for f in filenames:
-      ret += "grep ATOM %s >> partners.pdb\n" % f
-      ret += "echo TER >> partners.pdb\n"
+      partnercode += "grep ATOM %s >> partners.pdb\n" % f
+      partnercode += "echo TER >> partners.pdb\n"
           
   ret += """
 #name of the run
@@ -227,6 +230,13 @@ name=%s
     ps = " --epsilon %s" % (str(m.epsilon))
     params += ps
     scoreparams += ps  
+  if m.restraints_file is not None:
+    ps = " --rest %s" % (str(m.rest))
+    params += ps
+  if m.restraints_score_file is not None:
+    ps = " --rest %s" % (str(m.rest_score))
+    scoreparams += ps
+    
     
   for sym in m.symmetries:
     symcode = len(sym.partners)
@@ -257,6 +267,9 @@ gridparams="%s"
 #parallelization parameters
 parals="%s"
 """  % (parals)
+  
+  
+  ret += partnercode
   
   ret += ret_shm
   if m.search == "syst" or m.search == "custom":
@@ -290,7 +303,7 @@ start=%s
   elif m.search == "random":
     fixre = ""
     if m.fix_receptor: fixre = " --fix-receptor"
-    ret += "python $ATTRACTTOOLS/randsearch.py %d %d%s> randsearch.dat\n" % \
+    ret += "python $ATTRACTTOOLS/randsearch.py %d %d%s > randsearch.dat\n" % \
      (len(m.partners), m.structures, fixre)
     ret += "start=randsearch.dat\n"    
     start = "randsearch.dat"
@@ -463,7 +476,30 @@ echo '**************************************************************'
     ret += "\n"  
     result = "out_$name-sorted.dat"
 
+
+  flexpar = ""    
+  if m.calc_lrmsd or m.calc_irmsd or m.calc_fnat: 
+    if modes_any and not deflex_any: 
+      if aa_modes_any:
+        flexpar = " --modes hm-all-aa.dat"
+      else:
+        flexpar = " --modes hm-all.dat"
+    for pnr,p in enumerate(m.partners):
+      if p.deflex == False and ensemble_lists[pnr] is not None:
+        flexpar += " --ens %d %s" % (pnr+1,ensemble_lists[pnr])
+    
   if m.deredundant:
+    
+    if m.fix_receptor == False: 
+      ret += """
+echo '**************************************************************'
+echo 'Fix all structures into the receptor's coordinate frame
+echo '**************************************************************'
+"""     
+      fixresult = result + "-fixre"
+      ret += "$ATTRACTDIR/fix_receptor %s %d%s > %s\n" % (result, len(m.partners), flexpar, fixresult)
+      result = fixresult
+    
     outp = os.path.splitext(result)[0] +"-dr.dat"
     ret += """
 echo '**************************************************************'
@@ -578,16 +614,6 @@ echo '**************************************************************'
       bb_str = "backbone "
     else:
       bb_str = ""
-  if m.calc_lrmsd or m.calc_irmsd or m.calc_fnat: 
-    flexpar = ""
-    if modes_any and not deflex_any: 
-      if aa_modes_any:
-        flexpar = " --modes hm-all-aa.dat"
-      else:
-        flexpar = " --modes hm-all.dat"
-    for pnr,p in enumerate(m.partners):
-      if p.deflex == False and ensemble_lists[pnr] is not None:
-        flexpar += " --ens %d %s" % (pnr+1,ensemble_lists[pnr])
   if m.calc_lrmsd:      
     ret += """
 echo '**************************************************************'
@@ -595,7 +621,7 @@ echo 'calculate %sligand RMSD'
 echo '**************************************************************'
 """ % bb_str      
   
-    if m.fix_receptor == False: 
+    if m.fix_receptor == False and not m.deredundant: 
       fixresult = result + "-fixre"
       ret += "$ATTRACTDIR/fix_receptor %s %d%s > %s\n" % (result, len(m.partners), flexpar, fixresult)
       result = fixresult
