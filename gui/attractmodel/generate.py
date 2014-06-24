@@ -645,8 +645,9 @@ echo '**************************************************************'
     if deflex_any:
       ret += "rm -f $tmpf $tmpf2\n"
       result = result0
-    if m.fix_receptor == False:
-      ret += "rm -f %s\n" % fixresult
+    if m.calc_lrmsd:
+      if m.fix_receptor == False:
+        ret += "rm -f %s\n" % fixresult
     
   if m.collect:
     collect_filenames = filenames
