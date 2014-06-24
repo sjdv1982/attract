@@ -16,7 +16,7 @@ def make_interfacelist(ilist, pdb):
     if len(data) == 0:
       return [],[],[]
 
-    rlist = np.loadtxt(ilist,dtype=int,ndmin=1)
+    rlist = np.loadtxt(ilist,dtype=int)
     # Make list of corresponding atoms
     receptor = []
     receptorid = []
