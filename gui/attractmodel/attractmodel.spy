@@ -249,7 +249,7 @@ Type AttractModel {
   }
   AttractGridArray grids = []
   form {
-    grids.length = 5
+    grids.length = 10
     grids.group = "Grids"
     grids.name = "Grid"
     grids.form = "soft"

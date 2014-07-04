@@ -38,5 +38,6 @@ def easy2model(emodel):
   gravity = 2 if emodel.gravity else 0
   newmodel = AttractModel(runname=emodel.runname,partners=partners,grids=rgrid,nr_iterations=len(iter),iterations=iter,fix_receptor=True,search="syst",gravity=gravity,calc_lrmsd=emodel.calc_lrmsd,
 	       calc_irmsd=emodel.calc_irmsd,calc_fnat=emodel.calc_fnat,nr_collect=emodel.nr_collect,np=emodel.np)
+  newmodel.deredundant_ignorens = False
   
   return newmodel

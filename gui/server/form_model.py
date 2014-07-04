@@ -248,7 +248,7 @@ def webform(f, model=None,
   c.members.append("grids")
   f.grids.length = gridslength
   f.grids.clonebutton = "Add grid"
-  f.grids.clonelength = 5
+  f.grids.clonelength = 10
   f.grids.controltitle = "Grid"
   f.grids.group = None
   fg = f.grids[0]
@@ -265,8 +265,11 @@ def webform(f, model=None,
   b.members.append("calc_potentials")
   ff = fg.gridname
   ff.placeholder = "name..."
-  ff = fg.gridfile
-  ff.type = "text"
+  for n in range(f.grids.length):
+    ff = f.grids[n]
+    ff.type = "text"
+  f.grids[None].type = "text"  
+  ff = fg.gridfile  
   ff.name = "Path to grid file if previously generated"
   ff = fg.omp
   ff.name = "Calculate grid using OpenMP?"
@@ -492,7 +495,7 @@ def html(form, cgi, spyderobj, newtab=False, header=header0, footer=footer0):
     os.chdir("/tmp/")
     os.mkdir(mydir)
     os.chdir(mydir)
-    spyderobj.tofile(fname)    
+    spyderobj.tofile(fname)
     args["hidden"] = {"_tmpresource":mydir+"/"+fname}
   html = attracthtmlform.htmlform(**args)
   return html

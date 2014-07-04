@@ -478,7 +478,8 @@ echo '**************************************************************'
 
 
   flexpar = ""    
-  if m.calc_lrmsd or m.calc_irmsd or m.calc_fnat: 
+  if m.calc_lrmsd or m.calc_irmsd or m.calc_fnat:
+    deflex_any = any((p.deflex for p in m.partners))
     if modes_any and not deflex_any: 
       if aa_modes_any:
         flexpar = " --modes hm-all-aa.dat"
@@ -525,8 +526,7 @@ echo '**************************************************************'
     ret += "\n"  
     result = outp
   result0 = result
-  if m.calc_lrmsd or m.calc_irmsd or m.calc_fnat:
-    deflex_any = any((p.deflex for p in m.partners))
+  if m.calc_lrmsd or m.calc_irmsd or m.calc_fnat:    
     if deflex_any:
       ret += """
 echo '**************************************************************'
@@ -537,18 +537,24 @@ tmpf2=`mktemp`
 
 """ 
       outp, outp2 = "$tmpf", "$tmpf2"
+      any_modes = False
+      any_ens = False
       for pnr,p in enumerate(m.partners):
         if p.deflex:
           if p.nr_modes:           
-            ret += "python $ATTRACTTOOLS/demode.py %s %d > %s\n" % \
-             (result, pnr+1,outp)
+            any_modes = True
           elif p.ensemble_size:
-            ret += "python $ATTRACTTOOLS/de-ensemblize.py %s %d > %s\n" % \
-             (result, pnr+1,outp)
-          else:
-            continue
-          result = outp
-          outp, outp2 = outp2, outp
+            any_ens = True
+      if any_modes:           
+        ret += "python $ATTRACTTOOLS/demode.py %s> %s\n" % \
+          (result, outp)
+        result = outp
+        outp, outp2 = outp2, outp          
+      if any_ens:
+        ret += "python $ATTRACTTOOLS/de-ensemblize.py %s > %s\n" % \
+          (result,outp)
+        result = outp
+        outp, outp2 = outp2, outp
 
     any_bb = False
     rmsd_filenames = []
