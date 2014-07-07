@@ -7,7 +7,7 @@ try:
   import os, sys, time, traceback
   sys.path.append(os.path.split(os.path.abspath(__file__))[0] + "/..") 
   import spyder, Spyder
-  import spyder.htmlform
+  import spyder.formtools
   import attractmodel
   import form_model
   import attractsave

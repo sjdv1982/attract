@@ -88,18 +88,9 @@ def _assign_category(f, category, groupname, span = False):
     ff.group = None
     if span: ff.span = True
 
-def webform(f, model=None, partnerslength=None):
-  if model is not None:
-    if partnerslength is None:
-      partnerslength = max(1,len(model.partners))
-
-  else:  
-    if partnerslength is None: partnerslength = 1
+def webform(f, model=None):
   import copy
-  f = copy.deepcopy(f)
-  
-  f.partners.length = partnerslength
-  
+  f = copy.deepcopy(f)  
 
   ### START partners category
   c = f.new_group("c_partners", "category")
@@ -203,10 +194,7 @@ def webform(f, model=None, partnerslength=None):
 
 def webserverform(webdict, form=None, spydertype=None):
   if spydertype is not None: form = spydertype._form()
-  f = webform(
-   form,
-   partnerslength = 2,
-  )  
+  f = webform(form)
   return f
   
 def html(form, cgi, spyderobj, newtab=False):

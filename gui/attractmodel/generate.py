@@ -36,7 +36,8 @@ Therefore, you can only define docking partners that are already in the reduced 
   ensemble_lists = []
   collect_ensemble_lists = []
   reduce_any = False
-  reduced = set()
+  pdbnames = []
+  pdbnames3 = set()
   for pnr,p in enumerate(m.partners):
     assert p.code is None #TODO: not implemented
     #TODO: select chain
@@ -56,14 +57,24 @@ echo '**************************************************************'
           reduce_any = True
         pdbname = p.pdbfile.name
         pdbname2 = os.path.split(pdbname)[1]
-        if pdbname2.count(".") > 1:
-          raise ValueError("The 'reduce' program does not support PDB files with double extension: '%s'" % pdbname2)
-        pdbname_reduced = pdbname2[:-4] + "r.pdb"
-        if pdbname_reduced not in reduced:
-          if pdbname2 != pdbname:
-            partnercode += "cat %s > %s\n" % (pdbname, pdbname2)
-          partnercode += "$ATTRACTDIR/reduce %s > /dev/null\n" % pdbname2
-          reduced.add(pdbname_reduced)
+        if pdbname not in pdbnames: 
+          if pdbname2.count(".") > 1:
+            raise ValueError("The 'reduce' program does not support PDB files with double extension: '%s'" % pdbname2)
+          pdbname3 = os.path.splitext(pdbname2)[0]
+          pdbname3_0 = pdbname3
+          pcount = 0
+          while pdbname3 in pdbnames3:
+            pcount += 1
+            pdbname3 = pdbname3_0 + "-" + str(pcount)
+          pdbnames3.add(pdbname3)
+          pdbname4 = pdbname3 + ".pdb"
+          pdbname_reduced = pdbname3 + "r.pdb"
+          if pdbname4 != pdbname:
+            partnercode += "cat %s > %s\n" % (pdbname, pdbname4)
+          partnercode += "$ATTRACTDIR/reduce %s > /dev/null\n" % pdbname4
+          pdbnames.append(pdbname)
+        else:
+          pdbname_reduced = filenames[pdbnames.index(pdbname)]
         filenames.append(pdbname_reduced)
     else:        
       filenames.append(p.pdbfile.name) 

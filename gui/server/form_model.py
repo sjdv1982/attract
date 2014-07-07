@@ -267,8 +267,8 @@ def webform(f, model=None,
   ff.placeholder = "name..."
   for n in range(f.grids.length):
     ff = f.grids[n]
-    ff.type = "text"
-  f.grids[None].type = "text"  
+    ff.gridfile.type = "text"
+  f.grids[None].gridfile.type = "text"  
   ff = fg.gridfile  
   ff.name = "Path to grid file if previously generated"
   ff = fg.omp
@@ -457,7 +457,6 @@ def webform(f, model=None,
   return f
 
 import os
-import spyder.htmlform
 
 def webserverform(webdict, form=None, spydertype=None):
   if spydertype is not None: form = spydertype._form()

@@ -151,9 +151,11 @@ def morph_clonecontainer(node):
   Handler.passdown("html-make-abstract", node)  
   if node.parent.space.clones is None: node.parent.space.clones = []
   node.parent.space.clones.append(clone)
-  for n in node.getChildren():
-    child = node[node.getChildren()[n]]
+  children = node.getChildren()
+  for n in children:
+    child = node[children[n]]
     child.space.clone = clone
+    child.space.blockindex = n
     if p.controltitle is None: p.controltitle = p.title
     if p.controltitle is None: p.controltitle = p.name
     child.space.controltitle = p.controltitle + " " + str(n+1) 
