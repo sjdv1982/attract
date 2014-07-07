@@ -93,7 +93,7 @@ Type AttractPartnerInterface {
   ## form ensemble_list.type = "file"
   *Integer ensemble_size
   ## form ensemble_size.name = "Number of conformers in the ensemble"
-  ## validate assert ensemble_size is None or ensemble_size > 0
+  ## validate assert ensemble_size is None or ensemble_size > 1
   *Enum ensemblize("random","all","custom")
   ## form ensemblize.name = "Ensemble search"
   ## form ensemblize.optiontitles = "Random", "All", "Custom (none)"
@@ -146,11 +146,69 @@ Type AttractPartnerInterface {
        raise spyder.core.ValidationError("Please provide a chain")  
     if ensemble:
       assert ensemble_list is None
-      assert ensemble_size is not None
+      assert ensemble_size is not None and ensemble_size > 1
       assert ensemblize is not None
     else:
       assert (ensemble_size is None) == (ensemble_list is None) == (ensemblize is None)
     assert is_reduced == False or code is None
+  }
+    error {
+    'assert ensemblize is not None'
+    =>
+    'The ensemble search must be defined'
+
+    'assert (ensemble_size is None) == (ensemble_list is None) == (ensemblize is None)'
+    =>
+    'You must define the ensemble size, ensemble list file and ensemble search, or none of the above'
+
+    'if ensemblize is not None: assert ensemblize in ("random","all","custom")'
+    =>
+    ''
+
+    'assert ensemble_list is None'
+    =>
+    'If the PDB is already an multi-model ensemble, you can't define an ensemble list as well'
+
+    'raise spyder.core.ValidationError("Please provide a chain")'
+    =>
+    ''
+
+    'if nr_modes not in (None, 0): assert nr_modes >= 1 and nr_modes <= 10'
+    =>
+    'The number of modes must be between 1 and 10, not {nr_modes}'
+
+    'raise spyder.core.ValidationError("Please upload a PDB file or provide a PDB code, not both")'
+    =>
+    ''
+
+    'if moleculetype is not None: assert moleculetype in ("Protein", "DNA", "RNA")'
+    =>
+    ''
+
+    'raise spyder.core.ValidationError("Please upload a PDB file or provide a PDB code")'
+    =>
+    ''
+
+    'if generate_modes: assert modes_file is None'
+    =>
+    'If you want to generate modes, you can't supply a pre-generated modes file'
+
+    'assert ensemble_size is not None and ensemble_size > 1'
+    =>
+    'You must define an ensemble size larger than 1, not {ensemble_size}'
+
+    'assert is_reduced == False or code is None'
+    =>
+    'If you supply a PDB code, it can't be reduced'
+
+    'assert ensemble_size is None or ensemble_size > 1'
+    =>
+    'If you define an ensemble size, it must be larger than 1, not {ensemble_size}'
+
+    'if generate_modes: assert nr_modes is not None'
+    =>
+    'Please define the number of modes you want to generate'
+
   }
 }
 
@@ -184,6 +242,15 @@ Type AttractGrid:Degenerate {
   ## form neighbour_distance.name = "Neighbor list cutoff (A) for grid calculation"
   Bool calc_potentials = True
   ## form calc_potentials.name = "Calculate long-range potentials on the grid"
+  error {
+    'raise ValueError("The name of the grid may contain only letters, digits, _ and -")'
+    =>
+    ''
+
+    'assert len(gridname) > 0'
+    =>
+    'The grid name must be defined'
+  }
 }
 
 Type AttractIteration {
@@ -221,7 +288,24 @@ Type AttractIteration {
   validate {
     assert mctemp is None or mctemp > 0
     assert mcensprob is None or (mcensprob >= 0 and mcensprob <= 1)
-  }  
+  }
+    error {
+    'assert rcut is None or rcut > 0'
+    =>
+    'The distance cutoff must be larger than 0, not {rcut}'
+
+    'assert vmax is None or vmax > 0'
+    =>
+    'The maximum number of energy minimizations must be larger than 0, not {vmax}'
+
+    'assert mcensprob is None or (mcensprob >= 0 and mcensprob <= 1)'
+    =>
+    'The Monte Carlo ensemble replacement probability must be between 0 and 1, not {mcensprob}'
+
+    'assert mctemp is None or mctemp > 0'
+    =>
+    'The Monte Carlo temperature must be larger than 0, not {mctemp}'
+  }
 }
 
 Type AttractModel {

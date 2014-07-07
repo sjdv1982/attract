@@ -105,6 +105,7 @@ def webform(f, model=None):
   for fpnr in range(f.partners.length):
     fp = f.partners[fpnr]
     fp.group = None
+    fp.multi_active = True
 
     ### START b_struc block
     b = fp.new_group("b_struc", "block")
@@ -160,6 +161,7 @@ def webform(f, model=None):
   c.page = 2
   c.icon = "energy-icon"
   c.title = "Energy and Interaction"
+  c.always_active = True
   c.categoryname = "energy"
   c.description = ""
   _assign_category(f, c, "Energy and interaction parameters", span = True)
@@ -172,6 +174,7 @@ def webform(f, model=None):
   c.page = 3
   c.icon = "analysis-icon"
   c.title = "Analysis"
+  c.always_active = True
   c.categoryname = "analysis"
   c.description = ""
   _assign_category(f, c, "Analysis")
@@ -184,6 +187,7 @@ def webform(f, model=None):
   c.page = 4
   c.icon = "computation-icon"
   c.title = "Computation"
+  c.always_active = True
   c.categoryname = "computation"
   c.description = ""
   _assign_category(f, c, "Computing and parallelization parameters", span = True)

@@ -108,7 +108,6 @@ echo '**************************************************************'
             p.collect_pdb.name = mname1
             
           partnercode += "$ATTRACTDIR/reduce %s > /dev/null\n" % mname1            
-          reduced.add(mname2)
           partnercode += "echo %s >> %s\n" % (mname2, listensr)  
       ensemble_list = listensr
       if p.collect_pdb is not None:

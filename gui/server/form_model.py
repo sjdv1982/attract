@@ -37,7 +37,7 @@ header = """<!DOCTYPE html>
                 <li id="view-page3"><a id="nav-block-iterations" class="iteration-icon">Iteration</a></li>
                 <li id="view-page4"><a id="nav-block-sampling" class="sampling-icon">Sampling</a></li>
                 <li id="view-page5"><a id="nav-block-energy" class="energy-icon">Energy and Interaction</a></li>
-                <li id="view-page6"><a id="nav-block-cryoem" class="cryo-icon">Cryo-em</a></li>
+                <li id="view-page6"><a id="nav-block-cryoem" class="cryo-icon">Cryo-EM</a></li>
                 <li id="view-page7"><a id="nav-block-symmetry" class="symmetry-icon">Symmetry</a></li>
                 <li id="view-page8"><a id="nav-block-analysis" class="analysis-icon">Analysis</a></li>
                 <li id="view-page9"><a id="nav-block-computation" class="computation-icon">Computation</a></li>

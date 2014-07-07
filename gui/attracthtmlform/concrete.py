@@ -384,18 +384,24 @@ def morph_level1_blockwrapper(node,clone=False):
   )
   
   innertags = [ controltag, containertag ]
-  blockname = "%s-%d" % (node.space.blockname, blockindex)
+  blockname = "%s-%d" % (space.blockname, blockindex)
   if clone:
     #add hidden _clonearraymarker attribute, so that we can know if blocks have been inserted/deleted
     t = VoidTag("input", [("type","hidden"),("name", blockname + "-_clonearraymarker"),("value",blockindex)])
     innertags.append(t)
   
-  
+  active = ""
+  if space.always_active:
+    active += " active always-active"
+  elif space.active:
+    active += " active"
+  if space.multi_active:
+    active += " multi-active"
   level1tag = ComplexTag (
    "div",
    [
     ("id","block-" + blockname),
-    ("class", "level1")
+    ("class", "level1%s" % active)
    ],
    innertags,
    lines_before = 1,
