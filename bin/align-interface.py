@@ -203,13 +203,13 @@ if __name__ == "__main__":
       rotmat = numpy.array(euler2rotmat(*rotdofs))
       newrotmat = numpy.dot(irotmat.T, rotmat)      
       
-      transdofs_global = transdofs + pivots[lignr] - ipivot 
-      transdofs_local = numpy.dot(rotmat.T, transdofs_global)
-      transdofs_new = numpy.dot(newrotmat, transdofs_local) - pivots[lignr]
+      #rotate around ipivot
+      transdofs_global = transdofs + pivots[lignr] #for rotation around the global origin
+      transdofs_centered = transdofs_global - ipivot #for rotation around ipivot
+      transdofs_new = numpy.dot(irotmat.T, transdofs_centered) - pivots[lignr]
       
       newtransdofs = transdofs_new + icom
       newrotdofs = rotmat2euler(newrotmat)  
-      rotmat2 = newrotmat.dot(irotmat.T)
       lignew = "  " + ens + "%.6f %.6f %.6f " % tuple(newrotdofs) + "%.6f %.6f %.6f " % tuple(newtransdofs) + " ".join(dofs[6:])
       print >> f1, lignew    
     
