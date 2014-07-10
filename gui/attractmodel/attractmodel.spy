@@ -336,13 +336,16 @@ Type AttractModel {
   ## form translations_file.type = "file"
   *ResourceData_ATTRACT_Restraints restraints_file
   ## form restraints_file.type = "file"  
+  *ResourceData_ATTRACT_Restraints restraints_score_file
+  ## form restraints_score_file.type = "file"    
   form {
     start_structures_file.add_header("Custom search files")
     start_structures_file.add_header("For a custom search, supply a starting structures file, OR: rotations and/or translations files")
     start_structures_file.name = "Starting structures file for custom search"
     rotations_file.name = "Rotations file for custom search"
     translations_file.name = "Translations file for custom search"
-    restraints_file.name = "ATTRACT restraints file"
+    restraints_file.name = "ATTRACT restraints file during docking"
+    restraints_score_file.name = "ATTRACT restraints file during scoring"
   }
   validate {
     if search != "custom":
@@ -375,6 +378,7 @@ Type AttractModel {
     rotations_file.group = "Sampling parameters"
     translations_file.group = "Sampling parameters"
     restraints_file.group = "Sampling parameters"
+    restraints_score_file.group = "Sampling parameters"
   }
   #*** 
 
