@@ -12,7 +12,7 @@ def easy2model(emodel):
     pp.deflex=True
     pp.rmsd_pdb=p.rmsd_pdb
     pp.rmsd_bb=p.rmsd_bb
-    if p.ensemble_size > 0:
+    if p.ensemble_size > 1:
       pp.ensemble = True
       pp.ensemble_size = p.ensemble_size
       pp.ensemblize = "random"
@@ -32,11 +32,29 @@ def easy2model(emodel):
     
   else:
     rgrid = []
-    iter = [AttractIteration(vmax=50),AttractIteration(rcut=500,vmax=60),AttractIteration(rcut=100,vmax=60),
-	    AttractIteration(rcut=50),AttractIteration(rcut=50)]
+    iter = [
+     AttractIteration(vmax=50),
+     AttractIteration(rcut=500,vmax=60),
+     AttractIteration(rcut=100,vmax=60),
+     AttractIteration(rcut=50),
+     AttractIteration(rcut=50),
+    ]
    
   gravity = 2 if emodel.gravity else 0
-  newmodel = AttractModel(runname=emodel.runname,partners=partners,grids=rgrid,nr_iterations=len(iter),iterations=iter,fix_receptor=True,search="syst",gravity=gravity,calc_lrmsd=emodel.calc_lrmsd,
-	       calc_irmsd=emodel.calc_irmsd,calc_fnat=emodel.calc_fnat,nr_collect=emodel.nr_collect,np=emodel.np)
-  
+  newmodel = AttractModel (
+   runname=emodel.runname,
+   partners=partners,
+   grids=rgrid,
+   nr_iterations=len(iter),
+   iterations=iter,
+   fix_receptor=True,
+   search="syst",
+   gravity=gravity,
+   calc_lrmsd=emodel.calc_lrmsd,
+   calc_irmsd=emodel.calc_irmsd,
+   calc_fnat=emodel.calc_fnat,
+   nr_collect=emodel.nr_collect,
+   np=emodel.np,
+   deredundant_ignorens = False,
+  )
   return newmodel

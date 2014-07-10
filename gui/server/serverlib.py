@@ -6,18 +6,17 @@ import os, sys, cgi, datetime
 
 def serve_attract(spydertype, formlib, deploy):
   import spyder
-  import spyder.htmlform
   from spyder.formtools import embed
   import pprint
   import traceback
-  webform = spyder.htmlform.dict_from_fieldstorage(cgi.FieldStorage())
+  webform = spyder.formtools.cgi.dict_from_fieldstorage(cgi.FieldStorage())
   f = formlib.webserverform(webform, spydertype=spydertype)
   
   resourcemodel = None  
   if "_tmpresource" in webform:
     tmpf = "/tmp/" + webform["_tmpresource"]
     resourcemodel = spydertype.fromfile(tmpf)
-  webdict = spyder.htmlform.cgi(webform,f,resourcemodel)  
+  webdict = spyder.formtools.cgi.cgi(webform,f,resourcemodel, spydertype=spydertype)  
   try:
     newmodel = spydertype.fromdict(webdict)
   except:    

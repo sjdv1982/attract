@@ -37,7 +37,7 @@ header = """<!DOCTYPE html>
                 <li id="view-page3"><a id="nav-block-iterations" class="iteration-icon">Iteration</a></li>
                 <li id="view-page4"><a id="nav-block-sampling" class="sampling-icon">Sampling</a></li>
                 <li id="view-page5"><a id="nav-block-energy" class="energy-icon">Energy and Interaction</a></li>
-                <li id="view-page6"><a id="nav-block-cryoem" class="cryo-icon">Cryo-em</a></li>
+                <li id="view-page6"><a id="nav-block-cryoem" class="cryo-icon">Cryo-EM</a></li>
                 <li id="view-page7"><a id="nav-block-symmetry" class="symmetry-icon">Symmetry</a></li>
                 <li id="view-page8"><a id="nav-block-analysis" class="analysis-icon">Analysis</a></li>
                 <li id="view-page9"><a id="nav-block-computation" class="computation-icon">Computation</a></li>
@@ -248,7 +248,7 @@ def webform(f, model=None,
   c.members.append("grids")
   f.grids.length = gridslength
   f.grids.clonebutton = "Add grid"
-  f.grids.clonelength = 5
+  f.grids.clonelength = 10
   f.grids.controltitle = "Grid"
   f.grids.group = None
   fg = f.grids[0]
@@ -265,8 +265,11 @@ def webform(f, model=None,
   b.members.append("calc_potentials")
   ff = fg.gridname
   ff.placeholder = "name..."
-  ff = fg.gridfile
-  ff.type = "text"
+  for n in range(f.grids.length):
+    ff = f.grids[n]
+    ff.gridfile.type = "text"
+  f.grids[None].gridfile.type = "text"  
+  ff = fg.gridfile  
   ff.name = "Path to grid file if previously generated"
   ff = fg.omp
   ff.name = "Calculate grid using OpenMP?"
@@ -454,7 +457,6 @@ def webform(f, model=None,
   return f
 
 import os
-import spyder.htmlform
 
 def webserverform(webdict, form=None, spydertype=None):
   if spydertype is not None: form = spydertype._form()
@@ -492,7 +494,7 @@ def html(form, cgi, spyderobj, newtab=False, header=header0, footer=footer0):
     os.chdir("/tmp/")
     os.mkdir(mydir)
     os.chdir(mydir)
-    spyderobj.tofile(fname)    
+    spyderobj.tofile(fname)
     args["hidden"] = {"_tmpresource":mydir+"/"+fname}
   html = attracthtmlform.htmlform(**args)
   return html
