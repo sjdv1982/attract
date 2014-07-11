@@ -94,6 +94,7 @@ def run(pdblines, topfile, transfile, outf, mapf, patches, termini=True):
       continue
     if l.startswith("ATOM"):
       atomcode = l[12:16].strip()
+      if atomcode=='H': atomcode='HN'
       assert l[16] == " ", l
       resname = l[17:20]   
       resid = l[21:27]
@@ -116,12 +117,17 @@ def run(pdblines, topfile, transfile, outf, mapf, patches, termini=True):
   print >> outf, "END"
   
 if __name__ == "__main__":
+  assert len(sys.argv) >= 4 and len(sys.argv) <= 5
   pdb = sys.argv[1]
   pdblines = open(pdb).readlines()
   transfile = sys.argv[2]
   topfile = sys.argv[3]
+  termini = True
+  if len(sys.argv) == 5:
+    assert sys.argv[4] == "--noterm", sys.argv[4]
+    termini = False
 
   outfile = os.path.splitext(pdb)[0] + "-aaX.pdb"
   outf = open(outfile, "w")
 
-  run(pdblines, topfile, transfile, outf, sys.stdout, {})
+  run(pdblines, topfile, transfile, outf, sys.stdout, {}, termini)

@@ -1,7 +1,7 @@
 from math import *
 def rotmat2euler(rotmat):
   phi = atan2(rotmat[1][2],rotmat[0][2])
-  ssi = acos(rotmat[2][2])
+  ssi = acos(min(max(rotmat[2][2],-1),1))
   rot = atan2(-rotmat[2][1],-rotmat[2][0])       
 
   if fabs(rotmat[2][2]) >= 0.9999: #gimbal lock

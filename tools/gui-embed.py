@@ -5,6 +5,9 @@ Command line tool to embed a Spyder model
 """
 
 import sys, os
+currdir = os.path.abspath(os.path.split(__file__)[0])
+guidir = currdir + "/../gui"
+sys.path.insert(0, guidir)
 import spyder, Spyder
 import attractmodel
 from spyder.formtools import embed

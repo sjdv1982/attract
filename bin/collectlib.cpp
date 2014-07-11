@@ -131,7 +131,11 @@ extern "C" void collect_init(int argc00, char *argv00[]) {
 
   int i;
   argc = argc00;
-  argv = argv00;
+  argv = new char *[argc];
+  for (int n = 1; n < argc; n++) {
+    argv[n] = new char[strlen(argv00[n])+1];
+    strcpy(argv[n], argv00[n]);
+  }
   if (argc < 3) {
     fprintf(stderr, "Too few arguments\n"); usage();
   }

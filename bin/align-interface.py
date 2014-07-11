@@ -1,6 +1,7 @@
 """
-Calculate interface RMSD
-usage: python irmsd.py <DAT file> \
+Aligns proteins on the interface region of the bound PDB
+Writes out a DAT file 
+usage: python align-interface.py <DAT file> \
  <unbound PDB 1> <bound PDB 1> [<unbound PDB 2> <bound PDB 2>] [...]
  [--allatoms] [--allresidues]
 
@@ -14,98 +15,11 @@ import sys
 
 import numpy
 import collectlibpy as collectlib
+from _read_struc import read_struc
+from euler2rotmat import euler2rotmat
+from rotmat2euler import rotmat2euler
 
-def get_interface(boundatoms):
-  
-  res = []
-  pos = 0
-  for p in boundatoms:
-    cres = []
-    ccres = []
-    resid = None
-    for a,c in zip(p[1],p[0]):
-      pos += 1
-      cresid = a[21:26]
-      #print resid, cresid
-      if resid is not None: 
-        if cresid != resid:
-          cres.append(ccres)
-          ccres = []
-      ccres.append((pos,a,c))
-      resid = cresid   
-    cres.append(ccres)
-    res.append(cres)
-  
-  ret = []
-  def add_res(l, r, pnr):
-    for pos, a, c in r:
-      v = (pos, a, c, pnr)
-      if v not in l:
-        l.append(v)
-  def dsq(c1,c2):
-    dx = c1[0]-c2[0]
-    dy = c1[1]-c2[1]
-    dz = c1[2]-c2[2]
-    return dx**2+dy**2+dz**2
-    
-  for pnr,p in enumerate(res):
-    ret0 = []
-    for r in p:
-      ok = False                  
-
-      #check if close to the existing interface
-      for pos,a,c1 in r:        
-        for pos2,a2,c2,ppnr in ret:
-          if ppnr == pnr: continue
-          if dsq(c1,c2) < threshsq:
-            ok = True
-            break
-        if ok: break   
-      if ok: 
-        add_res(ret, r, pnr)
-        continue
-      
-      #if not, check if close to subsequent residues
-      for pos,a,c1 in r:        
-        for ppnr,pp in enumerate(res[pnr+1:]):
-          for rr in pp:     
-            for pos2,a2,c2 in rr:
-              if dsq(c1,c2) < threshsq:
-                ok = True
-                break              
-            if ok: break     
-          if ok: break     
-        if ok: break     
-      if ok: 
-        add_res(ret,r,pnr)
-        add_res(ret,rr,pnr+1+ppnr)
-    ret += ret0
-                  
-  ret.sort(key=lambda v: v[0])
-  ret = [(v[0],v[1]) for v in ret]
-  return ret
-  
-def get_selection(boundatoms, allresidues, allatoms):
-  
-  allatoms = []
-  for b in boundatoms: allatoms += b[1]
-  if not allresidues:
-    selatoms = get_interface(boundatoms)
-  else:
-    selatoms = [(n+1,a[1]) for n,a in enumerate(allatoms)]
-      
-  if not allatoms:
-    selatoms = [(n,a) for n,a in selatoms if a[13:15] in ("CA","C ","O ","N ")]
-  selected = set([n for n,a in selatoms])
-
-  mask = []
-  for n in range(len(allatoms)):
-    mask.append((n+1) in selected)
-
-  mask = numpy.array(mask)
-  return mask
-
-def irmsd(atoms1, atoms2):
+def align_interface(atoms1, atoms2):
   # adapted from QKabsch.py by Jason Vertrees. 
   L = len(atoms1)
   assert( L > 0 )
@@ -113,10 +27,8 @@ def irmsd(atoms1, atoms2):
   # must alway center the two proteins to avoid
   # affine transformations.  Center the two proteins
   # to their selections.
-  COM1 = numpy.sum(atoms1,axis=0) / float(L)
-  COM2 = numpy.sum(atoms2,axis=0) / float(L)
-  atoms1 = atoms1 - COM1
-  atoms2 = atoms2 - COM2
+  COM = numpy.sum(atoms2,axis=0) / float(L)
+  atoms2 = atoms2 - COM
 
   # Initial residual, see Kabsch.
   E0 = numpy.sum( numpy.sum(atoms1 * atoms1,axis=0),axis=0) + numpy.sum( numpy.sum(atoms2 * atoms2,axis=0),axis=0)
@@ -142,24 +54,15 @@ def irmsd(atoms1, atoms2):
   if reflect == -1.0:
 	  S[-1] = -S[-1]
 	  V[:,-1] = -V[:,-1]
+  rotmatd = numpy.dot( V, Wt)
+  rotmatd = numpy.transpose(rotmatd)
+  rotmatd = [[min(xx,1) for xx in x] for x in rotmatd]
+  rotmatd = numpy.array([[max(xx,-1) for xx in x] for x in rotmatd])
+  return rotmatd, COM
 
-  RMSD = E0 - (2.0 * sum(S))
-  RMSD = numpy.sqrt(abs(RMSD / L))
-  return RMSD
+from irmsd import read_pdb, get_interface, get_selection
 
-
-def read_pdb(f):
-  ret1 = []
-  ret2 = []
-  for l in open(f):
-    if not l.startswith("ATOM"): continue
-    x,y,z = (float(f) for f in (l[30:38],l[38:46],l[46:54]))
-    ret1.append((x,y,z))
-    ret2.append(l)
-  return ret1, ret2
-  
 if __name__ == "__main__":  
-
   ensfiles = []
   modefile = None
   imodefile = None
@@ -186,8 +89,11 @@ if __name__ == "__main__":
       anr -= 1
       continue  
     
+    ensembles = []
     if anr <= len(sys.argv)-3 and arg == "--ens":
-      ensfiles.append((sys.argv[anr+1],sys.argv[anr+2]))
+      ens = sys.argv[anr+1]
+      ensfiles.append((ens,sys.argv[anr+2]))
+      ensembles.append(ens)
       sys.argv = sys.argv[:anr] + sys.argv[anr+3:]
       anr -= 3
       continue
@@ -204,13 +110,6 @@ if __name__ == "__main__":
       anr -= 2
       continue
     
-    if anr <= len(sys.argv)-2 and arg == "--thresh":
-      thresh = float(sys.argv[anr+1])
-      threshsq = thresh*thresh
-      sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
-      anr -= 2
-      continue 
-  
     if anr <= len(sys.argv)-2 and arg == "--output":
       output = sys.argv[anr+1]
       sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
@@ -224,7 +123,6 @@ if __name__ == "__main__":
 
   unbounds = []
   bounds = []
-
   
   for n in range(2, len(sys.argv), 2):
     unbounds.append(sys.argv[n])
@@ -233,6 +131,15 @@ if __name__ == "__main__":
   if len(bounds) == 1 and opt_allresidues == False:
     raise Exception("Cannot determine the interface for a single PDB")
 
+  struc_header,structures = read_struc(sys.argv[1])
+  pivots = []
+  for hnr,h in enumerate(struc_header):
+    if not h.startswith("#pivot"): continue
+    hh = h.split()
+    assert len(hh) == 5 and hh[1] == str(hnr+1), h
+    pivot = numpy.array([float(v) for v in hh[2:5]])
+    pivots.append(pivot)
+  
   initargs = [sys.argv[1]] + unbounds
   if modefile: initargs += ["--modes", modefile]
   if imodefile: initargs += ["--imodes", imodefile]
@@ -260,13 +167,18 @@ if __name__ == "__main__":
   for b in boundatoms: allboundatoms += b[0]
   sel = get_selection(boundatoms, opt_allresidues, opt_allatoms)
   allboundatoms = numpy.array(allboundatoms)
-  fboundatoms = allboundatoms[sel]
+  fboundatoms = numpy.array(allboundatoms[sel])
+  icom = numpy.sum(fboundatoms,axis=0) / float(len(fboundatoms))
+  fboundatoms = fboundatoms - icom
 
   nstruc = 0
   f1 = sys.stdout
   if output is not None:
     f1 = open(output,'w')
-  while 1:
+  print >> f1, "\n".join(struc_header)  
+  for structure in structures:
+    ligands = structure[1]
+    assert len(ligands) == len(pivots), (len(ligands),  len(pivots))
     sys.stdout.flush()
     result = collectlib.collect_next()
     if result: break
@@ -274,5 +186,30 @@ if __name__ == "__main__":
     coor = collectlib.collect_all_coor()
     coor = numpy.array(coor)
     fcoor = coor[sel]
-    f1.write(str(nstruc)+" %.3f\n" % irmsd(fboundatoms,fcoor))
-    #for co in coor: print co[0], co[-1]
+    irotmat, ipivot = align_interface(fboundatoms,fcoor) 
+    
+    print >> f1, "#" + str(nstruc)
+    print >> f1, "\n".join(structure[0])
+    for lignr, lig in enumerate(ligands):
+      ll = lig.split()      
+      if lignr+1 in ensembles:
+        ens = ll[0] + " "
+        dofs = ll[1:]
+      else:
+        ens = ""
+        dofs = ll
+      rotdofs = [float(d) for d in dofs[:3]]        
+      transdofs = numpy.array([float(d) for d in dofs[3:6]])
+      rotmat = numpy.array(euler2rotmat(*rotdofs))
+      newrotmat = numpy.dot(irotmat.T, rotmat)      
+      
+      #rotate around ipivot
+      transdofs_global = transdofs + pivots[lignr] #for rotation around the global origin
+      transdofs_centered = transdofs_global - ipivot #for rotation around ipivot
+      transdofs_new = numpy.dot(irotmat.T, transdofs_centered) - pivots[lignr]
+      
+      newtransdofs = transdofs_new + icom
+      newrotdofs = rotmat2euler(newrotmat)  
+      lignew = "  " + ens + "%.6f %.6f %.6f " % tuple(newrotdofs) + "%.6f %.6f %.6f " % tuple(newtransdofs) + " ".join(dofs[6:])
+      print >> f1, lignew    
+    

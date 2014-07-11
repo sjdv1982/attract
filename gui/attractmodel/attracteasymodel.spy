@@ -27,7 +27,7 @@ Type AttractEasyPartnerInterface {
   Bool rmsd_bb = True
   ## form rmsd_bb.name = "Select only backbone atoms for RMSD calculation"
   validate {    
-    if ensemble_size > 0: assert generate_modes == False
+    if ensemble_size > 1: assert generate_modes == False
     if not use_rmsd:
       if rmsd_pdb is not None: raise spyder.core.ValidationError("You defined an PDB for RMSD calculation, which you disabled")
     else:
@@ -46,7 +46,7 @@ Type AttractEasyPartnerInterface {
     =>
     ''
 
-    'if ensemble_size > 0: assert generate_modes == False'
+    'if ensemble_size > 1: assert generate_modes == False'
     =>
     'You can upload an ensemble of conformations, or generate harmonic modes, but not both'
   } 
@@ -54,14 +54,16 @@ Type AttractEasyPartnerInterface {
 
 
 Type AttractEasyModel {
-  String runname = "easyrun"
+  String runname = "attract"
+  form {
+    runname.add_header("Please supply a name for your docking run (one word)")
+    runname.name = "Name of the docking run"
+  }    
   AttractEasyPartnerInterfaceArray partners[2]
   form {
     partners.name = "Docking partners"
-    partners[0].name = "receptor"
-    partners[0].name = "receptor"
-    partners[1].name = "ligand"
-    partners[1].name = "ligand"
+    partners[0].name = "Receptor"
+    partners[1].name = "Ligand"
   }
   
 

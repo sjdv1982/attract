@@ -1,6 +1,6 @@
 //Re-implementation of deredundant.py
 
-//usage: ./deredundant structures.dat <number of ligands> [--ens <ensemble size for each ligand>] [--lim <RMSD cutoff in A>] [--ignorens]\n");
+//usage: ./deredundant structures.dat <number of ligands> [--ens <ensemble size for each ligand>] [--ignorens]\n");
 
 //if ignorens == False (default), then different ensemble structures are never redundant
 //if ignorens == True, then the ensemble index is simply ignored
@@ -11,7 +11,7 @@
 #include <cstdio>
 
 const double radgyr = 30.0;
-float lim = 0.05;	//changed from #const double lim = 0.05# by Isaure
+const double lim = 0.05;
 
 extern "C" void print_struc_(
  const int &seed,
@@ -75,7 +75,7 @@ static char *label;
 #include <cstdlib>
 
 void usage() {
-  fprintf(stderr, "usage: $path/deredundant structures.dat <number of ligands> [--modes <mode file>] [--imodes <indexmode file>] [--ens <ensemble size for each ligand>] [--lim <RMSD cutoff in A>] [--ignorens]\n");
+  fprintf(stderr, "usage: $path/deredundant structures.dat <number of ligands> [--modes <mode file>] [--imodes <indexmode file>] [--ens <ensemble size for each ligand>] [--ignorens]\n");
   exit(1);
 }
 
@@ -103,59 +103,51 @@ int main(int argc, char *argv[]) {
   int has_locrests[MAXLIG];
   memset(has_locrests, 0, MAXLIG*sizeof(int));
 
-  while (argc > 3) {
-    if (!strcmp(argv[3],"--ignorens")) {
+  while (argc > 4) {
+    if (!strcmp(argv[4],"--ignorens")) {
       ignorens = 1;
       memmove(argv+3, argv+4, sizeof(char*) * (argc-3));
       argc--;  
       continue;    
     }
-    if (!strcmp(argv[3],"--modes")) {
+    if (!strcmp(argv[4],"--modes")) {
       int count = 0;
-      while (argc > 4) {
+      while (argc > 5) {
         memmove(argv+3, argv+4, sizeof(char*) * (argc-3));
         argc--;      
-        if (!strncmp(argv[3],"--",2)) break;      
-        nhm[count] = atoi(argv[3]);
+        if (!strncmp(argv[4],"--",2)) break;      
+        nhm[count] = atoi(argv[4]);
         count++;
       }
       argc--;
       continue;          
     }
-    if (!strcmp(argv[3],"--imodes")) {
+    if (!strcmp(argv[4],"--imodes")) {
       int count = 0;
-      while (argc > 4) {
+      while (argc > 5) {
         memmove(argv+3, argv+4, sizeof(char*) * (argc-3));
         argc--;
-        if (!strncmp(argv[3],"--",2)) break;
-        nihm[count] = atoi(argv[3]);
+        if (!strncmp(argv[4],"--",2)) break;
+        nihm[count] = atoi(argv[4]);
         count++;
       }
       argc--;
       continue;
     }
-    if (!strcmp(argv[3],"--lim")) {	//added by Isaure
-      lim = atof(argv[4]);
-      memmove(argv+3, argv+4, sizeof(char*) * (argc-3));
-      memmove(argv+3, argv+4, sizeof(char*) * (argc-3));
-      argc--;
-      argc--;
-      continue;
-    }
-    if (!strcmp(argv[3],"--ens")) {
+    if (!strcmp(argv[4],"--ens")) {
       int count = 0;
-      while (argc > 4) {
+      while (argc > 5) {
         memmove(argv+3, argv+4, sizeof(char*) * (argc-3));
         argc--;      
-        if (!strncmp(argv[3],"--",2)) break;      
-        nrens[count] = atoi(argv[3]);
+        if (!strncmp(argv[4],"--",2)) break;      
+        nrens[count] = atoi(argv[4]);
         count++;
       }
       argc--;
       continue;
     }
-    if (argc > 4 && (!strcmp(argv[3],"--locrest"))) {
-      int lig = atoi(argv[4]);
+    if (argc > 5 && (!strcmp(argv[4],"--locrest"))) {
+      int lig = atoi(argv[5]);
       if (lig <= 0 || lig > MAXLIG) {
         fprintf(stderr,"Ligand %d must be larger than 0\n", lig);
         usage();
@@ -165,11 +157,11 @@ int main(int argc, char *argv[]) {
       argc -= 2;      
       continue;
     }
-    fprintf(stderr, "Wrong number of arguments\n"); usage();
+    fprintf(stderr, "Wrong number of arguments 1\n"); usage();
   }  
 
-  if (argc != 3) {
-    fprintf(stderr, "Wrong number of arguments\n"); usage();
+  if (argc != 4) {
+    fprintf(stderr, "Wrong number of arguments 2\n"); usage();
   }
   if (!exists(argv[1])) {
     fprintf(stderr, "File %s does not exist\n", argv[1]);
@@ -177,6 +169,7 @@ int main(int argc, char *argv[]) {
   }
   
   int nlig = atoi(argv[2]);
+  float lim = atof(argv[3]);
 
   //read DOFs and set pivots
   double pivot[3][MAXLIG];
@@ -276,10 +269,10 @@ int main(int argc, char *argv[]) {
     }
     if (!unique) continue;
       
-//    if (nonredundant == MAXSTRUC) {
-//      fprintf(stderr, "Too many non-redundant structures. Increase MAXSTRUC and recompile\n");
-//      exit(1);
-//    }  
+    if (nonredundant == MAXSTRUC) {
+      fprintf(stderr, "Too many non-redundant structures. Increase MAXSTRUC and recompile\n");
+      exit(1);
+    }  
     memcpy(rotmat[nonredundant], crotmat, sizeof(crotmat));
     ens[nonredundant][0] = cens[0];
     for (i = 1; i < nlig; i++) {    
