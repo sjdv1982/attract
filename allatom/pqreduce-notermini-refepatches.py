@@ -26,8 +26,8 @@ for l in pdbf.getvalue().split("\n"):
 tmpf.close()
 
 args = [pdb2pqr.__file__, "--ff=charmm", tmpfile, pqrfile]
-if pdb2pqr.PACKAGE_PATH != "":
-  sys.path.extend(pdb2pqr.PACKAGE_PATH.split(":"))
+#if pdb2pqr.PACKAGE_PATH != "":
+  #sys.path.extend(pdb2pqr.PACKAGE_PATH.split(":"))
 oldstdout = sys.stdout
 sys.stdout = sys.stderr
 pdb2pqr.mainCommand(args)
@@ -50,8 +50,8 @@ for l in pdbfref.getvalue().split("\n"):
 tmpf.close()
 
 args = [pdb2pqr.__file__, "--ff=charmm", tmpfile, pqrreffile]
-if pdb2pqr.PACKAGE_PATH != "":
-  sys.path.extend(pdb2pqr.PACKAGE_PATH.split(":"))
+#if pdb2pqr.PACKAGE_PATH != "":
+  #sys.path.extend(pdb2pqr.PACKAGE_PATH.split(":"))
 oldstdout = sys.stdout
 sys.stdout = sys.stderr
 pdb2pqr.mainCommand(args)

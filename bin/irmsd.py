@@ -191,6 +191,13 @@ while 1:
     anr -= 2
     continue
   
+  if anr <= len(sys.argv)-2 and arg == "--thresh":
+    thresh = float(sys.argv[anr+1])
+    threshsq = thresh*thresh
+    sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
+    anr -= 2
+    continue  
+  
   if anr <= len(sys.argv)-2 and arg == "--output":
     output = sys.argv[anr+1]
     sys.argv = sys.argv[:anr] + sys.argv[anr+2:]

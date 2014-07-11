@@ -53,15 +53,44 @@ def read_file(file1):
 
 import subprocess
 #prepare input for on the fly flexible interface refinement
-def prepare_input(start,pdbA,pdbB,current,name,attracttools,ensemble=''):
+def prepare_input(start,pdbA,pdbB,current,name,attracttools,ensemble='',noflex=[]):
   current = str(current)
   directorypath = os.path.split(pdbA)[0]
   if len(directorypath) == 0: directorypath = '.'
   if os.path.exists(directorypath+'/flexm-'+current+name+'.dat'):
+    if not ensemble == '':
+      #allow ensemble for ligand only
+      ligand = ensemble.split()[1]
+      if ligand == '1':
+	print "ERROR, only the ligand is allowed to have an ensemble with iattract refinement"
+	sys.exit(1)
+      
+      data = open(start).readlines()
+      nr = int(data[-1].split()[0])
+      ensfile = ensemble.split()[2]
+      data = open(ensfile).readlines()
+      pdbB = data[nr-1].replace('\n','')
+      
     return (directorypath+'/flexm-'+current+name+'.dat',os.path.splitext(pdbA)[0]+'_'+current+name+'.txt',os.path.splitext(pdbB)[0]+'_'+current+name+'.txt')
+  
   subprocess.call(attracttools+'/../bin/collect '+start+' '+pdbA+' '+pdbB+' '+ensemble+' > '+directorypath+'/'+current+name+'.pdb',shell=True)
+  print "Get interface", current
   subprocess.call(['python',attracttools+'/interface.py',directorypath+'/'+current+name+'.pdb',directorypath,current+name])
   count = 0
+  if len(noflex) > 0:
+    for ligand in noflex:
+      if ligand == 1:
+	out = open(directorypath+'/'+current+name+'rlist.txt','w')
+	out.write('#no flexible residues')
+	out.close()
+      elif ligand == 2:
+	out = open(directorypath+'/'+current+name+'llist.txt','w')
+	out.write('#no flexible residues')
+	out.close()	
+      else:
+	print "ERROR ligand selection for noflex out of range (only two ligands allowed)", ligand
+	sys.exit(1)
+	
   if not os.path.exists(directorypath+'/'+current+name+'rlist.txt'):
     out = open(directorypath+'/'+current+name+'rlist.txt','w')
     out.write('#no flexible residues')
@@ -77,11 +106,26 @@ def prepare_input(start,pdbA,pdbB,current,name,attracttools,ensemble=''):
   if count == 2:
     return ("","","")
   
+  if not ensemble == '':
+    #allow ensemble for ligand only
+    ligand = ensemble.split()[1]
+    if ligand == '1':
+      print "ERROR, only the ligand is allowed to have an ensemble with iattract refinement"
+      sys.exit(1)
+      
+    data = open(start).readlines()
+    nr = int(data[-1].split()[0])
+    ensfile = ensemble.split()[2]
+    data = open(ensfile).readlines()
+    pdbB = data[nr-1].replace('\n','')
+    
+  print "Selecting pdb file", pdbB, current
   subprocess.call(['python',attracttools+'/cartmode.py',current+name,directorypath+'/'+current+name+'rlist.txt',pdbA,directorypath+'/'+current+name+'llist.txt',pdbB])
   subprocess.call(['python',attracttools+'/get_restraints.py',directorypath,pdbA,directorypath+'/'+current+name+'rlist.txt',current+name])
   lenA = read_file(pdbA)
   subprocess.call(['python',attracttools+'/get_restraints.py',directorypath,pdbB,directorypath+'/'+current+name+'llist.txt',current+name,str(lenA)])
   subprocess.call(['rm',directorypath+'/'+current+name+'.pdb'])
+  print "READY: input for", current+name
   return (directorypath+'/flexm-'+current+name+'.dat',os.path.splitext(pdbA)[0]+'_'+current+name+'.txt',os.path.splitext(pdbB)[0]+'_'+current+name+'.txt')
 
     
@@ -95,8 +139,7 @@ def prepare_input2(pdbA,pdbB,rlist,llist,name,attracttools):
   subprocess.call(['python',attracttools+'/get_restraints.py',directorypath,pdbB,llist,name,str(lenA)])
     
 def run_docking(datain):
-
-    current,attract,pat,pat2,args,name,otf = datain
+    current,attract,pat,pat2,args,name,otf,noflex = datain
     start = pat+'-'+str(current)
     outp = pat2+'-'+str(current)
     imodefile = ''
@@ -110,7 +153,8 @@ def run_docking(datain):
       i = args.index('--ens')
       ensemble = ' '.join(args[i:i+3])
     if otf:
-	imodefile, restfile1, restfile2 = prepare_input(start,args[1],args[2],current,name,attracttools,ensemble)
+        print "Get input data", current
+	imodefile, restfile1, restfile2 = prepare_input(start,args[1],args[2],current,name,attracttools,ensemble,noflex)
     
     else:
 	imodefile = directory+'/flexm-'+name+'.dat'
@@ -124,6 +168,7 @@ def run_docking(datain):
 	return
     
     com = " ".join([attract,start]+args+['--imodes',imodefile,'--rest',restfile1,'--rest',restfile2]) + " > %s " % outp
+    print "Run docking", current
     run(com)
 
 
@@ -135,6 +180,7 @@ jobsize = None
 chunks = None
 name = None
 otf = True
+noflex = []
 while 1:
   anr += 1
 
@@ -177,6 +223,16 @@ while 1:
       if jobsize <= 0: raise ValueError
     except ValueError: 
       raise ValueError("Invalid jobsize: %s" % nextarg)
+    sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
+    anr -= 1
+    continue
+  
+  if arg == "--noflex":
+    try:
+      noflex.append(int(nextarg))
+      if noflex[-1] <= 0: raise ValueError
+    except ValueError: 
+      raise ValueError("Invalid selection for ligand without flexibility: %s" % nextarg)
     sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
     anr -= 1
     continue
@@ -251,7 +307,7 @@ while 1:
 
 try:
   com = "python %s/split.py %s %s %d" % (tooldir, strucfile, pat, chunks); run(com)
-  runs = [(i,attract,pat,pat2,args,name,otf) for i in range(1,int(chunks)+1)]
+  runs = [(i,attract,pat,pat2,args,name,otf,noflex) for i in range(1,int(chunks)+1)]
   p = Pool(np)
   try:
       p.map_async(run_docking,runs).get(99999)

@@ -57,7 +57,7 @@ def clean(mystring):
 def gen_mode(rflex, rlen, name, atomlist):
     output = ''
     if len(rflex) == 0:
-        output += '\t0\n'
+        output += '-1\n'
     else:
         #print "number of ligand hm is", len(rflex)*3
         output += '-1\n'
