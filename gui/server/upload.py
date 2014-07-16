@@ -62,7 +62,7 @@ try:
   
   import os, sys, time, traceback, cgi
   import spyder, Spyder
-  import spyder.htmlform
+  import spyder.formtools
   import attractmodel
   import attracthtmlform
   import form_model, formeasy

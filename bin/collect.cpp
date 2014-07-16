@@ -219,6 +219,10 @@ int main(int argc, char *argv[]) {
     cs.ieins[0] = 0;
     for (i = 0; i < cs.nlig; i++) {
       FILE *fil = fopen(argv[i+2], "r");
+      if (!fil) {
+        fprintf(stderr, "File %s does not exist\n", argv[i+2]);
+        exit(1);
+      }
       Coor *coor;
       read_pdb2(fil,coor,pdbstrings[i],pdblayout[i],cs.natom[i],linecounter[i]);
       if (cs.natom[i]) {

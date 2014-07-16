@@ -88,18 +88,11 @@ def _assign_category(f, category, groupname, span = False):
     ff.group = None
     if span: ff.span = True
 
-def webform(f, model=None, partnerslength=None):
-  if model is not None:
-    if partnerslength is None:
-      partnerslength = max(1,len(model.partners))
-
-  else:  
-    if partnerslength is None: partnerslength = 1
+def webform(f, model=None):
   import copy
-  f = copy.deepcopy(f)
-  
-  f.partners.length = partnerslength
-  
+  f = copy.deepcopy(f)  
+  f.resourcefilevar = "_tempresource"
+  f.arraymarker = "_clonearraymarker"
 
   ### START partners category
   c = f.new_group("c_partners", "category")
@@ -114,6 +107,7 @@ def webform(f, model=None, partnerslength=None):
   for fpnr in range(f.partners.length):
     fp = f.partners[fpnr]
     fp.group = None
+    fp.multi_active = True
 
     ### START b_struc block
     b = fp.new_group("b_struc", "block")
@@ -169,6 +163,7 @@ def webform(f, model=None, partnerslength=None):
   c.page = 2
   c.icon = "energy-icon"
   c.title = "Energy and Interaction"
+  c.always_active = True
   c.categoryname = "energy"
   c.description = ""
   _assign_category(f, c, "Energy and interaction parameters", span = True)
@@ -181,6 +176,7 @@ def webform(f, model=None, partnerslength=None):
   c.page = 3
   c.icon = "analysis-icon"
   c.title = "Analysis"
+  c.always_active = True
   c.categoryname = "analysis"
   c.description = ""
   _assign_category(f, c, "Analysis")
@@ -193,36 +189,20 @@ def webform(f, model=None, partnerslength=None):
   c.page = 4
   c.icon = "computation-icon"
   c.title = "Computation"
+  c.always_active = True
   c.categoryname = "computation"
   c.description = ""
   _assign_category(f, c, "Computing and parallelization parameters", span = True)
+  c.members.insert(0, "runname")
   ### END computation block
 
   return f
 
 def webserverform(webdict, form=None, spydertype=None):
   if spydertype is not None: form = spydertype._form()
-  f = webform(
-   form,
-   partnerslength = 2,
-  )  
+  f = webform(form)
   return f
   
 def html(form, cgi, spyderobj, newtab=False):
   from form_model import html
   return html(form, cgi, spyderobj, newtab, header=header)
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  

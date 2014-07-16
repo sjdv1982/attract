@@ -175,7 +175,7 @@ def _add_controls(node):
     t = ComplexTag(
      "div", 
      [
-      ("id", "remove-block-%s-0" % node.space.blockname),
+      ("id", "remove-block-%s-%d" % (node.space.blockname, node.space.blockindex)),
       ("class", "button close-icon"),
      ],
      [ComplexTag(
@@ -187,6 +187,7 @@ def _add_controls(node):
      inline = True,   
     )
     controlchildren.append(t)  
+    
   return ComplexTag (
     "div",
     [("class", "controls")],
@@ -234,26 +235,26 @@ def morph_categorywrapper(node):
     children = []
     for clone in space.clones:
       if clone.button is not None:
-	onClick = "cloneBlock('block-%s-',%d);" % (clone.name, clone.length)
-	child = ComplexTag (
-	  "div",
-	  [("class", "field-container")],
-	  [ComplexTag (
-	    "div",
-	    [("class", "field-item button align-right")],
-	    [VoidTag(
-	      "input",
-	      [
-		("type","button"),
-		("value",clone.button),
-		("id","block-%s-add" % clone.name ),
-		("onClick", onClick),
-	      ],
-	      inline = True,
-	    )],
-	  )],
-	)
-	children.append(child)    
+        onClick = "cloneBlock('block-%s-',%d);" % (clone.name, clone.length)
+        child = ComplexTag (
+          "div",
+          [("class", "field-container")],
+          [ComplexTag (
+            "div",
+            [("class", "field-item button align-right")],
+            [VoidTag(
+              "input",
+              [
+                ("type","button"),
+                ("value",clone.button),
+                ("id","block-%s-add" % clone.name ),
+                ("onClick", onClick),
+              ],
+              inline = True,
+            )],
+          )],
+        )
+        children.append(child)    
     controltag = ComplexTag (
       "div",
       [("class", "category-controls")],
@@ -274,6 +275,7 @@ def morph_categorywrapper(node):
    [("class","form-category")],
    comment = "<!-- END: UI container -->"
   )
+
   divtag.attachChild(contenttag, "content")
   divtag.space.htmltip = contenttag
   
@@ -360,14 +362,19 @@ def morph_level2(node):
   node.morph("html-concrete-fieldcontainer")
 
 def morph_cloneblockwrapper(node):  
-  return morph_level1_blockwrapper(node)
+  return morph_level1_blockwrapper(node,clone=True)
 
 def morph_clonewrapper(node):
   return _container_tag(node, NullTag())
   
-def morph_level1_blockwrapper(node):  
+def morph_level1_blockwrapper(node,clone=False):  
   space = node.space
-
+  if clone:
+    blockindex = space.blockindex
+    assert blockindex is not None
+  else:  
+    blockindex = 0
+  
   controltag = _add_controls(node)
   containertag = SimpleTag (
    "div",
@@ -376,13 +383,29 @@ def morph_level1_blockwrapper(node):
    comment = "<!-- END: level1-container -->"
   )
   
+  innertags = [ controltag, containertag ]
+  blockname = "%s-%d" % (space.blockname, blockindex)
+  if clone:
+    assert node.root.space.arraymarker is not None
+    am = node.root.space.arraymarker
+    #add hidden arraymarker attribute, so that we can know if blocks have been inserted/deleted
+    t = VoidTag("input", [("type","hidden"),("name", blockname + "-" + am),("value",blockindex)])
+    innertags.append(t)
+  
+  active = ""
+  if space.always_active:
+    active += " active always-active"
+  elif space.active:
+    active += " active"
+  if space.multi_active:
+    active += " multi-active"
   level1tag = ComplexTag (
    "div",
    [
-    ("id","block-%s-0" % node.space.blockname),
-    ("class", "level1 active")
+    ("id","block-" + blockname),
+    ("class", "level1%s" % active)
    ],
-   [ controltag, containertag ],
+   innertags,
    lines_before = 1,
    lines_after = 1,
    comment = "<!-- END: level1 -->"

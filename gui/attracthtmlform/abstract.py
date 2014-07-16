@@ -25,6 +25,9 @@ def morph_blockcategory(node):
     node.space.controltitle = g.controltitle
   else:
     node.space.controltitle = g.title
+  node.space.active = True  
+  if hasattr(g, "always_active"):
+    node.space.always_active = True
   
   x = "temporary-category-childname"
   node.addChild("html-abstract-category", x)
@@ -100,7 +103,9 @@ def morph_block(node):
     node.space.controltitle = g.controltitle
   elif hasattr(g, "title"):
     node.space.controltitle = g.title
-  
+  if hasattr(g, "always_active"):
+    node.space.always_active = True
+    
   Handler.passdown("html-make-abstract", node)  
   return Handler.CLAIM
   
@@ -125,6 +130,10 @@ def morph_fallback(node):
 def morph_cloneblock(node):
   if node.parent is None: return Handler.NO_MATCH
   if node.parent.nodetype != "html-abstract-clonecontainer": return Handler.NO_MATCH
+  if node.space.form is not None: 
+    node.space.active = node.space.form.active
+    node.space.always_active = node.space.form.always_active  
+    node.space.multi_active = node.space.form.multi_active
   node.morph("html-abstract-level1-cloneblock")
   Handler.passdown("html-make-abstract", node)  
   return Handler.CLAIM
@@ -151,12 +160,20 @@ def morph_clonecontainer(node):
   Handler.passdown("html-make-abstract", node)  
   if node.parent.space.clones is None: node.parent.space.clones = []
   node.parent.space.clones.append(clone)
-  for n in node.getChildren():
-    child = node[node.getChildren()[n]]
+  children = node.getChildren()
+  for n in children:
+    child = node[children[n]]
     child.space.clone = clone
+    child.space.blockindex = n
     if p.controltitle is None: p.controltitle = p.title
     if p.controltitle is None: p.controltitle = p.name
-    child.space.controltitle = p.controltitle + " " + str(n+1) 
+    child_controltitle = p.controltitle + " " + str(n+1) 
+    csf = child.space.form
+    if csf.name is not None:
+      child_controltitle = csf.name
+    elif csf.title is not None:
+      child_controltitle = csf.title
+    child.space.controltitle = child_controltitle
     child.space.blockname = p.blockname
     
   return Handler.CLAIM

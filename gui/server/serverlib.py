@@ -1,55 +1,73 @@
-webdir = "http://www.attract.ph.tum.de/services/ATTRACT/"
-localdir = "/home/server/services/ATTRACT/html/"
-resultdir = "results/"
+from serverconfig import *
+import os, sys, cgi, datetime, string, re, random
+import spyder
+import spyder.formtools
+from spyder.formtools import embed
+import pprint
+import traceback
 
-import os, sys, cgi, datetime
+class AttractServerError(Exception):
+  def __init__(self, status, delta):
+    Exception.__init__(self)
+    self.status = status
+    self.delta = delta
 
-def serve_attract(spydertype, formlib, deploy):
-  import spyder
-  import spyder.htmlform
-  from spyder.formtools import embed
-  import pprint
-  import traceback
-  webform = spyder.htmlform.dict_from_fieldstorage(cgi.FieldStorage())
-  f = formlib.webserverform(webform, spydertype=spydertype)
+def format_delta(delta):
+  if delta is None: return None
+  return ["DELTA:\n" + str(delta)]
   
-  resourcemodel = None  
-  if "_tmpresource" in webform:
-    tmpf = "/tmp/" + webform["_tmpresource"]
-    resourcemodel = spydertype.fromfile(tmpf)
-  webdict = spyder.htmlform.cgi(webform,f,resourcemodel)  
-  try:
-    newmodel = spydertype.fromdict(webdict)
-  except:    
-    raise ValueError(traceback.format_exc() + "\n" + pprint.pformat(webform) + "\n" + pprint.pformat(webdict))
-  runname = newmodel.convert(Spyder.AttractModel).runname
-  if runname is None: runname = (datetime.datetime.now()).isoformat()
-  import string
+def serve_attract(spydertype, formlib, deploy):
+  webdict = spyder.formtools.cgi.dict_from_fieldstorage(cgi.FieldStorage())
+  f = formlib.webserverform(webdict, spydertype=spydertype)
+  
+  resourceobj = None  
+  resourcefilevar = getattr(f, "resourcefilevar", None)
+  if resourcefilevar is not None and resourcefilevar in webdict:
+    tmpf = "/tmp/" + webdict[resourcefilevar]
+    resourceobj = spydertype.fromfile(tmpf)
+  newmodel, status, delta = spyder.formtools.cgi.cgi(webdict, f, resourceobj, spydertype=spydertype)      
+ 
+  cwd = os.getcwd()
+  os.chdir(localresultdir)  
+  mydir = "run" + str(random.randint(1,1000000))    
+  os.mkdir(mydir)
+  
+  if delta is None:
+    raise AttractServerError(status="You didn't submit any data", delta=None)
+      
+  if newmodel is None or status.splitlines()[0].find("OK") == -1:    
+    raise AttractServerError(status=status, delta=format_delta(delta))
+  
+  os.chdir(cwd)
+  runname = getattr(newmodel, "runname", None)
+  if runname is None or runname == "attract": runname = "attract-" + datetime.datetime.now().date().isoformat()
   runname = ''.join([str(char) for char in runname if char in string.printable])
-  import re
-  runname = re.sub(r'[^a-zA-Z0-9\._-]', '', runname)
+  runname = re.sub(r'[^a-zA-Z0-9\.]', '_', runname)
   newmodel.runname = runname
   embed(newmodel)
-  import random
-  mydir = "run" + str(random.randint(1,1000000))  
-  fname = "attract-%s.web" % runname
-  os.chdir(localdir + resultdir)
-  os.mkdir(mydir)
+  fname_embedded = "%s-embedded.web" % runname
+  fname = "%s.web" % runname  
+  os.chdir(localresultdir)
   os.chdir(mydir)
-  newmodel.tofile(fname)
-  os.mkdir("attract-%s" %runname)
-  os.chdir("attract-%s" %runname)
+  deltafile = format_delta(runname)
+  newmodel.tofile(fname_embedded)
+  os.mkdir(runname)
+  os.chdir(runname)
   deploy(newmodel, ".")
   newmodel.tofile(fname)
   script = newmodel.generate()
-  f = open("attract-%s.sh" %runname, "w")
+  f = open("%s.sh" % runname, "w")
   f.write(script)
   f.close()
-  os.system("chmod +x attract-%s.sh" %runname)
+  os.system("chmod +x %s.sh" %runname)
   os.chdir("..")
+  os.system("chmod a+rw %s" % mydir)
   ret = []
-  ret.append("You can download your self-contained parameter file <a href='%s'>here</a>" % (webdir+resultdir+mydir+"/"+fname))
-  aname = "attract-%s.tgz" % runname
-  os.system("tar czf %s attract-%s" % aname %runname)
-  ret.append("You can download an archive with executable shell script, all docking files, and linked parameter file <a href='%s'>here</a>" % (webdir+resultdir+mydir+"/"+aname))
+  ret += format_delta(delta)
+  ret += ["",status,""]
+  ret += ["",str(newmodel),""]
+  ret.append("You can download your self-contained parameter file <a href='%s'>here</a>" % (webresultdir+mydir+"/"+fname_embedded))
+  aname = "%s.tgz" % runname
+  os.system("tar czf %s %s" % (aname , runname))
+  ret.append("You can download an archive with executable shell script, all docking files, and linked parameter file <a href='%s'>here</a>" % (webresultdir+mydir+"/"+aname))
   return "\n".join(ret)
