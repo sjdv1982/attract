@@ -1,5 +1,5 @@
 *.o
-RE:[^.]+
+RE:bin/[^.]+
 ~*
 */gmon.out
 gmon.out
@@ -24,3 +24,5 @@ gui/test.html
 gui/libpeerconnection.log
 *.kate-swp
 libpeerconnection.log
+html-local
+gui/server/cgi-local

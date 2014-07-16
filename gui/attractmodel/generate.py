@@ -142,12 +142,12 @@ cat /dev/null > hm-all.dat
         partnercode += "$ATTRACTDIR/modes %s\n" % filenames[pnr]
         partnercode += "cat hm.dat > %s\n" % modes_file_name
         if p.collect_pdb is not None:
-	  aa_modes_file_name = "partner%d-hm-aa.dat" % (pnr+1)
+          aa_modes_file_name = "partner%d-hm-aa.dat" % (pnr+1)
           partnercode += "$ATTRACTDIR/modes %s\n" % p.collect_pdb.name
           partnercode += "cat hm.dat > %s\n" % aa_modes_file_name
         partnercode += "rm -f hm.dat\n"
       if p.moleculetype != "Protein": raise Exception #TODO: not yet implemented
-      if p.nr_modes in (None, 0) or modes_file_name is None:
+      if p.nr_modes == 0 or modes_file_name is None:
         partnercode += "echo 0 >> hm-all.dat\n"
         if aa_modes_any:
           partnercode += "echo 0 >> hm-all-aa.dat\n"
@@ -230,21 +230,21 @@ name=%s
     params += " --ghost"
   if m.gravity:
     params += " --gravity %d" % m.gravity
-  if m.rstk is not None:
+  if m.rstk != 0.01:
     params += " --rstk %s" % str(m.rstk)
   if m.dielec == "cdie": 
     ps = " --cdie"
     params += ps  
     scoreparams += ps  
-  if m.epsilon is not None: 
+  if m.epsilon != 15: 
     ps = " --epsilon %s" % (str(m.epsilon))
     params += ps
     scoreparams += ps  
   if m.restraints_file is not None:
-    ps = " --rest %s" % (str(m.rest))
+    ps = " --rest %s" % (str(m.restraints_file.name))
     params += ps
   if m.restraints_score_file is not None:
-    ps = " --rest %s" % (str(m.rest_score))
+    ps = " --rest %s" % (str(m.rest_score_file.name))
     scoreparams += ps
     
     
@@ -269,7 +269,7 @@ gridparams="%s"
 """  % gridparams
   
   if m.np > 1:
-    if m.jobsize in (0, None):
+    if m.jobsize == 0:
       parals = "--np %d --chunks %d" % (m.np, m.np)
     else:
       parals = "--np %d --jobsize %d" % (m.np, m.jobsize)
@@ -380,7 +380,7 @@ echo '**************************************************************'
     if m.forcefield == "OPLSX":  
       tail += " --alphabet $ATTRACTDIR/../allatom/oplsx.trans"
     if m.dielec == "cdie": tail += " --cdie"
-    if m.epsilon not in (None, 15): tail += " --epsilon %s" % (str(m.epsilon))    
+    if m.epsilon != 15: tail += " --epsilon %s" % (str(m.epsilon))    
     if g.calc_potentials == False: tail += " -calc-potentials=0"
     if g.omp:
       ret += "for i in `seq 1 10`; do\n\n"      
@@ -422,16 +422,17 @@ echo '**************************************************************'
 """ % ordinals[i]
     itparams = ""
     rcut, vmax, traj, mc = it[:4]
-    if rcut is not None and len(grid_used) == 0: itparams += " --rcut %s" % str(rcut)
-    if vmax is not None: itparams += " --vmax %s" % str(vmax)
+    if rcut != 1500 and len(grid_used) == 0: itparams += " --rcut %s" % str(rcut)
+    if vmax != 100: itparams += " --vmax %s" % str(vmax)
     if traj: itparams += " --traj"
     if mc: 
       itparams += " --mc"
       mctemp, mcscalerot, mcscalecenter, mcscalemode, mscensprob = it[4]
-      if mctemp is not None: itparams += " --mctemp %s" % str(mctemp)
-      if mcscalerot is not None: itparams += " --mcscalerot %s" % str(mcscalerot)
-      if mcscalecenter is not None: itparams += " --mcscalecenter %s" % str(mcscalecenter)
-      if mcensprob is not None: itparams += " --mcensprob %s" % str(mcensprob)
+      if mctemp != 3.5: itparams += " --mctemp %s" % str(mctemp)
+      if mcscalerot != 0.05: itparams += " --mcscalerot %s" % str(mcscalerot)
+      if mcscalecenter != 0.1: itparams += " --mcscalecenter %s" % str(mcscalecenter)
+      if mcscalemode != 0.1: itparams += " --mcscalemode %s" % str(mcscalemode)
+      if mcensprob != 0.1: itparams += " --mcensprob %s" % str(mcensprob)
     if m.np > 1:
       attract = "python $ATTRACTDIR/../protocols/attract.py"
       tail = "$parals --output"  
@@ -461,10 +462,7 @@ echo '**************************************************************'
     else:
       attract = "$ATTRACTDIR/attract"
       tail = ">"  
-    if m.rcut_rescoring is None: 
-      rcutsc = "--rcut 50.0"
-    else:    
-      rcutsc = "--rcut %s" % str(m.rcut_rescoring)
+    rcutsc = "--rcut %s" % str(m.rcut_rescoring)
     ret += "%s %s $scoreparams %s %s out_$name.score\n" \
      % (attract, result, rcutsc, tail)
     ret += """     
@@ -522,14 +520,12 @@ echo '**************************************************************'
       par_flex += " --ens"
       for p in m.partners:
         ensemble_size = p.ensemble_size
-        if ensemble_size is None: ensemble_size = 0
         par_flex += " %d" % ensemble_size
       if m.deredundant_ignorens: par_flex += " --ignorens"
     if modes_any:
       par_flex += " --modes"
       for p in m.partners:
         nr_modes = p.nr_modes
-        if nr_modes is None: nr_modes = 0
         par_flex += " %d" % nr_modes
     
     ret += "$ATTRACTDIR/deredundant %s %d%s > %s\n" % (result, len(m.partners), par_flex, outp)
@@ -556,7 +552,7 @@ tmpf2=`mktemp`
           elif p.ensemble_size:
             any_ens = True
       if any_modes:           
-        ret += "python $ATTRACTTOOLS/demode.py %s> %s\n" % \
+        ret += "python $ATTRACTTOOLS/demode.py %s > %s\n" % \
           (result, outp)
         result = outp
         outp, outp2 = outp2, outp          
@@ -592,7 +588,7 @@ echo '**************************************************************'
         filename = p.pdbfile.name
         irmsd_filenames[pnr] = filename
         if p.ensemble_size > 0:
-	  irmsd_filenames[pnr] = p.collect_pdb.name
+          irmsd_filenames[pnr] = p.collect_pdb.name
         if p.rmsd_pdb is not None:
           filename = p.rmsd_pdb.name
         irmsd_refenames[pnr] = filename
@@ -604,7 +600,7 @@ echo '**************************************************************'
         filename = p.pdbfile.name
         fnat_filenames[pnr] = filename
         if p.ensemble_size > 0:
-	    fnat_filenames[pnr] = p.collect_pdb.name
+          fnat_filenames[pnr] = p.collect_pdb.name
         if p.rmsd_pdb is not None:
           filename = p.rmsd_pdb.name
         fnat_refenames[pnr] = filename

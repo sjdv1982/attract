@@ -91,6 +91,8 @@ def _assign_category(f, category, groupname, span = False):
 def webform(f, model=None):
   import copy
   f = copy.deepcopy(f)  
+  f.resourcefilevar = "_tempresource"
+  f.arraymarker = "_clonearraymarker"
 
   ### START partners category
   c = f.new_group("c_partners", "category")
@@ -204,18 +206,3 @@ def webserverform(webdict, form=None, spydertype=None):
 def html(form, cgi, spyderobj, newtab=False):
   from form_model import html
   return html(form, cgi, spyderobj, newtab, header=header)
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  

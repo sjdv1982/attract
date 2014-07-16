@@ -104,6 +104,8 @@ def webform(f, model=None,
     if sequenceslength is None: sequenceslength = 1  
   import copy
   f = copy.deepcopy(f)
+  f.arraymarker = "_clonearraymarker"
+  f.resourcefilevar = "_tempresource"
         
   ### START sequences category
   f.sequences.length = sequenceslength      
