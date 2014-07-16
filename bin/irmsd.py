@@ -85,16 +85,16 @@ def get_interface(boundatoms):
   ret = [(v[0],v[1]) for v in ret]
   return ret
   
-def get_selection(boundatoms, allresidues, allatoms):
+def get_selection(boundatoms, use_allresidues, use_allatoms):
   
   allatoms = []
   for b in boundatoms: allatoms += b[1]
-  if not allresidues:
+  if not use_allresidues:
     selatoms = get_interface(boundatoms)
   else:
     selatoms = [(n+1,a[1]) for n,a in enumerate(allatoms)]
       
-  if not allatoms:
+  if not use_allatoms:
     selatoms = [(n,a) for n,a in selatoms if a[13:15] in ("CA","C ","O ","N ")]
   selected = set([n for n,a in selatoms])
 
