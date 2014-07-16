@@ -1,0 +1,13 @@
+Repair UI Quirks
+  Input Boxes
+  File Input Boxes
+  Labels closer to Input Boxes (maybe switch)
+  possibly more than 2 colums of input
+  
+Client Side Validation
+  Send data to server once change happens
+  validate then on the server and send errors back
+    maybe angularjs javascript modules for data types
+  disable/enable(hiding,restricting) input boxes upon others
+  
+Interactive Help with step wise tutorial jumping from one inout to next

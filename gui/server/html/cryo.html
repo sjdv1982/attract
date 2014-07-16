@@ -69,7 +69,7 @@
               <div id="close-app" class="button close-icon-active float-right"></div>
               
             </header>
-            <form encType="multipart/form-data" action="http://attract.ph.tum.de/cgi/services/ATTRACT/attractserver-cryo.py" method="post" target="_blank">
+            <form encType="multipart/form-data" action="http://attract.ph.tum.de/cgi/services/ATTRACT/attractserve-cryo.py" method="post" target="_blank">
 
               <div id="page1" class="category-container">
                 <div class="form-category-description">
@@ -92,10 +92,10 @@
                 <!-- UI CONTAINER FOR FORM ELEMENTS OF A CATEGORY SELECTED IN CATEGORY NAVIGATION MENU -->
                 <div class="form-category">
 
-                  <div id="block-sequences-0" class="level1 active">
+                  <div id="block-sequences-0" class="level1">
 
                     <div class="controls">
-                      <div class="title"><h4>Assembly sequences 1</h4></div>
+                      <div class="title"><h4>Protein sequence definition 1</h4></div>
                       <div class="button reload-icon reload-form-block"><div class="controls-tooltip"><p>Restore default values</p></div></div>
                       <div id="remove-block-sequences-0" class="button close-icon"><div class="controls-tooltip"><p>Remove partner</p></div></div>
                     </div>
@@ -253,6 +253,7 @@
                         </div> <!-- END: group-container -->
                       </div> <!-- END: level2 -->
                     </div><!-- END: level1-container -->
+                    <input type="hidden" name="sequences-0-_clonearraymarker" value=0>
                   </div><!-- END: level1 -->
 
                 </div><!-- END: UI container -->
@@ -298,7 +299,7 @@ A CryoPartner has different options for how it is to be converted into CryoBodie
                 <!-- UI CONTAINER FOR FORM ELEMENTS OF A CATEGORY SELECTED IN CATEGORY NAVIGATION MENU -->
                 <div class="form-category">
 
-                  <div id="block-partners-0" class="level1 active">
+                  <div id="block-partners-0" class="level1">
 
                     <div class="controls">
                       <div class="title"><h4>Assembly partners 1</h4></div>
@@ -791,6 +792,7 @@ A CryoPartner has different options for how it is to be converted into CryoBodie
                         </div> <!-- END: group-container -->
                       </div> <!-- END: level2 -->
                     </div><!-- END: level1-container -->
+                    <input type="hidden" name="partners-0-_clonearraymarker" value=0>
                   </div><!-- END: level1 -->
 
                 </div><!-- END: UI container -->
@@ -808,7 +810,7 @@ A CryoPartner has different options for how it is to be converted into CryoBodie
                 <!-- UI CONTAINER FOR FORM ELEMENTS OF A CATEGORY SELECTED IN CATEGORY NAVIGATION MENU -->
                 <div class="form-category">
 
-                  <div id="block-b_symmetry-0" class="level1 active">
+                  <div id="block-b_symmetry-0" class="level1">
 
                     <div class="controls">
                       <div class="title"><h4>Symmetry</h4></div>
@@ -888,7 +890,7 @@ A CryoPartner has different options for how it is to be converted into CryoBodie
                 <!-- UI CONTAINER FOR FORM ELEMENTS OF A CATEGORY SELECTED IN CATEGORY NAVIGATION MENU -->
                 <div class="form-category">
 
-                  <div id="block-b_cryodata-0" class="level1 active">
+                  <div id="block-b_cryodata-0" class="level1">
 
                     <div class="controls">
                       <div class="title"><h4>Experimental cryo-EM data</h4></div>
@@ -955,7 +957,7 @@ A CryoPartner has different options for how it is to be converted into CryoBodie
                   </div><!-- END: level1 -->
 
 
-                  <div id="block-b_simdata-0" class="level1 active">
+                  <div id="block-b_simdata-0" class="level1">
 
                     <div class="controls">
                       <div class="title"><h4>Simulated cryo-EM data</h4></div>
@@ -1017,7 +1019,7 @@ A CryoPartner has different options for how it is to be converted into CryoBodie
                 <!-- UI CONTAINER FOR FORM ELEMENTS OF A CATEGORY SELECTED IN CATEGORY NAVIGATION MENU -->
                 <div class="form-category">
 
-                  <div id="block-b_reference-0" class="level1 active">
+                  <div id="block-b_reference-0" class="level1">
 
                     <div class="controls">
                       <div class="title"><h4>Reference</h4></div>
@@ -1047,7 +1049,7 @@ A CryoPartner has different options for how it is to be converted into CryoBodie
                   </div><!-- END: level1 -->
 
 
-                  <div id="block-b_reference-0-0" class="level1 active">
+                  <div id="block-b_reference-0-0" class="level1">
 
                     <div class="controls">
                       <div class="title"><h4>Mapping to assembly sequences 1</h4></div>
@@ -1190,7 +1192,7 @@ A CryoPartner has different options for how it is to be converted into CryoBodie
                   </div><!-- END: level1 -->
 
 
-                  <div id="block-b_reference-1-0" class="level1 active">
+                  <div id="block-b_reference-1-0" class="level1">
 
                     <div class="controls">
                       <div class="title"><h4>Mapping to assembly sequences 2</h4></div>
@@ -1333,7 +1335,7 @@ A CryoPartner has different options for how it is to be converted into CryoBodie
                   </div><!-- END: level1 -->
 
 
-                  <div id="block-b_reference-2-0" class="level1 active">
+                  <div id="block-b_reference-2-0" class="level1">
 
                     <div class="controls">
                       <div class="title"><h4>Mapping to assembly sequences 3</h4></div>
@@ -1476,7 +1478,7 @@ A CryoPartner has different options for how it is to be converted into CryoBodie
                   </div><!-- END: level1 -->
 
 
-                  <div id="block-b_reference-3-0" class="level1 active">
+                  <div id="block-b_reference-3-0" class="level1">
 
                     <div class="controls">
                       <div class="title"><h4>Mapping to assembly sequences 4</h4></div>
@@ -1619,7 +1621,7 @@ A CryoPartner has different options for how it is to be converted into CryoBodie
                   </div><!-- END: level1 -->
 
 
-                  <div id="block-b_reference-4-0" class="level1 active">
+                  <div id="block-b_reference-4-0" class="level1">
 
                     <div class="controls">
                       <div class="title"><h4>Mapping to assembly sequences 5</h4></div>
@@ -1762,7 +1764,7 @@ A CryoPartner has different options for how it is to be converted into CryoBodie
                   </div><!-- END: level1 -->
 
 
-                  <div id="block-b_reference-5-0" class="level1 active">
+                  <div id="block-b_reference-5-0" class="level1">
 
                     <div class="controls">
                       <div class="title"><h4>Mapping to assembly sequences 6</h4></div>
@@ -1905,7 +1907,7 @@ A CryoPartner has different options for how it is to be converted into CryoBodie
                   </div><!-- END: level1 -->
 
 
-                  <div id="block-b_reference-6-0" class="level1 active">
+                  <div id="block-b_reference-6-0" class="level1">
 
                     <div class="controls">
                       <div class="title"><h4>Mapping to assembly sequences 7</h4></div>
@@ -2048,7 +2050,7 @@ A CryoPartner has different options for how it is to be converted into CryoBodie
                   </div><!-- END: level1 -->
 
 
-                  <div id="block-b_reference-7-0" class="level1 active">
+                  <div id="block-b_reference-7-0" class="level1">
 
                     <div class="controls">
                       <div class="title"><h4>Mapping to assembly sequences 8</h4></div>
@@ -2191,7 +2193,7 @@ A CryoPartner has different options for how it is to be converted into CryoBodie
                   </div><!-- END: level1 -->
 
 
-                  <div id="block-b_reference-8-0" class="level1 active">
+                  <div id="block-b_reference-8-0" class="level1">
 
                     <div class="controls">
                       <div class="title"><h4>Mapping to assembly sequences 9</h4></div>
@@ -2334,7 +2336,7 @@ A CryoPartner has different options for how it is to be converted into CryoBodie
                   </div><!-- END: level1 -->
 
 
-                  <div id="block-b_reference-9-0" class="level1 active">
+                  <div id="block-b_reference-9-0" class="level1">
 
                     <div class="controls">
                       <div class="title"><h4>Mapping to assembly sequences 10</h4></div>
@@ -2491,7 +2493,7 @@ A CryoPartner has different options for how it is to be converted into CryoBodie
                 <!-- UI CONTAINER FOR FORM ELEMENTS OF A CATEGORY SELECTED IN CATEGORY NAVIGATION MENU -->
                 <div class="form-category">
 
-                  <div id="block-b_protocol-0" class="level1 active">
+                  <div id="block-b_protocol-0" class="level1">
 
                     <div class="controls">
                       <div class="title"><h4>General settings</h4></div>
@@ -2584,7 +2586,7 @@ A CryoPartner has different options for how it is to be converted into CryoBodie
                   </div><!-- END: level1 -->
 
 
-                  <div id="block-b_initial-0" class="level1 active">
+                  <div id="block-b_initial-0" class="level1">
 
                     <div class="controls">
                       <div class="title"><h4>Initial iteration</h4></div>
@@ -2675,7 +2677,7 @@ A CryoPartner has different options for how it is to be converted into CryoBodie
                   </div><!-- END: level1 -->
 
 
-                  <div id="block-b_subsequent-0" class="level1 active">
+                  <div id="block-b_subsequent-0" class="level1">
 
                     <div class="controls">
                       <div class="title"><h4>Subsequent iterations</h4></div>

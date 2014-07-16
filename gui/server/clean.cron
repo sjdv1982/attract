@@ -1,0 +1,7 @@
+#!/bin/sh
+for i in `find /tmp/ -type d -name 'attractrun*' -ctime 24`; do
+  rm -rf $i
+done
+for i in `find ~/server/ATTRACT/results -type d -name '*' -ctime 72`; do  
+  rm -rf $i
+done
