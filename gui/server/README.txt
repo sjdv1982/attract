@@ -33,6 +33,7 @@ generate-html-tum.sh sets up a TUM web server (www.attract.ph.tum.de)
 generate-html-local.sh sets up a web server for local use (localhost). 
 - Edit serverconfig-tum.py or serverconfig-local.py 
 - Run your chosen generate-html scripts
+- Edit upload.html by hand, this is not currently auto-generated
 - Create a directory <servicename> inside your web server directory, e.g /home/user/server/ATTRACT
 - Go to this directory
 - Create (or softlink) a results directory, e.g /home/user/server/ATTRACT/results
@@ -48,7 +49,7 @@ generate-html-local.sh sets up a web server for local use (localhost).
 
 Done! 
 If you set it up for local use, the web interfaces will be now available under http://localhost/server/ATTRACT/XXX
-  XXX can be easy.html, full.html or cryo.html
+  XXX can be easy.html, full.html, upload.html or cryo.html
   
 Step 4. Maintaining the ATTRACT server
 

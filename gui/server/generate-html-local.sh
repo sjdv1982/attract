@@ -1,7 +1,7 @@
 website='http://localhost/cgi/server/ATTRACT'
 rm -rf cgi-local
 mkdir cgi-local
-for i in `ls -d ./* | grep -v 'cgi-local' | grep -v 'serverconfig' | grep -v 'attractserver'`; do
+for i in `ls -d ./* | grep -v 'cgi-local' | grep -v 'serverconfig' | grep -v 'attractserver' | grep -v 'upload.py'`; do
  cd cgi-local
  ln -s ../$i
  cd ..
@@ -14,6 +14,9 @@ for i in `ls -d ./* | grep 'attractserver'`; do
  ln ../$i
  cd ..
 done
+cd cgi-local
+ln ../upload.py
+cd ..
 
 rm -rf html-local
 mkdir html-local
