@@ -5,6 +5,7 @@ Type AttractEasyPartnerInterface {
   ResourceData_PDB pdbfile
   Integer ensemble_size = 0
   ## form ensemble_size.name = "If the PDB is a multi-model ensemble, specify the number of conformers"
+  ## validate if ensemble_size != 0: assert ensemble_size >= 1
         
   Bool generate_modes = False
   Integer nr_modes = 5
@@ -34,6 +35,10 @@ Type AttractEasyPartnerInterface {
       assert rmsd_pdb is not None
   }
   error {
+    'if ensemble_size != 0: assert ensemble_size >= 1'
+    =>
+    'If you define an ensemble size, it must at least 1, not {ensemble_size}'
+
     'assert rmsd_pdb is None'
     =>
     'You defined a PDB for RMSD calculation, which you disabled'
