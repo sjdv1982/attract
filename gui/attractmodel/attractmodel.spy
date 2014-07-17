@@ -239,7 +239,7 @@ Type AttractPartnerInterface {
 
     'if nr_modes != 0: assert generate_modes'
     =>
-    'You defined a number of modes, but you didn't turn on harmonic mode generation'
+    'You defined a number of modes, but you did not turn on harmonic mode generation'
 
     'if modes_file is not None: assert not generate_modes'
     =>
