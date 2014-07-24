@@ -8,8 +8,9 @@ Usage: receptor_interface.txt ligand_interface.txt receptorr.pdb ligandr.pdb
 """
 
 import numpy as np
-import sys
+import os,sys
 import re
+import interface
 
 def parse_arg(arguments):
     if len(arguments) < 6 or not len(arguments)%2 == 0 :
@@ -59,39 +60,10 @@ def gen_mode(rflex, rlen, name, atomlist):
     if len(rflex) == 0:
         output += '-1\n'
     else:
-        #print "number of ligand hm is", len(rflex)*3
         output += '-1\n'
         for i, mode in enumerate(rflex):
 	    output += str(mode[0])+'\n'
-            #for j in range(3):
-                #output += '    '+str(3*i+j+1)+'    0.0\n'
-                #modes = ['0' for k in range(3*rlen)] 
-                #modes[3*int(mode[0]-1)+j] = '1'
-                #This uncommented part is for making hydrogens flexible in conjunction with the heavy atom they are attached to
-                # This was used to reduce the number of modes
-                #h = find_hatoms(mode[2], mode[3])
-                #if len(h) > 0:
-                    #for atom in h:
-                        #kk = [x[0] for x in atomlist if x[1] == mode[1] and x[2] == atom]
-                        #if len(kk) == 1:
-                            #modes[3*(kk[0]-1)+j] = '1'
-                            
-                        #else:
-                            #print "ERROR", atom, "in res", mode[1], "not found"
-                            #print "Check if this is consistent with your expectations"
-                            #break
-                            
-                    #modes[3*int(mode[0]-1)+j] = '1'
-                    
-                #else:
-                    #modes[3*int(mode[0]-1)+j] = '1'
-                    
-                    
-                #for k in range(0,len(modes),6):
-                    #outstring = ' '.join(modes[k:k+6])
-                    #output += outstring+'\n'
-                
-                #output += '\n'
+
                 
     return output
 
@@ -144,35 +116,36 @@ def find_hatoms(atomname, resname):
         
     else:
         return []
-        
-#-----Main--------
-if parse_arg(sys.argv):   
-    import subprocess
-    import os
-    name = sys.argv[1]
-    inputfiles = sys.argv[2:]
-        
+
+def run(args,rcut=3.0):
+  name = args[0]
+  inputfiles = args[1:]
+  flexbeads, lenligands, atomlist = read(inputfiles)
+  directory = os.path.split(inputfiles[1])[0]
+  if len(directory) == 0: directory = '.'
+  inp = inputfiles[0].split('rl')[0]
+  while (len(flexbeads[0])+len(flexbeads[1]))*3 > 1000 and rcut > 0:
+    rcut -= 0.1
+    interface.make_interface(directory+'/'+name+'.pdb', directory, name,rcut)
     flexbeads, lenligands, atomlist = read(inputfiles)
-    rcut = 3.0
-    directory = os.path.split(inputfiles[1])[0]
-    if len(directory) == 0: directory = '.'
-    inp = inputfiles[0].split('rl')[0]
-    while (len(flexbeads[0])+len(flexbeads[1]))*3 > 1000 and rcut > 0:
-        rcut -= 0.1
-        subprocess.call(['python','tools/interface.py',directory+'/'+name+'.pdb',directory,name,str(rcut)])
-        flexbeads, lenligands, atomlist = read(inputfiles)
         
-    output = open(directory+'/flexm-'+name+'.dat','w')
-    outstring = ''
-    for i, beads in enumerate(flexbeads):
-        tmp = gen_mode(beads, lenligands[i], name, atomlist[i])
-        if i == len(flexbeads)-1:
-	    if tmp == '\t0\n':
-	      tmp = ''
+  output = open(directory+'/flexm-'+name+'.dat','w')
+  outstring = ''
+  for i, beads in enumerate(flexbeads):
+    tmp = gen_mode(beads, lenligands[i], name, atomlist[i])
+    if i == len(flexbeads)-1:
+      if tmp == '\t0\n':
+	tmp = ''
 	
-	outstring += tmp
+    outstring += tmp
             
-    outstring = outstring[:-1]
-    output.write(outstring)
+  outstring = outstring[:-1]
+  output.write(outstring)
+  output.close()  
+    
+#-----Main--------
+if __name__ == "__main__":
+  if parse_arg(sys.argv):   
+      run(sys.argv[1:])
         
-    output.close()
+

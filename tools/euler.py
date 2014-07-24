@@ -70,6 +70,25 @@ def read_pdb(f):
     ret.append((x,y,z))
   return ret
 
+def run(pdb1, pdb2,output=None):
+  f1 = sys.stdout
+  if output is not None:
+    f1 = open(output,'w')
+    
+  atoms1 = read_pdb(pdb1)
+  atoms2 = read_pdb(pdb2)
+
+  if len(atoms1) != len(atoms2):
+    raise Exception("Different atom numbers: %s: %d, %s: %d" % (pdb1, len(atoms1), pdb2, len(atoms2)))
+
+  atoms1 = numpy.array(atoms1)
+  atoms2 = numpy.array(atoms2)
+
+  ret = euler(atoms1, atoms2)
+  ret = ["%.5f" % x if fabs(x) > 1e-5 else 0 for x in ret ]
+  phi, ssi, rot, dx, dy, dz = ret
+  f1.write(phi+' '+ssi+' '+rot+' '+dx+' '+dy+' '+dz+'\n')
+  
 if __name__ == "__main__":  
   ensfiles = []
   modefile = None
@@ -95,16 +114,4 @@ if __name__ == "__main__":
   if len(sys.argv) !=  3:
     raise Exception("Please supply two PDB files")
 
-  atoms1 = read_pdb(sys.argv[1])
-  atoms2 = read_pdb(sys.argv[2])
-
-  if len(atoms1) != len(atoms2):
-    raise Exception("Different atom numbers: %s: %d, %s: %d" % (sys.argv[1], len(atoms1), sys.argv[2], len(atoms2)))
-
-  atoms1 = numpy.array(atoms1)
-  atoms2 = numpy.array(atoms2)
-
-  ret = euler(atoms1, atoms2)
-  ret = ["%.5f" % x if fabs(x) > 1e-5 else 0 for x in ret ]
-  phi, ssi, rot, dx, dy, dz = ret
-  print phi, ssi, rot, dx, dy, dz
+  run(sys.argv[1],sys.argv[2])

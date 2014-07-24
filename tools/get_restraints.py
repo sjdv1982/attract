@@ -9,6 +9,11 @@ import math
 import os
 import re
 
+currdir = os.path.abspath(os.path.split(__file__)[0])
+allatomdir = currdir + "/../allatom"
+sys.path.append(allatomdir)
+from parse_cns_top import *
+
 def make_interfacelist(ilist, pdb):
      # Read interface residues from files
     data = open(ilist).readlines()
@@ -55,15 +60,15 @@ def find_neighbors(atom, xr, sigma2, c, rc):
   
   
 
-def make_model(filelist,nlistcut=30):
-    directory, pdb, interface, name = filelist[1:5]
+def make_model(filelist,residues,presidues,nlistcut=30):
+    directory, pdb, interface, name = filelist[:4]
     offset = 0
-    if len(filelist) > 5 and not filelist[5] == '--strong':
-        offset = int(filelist[5])
+    if len(filelist) > 4 and not filelist[4] == '--strong':
+        offset = int(filelist[4])
     
     c = 100.0
-    if len(filelist) > 6 and not filelist[6] == '--strong':
-        c = float(filelist[6])
+    if len(filelist) > 5 and not filelist[5] == '--strong':
+        c = float(filelist[5])
         
     interfacelist, atomlist, atomid = make_interfacelist(interface, pdb)
     nbonds = []
@@ -72,7 +77,12 @@ def make_model(filelist,nlistcut=30):
         natom = atomid[atom-1][2]
         resn = atomid[atom-1][0]
         resi = int(atomid[atom-1][1])
-        bonds, angles = read_topology(natom,resn)
+        a = residues[resn.lower()].copy()
+        bonds = [ (b[0].upper(),b[1].upper()) for b in a.bonds]
+        bonds = bonds + [('N','HT1'),('N','HT2'),('N','HT3'),('C','OXT')]
+        angles = [ (ang[0].upper(),ang[1].upper(),ang[2].upper()) for ang in a.get_angles()]
+        angles = angles + [('HT1','N','HT2'),('HT2','N','HT3'),('HT1','N','HT3'),('HT1','N','CA'),('HT2','N','CA'),('HT3','N','CA'),
+	      ('O','C','OXT'),('CA','C','OXT')]
         #Find and write bonds
         nlist = []
         rc = 5.0
@@ -153,9 +163,7 @@ def make_model(filelist,nlistcut=30):
 def write_output(nbonds, pdb, name, c, offset, atomid,strong=1.0):
     sel = []
     output = os.path.splitext(pdb)[0]+'_'+name+'.txt'
-    #print output
     out = open(output,'w')
-    #print "Write bonds..."
     countb = 0
     counta = 0
     countc = 0
@@ -219,8 +227,20 @@ def write_output(nbonds, pdb, name, c, offset, atomid,strong=1.0):
                 countc += 1
     
     out.close()    
-    #print countb, counta, countc
-    
+
+def make_restraints(args):
+    residues, presidues = parse_stream(open(args[0]))
+    nbonds, pdb, name, c, offset, atomid = make_model(args[1:],residues,presidues)
+    cut = 31
+    while len(nbonds) > 9000 and cut > 0:
+      cut -= 5
+      nbonds, pdb, name, c, offset, atomid = make_model(args[1:],residues,presidues,cut)
+          
+    if '--strong' in args:
+      write_output(nbonds,pdb,name,c,offset,atomid,10.0)
+    else:
+      write_output(nbonds,pdb,name,c,offset,atomid)
+  
 #Main
 if __name__ == "__main__":
     import sys
@@ -240,15 +260,5 @@ if __name__ == "__main__":
             
         out.close()
         
-    else:    
-        nbonds, pdb, name, c, offset, atomid = make_model(sys.argv)
-        cut = 31
-        while len(nbonds) > 9000 and cut > 0:
-            cut -= 5
-            nbonds, pdb, name, c, offset, atomid = make_model(sys.argv,cut)
-          
-        if '--strong' in sys.argv:
-	  write_output(nbonds,pdb,name,c,offset,atomid,10.0)
-	  
-	else:
-	  write_output(nbonds,pdb,name,c,offset,atomid)
+    else: 
+        make_restraints(sys.argv[1:])
