@@ -235,26 +235,26 @@ def morph_categorywrapper(node):
     children = []
     for clone in space.clones:
       if clone.button is not None:
-	onClick = "cloneBlock('block-%s-',%d);" % (clone.name, clone.length)
-	child = ComplexTag (
-	  "div",
-	  [("class", "field-container")],
-	  [ComplexTag (
-	    "div",
-	    [("class", "field-item button align-right")],
-	    [VoidTag(
-	      "input",
-	      [
-		("type","button"),
-		("value",clone.button),
-		("id","block-%s-add" % clone.name ),
-		("onClick", onClick),
-	      ],
-	      inline = True,
-	    )],
-	  )],
-	)
-	children.append(child)    
+        onClick = "cloneBlock('block-%s-',%d);" % (clone.name, clone.length)
+        child = ComplexTag (
+          "div",
+          [("class", "field-container")],
+          [ComplexTag (
+            "div",
+            [("class", "field-item button align-right")],
+            [VoidTag(
+              "input",
+              [
+                ("type","button"),
+                ("value",clone.button),
+                ("id","block-%s-add" % clone.name ),
+                ("onClick", onClick),
+              ],
+              inline = True,
+            )],
+          )],
+        )
+        children.append(child)    
     controltag = ComplexTag (
       "div",
       [("class", "category-controls")],
@@ -386,8 +386,10 @@ def morph_level1_blockwrapper(node,clone=False):
   innertags = [ controltag, containertag ]
   blockname = "%s-%d" % (space.blockname, blockindex)
   if clone:
-    #add hidden _clonearraymarker attribute, so that we can know if blocks have been inserted/deleted
-    t = VoidTag("input", [("type","hidden"),("name", blockname + "-_clonearraymarker"),("value",blockindex)])
+    assert node.root.space.arraymarker is not None
+    am = node.root.space.arraymarker
+    #add hidden arraymarker attribute, so that we can know if blocks have been inserted/deleted
+    t = VoidTag("input", [("type","hidden"),("name", blockname + "-" + am),("value",blockindex)])
     innertags.append(t)
   
   active = ""

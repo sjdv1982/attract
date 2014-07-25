@@ -112,6 +112,8 @@ def webform(f, model=None,
     if symmetrieslength is None: symmetrieslength = 1
   import copy
   f = copy.deepcopy(f)
+  f.arraymarker = "_clonearraymarker"
+  f.resourcefilevar = "_tempresource"
   
   f.partners.length = partnerslength
   
@@ -489,13 +491,13 @@ def html(form, cgi, spyderobj, newtab=False, header=header0, footer=footer0):
   if spyderobj is not None:
     from spyder.formtools import embed
     embed(spyderobj)
-    mydir = "run" + str(random.randint(1,1000000))  
+    mydir = "attractrun" + str(random.randint(1,1000000))  
     fname = "attract.web"
     os.chdir("/tmp/")
     os.mkdir(mydir)
     os.chdir(mydir)
     spyderobj.tofile(fname)
-    args["hidden"] = {"_tmpresource":mydir+"/"+fname}
+    args["resourcefilename"] = mydir+"/"+fname
   html = attracthtmlform.htmlform(**args)
   return html
   

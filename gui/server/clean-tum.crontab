@@ -1,0 +1,1 @@
+0 * * * * $ATTRACTGUI/server/clean-tum.cron >& /dev/null

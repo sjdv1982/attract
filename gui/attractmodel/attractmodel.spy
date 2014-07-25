@@ -19,7 +19,7 @@ Type AttractSymmetry {
     symmetry_axis.add_header(" - In the Docking Partner section, only define the reference partner structure")    
     symmetry_axis.add_header("If you want to use distance-restrained symmetry:")
     symmetry_axis.add_header(" - Do not provide explicit symmetry axis and origin")    
-    symmetry_axis.add_header(" - Specify all symmetry partners that are to be restrained")    
+    symmetry_axis.add_header(" - Specify aqll symmetry partners that are to be restrained")    
     symmetry_axis.add_header(" - In the Docking Partner section, specify all partner structures, which must be identical")
     symmetry_axis.name = "Generative symmetry axis"
     symmetry_origin.name = "Origin for generative symmetry axis"
@@ -34,6 +34,7 @@ Type AttractSymmetry {
   Enum symmetry("Cx","Dx") = "Cx"
   validate {
     if symmetry_origin is not None: assert symmetry_axis is not None
+    if symmetry_axis is not None: assert symmetry_origin is not None
   }
   IntegerArray partners = []
   form {
@@ -49,6 +50,31 @@ Type AttractSymmetry {
       assert symmetry_fold is None or symmetry_fold == len(partners)
       if symmetry == "Dx": assert len(partners) == 4
   }
+  error {
+    'if symmetry is not None: assert symmetry in ("Cx","Dx")'
+    =>
+    ''
+
+    'if symmetry_origin is not None: assert symmetry_axis is not None'
+    =>
+    'If you specify a symmetry origin, you must also supply a symmetry axis'
+
+    'if symmetry_axis is not None: assert symmetry_origin is not None'
+    =>
+    'If you specify a symmetry axis, you must also supply a symmetry origin'
+    
+    'if symmetry == "Dx": assert len(partners) == 4'
+    =>
+    'With Dx-symmetry and no symmetry axis, the number of partners must be 4, not {len(partners)}'
+
+    'if symmetry_axis is not None: assert len(partners) == 1'
+    =>
+    'If you define a symmetry axis, you must define exactly one symmetry partner, not {len(partners)}'
+
+    'assert len(partners) > 1'
+    =>
+    'If you don't define a symmetry axis, you have define at least 2 symmetry partners, not {len(partners)}'
+  }  
 }
 
 
@@ -87,25 +113,27 @@ Type AttractPartnerInterface {
   *ResourceData_ATTRACT_Modes aa_modes_file 
   ## form aa_modes_file.name = "All-atom harmonic modes file (for RMSD/collect)"
   ## form aa_modes_file.type = "file"
-  *Integer nr_modes = 0
+  Integer nr_modes = 0
   form {
     nr_modes.name = "Number of harmonic modes to select"
     nr_modes.type = "option"
     nr_modes.options = list(range(0,10+1))
     nr_modes.optiontitles = ["No modes"] + [str(v) for v in nr_modes.options[1:]]
   }
-  ## validate if generate_modes: assert nr_modes is not None
+  ## validate if nr_modes != 0: assert nr_modes >= 1 and nr_modes <= 10
+  ## validate if generate_modes: assert nr_modes != 0
   ## validate if generate_modes: assert modes_file is None
-  ## validate if nr_modes not in (None, 0): assert nr_modes >= 1 and nr_modes <= 10
+  ## validate if modes_file is not None: assert not generate_modes
+  ## validate if nr_modes != 0: assert generate_modes
     
   Bool ensemble = False
   ## form ensemble.name = "The PDB is a multi-model ensemble"
   *ResourceData_TXT_FileList_PDB ensemble_list
   ## form ensemble_list.name = "Or: You can supply an ensemble list file"
   ## form ensemble_list.type = "file"
-  *Integer ensemble_size
+  Integer ensemble_size = 0
   ## form ensemble_size.name = "Number of conformers in the ensemble"
-  ## validate assert ensemble_size is None or ensemble_size > 1
+  ## validate if ensemble_size != 0: assert ensemble_size >= 1
   *Enum ensemblize("random","all","custom")
   ## form ensemblize.name = "Ensemble search"
   ## form ensemblize.optiontitles = "Random", "All", "Custom (none)"
@@ -158,10 +186,10 @@ Type AttractPartnerInterface {
        raise spyder.core.ValidationError("Please provide a chain")  
     if ensemble:
       assert ensemble_list is None
-      assert ensemble_size is not None and ensemble_size > 1
+      assert ensemble_size > 1
       assert ensemblize is not None
     else:
-      assert (ensemble_size is None) == (ensemble_list is None) == (ensemblize is None)
+      assert (ensemble_size in (0,1)) == (ensemble_list is None) == (ensemblize is None)
     assert is_reduced == False or code is None
   }
     error {
@@ -169,7 +197,7 @@ Type AttractPartnerInterface {
     =>
     'The ensemble search must be defined'
 
-    'assert (ensemble_size is None) == (ensemble_list is None) == (ensemblize is None)'
+    'assert (ensemble_size in (0,1)) == (ensemble_list is None) == (ensemblize is None)'
     =>
     'You must define the ensemble size, ensemble list file and ensemble search, or none of the above'
 
@@ -185,7 +213,7 @@ Type AttractPartnerInterface {
     =>
     ''
 
-    'if nr_modes not in (None, 0): assert nr_modes >= 1 and nr_modes <= 10'
+    'if nr_modes != 0: assert nr_modes >= 1 and nr_modes <= 10'
     =>
     'The number of modes must be between 1 and 10, not {nr_modes}'
 
@@ -205,7 +233,7 @@ Type AttractPartnerInterface {
     =>
     'If you want to generate modes, you can't supply a pre-generated modes file'
 
-    'assert ensemble_size is not None and ensemble_size > 1'
+    'assert ensemble_size > 1'
     =>
     'You must define an ensemble size larger than 1, not {ensemble_size}'
 
@@ -213,14 +241,22 @@ Type AttractPartnerInterface {
     =>
     'If you supply a PDB code, it can't be reduced'
 
-    'assert ensemble_size is None or ensemble_size > 1'
+    'if ensemble_size != 0: assert ensemble_size >= 1'
     =>
-    'If you define an ensemble size, it must be larger than 1, not {ensemble_size}'
+    'If you define an ensemble size, it must at least 1, not {ensemble_size}'
 
-    'if generate_modes: assert nr_modes is not None'
+    'if generate_modes: assert nr_modes != 0'
     =>
     'Please define the number of modes you want to generate'
 
+    'if nr_modes != 0: assert generate_modes'
+    =>
+    'You defined a number of modes, but you did not turn on harmonic mode generation'
+
+    'if modes_file is not None: assert not generate_modes'
+    =>
+    'If you supply a harmonic modes file, you can't have them generated'
+   
   }
 }
 
@@ -267,22 +303,22 @@ Type AttractGrid:Degenerate {
 
 Type AttractIteration {
   ## form rcut.add_header("The nonbonded pairlist distance cutoff (rcut) (in A**2) during this iteration")
-  *Float rcut = 1500
+  Float rcut = 1500
   ## form vmax.add_header("The maximum number of energy minimization or Monte Carlo steps (vmax)") 
-  *Integer vmax = 100
+  Integer vmax = 100
   ## form traj.add_header("Trajectory mode: only minimize the first structure, and output the structure after every minimization step")
   Bool traj = False
   validate {
-    assert rcut is None or rcut > 0
-    assert vmax is None or vmax > 0
+    assert rcut > 0
+    assert vmax > 0
   }  
   
   Bool mc = False
-  *Float mctemp = 3.5
-  *Float mcscalerot = 0.05
-  *Float mcscalecenter = 0.1
-  *Float mcscalemode = 0.1
-  *Float mcensprob = 0.1
+  Float mctemp = 3.5
+  Float mcscalerot = 0.05
+  Float mcscalecenter = 0.1
+  Float mcscalemode = 0.1
+  Float mcensprob = 0.1
   form {
     mc.group = "Monte Carlo"
     mc.name = "Enable Monte Carlo mode"
@@ -298,23 +334,23 @@ Type AttractIteration {
     mcensprob.name = "Probability to switch between ensemble conformers"
   }
   validate {
-    assert mctemp is None or mctemp > 0
-    assert mcensprob is None or (mcensprob >= 0 and mcensprob <= 1)
+    assert mctemp > 0
+    assert mcensprob >= 0 and mcensprob <= 1
   }
     error {
-    'assert rcut is None or rcut > 0'
+    'assert rcut > 0'
     =>
     'The distance cutoff must be larger than 0, not {rcut}'
 
-    'assert vmax is None or vmax > 0'
+    'assert vmax > 0'
     =>
     'The maximum number of energy minimizations must be larger than 0, not {vmax}'
 
-    'assert mcensprob is None or (mcensprob >= 0 and mcensprob <= 1)'
+    'assert mcensprob >= 0 and mcensprob <= 1'
     =>
     'The Monte Carlo ensemble replacement probability must be between 0 and 1, not {mcensprob}'
 
-    'assert mctemp is None or mctemp > 0'
+    'assert mctemp > 0'
     =>
     'The Monte Carlo temperature must be larger than 0, not {mctemp}'
   }
@@ -373,11 +409,11 @@ Type AttractModel {
       assert nr_iterations > 0
       assert nr_iterations >= len(iterations)
   }
-  *Bool zoom = False  
-  *Integer zoom_select = 1000
-  *Integer zoom_clone = 20
-  *Float zoom_ori = 0.25
-  *Float zoom_trans = 5
+  Bool zoom = False  
+  Integer zoom_select = 1000
+  Integer zoom_clone = 20
+  Float zoom_ori = 0.25
+  Float zoom_trans = 5
   *AttractIteration zoom_it_initial
   *AttractIteration zoom_it_subsequent  
   form {
@@ -402,11 +438,7 @@ Type AttractModel {
 
   }
   validate {
-    if zoom: assert zoom_select is not None
-    if zoom: assert zoom_clone is not None
-    assert zoom_clone is None or zoom_clone > 1
-    if zoom: assert zoom_ori is not None
-    if zoom: assert zoom_trans is not None
+    assert zoom_clone > 1
     if zoom: assert zoom_it_initial is not None
     if zoom_it_initial is not None: assert zoom_it_initial.traj == False
     if zoom and nr_iterations > 1: assert zoom_it_subsequent is not None
@@ -486,7 +518,7 @@ Type AttractModel {
     gravity.options = (0,1,2,3,4,5)
     gravity.optiontitles = ("No gravity", "To global origin", "To receptor", "Between all ligands", "Cryo-EM pre-assembly stage gravity", "Cryo-EM assembly stage gravity")
   }  
-  *Float rstk = 0.01
+  Float rstk = 0.01
   form {
     rstk.name = "Restraining force constant"
     rstk.digits = 4
@@ -499,7 +531,7 @@ Type AttractModel {
   ## form ghost.add_header("In ghost mode, the forcefield is turned off")
   ## form ghost.name = "Enable ghost mode"
 
-  *Float epsilon = 15
+  Float epsilon = 15
   ## form #epsilon.group = "Sampling parameters"
   ## form epsilon.add_header("Epsilon constant for the electrostatic energy term")
   ## form epsilon.name = "Epsilon"
@@ -529,7 +561,7 @@ Type AttractModel {
     cryoem_resolution.name = "Cryo-EM density map resolution (in angstroms)"
   }  
   validate {
-    if cryoem_data is not None: assert cryoem_resolution is not None
+    if cryoem_data is not None: assert cryoem_resolution > 0
     if cryoem_data is None: assert cryoem_resolution is None
   }
 
@@ -574,13 +606,13 @@ Type AttractModel {
   
   #**Analysis***  
   Bool rescoring = True  
-  *Float rcut_rescoring = 50.0    
+  Float rcut_rescoring = 50.0    
   Bool sort = True
   Bool deredundant = True
   Bool deredundant_ignorens = True
-  *Bool calc_lrmsd = False  
-  *Bool calc_irmsd = False
-  *Bool calc_fnat = False
+  Bool calc_lrmsd = False  
+  Bool calc_irmsd = False
+  Bool calc_fnat = False
   Bool collect = True
   Integer nr_collect = 50
   form {
@@ -646,14 +678,6 @@ Type AttractModel {
   }
   
   error {
-    'if zoom: assert zoom_it_initial is not None'
-    =>
-    ''
-
-    'if zoom: assert zoom_trans is not None'
-    =>
-    ''
-
     'if cryoem_scoring_mode is not None: assert cryoem_scoring_mode in ("no","attract","gvm","cc")'
     =>
     ''
@@ -678,10 +702,6 @@ Type AttractModel {
     =>
     'You supplied a starting structures file, you can't upload a rotations file'
     
-    'if zoom: assert zoom_select is not None'
-    =>
-    ''
-
     'if cryoem_data is None: assert cryoem_resolution is None'
     =>
     'You supply a resolution for a CryoEM map, but you didn't define the map itself'
@@ -722,7 +742,11 @@ Type AttractModel {
     =>
     'You specified a CryoEM map for scoring, but did not specify its resolutuon'
 
-    'assert zoom_clone is None or zoom_clone > 1'
+    'assert zoom_clone > 1'
+    =>
+    ''
+
+    'if zoom: assert zoom_it_initial is not None'
     =>
     ''
 
@@ -734,14 +758,6 @@ Type AttractModel {
     =>
     'Ligand RMSD can only be calculated for two partners'
 
-    'if zoom: assert zoom_clone is not None'
-    =>
-    ''
-
-    'if zoom: assert zoom_ori is not None'
-    =>
-    ''
-
     'if zoom_it_subsequent is not None: assert zoom_it_subsequent.traj == False'
     =>
     ''
@@ -750,7 +766,7 @@ Type AttractModel {
     =>
     'Custom ensemble selection can only be done with a custom docking search'
 
-    'if cryoem_data is not None: assert cryoem_resolution is not None'
+    'if cryoem_data is not None: assert cryoem_resolution > 0'
     =>
     'You specified a CryoEM map, but did not specify its resolutuon'
 

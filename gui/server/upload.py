@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
-webdir = "http://www.attract.ph.tum.de/services/ATTRACT/"
-cgidir = "http://www.attract.ph.tum.de/cgi/services/ATTRACT/"
+from serverconfig import *
 
 def serve_upload():
   webform = cgi.FieldStorage()
@@ -35,9 +34,9 @@ def serve_upload():
   import random
   from spyder.formtools import embed
   embed(model)   
-  mydir = "run" + str(random.randint(1,1000000))  
+  mydir = "attract-upload" + str(random.randint(1,1000000))  
   fname = "attract.web"
-  os.chdir("/tmp/")
+  os.chdir("/tmp")
   os.mkdir(mydir)
   os.chdir(mydir)
   model.tofile(fname)
@@ -52,7 +51,7 @@ def serve_upload():
     header=header, 
     footer=formlib.footer, 
     header_indentation = 12,
-    hidden = {"_tmpresource":mydir+"/"+fname},
+    resourcefilename=mydir+"/"+fname,
   )
   return html
 
