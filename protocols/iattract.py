@@ -332,6 +332,7 @@ try:
       print "You cancelled the program!"
       sys.exit(1)
   finally:
+      p.close()
       p.join()
       
   o = open(output, "w")

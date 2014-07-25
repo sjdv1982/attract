@@ -159,10 +159,11 @@ def read_pdb(f):
   return ret1, ret2
   
 if __name__ == "__main__":  
-
+  import os
   ensfiles = []
   modefile = None
   imodefile = None
+  name = None
   opt_allatoms = False
   opt_allresidues = False
 
@@ -200,6 +201,13 @@ if __name__ == "__main__":
     
     if anr <= len(sys.argv)-2 and arg == "--imodes":
       imodefile = sys.argv[anr+1]
+      sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
+      anr -= 2
+      continue
+
+# Suppport for direct IRMSD with iATTRACT files
+    if anr <= len(sys.argv)-2 and arg == "--name":
+      name = sys.argv[anr+1]
       sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
       anr -= 2
       continue
@@ -268,9 +276,15 @@ if __name__ == "__main__":
     f1 = open(output,'w')
   while 1:
     sys.stdout.flush()
+    if name is not None: 
+      newargs = initargs + ['--imodes','flexm-'+str(nstruc+1)+name+'.dat']
+      if not os.path.exists('flexm-'+str(nstruc+1)+name+'.dat'):
+	break
+      collectlib.collect_iattract(newargs)
+     
     result = collectlib.collect_next()
     if result: break
-    nstruc += 1
+    nstruc += 1    
     coor = collectlib.collect_all_coor()
     coor = numpy.array(coor)
     fcoor = coor[sel]

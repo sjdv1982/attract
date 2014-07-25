@@ -16,6 +16,14 @@ def collect_init(args):
   #maxlig = c_int.in_dll(lib, "maxlig").value
   ieins = (POINTER(c_int)).in_dll(lib, "ieins")
 
+def collect_iattract(args):
+  args =  ["collect"] + args
+  args = (c_char_p * len(args))(*args)
+  lib.collect_iattract(len(args), args )
+  nlig = c_int.in_dll(lib, "nlig").value
+  #maxlig = c_int.in_dll(lib, "maxlig").value
+  ieins = (POINTER(c_int)).in_dll(lib, "ieins")
+  
 def collect_next():
   ret = lib.collect_next()
   return ret
