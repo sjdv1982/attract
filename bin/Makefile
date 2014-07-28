@@ -177,7 +177,7 @@ max.fin: max.h
 %-pic.o: %.cpp $(H)
 	$(CXX) $(CFLAGS) -c -fPIC $< -o $@
 
-%-pic.o: %.f
+%-pic.o: %.f $(H)
 	$(FF) $(FLAG) -c -fPIC $< -o $@
 
 clean: 
