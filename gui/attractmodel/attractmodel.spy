@@ -121,7 +121,7 @@ Type AttractPartnerInterface {
   ## form ensemble_list.type = "file"
   Integer ensemble_size = 0
   ## form ensemble_size.name = "Number of conformers in the ensemble"
-  ## validate if ensemble_size != 0: assert ensemble_size > 1
+  ## validate if ensemble_size != 0: assert ensemble_size >= 1
   *Enum ensemblize("random","all","custom")
   ## form ensemblize.name = "Ensemble search"
   ## form ensemblize.optiontitles = "Random", "All", "Custom (none)"
@@ -177,7 +177,7 @@ Type AttractPartnerInterface {
       assert ensemble_size > 1
       assert ensemblize is not None
     else:
-      assert (ensemble_size == 0) == (ensemble_list is None) == (ensemblize is None)
+      assert (ensemble_size in (0,1)) == (ensemble_list is None) == (ensemblize is None)
     assert is_reduced == False or code is None
   }
     error {
@@ -185,7 +185,7 @@ Type AttractPartnerInterface {
     =>
     'The ensemble search must be defined'
 
-    'assert (ensemble_size == 0) == (ensemble_list is None) == (ensemblize is None)'
+    'assert (ensemble_size in (0,1)) == (ensemble_list is None) == (ensemblize is None)'
     =>
     'You must define the ensemble size, ensemble list file and ensemble search, or none of the above'
 
@@ -229,9 +229,9 @@ Type AttractPartnerInterface {
     =>
     'If you supply a PDB code, it can't be reduced'
 
-    'if ensemble_size != 0: assert ensemble_size > 1'
+    'if ensemble_size != 0: assert ensemble_size >= 1'
     =>
-    'If you define an ensemble size, it must be larger than 1, not {ensemble_size}'
+    'If you define an ensemble size, it must at least 1, not {ensemble_size}'
 
     'if generate_modes: assert nr_modes != 0'
     =>
@@ -239,7 +239,7 @@ Type AttractPartnerInterface {
 
     'if nr_modes != 0: assert generate_modes'
     =>
-    'You defined a number of modes, but you didn't turn on harmonic mode generation'
+    'You defined a number of modes, but you did not turn on harmonic mode generation'
 
     'if modes_file is not None: assert not generate_modes'
     =>

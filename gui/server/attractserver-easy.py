@@ -14,7 +14,7 @@ try:
   from serverlib import serve_attract, AttractServerError
   os.system("chmod a+r+w /tmp/*spy.*")
 except Exception, e:
-  s = "There was an error in the initialization of the server\n"
+  s = "<b>There was an error in the initialization of the server</b>\n"
   s += """Please save this page from your browser as HTML and email it to sjoerd@tum.de, and it will be fixed as soon as possible.
 The ATTRACT web interface is in active development, thank you for your patience.  
 """
@@ -28,13 +28,11 @@ try:
   r = serve_attract(Spyder.AttractEasyModel, formeasy, attractsave.deploy_easy)
   print(r)
 except AttractServerError as e:
-  print("There was an inconsistency in your data")
+  print("<b>There was an inconsistency in your data</b>")
   print("\n<B>Error message</B>")
   print(e.status)
-  if e.delta is not None:
-    print("\n<B>You can download the following file</B>")
-    print("\n")
-    print("\n".join(e.delta))
+  print()
+  if e.delta is not None: print(e.delta)
   print("</pre>") 
   sys.exit()  
 except Exception as e:
