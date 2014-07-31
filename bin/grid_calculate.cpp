@@ -62,13 +62,21 @@ inline void new_energrads(
  Potential &p, int alphabetsize, bool (&alphabet)[MAXATOMTYPES], 
  EnerGrad (&energrads0)[MAXATOMTYPES+1], 
  int &nr_energrads, EnerGrad *&energrads  
-) {  
-
-  int nr_energrads0 = nr_energrads;
+) {
+  
+  EnerGrad energrads00[MAXATOMTYPES+1];
+  int count = 0;
+  for (int i = 0; i <= MAXATOMTYPES; i++) {
+    if (i == MAXATOMTYPES || alphabet[i]) {
+      memcpy(energrads00+count, energrads0+i, sizeof(EnerGrad));
+      count++;
+    }        
+  }
+  
   #pragma omp critical(energrad)
   {        
     if (nr_energrads + alphabetsize + 1 > ener_max) {
-      int new_ener_max = 2 * ener_max;
+      int new_ener_max = 1.2 * ener_max;
       if (ener_max == 0) new_ener_max = 100000;
       energrads = (EnerGrad *) realloc(energrads,
         new_ener_max*sizeof(EnerGrad)
@@ -76,16 +84,17 @@ inline void new_energrads(
       memset(energrads+ener_max,0,(new_ener_max-ener_max)*sizeof(EnerGrad));
       ener_max = new_ener_max;
     }
-    nr_energrads += alphabetsize + 1;
-  }
-  int count = 0;
-  for (int i = 0; i <= MAXATOMTYPES; i++) {
-    if (i == MAXATOMTYPES || alphabet[i]) {
-      p[i] = nr_energrads0 + count + 1;
-      memcpy(energrads + nr_energrads0 + count, energrads0+i, sizeof(EnerGrad));
-      count++;
-    }        
-  }
+    memcpy(energrads + nr_energrads, energrads00, (alphabetsize+1)*sizeof(EnerGrad));
+    int count = 0;
+    for (int i = 0; i <= MAXATOMTYPES; i++) {
+      if (i == MAXATOMTYPES || alphabet[i]) {
+        p[i] = nr_energrads + count + 1;
+        count++;
+      }        
+    }
+    nr_energrads += alphabetsize + 1;    
+  }  
+  
 }
 
 void calculate_line(
@@ -337,6 +346,7 @@ void Grid::calculate(int cartstatehandle, double plateaudis, double neighbourdis
     fprintf(stderr, "Could not allocate memory for %d Neighbours\n", MAXGRIDNEIGHBOUR);
     exit(1);
   }
+  memset(this->neighbours, 0,MAXGRIDNEIGHBOUR*sizeof(Neighbour));
   
   //Set up distances 
   Coor *dis = new Coor[nratoms]; 
@@ -353,7 +363,8 @@ void Grid::calculate(int cartstatehandle, double plateaudis, double neighbourdis
   for (int z = -gridextension; z < gridz+gridextension; z++) {    
     fprintf(stderr, "%d/%d %d %d\n", z, gridz+gridextension, potcount, nr_neighbours);  
         
-    cinnergrid = innergrid + gridx*gridy*z;
+    cinnergrid=NULL;
+    if (z >= 0) cinnergrid = innergrid + gridx*gridy*z;      
     int zz = (z + gridextension)/2;
     cbiggrid = biggrid + gridx2*gridy2*zz;
     
