@@ -1,6 +1,7 @@
 import sys, os
 sys.path.insert(0, "..")
 import spyder
+spyder.silent = True
 from attractmodel import AttractEasyModel
 import formeasy
 
