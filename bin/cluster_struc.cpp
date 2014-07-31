@@ -89,7 +89,7 @@ int main(int argc, char *argv[]) {
 
   cutoff = atof(argv[optioncounter + 2]);
   if (cutoff <= 0) {
-    fprintf(stderr, "Neighbor cutoff %f out of range\n", argv[optioncounter + 2]);
+    fprintf(stderr, "Neighbor cutoff %f out of range\n", cutoff);
     fprintf(stderr, "Usage: cluster_struc [-f] <RMSD file> <cutoff> <minsize>\n");
     return 3;
   }
@@ -169,7 +169,8 @@ int main(int argc, char *argv[]) {
         for (int i = 0; i < nrstruc; i++) {
           delete[] neighbor[i];
         }
-        delete[] neighbor, neighborcount;
+        delete[] neighbor;
+        delete[] neighborcount;
         return 5;
       }
       if (rmsd < cutoff) {
