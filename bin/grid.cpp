@@ -34,11 +34,12 @@ double neighbourdis0, bool (&alphabet0)[MAXATOMTYPES]) {
   architecture = ARCHITECTURE;
   //Pre-compute the scale-down-distance ratios
   int size_ratio  = int(10000*plateaudissq);
-  _ratio = new double[size_ratio];
+  _ratio = new double[size_ratio+1];
   for (int n = 0; n <= size_ratio; n++) {
     double dissq = ((n+0.5)/10000);
     _ratio[n] = sqrt(dissq/plateaudissq) / (1/dissq) * (1/plateaudissq);
   }
+  memset(alphabet, 0, MAXATOMTYPES*sizeof(bool));
   memcpy(alphabet, alphabet0, sizeof(alphabet));
   alphabetsize = 0;
   for (int n = 0; n < MAXATOMTYPES; n++) {
@@ -117,7 +118,7 @@ void Grid::read(const char *filename) {
       }  
     }  
   }
-
+  
   read = fread(&nr_neighbours, sizeof(nr_neighbours),1,f);  
   if (!read) error(filename);
   read = fread(&shm_neighbours, sizeof(shm_neighbours),1,f);  
@@ -264,17 +265,43 @@ void Grid::write(const char *filename) {
   fwrite(&pivot,sizeof(Coor),1,f);
 
   if (nr_energrads) {
-    int nr_energrads2 = 0;  
-    for (n = 0; n < innergridsize; n++) {
-      if (innergrid[n].potential[MAXATOMTYPES]) nr_energrads2+=alphabetsize+1;
-    }
-    for (n = 0; n < biggridsize; n++) {
-      if (biggrid[n][MAXATOMTYPES]) nr_energrads2+=alphabetsize+1;
+    energrads = (EnerGrad *) realloc(energrads, nr_energrads*sizeof(EnerGrad));
+    EnerGrad *energrads_reordered = new EnerGrad[nr_energrads];
+    memset(energrads_reordered, 0, nr_energrads*sizeof(EnerGrad));
+    if (energrads_reordered) { //only re-order the energrads if we got the memory for it    
+      int nr_energrads2 = 0;  
+      for (n = 0; n < innergridsize; n++) {
+        if (innergrid[n].potential[MAXATOMTYPES]) {
+          for (int i = 0; i <= MAXATOMTYPES; i++) {
+            if (i < MAXATOMTYPES && alphabet[i] == 0) continue;
+            unsigned int &oldpos = innergrid[n].potential[i];
+            unsigned int newpos = nr_energrads2+1;
+            memcpy(&energrads_reordered[newpos-1], &energrads[oldpos-1], sizeof(EnerGrad));
+            oldpos = newpos;
+            nr_energrads2++;           
+          }
+        }  
+      }
+      for (n = 0; n < biggridsize; n++) {
+        if (biggrid[n][MAXATOMTYPES]) {
+          for (int i = 0; i <= MAXATOMTYPES; i++) {
+            if (i < MAXATOMTYPES && alphabet[i] == 0) continue;
+            unsigned int &oldpos = biggrid[n][i];
+            unsigned int newpos = nr_energrads2+1;
+            memcpy(&energrads_reordered[newpos-1], &energrads[oldpos-1], sizeof(EnerGrad));
+            oldpos = newpos;
+            nr_energrads2++;           
+          }
+        }  
+      }  
+      if (nr_energrads != nr_energrads2) {
+        fprintf(stderr, "ERR nr_energrads %d %d\n", nr_energrads, nr_energrads2);
+      }
+      free(energrads);
+      energrads = energrads_reordered;      
     }  
-    if (nr_energrads != nr_energrads2) {
-      fprintf(stderr, "ERR nr_energrads %d %d %d\n", nr_energrads, nr_energrads2);
-    }
   }
+  
   fwrite(&nr_energrads, sizeof(nr_energrads),1,f);
   fwrite(&shm_energrads, sizeof(shm_energrads),1,f);
    
@@ -284,6 +311,28 @@ void Grid::write(const char *filename) {
     else 
       memcpy(shmptr1, energrads,nr_energrads*sizeof(EnerGrad));
   }  
+  
+  if (nr_neighbours) {
+    Neighbour *neighbours_reordered = new Neighbour[nr_neighbours];
+    memset(neighbours_reordered, 0, nr_neighbours*sizeof(Neighbour));
+    if (neighbours_reordered) { //only re-order the neighbours if we got the memory for it    
+      int nr_neighbours2 = 0;  
+      for (n = 0; n < innergridsize; n++) {
+        Voxel &v = innergrid[n];
+        if (v.nr_neighbours) {
+          memcpy(&neighbours_reordered[nr_neighbours2], &neighbours[v.neighbourlist-1], v.nr_neighbours*sizeof(Neighbour));
+          v.neighbourlist = nr_neighbours2+1;
+          nr_neighbours2 += v.nr_neighbours;
+        }        
+      }
+      if (nr_neighbours2 != nr_neighbours) {
+        fprintf(stderr, "ERR nr_neighbours %d %d\n", nr_neighbours, nr_neighbours2);
+      }      
+      delete[] neighbours;
+      neighbours = neighbours_reordered;                
+    }
+  }
+  
   fwrite(&nr_neighbours, sizeof(nr_neighbours),1,f);
   fwrite(&shm_neighbours, sizeof(shm_neighbours),1,f);
   if (shm_neighbours == -1) 
