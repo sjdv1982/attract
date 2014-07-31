@@ -652,6 +652,9 @@ Type AttractModel {
   ## form footer.rows = 5
   
   #***
+
+  *String annotation
+  ## form annotation.type = None
   
   validate {
     #TODO: grid alphabet

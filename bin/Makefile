@@ -196,8 +196,6 @@ rest: read_pdb2.o
 	$(FF) $(FLAG) reduce_rna.f -o reduce_rna
 	$(FF) $(FLAG) translate.f -o translate 
 	$(FF) $(FLAG) rotam.f -o rotam 
-	$(FF) $(FLAG) modes.f -o modes 
-	$(FF) $(FLAG) modesca.f -o modesca 
 	$(FF) $(FLAG) compare.f -o compare 
 	$(FF) $(FLAG) viewe.f -o viewe 
 	$(FF) $(FLAG) rmsca.f -o rmsca 
