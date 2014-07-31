@@ -263,7 +263,6 @@ def webform(f, model=None,
   b.members.append("neighbour_distance")
   b.members.append("omp")
   b.members.append("torque")
-  b.members.append("mask_interior")
   b.members.append("calc_potentials")
   ff = fg.gridname
   ff.placeholder = "name..."
