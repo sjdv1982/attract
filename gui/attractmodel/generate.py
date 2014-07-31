@@ -371,13 +371,9 @@ echo '**************************************************************'
 echo 'calculate %s grid'
 echo '**************************************************************'
 """ % g.gridname
-    no = ""
-    if not g.mask_interior: no = "no_"
     partner = grid_used[gridfile]-1
     f = filenames[partner]
     f0 = os.path.splitext(f)[0]
-    vol = "%s-%sinterior.vol" % (f0, no)
-    ret += "$ATTRACTDIR/calc_%sinterior %s %s\n" % (no, f, vol)    
     tomp = ""
     if g.torque: tomp += "-torque"
     if g.omp: tomp += "-omp"
@@ -391,8 +387,8 @@ echo '**************************************************************'
     if g.calc_potentials == False: tail += " -calc-potentials=0"
     if g.omp:
       ret += "for i in `seq 1 10`; do\n\n"      
-    ret += "$ATTRACTDIR/make-grid%s %s %s %s %s %s %s %s\n\n" % \
-     (tomp, f, vol, ffpar, g.plateau_distance, g.neighbour_distance, gridfile, tail)
+    ret += "$ATTRACTDIR/make-grid%s %s %s %s %s %s %s\n\n" % \
+     (tomp, f, ffpar, g.plateau_distance, g.neighbour_distance, gridfile, tail)
     if g.omp:
       ret += """
 if [ $? = 0 ]; then

@@ -1,7 +1,7 @@
 OBJ0= read_hm.o read_dof.o read_parameters.o read_pdb.o write_pdb.o print_struc.o \
   cartstate.o euler2rotmat.o rotate.o forcerotscale.o deform.o minfor.o minfor_mcm.o monte.o monte_min.o \
   mc11a.o GGUBS.o parse_options.o select.o pairgen.o  pairenergy.o energy.o \
-  globalenergy.o matmult.o matinv.o prox.o reset_forces.o ligmin.o \
+  globalenergy.o matmult.o matinv.o reset_forces.o ligmin.o \
   ligmin_index.o rota.o trans.o em/situs/lib_vio.o em/situs/lib_pio.o em/situs/lib_err.o \
   parse_restraints.o restrain.o read_ens.o read_pdb2.cpp\
   axisrot.o crand.o sym.o enstrans.o ene_morph.cpp \
@@ -14,7 +14,7 @@ OBJ= $(OBJ0) nonbon8.o
   
 FLAG= -g -p -O3 -fno-automatic -ffast-math -fcray-pointer
 #FLAG= -g -p -O0 -fno-automatic -ffast-math -fcray-pointer
-H=state.h max.h grid.h nonbon.h makegrid.h prox.h max.fin
+H=state.h max.h grid.h nonbon.h max.fin
 FF=gfortran
 
 CXX        = g++
@@ -73,12 +73,6 @@ rmsd: rmsd.o read_parameters.o read_pdb.o read_pdb2.o read_dof.o \
   read_ens.o axsym.o matinv.o matmult.o state.h
 	$(CXX) $(CFLAGS)  $^ -lgfortran -o $@
 
-calc_interior: calc_interior.o em/situs/lib_vio.o em/situs/lib_pio.o em/situs/lib_err.o
-	$(CXX) $(CFLAGS) $^  -lgfortran -o $@
-
-calc_no_interior: calc_no_interior.o em/situs/lib_vio.o em/situs/lib_pio.o em/situs/lib_err.o
-	$(CXX) $(CFLAGS) $^  -lgfortran -o $@
-
 make-grid: make-grid.o grid_calculate.o grid.o ministate.o $(OBJ) 
 	$(CXX) $(CFLAGS) $^  -lgfortran -lrt -o $@
 
@@ -90,12 +84,6 @@ make-grid-torque: make-grid-torque.o grid_calculate-torque.o grid-torque.o minis
 
 make-grid-torque-omp: make-grid-torque.o grid_calculate-torque-omp.o grid-torque.o ministate-torque.o $(OBJ) 
 	$(CXX) $(CFLAGS)  $^  -fopenmp -lgfortran -lrt -o $@
-
-gridstat-torque: gridstat-torque.o max.h
-	$(CXX) $(CFLAGS) $^  -o $@
-
-gridstat: gridstat.o max.h
-	$(CXX) $(CFLAGS) $^  -o $@
 
 shm-grid: shm-grid.o grid_calculate.o grid.o ministate.o $(OBJ)
 	$(CXX) $(CFLAGS) $^  -lgfortran -lrt -o $@

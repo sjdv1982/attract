@@ -4,8 +4,13 @@
 #include <cstdlib>
 
 #include "state.h"
-#include "makegrid.h"
 #include "nonbon.h"
+
+const double distcutoff_vdw = 50; /* cutoff for vdW interactions */
+const double distcutoffsq_vdw =distcutoff_vdw * distcutoff_vdw;
+const double distcutoff_elec = 50; /* cutoff for electrostatic interactions */
+const double distcutoffsq_elec =distcutoff_elec * distcutoff_elec;
+const int NEIGHBOUR_MAX = 32768;
 
 int get_new_task(int *taskstat, int nrtasks) {
   //returns task, -1 if no free tasks, -2 if done;
@@ -34,17 +39,15 @@ inline void _calc_potential(Potential &p, const Coor *dis, const Coor *xb,
  const Parameters &rc, const Parameters &ac, 
  const Parameters &emin, const Parameters &rmin2, const iParameters &ipon, 
  const int &potshape, const float &swi_on, const float &swi_off,
- bool (&alphabet)[MAXATOMTYPES],
+ int alphabetsize, bool (&alphabet)[MAXATOMTYPES],
  int &nr_energrads, EnerGrad *&energrads,
  bool cdie, double ffelec, double plateaudissq
 );
 inline short _calc_neighbours(int &neighbourlist, 
  const Coor *dis, int nrdis, int *atomtypes,
- int neighbourdissq, double plateaudissq,
+ double neighbourdissq, double plateaudissq,
  int &nr_neighbours, Neighbour *neighbours, Neighbour *neigh
 );
-
-extern "C" void read_vol(char *vol_file, double *width, double *origx, double *origy, double *origz, unsigned *extx, unsigned *exty, unsigned *extz, double **phi);
 
 extern CartState &cartstate_get(int handle);
 
@@ -54,25 +57,39 @@ inline void inc(Coor *dis, int nrdis, int index, double d) {
 };
 
 int ener_max = 0;
-inline int new_energrad(int &nr_energrads, EnerGrad *&energrads) {  
-  int ret;
-#pragma omp critical
-{    
-  if (nr_energrads == ener_max) {
-    int new_ener_max = 2 * ener_max;
-    if (ener_max == 0) new_ener_max = 100000;
-    energrads = (EnerGrad *) realloc(energrads,
-      new_ener_max*sizeof(EnerGrad));
-    memset(energrads+ener_max,0,(new_ener_max-ener_max)*sizeof(EnerGrad));
-    ener_max = new_ener_max;
+//(p, alphabet, energrads0, nr_energrads, energrads);
+inline void new_energrads(
+ Potential &p, int alphabetsize, bool (&alphabet)[MAXATOMTYPES], 
+ EnerGrad (&energrads0)[MAXATOMTYPES+1], 
+ int &nr_energrads, EnerGrad *&energrads  
+) {  
+
+  int nr_energrads0 = nr_energrads;
+  #pragma omp critical(energrad)
+  {        
+    if (nr_energrads + alphabetsize + 1 > ener_max) {
+      int new_ener_max = 2 * ener_max;
+      if (ener_max == 0) new_ener_max = 100000;
+      energrads = (EnerGrad *) realloc(energrads,
+        new_ener_max*sizeof(EnerGrad)
+      );
+      memset(energrads+ener_max,0,(new_ener_max-ener_max)*sizeof(EnerGrad));
+      ener_max = new_ener_max;
+    }
+    nr_energrads += alphabetsize + 1;
   }
-  nr_energrads++;
-  ret = nr_energrads;
-}
-  return ret;
+  int count = 0;
+  for (int i = 0; i <= MAXATOMTYPES; i++) {
+    if (i == MAXATOMTYPES || alphabet[i]) {
+      p[i] = nr_energrads0 + count + 1;
+      memcpy(energrads + nr_energrads0 + count, energrads0+i, sizeof(EnerGrad));
+      count++;
+    }        
+  }
 }
 
 void calculate_line(
+  float gridspacing,
   int gridextension,
   int gridx,
   int gridy,
@@ -90,9 +107,10 @@ void calculate_line(
   const Parameters &rc, const Parameters &ac, 
   const Parameters &emin, const Parameters &rmin2, const iParameters &ipon,   
   int potshape, float swi_on, float swi_off,
+  
+  int alphabetsize,
   bool (&alphabet)[MAXATOMTYPES],
   
-  double *cgrid,
   Voxel *cinnergrid,
   Potential *cbiggrid,
   int &potcount,
@@ -107,7 +125,7 @@ void calculate_line(
   inc(disz, nratoms,  0, -gridextension*gridspacing);
   inc(disz, nratoms,  1, -gridextension*gridspacing);
   inc(disz, nratoms,  2, z*gridspacing);
-
+  
   Coor *disjz = new Coor[nratoms]; 
   memcpy(disjz, disz, nratoms * sizeof(Coor));
   inc(disjz, nratoms,  0, 0.5*gridspacing);
@@ -136,8 +154,8 @@ void calculate_line(
   bool inner_zy, inner_zyx;
   bool junction_zy, junction_zyx;
 
-  Neighbour *neigh = new Neighbour[32768];  
-  memset(neigh, 0, 32768*sizeof(Neighbour));
+  Neighbour *neigh = new Neighbour[NEIGHBOUR_MAX];  
+  memset(neigh, 0, NEIGHBOUR_MAX*sizeof(Neighbour));
   
   for (int y = -gridextension; y < gridy+gridextension; y++) {
     inner_zy = inner_z;    
@@ -148,58 +166,54 @@ void calculate_line(
     memcpy(diszyx, diszy, nratoms*sizeof(Coor));    
     memcpy(disjzyx, disjzy, nratoms*sizeof(Coor));    
     for (int x = -gridextension; x < gridx+gridextension; x++) {
-       inner_zyx = inner_zy;    
-       if (x < 0 || x >= gridx) inner_zyx = 0;
-       junction_zyx = junction_zy;
-       if (x < 0 || x >= gridx-1) junction_zyx = 0;
-       bool inside = 0;
-       if (inner_zyx) { 
-	 int index = x + gridx * y;
-	 inside = (fabs(cgrid[index]-interior_value) < 0.1);
-   	 if (!inside) { 
-	   Voxel &v = cinnergrid[index];
-	   if (calc_pot) {
-	     #pragma omp atomic
-	     potcount++;
-	     _calc_potential(v.potential, diszyx, xb, nratoms, 
-	      wer,charges,atomtypes,
-	      rc,ac,emin,rmin2,ipon,potshape,swi_on, swi_off,
-	      alphabet,nr_energrads,energrads,cdie,ffelec,plateaudissq
-	     ); 
-	   }
-	   if (junction_zyx) {
-	     v.nr_neighbours = _calc_neighbours(
-	      v.neighbourlist, disjzyx, nratoms,atomtypes,
-	      neighbourdissq,plateaudissq,nr_neighbours, neighbours, neigh
-	     );
-	   } 
-	 }	   
-       }
-       if (!(x % 2) && !(y % 2) && !(z % 2) &&
+      inner_zyx = inner_zy;    
+      if (x < 0 || x >= gridx) inner_zyx = 0;
+      junction_zyx = junction_zy;
+      if (x < 0 || x >= gridx-1) junction_zyx = 0;
+      if (inner_zyx) { 
+        int index = x + gridx * y;
+        Voxel &v = cinnergrid[index];
+        if (calc_pot) {
+          #pragma omp atomic
+          potcount++;
+          _calc_potential(v.potential, diszyx, xb, nratoms, 
+           wer,charges,atomtypes,
+           rc,ac,emin,rmin2,ipon,potshape,swi_on, swi_off,
+           alphabetsize,alphabet,nr_energrads,energrads,cdie,ffelec,plateaudissq
+          ); 
+        }
+        if (junction_zyx) {
+          v.nr_neighbours = _calc_neighbours(
+           v.neighbourlist, disjzyx, nratoms,atomtypes,
+           neighbourdissq,plateaudissq,nr_neighbours, neighbours, neigh
+          );
+        }    
+      }
+      if (!(x % 2) && !(y % 2) && !(z % 2) &&
        (
-       ((x <= 0) || (x >= outerminx)) ||
-       ((y <= 0) || (y >= outerminy)) ||
-       ((z <= 0) || (z >= outerminz)) 
+        ((x <= 0) || (x >= outerminx)) ||
+        ((y <= 0) || (y >= outerminy)) ||
+        ((z <= 0) || (z >= outerminz)) 
        )
-       )
-       {
-	 int xx = (x + gridextension)/2;
-	 int yy = (y + gridextension)/2;	   
+      )
+      {
+        int xx = (x + gridextension)/2;
+        int yy = (y + gridextension)/2;   
 
-	 int index = xx + gridx2 * yy;
-	 if (calc_pot) {
-	   Potential &p = cbiggrid[index];
-	   #pragma omp atomic
-           potcount++;	   
-           _calc_potential(p, diszyx, xb, nratoms, wer,charges,atomtypes,
-	    rc,ac,emin,rmin2,ipon,potshape, swi_on, swi_off,
-	    alphabet,nr_energrads,energrads,cdie,ffelec,plateaudissq
-	   ); 	   
-	 }
-       }
+        int index = xx + gridx2 * yy;
+        if (calc_pot) {
+          Potential &p = cbiggrid[index];
+          #pragma omp atomic
+          potcount++;   
+          _calc_potential(p, diszyx, xb, nratoms, wer,charges,atomtypes,
+           rc,ac,emin,rmin2,ipon,potshape, swi_on, swi_off,
+           alphabetsize,alphabet,nr_energrads,energrads,cdie,ffelec,plateaudissq
+          );    
+        }
+      }
        
-       inc(diszyx, nratoms,  0, gridspacing);
-       inc(disjzyx, nratoms,  0, gridspacing);
+      inc(diszyx, nratoms,  0, gridspacing);
+      inc(disjzyx, nratoms,  0, gridspacing);
     }
     inc(diszy, nratoms,1, gridspacing);
     inc(disjzy, nratoms,1, gridspacing);
@@ -217,6 +231,7 @@ void calculate_line(
 
 #define MACRO_calculate_line \
     calculate_line( \
+     gridspacing, \
      gridextension, \
      gridx, \
      gridy, \
@@ -234,9 +249,9 @@ void calculate_line(
      rc, ac,  \
      emin, rmin2, ipon, \
      potshape, swi_on, swi_off, \
+     alphabetsize, \
      alphabet, \
      \
-     cgrid, \
      cinnergrid, \
      cbiggrid, \
      potcount, \
@@ -247,8 +262,8 @@ void calculate_line(
     ); 
 
 
-void Grid::calculate(int cartstatehandle, int ligand, const char *interior_grid, double plateaudis, double neighbourdis, int gridextension, int nhm0, bool (&alphabet)[MAXATOMTYPES], bool cdie, float epsilon, bool calc_pot) {  
-  init(gridspacing, gridextension, plateaudis, neighbourdis, alphabet);
+void Grid::calculate(int cartstatehandle, double plateaudis, double neighbourdis, float gridspacing, int gridextension, bool (&alphabet)[MAXATOMTYPES], bool cdie, float epsilon, bool calc_pot) {  
+  init(gridspacing, gridextension, plateaudis, neighbourdis, alphabet);  
 
   double ffelec = sqrt(felec/epsilon);
   
@@ -257,35 +272,15 @@ void Grid::calculate(int cartstatehandle, int ligand, const char *interior_grid,
   energrads = NULL;
   nr_energrads = 0;
   shm_energrads = -1;
-  nhm = nhm0;  
   
   int n;
-  char interior_grid2[1000];
-  if (strlen(interior_grid) > 1000) {
-    fprintf(stderr, "Name of grid too large\n");
-    exit(1);
-  }
-  strcpy(interior_grid2, interior_grid);
   
-  //Load interior grid
-  unsigned int gridx0, gridy0, gridz0;
-  double *grid;
-  double gridspacing0;
-  read_vol(interior_grid2, &gridspacing0, &ori[0], &ori[1],&ori[2],&gridx0,&gridy0,&gridz0,&grid);
-  
-  gridspacing = gridspacing0;
-  gridx = gridx0; gridy = gridy0; gridz = gridz0;
   
   //Load Cartesian state and parameters
   CartState &cartstate = cartstate_get(cartstatehandle); 
-
-  int nratoms = cartstate.natom[ligand];
+  int nratoms = cartstate.natom[0];
   int start = 0;
-  if (ligand > 0) start = cartstate.ieins[ligand-1];
-  double *x = &(cartstate.x[3*start]);
-  pivot[0] = cartstate.pivot[0][ligand];
-  pivot[1] = cartstate.pivot[1][ligand];
-  pivot[2] = cartstate.pivot[2][ligand];
+  Coor *x = (Coor *) &(cartstate.x[0]);
   Coor *xb = (Coor *) &(cartstate.xb[0]);
   double *charges = &(cartstate.chai[start]);
   int *atomtypes = &(cartstate.iaci[start]);
@@ -298,7 +293,30 @@ void Grid::calculate(int cartstatehandle, int ligand, const char *interior_grid,
   int potshape = cartstate.potshape;
   float swi_on = cartstate.swi_on;
   float swi_off = cartstate.swi_off;
+      
+  //Calculate grid dimensions
+  double minx=99999, miny=99999, minz=99999;
+  double maxx=-99999, maxy=-99999, maxz=-99999;
+  for (n = 0; n < nratoms; n++) {
+    Coor &a = x[n];
+    if (a[0] > maxx) maxx = a[0]; if (a[0] < minx) minx = a[0];
+    if (a[1] > maxy) maxy = a[1]; if (a[1] < miny) miny = a[1];
+    if (a[2] > maxz) maxz = a[2]; if (a[2] < minz) minz = a[2];    
+  }
+  
     
+  //Store some parameters
+  this->gridx = ceil((maxx-minx+2*plateaudis)/gridspacing);
+  this->gridy = ceil((maxy-miny+2*plateaudis)/gridspacing);
+  this->gridz = ceil((maxz-minz+2*plateaudis)/gridspacing);    
+  this->pivot[0] = cartstate.pivot[0][0];
+  this->pivot[1] = cartstate.pivot[1][0];
+  this->pivot[2] = cartstate.pivot[2][0];  
+  this->natoms = nratoms;
+  this->ori[0] = minx-plateaudis;
+  this->ori[1] = miny-plateaudis;
+  this->ori[2] = minz-plateaudis;
+  
   //Initialize grids
   gridx2 = int((gridx + 2 * gridextension)/2)+1;
   gridy2 = int((gridy + 2 * gridextension)/2)+1;
@@ -307,42 +325,39 @@ void Grid::calculate(int cartstatehandle, int ligand, const char *interior_grid,
   Voxel *cinnergrid;
   Potential *cbiggrid;
   
-  innergrid = new Voxel[gridx*gridy*gridz];
+  this->innergrid = new Voxel[gridx*gridy*gridz];
   memset(innergrid, 0, gridx*gridy*gridz*sizeof(Voxel));
 
   if (calc_pot) {
-    biggrid = new Potential[gridx2*gridy2*gridz2];
+    this->biggrid = new Potential[gridx2*gridy2*gridz2];
     memset(biggrid, 0, gridx2*gridy2*gridz2*sizeof(Potential));
   }
-  neighbours = new Neighbour[MAXGRIDNEIGHBOUR];
+  this->neighbours = new Neighbour[MAXGRIDNEIGHBOUR];
   if (neighbours == NULL) {
-    fprintf(stderr, "Could not allocate memory for %d Neighbours\n");
+    fprintf(stderr, "Could not allocate memory for %d Neighbours\n", MAXGRIDNEIGHBOUR);
     exit(1);
   }
   
   //Set up distances 
-  Coor *dis0 = new Coor[nratoms]; 
-  for (n = 0; n < nratoms; n++) {
-    dis0[n][0] = -(x[3*n]-ori[0]);
-    dis0[n][1] = -(x[3*n+1]-ori[1]);
-    dis0[n][2] = -(x[3*n+2]-ori[2]);
-  }
   Coor *dis = new Coor[nratoms]; 
-  natoms = nratoms;
-  memcpy(dis, dis0, nratoms * sizeof(Coor));
-          
+  for (n = 0; n < nratoms; n++) {
+    dis[n][0] = -(x[n][0]-ori[0]);
+    dis[n][1] = -(x[n][1]-ori[1]);
+    dis[n][2] = -(x[n][2]-ori[2]);
+  }          
+  
+  
   //Main loop
   int potcount = 0;
   #pragma omp parallel for private(cinnergrid,cbiggrid) schedule(dynamic,1) 
   for (int z = -gridextension; z < gridz+gridextension; z++) {    
     fprintf(stderr, "%d/%d %d %d\n", z, gridz+gridextension, potcount, nr_neighbours);  
         
-    double *cgrid = grid + gridx*gridy*z;
     cinnergrid = innergrid + gridx*gridy*z;
     int zz = (z + gridextension)/2;
     cbiggrid = biggrid + gridx2*gridy2*zz;
     
-    MACRO_calculate_line
+    MACRO_calculate_line    
   }     
   fprintf(stderr, "%d/%d %d %d\n", gridz+gridextension, gridz+gridextension, potcount, nr_neighbours);    
 
@@ -362,27 +377,27 @@ float swi_on, float swi_off, bool cdie, double ffelec, double plateaudissq
     if (fabs(charge) > 0.001) {    
       const Coor &d = dis[n];
       double dsq = d[0]*d[0]+d[1]*d[1]+d[2]*d[2];
-      if (dsq > 2500) continue; //cap distances at 50 A
+      if (dsq > distcutoffsq_elec) continue; 
 
       double fswi = 1;
       if (swi_on > 0 || swi_off > 0) {
         if (dsq > swi_on*swi_on) {
-	  if (dsq > swi_off*swi_off) {
-	    fswi = 0;
-	  }
-	  else {
-	    double distance = sqrt(dsq) ;
-	    fswi = 1-(distance - swi_on)/(swi_off-swi_on);
-	  }
+          if (dsq > swi_off*swi_off) {
+            fswi = 0;
+          }
+          else {
+            double distance = sqrt(dsq) ;
+            fswi = 1-(distance - swi_on)/(swi_off-swi_on);
+          }
         }    
       }
 
       double rr2 = 1.0/dsq;
       double ratio = 1;
       if (dsq < plateaudissq) {
-	ratio = sqrt(dsq/plateaudissq);
-	dsq = plateaudissq;
-	rr2 = 1.0/dsq;
+        ratio = sqrt(dsq/plateaudissq);
+        dsq = plateaudissq;
+        rr2 = 1.0/dsq;
       }
       Coor dd = {d[0]*rr2,d[1]*rr2,d[2]*rr2};          
       
@@ -414,27 +429,25 @@ float swi_on, float swi_off, bool cdie, double ffelec, double plateaudissq
   grad[2] = grad0[2];
 }
 
-inline void _calc_potential(Potential &p, const Coor *dis, const Coor *xb, int nrdis,
-double *wer, double *charges,int *atomtypes,
-const Parameters &rc, const Parameters &ac, const Parameters &emin, const Parameters &rmin2,
-  const iParameters &ipon, const int &potshape, const float &swi_on, const float &swi_off, //ATTRACT params
-
-bool (&alphabet)[MAXATOMTYPES],
-int &nr_energrads, EnerGrad *&energrads,
-bool cdie, double ffelec, double plateaudissq //grid params
+inline void _calc_potential(
+ Potential &p, const Coor *dis, const Coor *xb, int nrdis,
+ double *wer, double *charges,int *atomtypes,
+ const Parameters &rc, const Parameters &ac, const Parameters &emin, const Parameters &rmin2,
+ const iParameters &ipon, const int &potshape, const float &swi_on, const float &swi_off, //ATTRACT params
+ int alphabetsize,
+ bool (&alphabet)[MAXATOMTYPES],
+ int &nr_energrads, EnerGrad *&energrads,
+ bool cdie, double ffelec, double plateaudissq //grid params
 ) {
-  memset(&p, 0, sizeof(Potential));
-  for (int i = 0; i <= MAXATOMTYPES; i++) {
-    if (i == MAXATOMTYPES || alphabet[i]) {
-      p[i] = new_energrad(nr_energrads, energrads);
-    }        
-  }
+  EnerGrad energrads0[MAXATOMTYPES+1];
+  memset(energrads0, 0, sizeof(energrads0));
+  
   for (int n = 0; n < nrdis; n++) {
     int atomtype = atomtypes[n];
     if (atomtype == 0) continue;  
     const Coor &d = dis[n];
     double dsq = d[0]*d[0]+d[1]*d[1]+d[2]*d[2]; 
-    if (dsq >= distcutoffsq) continue;
+    if (dsq >= distcutoffsq_vdw) continue;
 
     double rr2 = 1.0/dsq;
     double ratio = 1;
@@ -457,21 +470,22 @@ bool cdie, double ffelec, double plateaudissq //grid params
       
       double fswi = 1;
       if (swi_on > 0 || swi_off > 0) {
-	if (dsq > swi_on*swi_on) {
-	  if (dsq > swi_off*swi_off) {
-	    fswi = 0;
-	  }
-	  else {
-	    double distance = sqrt(dsq) ;
-	    fswi = 1-(distance - swi_on)/(swi_off-swi_on);
-	  }
-	}    
+        if (dsq > swi_on*swi_on) {
+          if (dsq > swi_off*swi_off) {
+            fswi = 0;
+          }
+          else {
+            double distance = sqrt(dsq) ;
+            fswi = 1-(distance - swi_on)/(swi_off-swi_on);
+          }
+        }    
       }
       
       nonbon(1,wer[n],rci,aci,emini,rmin2i,ivor,dsq,
        1/dsq, dd[0],dd[1],dd[2],potshape, fswi,
        energy, grad);
-      EnerGrad &e = *(energrads + p[i] - 1);
+      //EnerGrad &e = *(energrads + p[i] - 1);
+      EnerGrad &e = energrads0[i];
       e.energy += energy;
       e.grad[0] += grad[0];
       e.grad[1] += grad[1];
@@ -489,16 +503,21 @@ bool cdie, double ffelec, double plateaudissq //grid params
 #endif      
     }
   }
-  EnerGrad &e = *(energrads + p[MAXATOMTYPES] - 1);
+  //EnerGrad &e = *(energrads + p[MAXATOMTYPES] - 1);
+  EnerGrad &e = energrads0[MAXATOMTYPES];
   _calc_potential_elec(e.energy, e.grad, 
 #ifdef TORQUEGRID    
-  e.torques,
+   e.torques,
 #endif
-  dis, xb, nrdis, charges, swi_on, swi_off, cdie, ffelec, plateaudissq);  
+   dis, xb, nrdis, charges, swi_on, swi_off, cdie, ffelec, plateaudissq   
+  );  
+  
+  memset(&p, 0, sizeof(Potential));
+  new_energrads(p, alphabetsize, alphabet, energrads0, nr_energrads, energrads);  
 }
 
 inline short _calc_neighbours(int &neighbourlist, const Coor *dis, int nrdis, int *atomtypes, 
-int neighbourdissq, double plateaudissq,
+double neighbourdissq, double plateaudissq,
 int &nr_neighbours, Neighbour *neighbours, Neighbour *neigh
 ) {
   short neighboursize = 0;
@@ -507,22 +526,22 @@ int &nr_neighbours, Neighbour *neighbours, Neighbour *neigh
     const Coor &d = dis[n];
     double dsq = d[0]*d[0]+d[1]*d[1]+d[2]*d[2];       
     if (dsq >= neighbourdissq) continue;
+    if (neighboursize == NEIGHBOUR_MAX) {fprintf(stderr, "Neighbour overflow\n"); exit(1);}
     Neighbour &nb = neigh[neighboursize];
-    neighboursize++;
-    if (neighboursize == 32766) {fprintf(stderr, "Neighbour overflow\n"); exit(1);}
+    neighboursize++;    
     nb.type = 2;
     if (dsq <= plateaudissq) nb.type = 1;    
     nb.index = n;
   }
 
   if (neighboursize) {
-    #pragma omp critical
-{  
-    neighbourlist = nr_neighbours+1;
-    if (nr_neighbours+neighboursize > MAXGRIDNEIGHBOUR) {fprintf(stderr, "Total neighbour grid size overflow\n"); exit(1);}
-    memcpy(neighbours+nr_neighbours, neigh, neighboursize*sizeof(Neighbour));
-    nr_neighbours += neighboursize;
-}
+    #pragma omp critical(neighbourlist)
+    {  
+      neighbourlist = nr_neighbours+1;
+      if (nr_neighbours+neighboursize > MAXGRIDNEIGHBOUR) {fprintf(stderr, "Total neighbour grid size overflow\n"); exit(1);}
+      memcpy(neighbours+nr_neighbours, neigh, neighboursize*sizeof(Neighbour));
+      nr_neighbours += neighboursize;
+    }
   }
   
   return neighboursize;
