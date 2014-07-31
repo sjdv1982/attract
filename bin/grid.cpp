@@ -272,7 +272,7 @@ void Grid::write(const char *filename) {
       if (biggrid[n][MAXATOMTYPES]) nr_energrads2+=alphabetsize+1;
     }  
     if (nr_energrads != nr_energrads2) {
-      fprintf(stderr, "ERR nr_energrads %d %d %d\n", nr_energrads, nr_energrads2);
+      fprintf(stderr, "ERR nr_energrads %d %d\n", nr_energrads, nr_energrads2);
     }
   }
   fwrite(&nr_energrads, sizeof(nr_energrads),1,f);
