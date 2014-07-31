@@ -295,7 +295,7 @@ void Grid::write(const char *filename) {
         }  
       }  
       if (nr_energrads != nr_energrads2) {
-        fprintf(stderr, "ERR nr_energrads %d %d %d\n", nr_energrads, nr_energrads2);
+      fprintf(stderr, "ERR nr_energrads %d %d %d\n", nr_energrads, nr_energrads2);
       }
       free(energrads);
       energrads = energrads_reordered;      
