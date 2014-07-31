@@ -267,7 +267,7 @@ Type AttractGrid:Degenerate {
     gridfile.name = "Grid file"
   }
   ## form omp.add_header("Do you want to calculate the grid on multiple cores using OpenMP?")
-  Bool omp = False
+  Bool omp = True
   ## form torque.add_header("Is the grid a torque grid?")
   Bool torque = False
   Float plateau_distance = 10.0
