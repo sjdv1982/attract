@@ -323,32 +323,28 @@ int main(int argc, char *argv[]) {
     }
     if (iscore == 1) continue;
     if (iscore == 2) break;
-  print_struc_(
-     seed,
-     label, 
-     energy,
-     energies,
-     nlig,
-     ens,
-     phi,
-     ssi,
-     rot,
-     xa,
-     ya,
-     za,
-     locrests,     
-     morph,
-     nhm,
-     nihm,
-     dlig,
-     has_locrests,     
-     lablen
+    print_struc_(
+      seed,
+      label, 
+      energy,
+      energies,
+      nlig,
+      ens,
+      phi,
+      ssi,
+      rot,
+      xa,
+      ya,
+      za,
+      locrests,     
+      morph,
+      nhm,
+      nihm,
+      dlig,
+      has_locrests,     
+      lablen
     );
-
   }    
-  extern char *shmlinks[100];
-  extern int shmlinkcount;
-  for (n = 0; n < shmlinkcount; n++) shm_unlink(shmlinks[n]);
   delete[] label;
   return 0;
 }

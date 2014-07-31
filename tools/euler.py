@@ -71,26 +71,6 @@ def read_pdb(f):
   return ret
 
 if __name__ == "__main__":  
-  ensfiles = []
-  modefile = None
-  anr = 0
-  while 1:
-    anr += 1
-
-    if anr > len(sys.argv)-1: break  
-    arg = sys.argv[anr]
-    
-    if anr <= len(sys.argv)-3 and arg == "--ens":
-      ensfiles.append((sys.argv[anr+1],sys.argv[anr+2]))
-      sys.argv = sys.argv[:anr] + sys.argv[anr+3:]
-      anr -= 3
-      continue
-
-    if anr <= len(sys.argv)-2 and arg == "--modes":
-      modefile = sys.argv[anr+1]
-      sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
-      anr -= 2
-      continue
 
   if len(sys.argv) !=  3:
     raise Exception("Please supply two PDB files")
@@ -108,3 +88,4 @@ if __name__ == "__main__":
   ret = ["%.5f" % x if fabs(x) > 1e-5 else 0 for x in ret ]
   phi, ssi, rot, dx, dy, dz = ret
   print phi, ssi, rot, dx, dy, dz
+  

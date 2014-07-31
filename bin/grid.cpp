@@ -1,7 +1,6 @@
 #include "grid.h"
 #include "nonbon.h"
 #include "state.h"
-#include "prox.h"
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
@@ -21,17 +20,6 @@ void error(const char *filename) {
 
 void get_shm_name(int shm_id, char *shm_name) {
   sprintf(shm_name, "/attract-grid%d", shm_id);
-}
-
-void Grid::init_prox(int cartstatehandle,double proxlim0, double proxmax0, int proxmaxtype0) {
-  bool has_pot = (nr_energrads > 0);
-  prox = prox_init(cartstatehandle, plateaudissq, proxlim0, proxmax0, proxmaxtype0, has_pot);
-  proxlim = proxlim0;
-  proxmax = proxmax0;
-  if (has_pot && proxlim > 0 && proxmax < plateaudissq) {
-    fprintf(stderr, "proxmax cannot be smaller than grid plateaudissq: %.3f < %.3f\n", proxmax, plateaudissq);
-    exit(1);
-  }
 }
 
 void Grid::init(double gridspacing0, int gridextension0, double plateaudis0,
@@ -98,13 +86,6 @@ void Grid::read(const char *filename) {
   gridx2=arr2[3];gridy2=arr2[4];gridz2=arr2[5];  
   read = fread(&natoms,sizeof(int),1,f);
   if (!read) error(filename);
-  read = fread(&nhm,sizeof(int),1,f);
-  if (!read) error(filename);
-  if (nhm > 0) {
-    modedofs = new double[nhm];
-    read=fread(modedofs,nhm*sizeof(double),1,f);
-    if (!read) error(filename);
-  }
   read=fread(&pivot,sizeof(Coor),1,f);
   if (!read) error(filename);
   
@@ -280,8 +261,6 @@ void Grid::write(const char *filename) {
   int arr2[] = {gridx,gridy,gridz,gridx2,gridy2,gridz2};
   fwrite(arr2, 6*sizeof(int),1,f);
   fwrite(&natoms, sizeof(int),1,f); 
-  fwrite(&nhm, sizeof(int),1,f);
-  if (nhm > 0) fwrite(modedofs, sizeof(double) * nhm ,1,f);
   fwrite(&pivot,sizeof(Coor),1,f);
 
   if (nr_energrads) {
@@ -491,7 +470,6 @@ inline void trilin(
 {
   bool has_pot = (g.nr_energrads > 0);
   
-  Prox &prox = *g.prox;
   double ax = (d[0]-g.ori[0])/g.gridspacing;
   double ay = (d[1]-g.ori[1])/g.gridspacing;
   double az = (d[2]-g.ori[2])/g.gridspacing;
@@ -612,7 +590,7 @@ inline void trilin(
 
   	  Coor &gradr = fr[nb.index];
           double fswi = 1, fswi2 = 1;
-          if (g.proxlim == 0 || dsq <= g.proxlim || chargenonzero) {
+          if (chargenonzero) {
 	    if (swi_on > 0 || swi_off > 0) {
 	      if (dsq > swi_on*swi_on) {
 		if (dsq > swi_off*swi_off) {
@@ -635,140 +613,82 @@ inline void trilin(
                  
 	    }
           }
-	  if (g.proxlim == 0 || dsq <= g.proxlim) { //only for distance within 6A
-            double rci = rc[atomtype][atomtype2];
-            double aci = ac[atomtype][atomtype2];
-            double emini = emin[atomtype][atomtype2];
-            double rmin2i = rmin2[atomtype][atomtype2];
-            int ivor = ipon[atomtype][atomtype2];
-	  
-	  
-	    double rr2 = 1.0/dsq;	    
-	    dis[0] *= rr2; dis[1] *= rr2; dis[2] *= rr2;
+          double rci = rc[atomtype][atomtype2];
+          double aci = ac[atomtype][atomtype2];
+          double emini = emin[atomtype][atomtype2];
+          double rmin2i = rmin2[atomtype][atomtype2];
+          int ivor = ipon[atomtype][atomtype2];
+        
+        
+          double rr2 = 1.0/dsq;	    
+          dis[0] *= rr2; dis[1] *= rr2; dis[2] *= rr2;
 
-	    double evdw0; Coor grad0;
-            nonbon(iab,ww,rci,aci,emini,rmin2i,ivor, dsq, rr2, 
-	      dis[0], dis[1], dis[2], potshape, fswi, evdw0, grad0);	
-	    evdw += evdw0;
-	    grad[0] += grad0[0];
-	    grad[1] += grad0[1];
-	    grad[2] += grad0[2];
-            if (!fixre) {
-	      gradr[0] -= grad0[0];
-	      gradr[1] -= grad0[1];
-	      gradr[2] -= grad0[2];
-            }
+          double evdw0; Coor grad0;
+          nonbon(iab,ww,rci,aci,emini,rmin2i,ivor, dsq, rr2, 
+            dis[0], dis[1], dis[2], potshape, fswi, evdw0, grad0);	
+          evdw += evdw0;
+          grad[0] += grad0[0];
+          grad[1] += grad0[1];
+          grad[2] += grad0[2];
+          if (!fixre) {
+            gradr[0] -= grad0[0];
+            gradr[1] -= grad0[1];
+            gradr[2] -= grad0[2];
+          }
 //	    std::cerr << "New vdW energy " << evdw << " = oldenergy + " << evdw0 << "\n";
-            bool calc_elec = 0;
-            double c;
-	    if (chargenonzero) {
-	      c = charge0 * chair[nb.index] * ww;	    
-	      if (fabs(c) > 0.001) calc_elec = 1;
-	    }
-	    
-            Coor rdis;
-            if (has_pot || calc_elec) {
-	      double r = g.get_ratio(dsq);
-	      rdis[0] = r*dis[0];
-              rdis[1] = r*dis[1];
-              rdis[2] = r*dis[2];              
+          bool calc_elec = 0;
+          double c;
+          if (chargenonzero) {
+            c = charge0 * chair[nb.index] * ww;	    
+            if (fabs(c) > 0.001) calc_elec = 1;
+          }
+          
+          Coor rdis;
+          if (has_pot || calc_elec) {
+            double r = g.get_ratio(dsq);
+            rdis[0] = r*dis[0];
+            rdis[1] = r*dis[1];
+            rdis[2] = r*dis[2];              
+          }
+          if (has_pot) {
+            nonbon(iab,ww,rci,aci,emini,rmin2i,ivor, g.plateaudissq, 
+              g.plateaudissqinv,
+              rdis[0], rdis[1], rdis[2], potshape, fswi2, evdw0, grad0);
+            evdw -= evdw0;
+            grad[0] -= grad0[0];
+            grad[1] -= grad0[1];
+            grad[2] -= grad0[2];
+            if (!fixre) {
+              gradr[0] += grad0[0];
+              gradr[1] += grad0[1];
+              gradr[2] += grad0[2];
             }
-	    if (has_pot) {
-	      nonbon(iab,ww,rci,aci,emini,rmin2i,ivor, g.plateaudissq, 
-  		g.plateaudissqinv,
-		rdis[0], rdis[1], rdis[2], potshape, fswi2, evdw0, grad0);
-	      evdw -= evdw0;
-	      grad[0] -= grad0[0];
-	      grad[1] -= grad0[1];
-	      grad[2] -= grad0[2];
-              if (!fixre) {
-		gradr[0] += grad0[0];
-		gradr[1] += grad0[1];
-		gradr[2] += grad0[2];
-              }
- 	    }  
- //	    std::cerr << "New vdW energy " << evdw << " = oldenergy - " << evdw0 << "\n";
-            if (calc_elec) {
-	      double eelec00; Coor grad00;
-	      elec(iab,cdie,c,rr2,dis[0],dis[1],dis[2],fswi,eelec00,grad00);
-  	      eelec += eelec00;
-	      grad[0] += grad00[0];
-	      grad[1] += grad00[1];
-	      grad[2] += grad00[2];
-              if (!fixre) {	    
-		gradr[0] -= grad00[0];
-		gradr[1] -= grad00[1];
-		gradr[2] -= grad00[2];
-              }
-	      elec(iab,cdie,c,g.plateaudissqinv,
-		rdis[0],rdis[1],rdis[2],fswi2,eelec00,grad00);
-  	      eelec -= eelec00;
-	      grad[0] -= grad00[0];
-	      grad[1] -= grad00[1];
-	      grad[2] -= grad00[2];
-              if (!fixre) {	    		
-  		gradr[0] += grad00[0];
-		gradr[1] += grad00[1];
-		gradr[2] += grad00[2];
-              }            
+          }  
+//	    std::cerr << "New vdW energy " << evdw << " = oldenergy - " << evdw0 << "\n";
+          if (calc_elec) {
+            double eelec00; Coor grad00;
+            elec(iab,cdie,c,rr2,dis[0],dis[1],dis[2],fswi,eelec00,grad00);
+            eelec += eelec00;
+            grad[0] += grad00[0];
+            grad[1] += grad00[1];
+            grad[2] += grad00[2];
+            if (!fixre) {	    
+              gradr[0] -= grad00[0];
+              gradr[1] -= grad00[1];
+              gradr[2] -= grad00[2];
             }
-	  }
-	  else { //distance between 6-10 A 
-            int proxmappos = int((dsq-g.proxlim)*proxspace+0.5);
-	    int proxdsq = proxmap[proxmappos];
-	    double dvdw = prox.prox[atomtype][atomtype2][2*proxdsq] * ww;
-	    //printf("%.10f\n", dvdw);
-	    evdw += dvdw;
-	    double gradf2 = prox.prox[atomtype][atomtype2][2*proxdsq+1] * ww;
-	    
-	    Coor dgrad = {
-	      dis[0] * gradf2,
-	      dis[1] * gradf2,
-	      dis[2] * gradf2
-	    };  
-            grad[0] += dgrad[0];
-	    grad[1] += dgrad[1];
-	    grad[2] += dgrad[2];
-            if (!fixre) {	    	    
-              gradr[0] -= dgrad[0];
-	      gradr[1] -= dgrad[1];
-	      gradr[2] -= dgrad[2];
-            }
-	    if (chargenonzero) {
-	      double c = charge0 * chair[nb.index] * ww;	    
-	      if (fabs(c) > 0.001) {
-	       
-	       double rr2 = 1.0/dsq;
-  	       dis[0] *= rr2; dis[1] *= rr2; dis[2] *= rr2;
-	      
-		double eelec00; Coor grad00;
-		elec(iab,cdie,c,rr2,dis[0],dis[1],dis[2],fswi,eelec00,grad00);
-  		eelec += eelec00;
-		grad[0] += grad00[0];
-		grad[1] += grad00[1];
-		grad[2] += grad00[2];
-                if (!fixre) {	    		
-		  gradr[0] -= grad00[0];
-		  gradr[1] -= grad00[1];
-		  gradr[2] -= grad00[2];
-                }
-   	        double r = g.get_ratio(dsq);
-		Coor rdis = {r*dis[0], r*dis[1], r*dis[2]};  
-		
-		elec(iab,cdie,c,g.plateaudissqinv,
-		  rdis[0],rdis[1],rdis[2],fswi2,eelec00,grad00);
-  		eelec -= eelec00;
-		grad[0] -= grad00[0];
-		grad[1] -= grad00[1];
-		grad[2] -= grad00[2];
-                if (!fixre) {	    		
-		  gradr[0] += grad00[0];
-		  gradr[1] += grad00[1];
-		  gradr[2] += grad00[2];
-                }
-	      }	    	    
-	    }
-	  }
+            elec(iab,cdie,c,g.plateaudissqinv,
+              rdis[0],rdis[1],rdis[2],fswi2,eelec00,grad00);
+            eelec -= eelec00;
+            grad[0] -= grad00[0];
+            grad[1] -= grad00[1];
+            grad[2] -= grad00[2];
+            if (!fixre) {	    		
+              gradr[0] += grad00[0];
+              gradr[1] += grad00[1];
+              gradr[2] += grad00[2];
+            }            
+          }
 	  
 	}
       }

@@ -33,5 +33,13 @@ for s in structures:
     for l in l2: head.append("")
     head[molecule-1] = str(e) + " "
     for l in l1: print l
-    for l,h in zip(l2,head): print h + l
+    for lnr,l in enumerate(l2):
+      if lnr == molecule-1:
+        ll = l.split()
+        if len(ll) == 7:
+          print str(e), " ".join(ll[1:])
+        else:
+          print str(e), l
+      else:
+        print l
   

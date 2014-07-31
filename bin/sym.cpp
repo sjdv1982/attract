@@ -2,6 +2,7 @@
 #include "state.h"
 #include <cstdio>
 #include <cstdlib>
+#include <cmath>
 
 #define MAXSYMHANDLES 10
 

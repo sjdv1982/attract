@@ -146,22 +146,6 @@ void em_usage() {
   exit(1);
 }
 
-void proxlim_usage() {
- fprintf(stderr, "--proxlim option usage: --proxlim <distance squared>\n");
-  exit(1);
-}
-
-void proxmax_usage() {
- fprintf(stderr, "--proxmax option usage: --proxmax <distance squared>\n");
-  exit(1);
-}
-
-void proxmaxtype_usage() {
- fprintf(stderr, "--proxmaxtype option usage: --proxmaxtype <number of types>\n");
-  exit(1);
-}
-
-
 void parse_options(int ministatehandle, int cartstatehandle, int nlig, int argc, char *argv[]) {
   MiniState &ms = ministate_get(ministatehandle);
   CartState &c = cartstate_get(cartstatehandle);
@@ -300,7 +284,6 @@ void parse_options(int ministatehandle, int cartstatehandle, int nlig, int argc,
         fprintf(stderr, "Wrong number of atoms for ligand %d:\n  Grid file %s: %d, PDB file: %d\n",lig,gridf,g->natoms,c.natom[lig-1]);
 	exit(1);
       }
-      g->init_prox(cartstatehandle,ms.proxlim,ms.proxmax,ms.proxmaxtype);
       c.grids[lig-1] = g;
       n += 2;
     }
@@ -440,47 +423,6 @@ void parse_options(int ministatehandle, int cartstatehandle, int nlig, int argc,
       int mcmax = atoi(argv[n+1]);
       if (mcmax <= 0) mcmax_usage();
       ms.imcmax = mcmax;
-      n += 1;
-    }
-    else if (!strcmp(arg,"--proxlim")) {
-      if (gridspecify) {
-        fprintf(stderr, "proxlim cannot be specified after grid\n");
-	exit(1);
-      }
-      if (argc-n < 2) proxlim_usage();    
-      double proxlim = atof(argv[n+1]);
-      if (proxlim < 0) proxlim_usage();
-      if (proxlim >= ms.proxmax) {
-        fprintf(stderr, "proxlim must be smaller than proxmax\n");
-	exit(1);
-      }
-      ms.proxlim = proxlim;
-      n += 1;
-    }
-    else if (!strcmp(arg,"--proxmax")) {
-      if (gridspecify) {
-        fprintf(stderr, "proxmax cannot be specified after grid\n");
-	exit(1);
-      }
-      if (argc-n < 2) proxmax_usage();    
-      double proxmax = atof(argv[n+1]);
-      if (proxmax <= 0) proxmax_usage();
-      if (proxmax <= ms.proxlim) {
-        fprintf(stderr, "proxmax must be larger than proxlim\n");
-	exit(1);
-      }
-      ms.proxmax = proxmax;
-      n += 1;
-    }
-    else if (!strcmp(arg,"--proxmaxtype")) {
-      if (gridspecify) {
-        fprintf(stderr, "proxmaxtype cannot be specified after grid\n");
-	exit(1);
-      }    
-      if (argc-n < 2) proxmaxtype_usage();    
-      int proxmaxtype = atoi(argv[n+1]);
-      if (proxmaxtype <= 0) proxmaxtype_usage();
-      ms.proxmaxtype = proxmaxtype;
       n += 1;
     }
     
