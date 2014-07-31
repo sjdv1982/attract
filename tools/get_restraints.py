@@ -2,7 +2,6 @@
 This script generates the restraints necessary to preserve secondary structure in flexible docking
 Advanced elastic network based on unbound protein structure
 """
-from topology import read_topology
 import sys
 import numpy as np
 import math
