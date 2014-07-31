@@ -192,7 +192,7 @@ rest: read_pdb2.o
 	$(CXX) $(CFLAGS) deflate.cpp read_pdb2.o -o deflate
 	$(CXX) $(CFLAGS) cluster_struc.cpp -o cluster_struc
 
-all: max.fin attract attract-torque attract-infinite collect collectlib.so lrmsd rmsd calc_interior calc_no_interior make-grid \
+all: max.fin attract attract-torque attract-infinite collect collectlib.so lrmsd rmsd make-grid \
  make-grid-omp make-grid-torque make-grid-torque-omp shm-grid \
  shm-grid-torque shm-clean systsearch map2map fix_receptor \
  omp_threadnum deredundant matrix-lrmsd rest emcorr gvm gvm-pdb axsymmetry ncsymmetry
