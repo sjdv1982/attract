@@ -137,8 +137,6 @@ int main(int argc, char *argv[]) {
     if (!strcmp(argv[3],"--lim")) {	//added by Isaure
       lim = atof(argv[4]);
       memmove(argv+3, argv+4, sizeof(char*) * (argc-3));
-      memmove(argv+3, argv+4, sizeof(char*) * (argc-3));
-      argc--;
       argc--;
       continue;
     }

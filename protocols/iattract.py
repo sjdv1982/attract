@@ -68,7 +68,7 @@ def prepare_input(start,pdbA,pdbB,current,name,attracttools,ensemble='',noflex=[
   current = str(current)
   directorypath = os.path.split(pdbA)[0]
   if len(directorypath) == 0: directorypath = '.'
-  if os.path.exists(directorypath+'/flexm-'+current+name+'.dat') and os.path.exists(os.path.splitext(pdbA)[0]+'_'+current+name+'.txt') and os.path.exists(os.path.splitext(pdbB)[0]+'_'+current+name+'.txt'):
+  if os.path.exists(directorypath+'/flexm-'+current+name+'.dat') and os.path.exists(os.path.splitext(pdbA)[0]+'_'+current+name+'.txt'):
     if not ensemble == '':
       #allow ensemble for ligand only
       ligand = ensemble.split()[1]
