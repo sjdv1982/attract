@@ -5,7 +5,7 @@
 
 extern bool exists(const char *);
 extern void parse_restraintfile(MiniState &ms, const char *restfile);
-extern "C" void read_densitymaps_(char *densitymap0, float resolution, int len_densitymap);
+extern "C" void define_atomdensitygrid_(float voxelsize, int dimension, float forceconstant);
 
 extern void read_ens(int cartstatehandle, int ligand, char *ensfile, bool strict, bool morphing);
 
@@ -13,12 +13,12 @@ extern CartState &cartstate_get(int handle);
 extern MiniState &ministate_get(int handle);
 
 void lambda_usage() {
- fprintf(stderr, "--lambda option usage: --lambda <value between 0 (ultra-course-grained) and 1 (coarse-grained)\n");
+ fprintf(stderr, "--lambda option usage: --lambda <value between 0 (ultra-coarse-grained) and 1 (coarse-grained)\n");
   exit(1);
 }
 
 void grid_usage() {
- fprintf(stderr, "--grid option usage: --grid <ligand nr> <file name/ligand number>\n");
+ fprintf(stderr, "--grid/--torquegrid option usage: --grid/--torquegrid <ligand nr> <file name/ligand number>\n");
   exit(1);
 }
 
@@ -109,11 +109,6 @@ void rstk_usage() {
   exit(1);
 }
 
-void gridmode_usage() {
- fprintf(stderr, "--gridmode option usage: --gridmode <1 or 2>\n");
-  exit(1);
-}
-
 void vmax_usage() {
  fprintf(stderr, "--vmax option usage: --vmax <maximum number of steps>\n");
   exit(1);
@@ -141,23 +136,8 @@ void imodes_usage() {
 
 }
 
-void em_usage() {
- fprintf(stderr, "--em option usage: --em <EM map> <resolution>\n");
-  exit(1);
-}
-
-void proxlim_usage() {
- fprintf(stderr, "--proxlim option usage: --proxlim <distance squared>\n");
-  exit(1);
-}
-
-void proxmax_usage() {
- fprintf(stderr, "--proxmax option usage: --proxmax <distance squared>\n");
-  exit(1);
-}
-
-void proxmaxtype_usage() {
- fprintf(stderr, "--proxmaxtype option usage: --proxmaxtype <number of types>\n");
+void atomdensitygrid_usage() {
+ fprintf(stderr, "--atomdensitygrid option usage: --atomdensitygrid <voxel size> <dimension> <force constant>\n");
   exit(1);
 }
 
@@ -165,7 +145,6 @@ void proxmaxtype_usage() {
 void parse_options(int ministatehandle, int cartstatehandle, int nlig, int argc, char *argv[]) {
   MiniState &ms = ministate_get(ministatehandle);
   CartState &c = cartstate_get(cartstatehandle);
-  bool gridspecify = 0;
   for (int n = 0; n < argc; n++) {
     char *arg = argv[n];
     if (!strcmp(arg,"--mc")) {
@@ -241,7 +220,7 @@ void parse_options(int ministatehandle, int cartstatehandle, int nlig, int argc,
     else if (!strcmp(arg,"--score")) {
       ms.iscore = 1;
     }
-    else if (!strncmp(arg,"--traj", 4)) {
+    else if (!strcmp(arg,"--traj")) {
       ms.iscore = 2;
     }
     else if (!strcmp(arg,"--cdie")) {
@@ -268,17 +247,13 @@ void parse_options(int ministatehandle, int cartstatehandle, int nlig, int argc,
       ms.itra = 0;
       ms.iori = 0;
     }    
-    else if (!strcmp(arg,"--grid")) {
-      gridspecify = 1;
+    else if ((!strcmp(arg,"--grid"))||(!strcmp(arg,"--torquegrid"))) {
+      bool torquegrid = 0;
+      if (!strcmp(arg,"--torquegrid")) torquegrid = 1;
       if (argc-n < 3) grid_usage();
       int lig = atoi(argv[n+1]);
       if (lig < 1 || lig > nlig) grid_usage();
       char *gridf = argv[n+2];
-      #ifdef TORQUEGRID
-      ms.gridmode = 2;
-      #else 
-      ms.gridmode = 1;
-      #endif
       if (!exists(gridf)) {
         char *endptr;
         int lig_old = strtol(gridf,&endptr, 0);
@@ -295,12 +270,16 @@ void parse_options(int ministatehandle, int cartstatehandle, int nlig, int argc,
         continue;
       }
       Grid *g = new Grid;
-      g->read(gridf);
+      if (torquegrid) {
+        g->read_torque(gridf);
+      }  
+      else {  
+        g->read_std(gridf);
+      }  
       if (g->natoms != c.natom[lig-1]) {
         fprintf(stderr, "Wrong number of atoms for ligand %d:\n  Grid file %s: %d, PDB file: %d\n",lig,gridf,g->natoms,c.natom[lig-1]);
 	exit(1);
       }
-      g->init_prox(cartstatehandle,ms.proxlim,ms.proxmax,ms.proxmaxtype);
       c.grids[lig-1] = g;
       n += 2;
     }
@@ -360,7 +339,7 @@ void parse_options(int ministatehandle, int cartstatehandle, int nlig, int argc,
       c.nr_axsyms++;
       n += 8;
     }    
-    else if (!strcmp(arg,"--ens") || (!strcmp(arg,"--ensemble"))) {
+    else if (!strcmp(arg,"--ens")) {
       if (argc-n < 3) ens_usage();
       int lig = atoi(argv[n+1]);
       if (lig < 1 || lig > nlig) ens_usage();
@@ -421,13 +400,6 @@ void parse_options(int ministatehandle, int cartstatehandle, int nlig, int argc,
       ms.rstk = rstk;
       n += 1;
     }    
-    else if (!strcmp(arg,"--gridmode")) {
-      if (argc-n < 2) gridmode_usage();    
-      int gridmode = atoi(argv[n+1]);
-      if (gridmode < 1 || gridmode > 2) gridmode_usage();
-      ms.gridmode = gridmode;
-      n += 1;
-    }
     else if (!strcmp(arg,"--vmax")) {
       if (argc-n < 2) vmax_usage();    
       int vmax = atoi(argv[n+1]);
@@ -440,47 +412,6 @@ void parse_options(int ministatehandle, int cartstatehandle, int nlig, int argc,
       int mcmax = atoi(argv[n+1]);
       if (mcmax <= 0) mcmax_usage();
       ms.imcmax = mcmax;
-      n += 1;
-    }
-    else if (!strcmp(arg,"--proxlim")) {
-      if (gridspecify) {
-        fprintf(stderr, "proxlim cannot be specified after grid\n");
-	exit(1);
-      }
-      if (argc-n < 2) proxlim_usage();    
-      double proxlim = atof(argv[n+1]);
-      if (proxlim < 0) proxlim_usage();
-      if (proxlim >= ms.proxmax) {
-        fprintf(stderr, "proxlim must be smaller than proxmax\n");
-	exit(1);
-      }
-      ms.proxlim = proxlim;
-      n += 1;
-    }
-    else if (!strcmp(arg,"--proxmax")) {
-      if (gridspecify) {
-        fprintf(stderr, "proxmax cannot be specified after grid\n");
-	exit(1);
-      }
-      if (argc-n < 2) proxmax_usage();    
-      double proxmax = atof(argv[n+1]);
-      if (proxmax <= 0) proxmax_usage();
-      if (proxmax <= ms.proxlim) {
-        fprintf(stderr, "proxmax must be larger than proxlim\n");
-	exit(1);
-      }
-      ms.proxmax = proxmax;
-      n += 1;
-    }
-    else if (!strcmp(arg,"--proxmaxtype")) {
-      if (gridspecify) {
-        fprintf(stderr, "proxmaxtype cannot be specified after grid\n");
-	exit(1);
-      }    
-      if (argc-n < 2) proxmaxtype_usage();    
-      int proxmaxtype = atoi(argv[n+1]);
-      if (proxmaxtype <= 0) proxmaxtype_usage();
-      ms.proxmaxtype = proxmaxtype;
       n += 1;
     }
     
@@ -521,18 +452,18 @@ void parse_options(int ministatehandle, int cartstatehandle, int nlig, int argc,
       ms.iindex = 1;
       ms.has_globalenergy = 1; //because of restraint forces to secure secondary structure
     }
-    else if (!strcmp(arg,"--em")) {
-      if (argc-n < 3) em_usage();    
-      char *emf = argv[n+1];
-      if (!exists(emf)) {
-        fprintf(stderr, "EM map file %s does not exist\n", emf);
-	em_usage();
-      }
-      float resolution = atof(argv[n+2]);
-      read_densitymaps_(emf,resolution,strlen(emf));
+    else if (!strcmp(arg,"--atomdensitygrid")) {
+      if (argc-n < 4) atomdensitygrid_usage();    
+      float voxelsize = atof(argv[n+1]);
+      if (voxelsize <= 0) atomdensitygrid_usage();    
+      int dimension = atoi(argv[n+2]);
+      if (dimension <= 0 || dimension >= 4000) atomdensitygrid_usage();    
+      float forceconstant = atof(argv[n+3]);
+      if (forceconstant <= 0) atomdensitygrid_usage();
+      define_atomdensitygrid_(voxelsize, dimension, forceconstant);
       ms.has_globalenergy = 1;
-      n += 2;
-    }
+      n += 3;
+    }    
     else {
       fprintf(stderr, "Unknown option %s\n", arg);
       exit(1);

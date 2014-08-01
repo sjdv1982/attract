@@ -37,23 +37,17 @@ def run(command):
 np = 1
 output = None
 anr = 0
-torque = ""
 existing = None
 jobsize = None
 chunks = None
+attractversion = ""
 while 1:
   anr += 1
 
   if anr > len(sys.argv)-1: break  
   arg = sys.argv[anr]
-  if arg == "--torque":
-    torque = "-torque"
-    sys.argv = sys.argv[:anr] + sys.argv[anr+1:]
-    anr -= 1
-    continue
-  
   if arg == "--infinite":
-    torque = "-infinite"
+    attractversion = "-infinite"
     sys.argv = sys.argv[:anr] + sys.argv[anr+1:]
     anr -= 1
     continue  
@@ -108,7 +102,7 @@ attractdir0 = os.path.split(sys.argv[0])[0]
 tooldir = attractdir0 + "/../tools"
 attractdir = attractdir0 + "/../bin"
 
-attract = attractdir + "/attract" + torque
+attract = attractdir + "/attract" + attractversion
 strucfile = sys.argv[1]
 
 if jobsize is None and chunks is None:

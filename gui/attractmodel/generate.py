@@ -1,10 +1,15 @@
 import os
 
-#datamodel: see TODOs
 #TODO: add check between p.modes_file and p.nr_modes
 #TODO: add check that either all interactions are grid-accelerated, or none are
 #  (and an option to disable this check; for this, adapt --rcut iteration as well)
 #TODO: a script to add energies back to deredundant output
+#TODO: add --atomdensitygrid to data model
+#TODO: add grid alphabet to data model
+#TODO: add cryo-EM scoring to data model
+#TODO: add zoom-in protocol to code generator
+#TODO: non-protein molecules
+#TODO: decide upon PDB code, chain select
 
 def generate(m):
   if m.forcefield != "ATTRACT": 
@@ -209,18 +214,20 @@ name=%s
     else:  
       gheader = ""
       if m.np > 1: gheader = "header"
-      v = g.gridname.strip() + ".grid" + gheader
-    gridfiles[g.gridname.strip()] = v
+      extension = ".tgrid" if g.torque else ".grid"
+      v = g.gridname.strip() + extension + gheader
+    gridfiles[g.gridname.strip()] = (v, g.torque)
   grid_used = {}
   ens_any = False
   for pnr,p in enumerate(m.partners):
     if p.gridname is not None:
-      v = gridfiles[p.gridname.strip()]
+      v, is_torque = gridfiles[p.gridname.strip()]
       if v in grid_used: 
         v = grid_used[v]
       else:
         grid_used[v] = pnr+1
-      gridparams += " --grid %d %s" % (pnr+1, str(v))
+      gridoption = "--torquegrid" if is_torque else "--grid"
+      gridparams += " %s %d %s" % (gridoption, pnr+1, str(v))
     if ensemble_lists[pnr] is not None:
       ps = " --ens %d %s" % (pnr+1, ensemble_lists[pnr])
       params += ps
@@ -253,8 +260,6 @@ name=%s
     if sym.symmetry == "Dx": symcode = -4
     partners = " ".join([str(v) for v in sym.partners])
     params += " --sym %d %s" % (symcode, partners)
-  if m.cryoem_data:
-    params += " --em %s %.3f" % (m.cryoem_data.name, m.cryoem_resolution)
   params += "\""
   scoreparams += "\""
   ret += """
@@ -357,7 +362,7 @@ echo '**************************************************************'
     
   for g in m.grids:
     if g.gridfile is not None: continue
-    gridfile = gridfiles[g.gridname.strip()]
+    gridfile = gridfiles[g.gridname.strip()][0]
     if gridfile not in grid_used: continue
     ret += """
 echo '**************************************************************'
@@ -402,7 +407,7 @@ echo '**************************************************************'
   if m.nr_iterations is None: m.nr_iterations = len(m.iterations)
   for n in range(m.nr_iterations):  
     if m.iterations is None or len(m.iterations) <= n:
-      iterations.append([None, None, False, False])
+      iterations.append([1500, 100, False, False])
     else:
       it = m.iterations[n]
       newit = [it.rcut, it.vmax, it.traj, it.mc]
@@ -480,20 +485,20 @@ echo '**************************************************************'
     ret += "\n"  
     result = "out_$name-sorted.dat"
 
-
-  flexpar = ""    
-  if m.calc_lrmsd or m.calc_irmsd or m.calc_fnat:
-    deflex_any = any((p.deflex for p in m.partners))
-    if modes_any and not deflex_any: 
-      if aa_modes_any:
-        flexpar = " --modes hm-all-aa.dat"
-      else:
-        flexpar = " --modes hm-all.dat"
-    for pnr,p in enumerate(m.partners):
-      if p.deflex == False and ensemble_lists[pnr] is not None:
-        flexpar += " --ens %d %s" % (pnr+1,ensemble_lists[pnr])
     
-  if m.deredundant:
+  if m.deredundant:    
+    flexpar1 = ""
+    if ens_any:
+      flexpar1 += " --ens"
+      for p in m.partners:
+        ensemble_size = p.ensemble_size
+        flexpar1 += " %d" % ensemble_size
+      if m.deredundant_ignorens: flexpar1 += " --ignorens"
+    if modes_any:
+      flexpar1 += " --modes"
+      for p in m.partners:
+        nr_modes = p.nr_modes
+        flexpar1 += " %d" % nr_modes
     
     if m.fix_receptor == False: 
       ret += """
@@ -502,7 +507,7 @@ echo 'Fix all structures into the receptor's coordinate frame
 echo '**************************************************************'
 """     
       fixresult = result + "-fixre"
-      ret += "$ATTRACTDIR/fix_receptor %s %d%s > %s\n" % (result, len(m.partners), flexpar, fixresult)
+      ret += "$ATTRACTDIR/fix_receptor %s %d%s > %s\n" % (result, len(m.partners), flexpar1, fixresult)
       result = fixresult
     
     outp = os.path.splitext(result)[0] +"-dr.dat"
@@ -510,25 +515,25 @@ echo '**************************************************************'
 echo '**************************************************************'
 echo 'Remove redundant structures'
 echo '**************************************************************'
-""" 
-    par_flex = ""
-    if ens_any:
-      par_flex += " --ens"
-      for p in m.partners:
-        ensemble_size = p.ensemble_size
-        par_flex += " %d" % ensemble_size
-      if m.deredundant_ignorens: par_flex += " --ignorens"
-    if modes_any:
-      par_flex += " --modes"
-      for p in m.partners:
-        nr_modes = p.nr_modes
-        par_flex += " %d" % nr_modes
-    
-    ret += "$ATTRACTDIR/deredundant %s %d%s > %s\n" % (result, len(m.partners), par_flex, outp)
+"""     
+    ret += "$ATTRACTDIR/deredundant %s %d%s > %s\n" % (result, len(m.partners), flexpar1, outp)
     ret += "\n"  
     result = outp
   result0 = result
+  
   if m.calc_lrmsd or m.calc_irmsd or m.calc_fnat:    
+    flexpar2 = ""    
+    if m.calc_lrmsd or m.calc_irmsd or m.calc_fnat:
+      deflex_any = any((p.deflex for p in m.partners))
+      if modes_any and not deflex_any: 
+        if aa_modes_any:
+          flexpar2 = " --modes hm-all-aa.dat"
+        else:
+          flexpar2 = " --modes hm-all.dat"
+      for pnr,p in enumerate(m.partners):
+        if p.deflex == False and ensemble_lists[pnr] is not None:
+          flexpar2 += " --ens %d %s" % (pnr+1,ensemble_lists[pnr])
+  
     if deflex_any:
       ret += """
 echo '**************************************************************'
@@ -631,7 +636,7 @@ echo '**************************************************************'
   
     if m.fix_receptor == False and not m.deredundant: 
       fixresult = result + "-fixre"
-      ret += "$ATTRACTDIR/fix_receptor %s %d%s > %s\n" % (result, len(m.partners), flexpar, fixresult)
+      ret += "$ATTRACTDIR/fix_receptor %s %d%s > %s\n" % (result, len(m.partners), flexpar2, fixresult)
       result = fixresult
   
     lrmsd_allfilenames = []
@@ -640,7 +645,7 @@ echo '**************************************************************'
       lrmsd_allfilenames.append(f2)
     lrmsd_allfilenames = " ".join(lrmsd_allfilenames)
     lrmsdresult = os.path.splitext(result0)[0] + ".lrmsd"
-    ret += "$ATTRACTDIR/lrmsd %s %s%s > %s\n" % (result, lrmsd_allfilenames, flexpar, lrmsdresult)
+    ret += "$ATTRACTDIR/lrmsd %s %s%s > %s\n" % (result, lrmsd_allfilenames, flexpar2, lrmsdresult)
     ret += "\n"
 
   if m.calc_irmsd:      
@@ -657,7 +662,7 @@ echo '**************************************************************'
     irmsd_allfilenames = " ".join(irmsd_allfilenames)
     irmsdresult = os.path.splitext(result0)[0] + ".irmsd"
     bbo = "" if any_bb else "--allatoms"
-    ret += "python $ATTRACTDIR/irmsd.py %s %s%s %s > %s\n" % (result, irmsd_allfilenames, flexpar, bbo, irmsdresult)
+    ret += "python $ATTRACTDIR/irmsd.py %s %s%s %s > %s\n" % (result, irmsd_allfilenames, flexpar2, bbo, irmsdresult)
     ret += "\n"
 
   if m.calc_fnat:      
@@ -672,7 +677,7 @@ echo '**************************************************************'
       fnat_allfilenames.append(f2)
     fnat_allfilenames = " ".join(fnat_allfilenames)
     fnatresult = os.path.splitext(result0)[0] + ".fnat"
-    ret += "python $ATTRACTDIR/fnat.py %s 5 %s%s > %s\n" % (result, fnat_allfilenames, flexpar, fnatresult)
+    ret += "python $ATTRACTDIR/fnat.py %s 5 %s%s > %s\n" % (result, fnat_allfilenames, flexpar2, fnatresult)
     ret += "\n"
 
   if m.calc_lrmsd or m.calc_irmsd or m.calc_fnat:

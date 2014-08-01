@@ -39,8 +39,16 @@ int main(int argc, char*argv[]) {
   }
 
   Grid g;
-  g.read(argv[1]); 
+  bool torquegrid;
+#ifdef TORQUEGRID
+  #define READ g.read_torque
+  #define WRITE g.write_torque
+#else
+  #define READ g.read_std
+  #define WRITE g.write_std
+#endif  
+  READ(argv[1]); 
   g.shm_energrads = new_shm_id();
   g.shm_neighbours = new_shm_id();
-  g.write(argv[2]);
+  WRITE(argv[2]);
 }  

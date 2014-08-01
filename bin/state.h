@@ -164,8 +164,7 @@ struct MiniState {
   int fixre; //fix receptor
   double rcut;  //square of distance cutoff
   Restraint *restraints;
-  int nr_restraints;
-  int gridmode; //1 = two evaluations per pair, 2 = one evaluation per pair
+  int nr_restraints;  
   int has_globalenergy; //1 = the energy has a global component, globalenergy must be called
   int gravity; //gravity modes: 0 = off, 1 = to global origin, 2 = to receptor origin, 3 = to all other centers;
   double rstk; //gravity force constant

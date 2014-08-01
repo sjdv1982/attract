@@ -140,14 +140,20 @@ int main(int argc, char*argv[]) {
   
   bool calc_pot = 1;
   if (argc > 6) calc_pot = atoi(argv[6]);
-  const int ligand = 0;
-  g.calculate(cartstatehandle, atof(argv[3]), atof(argv[4]), 
+#ifdef TORQUEGRID
+  #define CALCULATE g.calculate_torque
+  #define WRITE g.write_torque
+#else
+  #define CALCULATE g.calculate_std
+  #define WRITE g.write_std
+#endif  
+  CALCULATE(cartstatehandle, atof(argv[3]), atof(argv[4]), 
    gridspacing, gridextension, alphabet, cdie, epsilon, calc_pot);
   if (use_shm) {
     g.shm_energrads = new_shm_id();
     g.shm_neighbours = new_shm_id();  
   }
-  g.write(argv[5]);
+  WRITE(argv[5]);
 }  
 
 
