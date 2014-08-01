@@ -19,12 +19,11 @@ def read_pdb(pdb):
     lines.append(l)
   return lines, numpy.array(atoms), extralines
 
-def apply_matrix(atoms, rotmat, trans):
-  ret = []
-  COM = numpy.sum(atoms,axis=0) / float(len(atoms))
+def apply_matrix(atoms, pivot, rotmat, trans):
+  ret = []  
   for atom in atoms:
-    a = atom-COM
-    atom2 = a.dot(rotmat) + COM + trans
+    a = atom-pivot
+    atom2 = a.dot(rotmat) + pivot + trans
     ret.append(atom2)
   return ret
 
@@ -62,7 +61,9 @@ def fit(atoms1, atoms2):
 	  V[:,-1] = -V[:,-1]
   
   U = V.dot(Wt).transpose()
-  return U, COM1-COM2
+  RMSD = E0 - (2.0 * sum(S))
+  RMSD = numpy.sqrt(abs(RMSD / L))  
+  return U, COM1-COM2, RMSD
 
 def cyclesfit(atoms1, atoms2,iterations=5,cutoff=2):
   """
@@ -71,14 +72,15 @@ def cyclesfit(atoms1, atoms2,iterations=5,cutoff=2):
    get rejected from the selection
   """
   a1, a2 = numpy.array(atoms1), numpy.array(atoms2)
+  pivot = numpy.sum(a2,axis=0) / float(len(a2))
   for n in range(iterations):
-    rotmat, offset = fit(a1,a2)
-    aa2 = apply_matrix(a2, rotmat, offset)
+    rotmat, offset, rmsd = fit(a1,a2)
+    aa2 = apply_matrix(a2, pivot, rotmat, offset)
     dif = aa2 - a1
     d = dif.sum(axis=1)
     sd = d * d
     msd = sd.sum()/len(sd)
-    rmsd = sqrt(msd)
+    #rmsd = sqrt(msd)
     std = numpy.std(sd)
     if (std < 0.1): std = 0.1    
     
@@ -87,9 +89,7 @@ def cyclesfit(atoms1, atoms2,iterations=5,cutoff=2):
     aa2 = a2[keep]
     
     a1 = aa1
-    a2 = aa2
-  import sys; sys.exit()
-    
+    a2 = aa2    
   return fit(a1, a2)
 
 def select_bb(lines, atoms):
@@ -121,33 +121,43 @@ def write_pdb(lines, atoms, extralines):
     count += 1
   
 import sys
-if len(sys.argv) != 3:
-  print("Usage: fit.py <reference> <mobile>")
-  sys.exit()
-  
+import argparse
+a = argparse.ArgumentParser(prog="fit.py")
+a.add_argument("reference")
+a.add_argument("mobile")
+a.add_argument("--allatoms", action="store_true")
+a.add_argument("--rmsd", action="store_true")
+a.add_argument("--iterative", action="store_true")
+a.add_argument("--iterative_cycles",type=int,default=5)
+a.add_argument("--iterative_cutoff",type=float,default=2)
+args = a.parse_args()
+
 #read atoms  
-lines1, atoms1, extralines1 = read_pdb(sys.argv[1])
-lines2, atoms2, extralines2 = read_pdb(sys.argv[2])
+lines1, atoms1, extralines1 = read_pdb(args.reference)
+lines2, atoms2, extralines2 = read_pdb(args.mobile)
 
 #select backbone
-atoms1_bb = select_bb(lines1, atoms1)
-atoms2_bb = select_bb(lines2, atoms2)
-assert len(atoms1_bb) == len(atoms2_bb), (len(atoms1_bb), len(atoms2_bb))
+if args.allatoms:
+  atoms1_fit = atoms1
+  atoms2_fit = atoms2
+else:  
+  atoms1_fit = select_bb(lines1, atoms1)
+  atoms2_fit = select_bb(lines2, atoms2)
+assert len(atoms1_fit) and len(atoms1_fit) == len(atoms2_fit), (len(atoms1_fit), len(atoms2_fit))
 
-"""
-#alternative: select CA
-atoms1_ca = select_ca(lines1, atoms1)
-atoms2_ca = select_ca(lines2, atoms2)
-assert len(atoms1_ca) == len(atoms2_ca), (len(atoms1_ca), len(atoms2_ca))
-"""
 
-#perform a direct fit
-rotmat, offset = fit(atoms1_bb,atoms2_bb)
+if args.iterative:
+  #perform a Pymol-style iterative fit
+  rotmat, offset, rmsd = cyclesfit(atoms1_fit,atoms2_fit, args.iterative_cycles, args.iterative_cutoff)
+else:
+  #perform a direct fit
+  rotmat, offset, rmsd = fit(atoms1_fit,atoms2_fit)
 
-#alternative: perform a Pymol-style iterative fit
-#rotmat, offset = cyclesfit(atoms1_bb,atoms2_bb)
-
-fitted_atoms = apply_matrix(atoms2, rotmat, offset)
-write_pdb(lines2, fitted_atoms, extralines2)
+pivot = numpy.sum(atoms2,axis=0) / float(len(atoms2))
+fitted_atoms = apply_matrix(atoms2, pivot, rotmat, offset)
+if args.rmsd:
+  print "%.3f" % rmsd
+else:  
+  write_pdb(lines2, fitted_atoms, extralines2)
 
  

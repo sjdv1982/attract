@@ -3,6 +3,7 @@
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
+#include <cmath>
 
 #define MAXSYMHANDLES 10
 

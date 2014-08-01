@@ -20,7 +20,6 @@ FLAG= -g -p -O3 -fno-automatic -ffast-math -fcray-pointer
 #2. for heavy debugging
 #FLAG= -g -p -O0 -fno-automatic -ffast-math -fcray-pointer
 
-
 CXX        = g++
 CC        = gcc
 

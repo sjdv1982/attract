@@ -141,7 +141,6 @@ void atomdensitygrid_usage() {
   exit(1);
 }
 
-
 void parse_options(int ministatehandle, int cartstatehandle, int nlig, int argc, char *argv[]) {
   MiniState &ms = ministate_get(ministatehandle);
   CartState &c = cartstate_get(cartstatehandle);
