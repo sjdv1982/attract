@@ -224,5 +224,5 @@ all: max.fin attract attract-infinite collect collectlib.so lrmsd rmsd make-grid
  make-grid-omp make-grid-torque make-grid-torque-omp shm-grid \
  shm-grid-torque shm-clean systsearch map2map fix_receptor \
  omp_threadnum deredundant matrix-lrmsd rest emcorr gvm gvm-pdb axsymmetry ncsymmetry \
- gridify.so
+ _gridify.so
 

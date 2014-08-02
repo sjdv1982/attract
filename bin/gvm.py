@@ -124,7 +124,7 @@ if __name__ == "__main__":
     for nstruc in range(blocksize):
       eof = collectlib.collect_next()
       if eof: break    
-      coor = collectlib.collect_coor()          
+      coor = collectlib.collect_coor(copy=True)          
       coors.append(coor)
     if eof and not nstruc: break
     #corr = [calc_gvm(coor) for coor in coors]
