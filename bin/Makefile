@@ -60,6 +60,12 @@ gvm: gvm.o read_parameters.o read_pdb.o read_pdb2.o read_dof.o \
   axsym.o matinv.o matmult.o state.h
 	$(CXX) $(CFLAGS)  $^ -lgfortran -o $@
 
+gvm-omp: gvm-omp.o read_parameters.o read_pdb.o read_pdb2.o read_dof.o \
+  cartstate.o euler2rotmat.o deform.o rotate.o read_hm.o memcpy.o write_pdb.o \
+  read_ens.o em/lib_em.o em/lib_corr.o em/situs/lib_vio.o em/situs/lib_pio.o em/situs/lib_err.o \
+  axsym.o matinv.o matmult.o state.h
+	$(CXX) $(CFLAGS)  $^ -fopenmp -lgfortran -o $@
+		
 gvm-pdb: gvm-pdb.o read_pdb2.o memcpy.o em/lib_em.o \
   em/lib_corr.o em/situs/lib_vio.o em/situs/lib_pio.o em/situs/lib_err.o \
   state.h
@@ -154,6 +160,9 @@ collectlib.so: collectlib-pic.o read_parameters-pic.o read_pdb-pic.o \
   read_ens-pic.o axsym-pic.o matmult-pic.o state.h max.h
 	$(CXX) $(CFLAGS) -Wall -shared -fPIC $^ -lgfortran -lm -o $@ 
 
+_gridify.so: gridify-pic.o	
+	$(CXX) $(CFLAGS) -Wall -shared -fPIC $^ -lm -o $@ 
+	
 max.fin: max.h
 	python make_max.py max.h > max.fin
 	
@@ -214,5 +223,6 @@ rest: reduce redatom reduce_rna translate rotam compare viewe rmsca center trans
 all: max.fin attract attract-infinite collect collectlib.so lrmsd rmsd make-grid \
  make-grid-omp make-grid-torque make-grid-torque-omp shm-grid \
  shm-grid-torque shm-clean systsearch map2map fix_receptor \
- omp_threadnum deredundant matrix-lrmsd rest emcorr gvm gvm-pdb axsymmetry ncsymmetry
+ omp_threadnum deredundant matrix-lrmsd rest emcorr gvm gvm-pdb axsymmetry ncsymmetry \
+ gridify.so
 

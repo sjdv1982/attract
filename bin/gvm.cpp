@@ -109,6 +109,12 @@ extern void read_ens(int cartstatehandle, int ligand, char *ensfile, bool strict
 
 CartState &cartstate_get(int handle);
 
+/* Thread blocks */
+const int STRUCBLOCK=8;
+double *block_mappdb[STRUCBLOCK];
+double *block_mappdb_xyz[STRUCBLOCK];
+double *block_x[STRUCBLOCK];
+
 /* DOFs */
 static int ens[MAXLIG];
 static double morph[MAXLIG];
@@ -123,21 +129,21 @@ static int seed;
 static char *label;
 
 void usage() {
-  fprintf(stderr, "usage: gvm map.vol <gradient threshold> structures.dat receptor.pdb [...] [...] [--modes <modefile>] [--imodes <indexmodefile>] [--ens/--morph <ligand nr> <ensemble file>]");
+  fprintf(stderr, "usage: gvm map.vol <gradient threshold> structures.dat receptor.pdb [...] [...] [--modes <modefile>] [--ens/--morph <ligand nr> <ensemble file>]");
   exit(1);
 }
 
 extern bool exists(const char *f);
 
-/*
-inline void print_contour(int x, int y, int z, double *mapd, double *mapw, int n, double threshold) {
-  double d = mapd[n];
-  if (fabs(d) < threshold) return;
-  double w = mapw[n];
-  printf("CONTOUR %d %d %d %.3f %.3f %.3f\n", x,y,z,d-w, d, w);
-}
-*/
-
+void *guarded_malloc(int memsize) {
+  void *buf = malloc(memsize);
+  if (!buf) {
+    fprintf(stderr, "Cannot allocate memory\n");
+    exit(1);
+  }
+  return buf;
+}  
+  
 int main(int argc, char *argv[]) {
   int i;
   if (argc < 5) {
@@ -269,7 +275,9 @@ int main(int argc, char *argv[]) {
   for (int n = 0; n < enscount; n++) {
     read_ens(cartstatehandle, ens_ligands[n]-1, ens_files[n], 0, morphing[n]);
   }      
-      
+  
+  int nratoms = cs.nall;
+  
   //retrieve the parameters needed to read the DOFs
   int nlig; int *nhm; int *nihm;
   cartstate_get_nlig_nhm_(cartstatehandle, nlig,nhm, nihm);
@@ -319,12 +327,13 @@ int main(int argc, char *argv[]) {
 
   double *mapdata_xyz = (double *) malloc(3*nvox*sizeof(double));     
   double *mapdata_x = mapdata_xyz;
+    
   apply_kernel(
     mapdata, nvox, g_extx, g_exty, extz,
     gvm_kernel_x, 27, 3, 3, 3,
     mapdata_x
   );
-
+  
   double *mapdata_y = &mapdata_xyz[nvox];
   apply_kernel(
     mapdata, nvox, g_extx, g_exty, extz,
@@ -338,133 +347,141 @@ int main(int argc, char *argv[]) {
     gvm_kernel_z, 27, 3, 3, 3,
     mapdata_z
   );
-
-  double *mappdb = (double *) malloc(nvox*sizeof(double));
-  double *mappdb_xyz = (double *) malloc(3*nvox*sizeof(double));     
-   
+  
+  for (int struc = 0; struc < STRUCBLOCK; struc++) {
+    block_mappdb[struc] = (double *) guarded_malloc(nvox*sizeof(double));
+    block_mappdb_xyz[struc] = (double *) guarded_malloc(3*nvox*sizeof(double));     
+    block_x[struc] =  (double *) guarded_malloc(3*TOTMAXATOM*sizeof(double));
+  }    
+  
   //main loop
   int nstruc = 0;  
   while (1) {
     
-    int result = read_dof_(fil, line, nstruc, argv[3], ens, phi, ssi, rot, 
-     xa, ya, za, locrests, 
-     morph, dlig, nlig, nhm, nihm, nrens, morphing, has_locrests,
-     seed, label, 0, strlen(argv[3])
-    );
-    if (result != 0) break;
-
-    if (centered_receptor) { //...then subtract pivot from receptor
-      xa[0] -= pivot[0];
-      ya[0] -= pivot[MAXLIG];
-      za[0] -= pivot[2*MAXLIG];
-    }
-    
-
-    if (centered_ligands) { //...then subtract pivot from all (other) ligands 
-      for (i = 1; i < nlig; i++) {
-        xa[i] -= pivot[i];
-	ya[i] -= pivot[MAXLIG+i];
-	za[i] -= pivot[2*MAXLIG+i];
-      }
-    }          
-    for (i = 0; i < nlig; i++) {
-
-      //Get ensemble differences
-      double *ensdp;
-      double cmorph;
-      double *cmorphdp;
-      cartstate_get_ensd_(cartstatehandle, i, ens[i], ensdp,
-      morph[i],cmorph, cmorphdp);
-
-      //Apply harmonic modes
-      double (&dligp)[MAXMODE+MAXINDEXMODE] = dlig[i];
-      deform_(ens[i], ensdp, cmorph, cmorphdp, dligp, nhm, nihm, i, ieins, eig, index_eig, index_val, xb, x, dmmy1, dmmy2, 1);
-     
-      //Compute rotation matrix
-      double rotmat[9];
-      euler2rotmat_(phi[i],ssi[i],rot[i],rotmat);
+    int strucblocksize;
+    double r[STRUCBLOCK];
+    memset(r, 0, sizeof(r));
+    for (strucblocksize=0; strucblocksize < STRUCBLOCK; strucblocksize++) {
+      int struc=strucblocksize;
+      double *x_local = block_x[struc];
       
-      //Apply rotation matrix and translation vector
-      rotate_(MAXLIG,3*MAXATOM,rotmat,
-      xa[i],ya[i],za[i],
-      pivot,i,ieins,x);
+      int result = read_dof_(fil, line, nstruc, argv[3], ens, phi, ssi, rot, 
+      xa, ya, za, locrests, 
+      morph, dlig, nlig, nhm, nihm, nrens, morphing, has_locrests,
+      seed, label, 0, strlen(argv[3])
+      );
+      if (result != 0) break;
 
-    }
-
-    CartState &cs = cartstate_get(cartstatehandle);
-    Coor *pdb = (Coor *) &cs.x[0];
-
-    int nratoms = cs.nall;
-    gridify(
-     pdb, nratoms, 
-     mappdb, nvox, 
-     width, g_extx, g_exty, extz,
-     minx, miny, minz  
-    );
-
-    double *mappdb_x = mappdb_xyz;
-    apply_kernel(
-      mappdb, nvox, g_extx, g_exty, extz,
-      gvm_kernel_x, 27, 3, 3, 3,
-      mappdb_x
-    );
-    
-    double *mappdb_y = &mappdb_xyz[nvox];
-    apply_kernel(
-      mappdb, nvox, g_extx, g_exty, extz,
-      gvm_kernel_y, 27, 3, 3, 3,
-      mappdb_y
-    );
-
-    double *mappdb_z = &mappdb_xyz[2*nvox];
-    apply_kernel(
-      mappdb, nvox, g_extx, g_exty, extz,
-      gvm_kernel_z, 27, 3, 3, 3,
-      mappdb_z
-    );
-     
-    /* 
-    printf("CONTOUR START\n");
-    for (int z = 1; z < extz-1; z++) {
-      for (int y = 1; y < g_exty-1; y++) {
-        for (int x = 1; x < g_extx-1; x++) {      
-          int n = g_exty*g_extx*z + g_extx * y + x;
-          print_contour(x,y,z,mapdata_x, mappdb_x, n, threshold);
-          print_contour(x,y,z,mapdata_y, mappdb_y, n, threshold);
-          print_contour(x,y,z,mapdata_z, mappdb_z, n, threshold);
-        }
+      if (centered_receptor) { //...then subtract pivot from receptor
+        xa[0] -= pivot[0];
+        ya[0] -= pivot[MAXLIG];
+        za[0] -= pivot[2*MAXLIG];
       }
-    }
-    printf("CONTOUR END\n");
-    */
+      
 
-    //double r = get_corr(vox_map, vox_pdb, nvox_filtered);
-    double sumx = 0, sumy = 0, sumxx = 0, sumxy = 0, sumyy = 0; 
-    int count = 0;
-    for (int dim = 0; dim < 3; dim++) {
-      double *mapd = mapdata_xyz + nvox * dim;
-      double *mapw = mappdb_xyz + nvox * dim;
-      for (int z = 1; z < extz-1; z++) {
-        for (int y = 1; y < g_exty-1; y++) {
-          for (int x = 1; x < g_extx-1; x++) {      
-            int n = g_exty*g_extx*z + g_extx * y + x;
-            double d = mapd[n];
-            if (fabs(d) < threshold) continue;
-            double w = mapw[n];
-            sumx += d; sumxx += d*d;
-            sumy += w; sumyy += w*w;
-            sumxy += d * w;
-            count++;
+      if (centered_ligands) { //...then subtract pivot from all (other) ligands 
+        for (i = 1; i < nlig; i++) {
+          xa[i] -= pivot[i];
+          ya[i] -= pivot[MAXLIG+i];
+          za[i] -= pivot[2*MAXLIG+i];
+        }
+      }          
+            
+      for (i = 0; i < nlig; i++) {        
+        //Get ensemble differences
+        double *ensdp;
+        double cmorph;
+        double *cmorphdp;
+        cartstate_get_ensd_(cartstatehandle, i, ens[i], ensdp,
+        morph[i],cmorph, cmorphdp);
+
+        //Apply harmonic modes        
+        double (&dligp)[MAXMODE+MAXINDEXMODE] = dlig[i];
+        deform_(ens[i], ensdp, cmorph, cmorphdp, dligp, nhm, nihm, i, ieins, eig, index_eig, index_val, xb, x_local, dmmy1, dmmy2, 1);
+      
+        //Compute rotation matrix
+        double rotmat[9];
+        euler2rotmat_(phi[i],ssi[i],rot[i],rotmat);
+        
+        //Apply rotation matrix and translation vector
+        rotate_(MAXLIG,3*MAXATOM,rotmat,
+        xa[i],ya[i],za[i],
+        pivot,i,ieins,x_local);
+
+      }
+      
+    }
+    
+    #pragma omp parallel for 
+    for (int struc = 0; struc < strucblocksize; struc++) {
+      
+      double *mappdb = block_mappdb[struc];
+      memset(mappdb, 0, nvox*sizeof(double));
+      double *mappdb_xyz = block_mappdb_xyz[struc];
+      memset(mappdb_xyz, 0, 3*nvox*sizeof(double));
+      double *x_local = block_x[struc];
+      
+      Coor *pdb = (Coor *) x_local;
+
+      
+      gridify(
+       pdb, nratoms, 
+       mappdb, nvox, 
+       width, g_extx, g_exty, extz,
+       minx, miny, minz  
+      );
+  
+      
+      double *mappdb_x = mappdb_xyz;
+      apply_kernel(
+        mappdb, nvox, g_extx, g_exty, extz,
+        gvm_kernel_x, 27, 3, 3, 3,
+        mappdb_x
+      );
+      
+      double *mappdb_y = &mappdb_xyz[nvox];
+      apply_kernel(
+        mappdb, nvox, g_extx, g_exty, extz,
+        gvm_kernel_y, 27, 3, 3, 3,
+        mappdb_y
+      );
+
+      double *mappdb_z = &mappdb_xyz[2*nvox];
+      apply_kernel(
+        mappdb, nvox, g_extx, g_exty, extz,
+        gvm_kernel_z, 27, 3, 3, 3,
+        mappdb_z
+      );
+      
+      double sumx = 0, sumy = 0, sumxx = 0, sumxy = 0, sumyy = 0; 
+      int count = 0;
+      for (int dim = 0; dim < 3; dim++) {
+        double *mapd = mapdata_xyz + nvox * dim;
+        double *mapw = mappdb_xyz + nvox * dim;
+        for (unsigned int z = 1; z < extz-1; z++) {
+          for (unsigned int y = 1; y < g_exty-1; y++) {
+            for (unsigned int x = 1; x < g_extx-1; x++) {      
+              int n = g_exty*g_extx*z + g_extx * y + x;
+              double d = mapd[n];
+              if (fabs(d) < threshold) continue;
+              double w = mapw[n];
+              sumx += d; sumxx += d*d;
+              sumy += w; sumyy += w*w;
+              sumxy += d * w;
+              count++;
+            }
           }
         }
       }
-    }
-    double Sxx = sumxx - sumx * sumx / count;
-    double Sxy = sumxy - sumx * sumy / count;
-    double Syy = sumyy - sumy * sumy / count;
-    double r = Sxy/sqrt(Sxx*Syy);
-    
-    printf("%.6f\n",r);
-  }  
+      double Sxx = sumxx - sumx * sumx / count;
+      double Sxy = sumxy - sumx * sumy / count;
+      double Syy = sumyy - sumy * sumy / count;
+      r[struc] = Sxy/sqrt(Sxx*Syy);            
+    } 
+    for (int struc = 0; struc < strucblocksize; struc++) {
+      printf("%.6f\n",r[struc]);
+    }  
+    if (strucblocksize < STRUCBLOCK) break;
+  }
   
 }
