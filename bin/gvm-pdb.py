@@ -1,9 +1,8 @@
 """
 Calculate Gradient Vector Matching (GVM) score
-usage: python gvm.py <SITUS map> <gradient threshold> <ATTRACT DAT file>  <ATTRACT-compatible PDB file>\
+usage: python gvm-pdb.py <SITUS map> <gradient threshold> <multi-model PDB file>\
 """
 import sys, os, copy
-import multiprocessing
 
 import numpy, scipy.signal, scipy.ndimage
 import gridify
@@ -43,11 +42,22 @@ def calc_gvm(coor):
   syy = sumyy - sumy * sumy / corrcount;
   return sxy/sqrt(sxx*syy)            
   
+def read_multi_pdb(f):  
+  endmodel = False
+  coor = []
+  for l in open(f):
+    if l.startswith("MODEL"):      
+      coor = []
+    if l.startswith("ENDMDL"):      
+      endmodel = True
+      yield coor     
+    if not l.startswith("ATOM"): continue
+    x,y,z = (float(f) for f in (l[30:38],l[38:46],l[46:54]))
+    coor.append((x,y,z))
+    endmodel = False
+  if not endmodel: yield coor
   
 if __name__ == "__main__":    
-  multiprocessing.freeze_support()
-  import collectlibpy as collectlib
-
   ensfiles = []
   modefile = None
   imodefile = None
@@ -83,9 +93,7 @@ if __name__ == "__main__":
   emfile = sys.argv[1]
   assert os.path.exists(emfile), emfile
   threshold = float(sys.argv[2])
-  datfile = sys.argv[3]
-  assert os.path.exists(datfile), datfile
-  pdbfile = sys.argv[4]
+  pdbfile = sys.argv[3]
   assert os.path.exists(pdbfile), pdbfile
   
   emdata, gridspacing, origin = read_situs(emfile)
@@ -107,28 +115,6 @@ if __name__ == "__main__":
     sumyy += numpy.sum(emgradm * emgradm, axis=None)
     corrcount += numpy.count_nonzero(em_mask)
   
-  initargs = [datfile, pdbfile]
-  if modefile: initargs += ["--modes", modefile]
-  if imodefile: initargs += ["--imodes", imodefile]
-  for nr, ensfile in ensfiles:
-    initargs += ["--ens", nr, ensfile]
-
-  collectlib.collect_init(initargs)
-
-  blocksize0 = 100
-  poolsize = multiprocessing.cpu_count()
-  blocksize = max(poolsize * int(blocksize0/poolsize), 1)
-  pool = multiprocessing.Pool(poolsize)
-  while 1:
-    coors = []
-    for nstruc in range(blocksize):
-      eof = collectlib.collect_next()
-      if eof: break    
-      coor = collectlib.collect_coor(copy=True)          
-      coors.append(coor)
-    if eof and not nstruc: break
-    #corr = [calc_gvm(coor) for coor in coors]
-    corr = pool.map(calc_gvm, coors)
-    for c in corr:
-      print "%.5f" % c
-    if eof: break  
+  for coor in read_multi_pdb(pdbfile):
+    coor = numpy.array(coor)  
+    print "%.5f" % calc_gvm(coor)
