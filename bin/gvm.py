@@ -113,7 +113,7 @@ if __name__ == "__main__":
     sumy += numpy.sum(emgradm, axis=None)
     sumyy += numpy.sum(emgradm * emgradm, axis=None)
     corrcount += numpy.count_nonzero(em_mask)
-  assert corrcount > 0, #gradients are too weak
+  assert corrcount > 0 #gradients are too weak
   
   initargs = [datfile, pdbfile]
   if modefile: initargs += ["--modes", modefile]
