@@ -6,6 +6,7 @@
 extern bool exists(const char *);
 extern void parse_restraintfile(MiniState &ms, const char *restfile);
 extern "C" void define_atomdensitygrid_(float voxelsize, int dimension, float forceconstant);
+extern "C" void define_atomdensitymask_(char *maskfile, float forceconstant);
 
 extern void read_ens(int cartstatehandle, int ligand, char *ensfile, bool strict, bool morphing);
 
@@ -141,6 +142,11 @@ void atomdensitygrid_usage() {
   exit(1);
 }
 
+void atomdensitymask_usage() {
+ fprintf(stderr, "--atomdensitymask option usage: --atomdensitymask <mask file> <force constant>\n");
+  exit(1);
+}
+
 void parse_options(int ministatehandle, int cartstatehandle, int nlig, int argc, char *argv[]) {
   MiniState &ms = ministate_get(ministatehandle);
   CartState &c = cartstate_get(cartstatehandle);
@@ -256,7 +262,7 @@ void parse_options(int ministatehandle, int cartstatehandle, int nlig, int argc,
       if (!exists(gridf)) {
         char *endptr;
         int lig_old = strtol(gridf,&endptr, 0);
-        if (lig_old == 0 || endptr-gridf < strlen(gridf)) {        
+        if (lig_old == 0 || endptr-gridf < (unsigned int) strlen(gridf)) {        
           fprintf(stderr, "Grid file %s does not exist\n", gridf);
   	  grid_usage();          
         }
@@ -463,6 +469,19 @@ void parse_options(int ministatehandle, int cartstatehandle, int nlig, int argc,
       ms.has_globalenergy = 1;
       n += 3;
     }    
+    else if (!strcmp(arg,"--atomdensitymask")) {
+      if (argc-n < 3) atomdensitymask_usage();    
+      char *maskfile = argv[n+1];
+      if (!exists(maskfile)) {
+        fprintf(stderr, "Mask file %s does not exist\n", maskfile);
+        exit(1);
+      }      
+      float forceconstant = atof(argv[n+2]);
+      if (forceconstant <= 0) atomdensitymask_usage();
+      define_atomdensitymask_(maskfile, forceconstant);
+      ms.has_globalenergy = 1;
+      n += 2;
+    }        
     else {
       fprintf(stderr, "Unknown option %s\n", arg);
       exit(1);

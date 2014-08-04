@@ -46,6 +46,7 @@ def write_situs(situsfile, data, voxelsize, origin):
 
 def write_mask(maskfile, data, voxelsize, origin):
   f = open(maskfile, "wb") 
+  f.write("ATTRACTMASK")  
   voxelsize = struct.pack("f", voxelsize)
   f.write(voxelsize)  
   origin = struct.pack("fff", *tuple(origin))
@@ -74,10 +75,10 @@ mask[mask<0]=0
 extrusion = numpy.array([1/27.0]*27).reshape((3,3,3))
 mask = scipy.signal.convolve(mask, extrusion, "same")
 mask[mask>=0.02]=1
-
+boolmask = numpy.greater(mask, 0)
 originshift = (ratio-1)*gridspacing
 maskorigin = origin + originshift
-write_mask(maskfile, mask, maskvoxelsize, maskorigin )
+write_mask(maskfile, boolmask, maskvoxelsize, maskorigin )
 
 if outputsitusfile:
   write_situs(outputsitusfile, mask, maskvoxelsize, maskorigin )
