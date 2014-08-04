@@ -32,6 +32,7 @@ def calc_emcorr(coor):
   pdbmap_gaussian = scipy.ndimage.filters.gaussian_filter(pdbmap, sigma, mode="constant")
   pdb_mask = (pdbmap_gaussian > threshold)
   corrcount = numpy.count_nonzero(pdb_mask)
+  if corrcount == 0: return 0.0
   pdbmap_gaussianm = pdbmap_gaussian[pdb_mask]
   emdata_gaussianm = emdata_gaussian[pdb_mask]
   sumy = numpy.sum(emdata_gaussianm, axis=None)
@@ -42,7 +43,9 @@ def calc_emcorr(coor):
   sxx = sumxx - sumx * sumx / corrcount;
   sxy = sumxy - sumx * sumy / corrcount;
   syy = sumyy - sumy * sumy / corrcount;
-  return sxy/sqrt(sxx*syy)            
+  variance = sxx*syy
+  if variance < 0.0000001: return 0.0
+  return sxy/sqrt(variance)            
   
   
 if __name__ == "__main__":    

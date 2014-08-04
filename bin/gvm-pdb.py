@@ -40,7 +40,9 @@ def calc_gvm(coor):
   sxx = sumxx - sumx * sumx / corrcount;
   sxy = sumxy - sumx * sumy / corrcount;
   syy = sumyy - sumy * sumy / corrcount;
-  return sxy/sqrt(sxx*syy)            
+  variance = sxx*syy
+  if variance < 0.0000001: return 0.0
+  return sxy/sqrt(variance)            
   
 def read_multi_pdb(f):  
   endmodel = False
