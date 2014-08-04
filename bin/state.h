@@ -166,8 +166,6 @@ struct MiniState {
   Restraint *restraints;
   int nr_restraints;
   int gridmode; //1 = two evaluations per pair, 2 = one evaluation per pair
-  double proxlim, proxmax; //vdW approximation thresholds for grids
-  int proxmaxtype; //number of types for which the approximation is made
   int has_globalenergy; //1 = the energy has a global component, globalenergy must be called
   int gravity; //gravity modes: 0 = off, 1 = to global origin, 2 = to receptor origin, 3 = to all other centers;
   double rstk; //gravity force constant

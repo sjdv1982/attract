@@ -105,10 +105,14 @@ class AttractServerError(Exception):
 def format_delta(delta, mydir, runname="attract"):
   if delta is None: return ""
   fname = runname + "-delta.json"
-  outputf = open(mydir+"/"+fname, "w") 
-  json.dump(delta,outputf,sort_keys=True,indent=4)
-  outputf.close()  
-  return response_deltafile % (webresultdir+mydir+"/"+fname, fname)
+  try:
+    outputf = open(mydir+"/"+fname, "w") 
+    json.dump(delta,outputf,sort_keys=True,indent=4)
+    outputf.close()  
+    return response_deltafile % (webresultdir+mydir+"/"+fname, fname)
+  except:
+    return "<B>Delta</B>\n" + pprint.pformat(delta)
+  
   
 def serve_attract(spydertype, formlib, deploy):
   # Obtain the webdict (what the user submitted) and f, the spyderform used to generate the HTML
@@ -124,7 +128,7 @@ def serve_attract(spydertype, formlib, deploy):
   newmodel, status, delta = spyder.formtools.cgi.cgi(webdict, f, resourceobj, spydertype=spydertype)      
  
   # Detect empty form  
-  if delta is None:
+  if not len(webdict) or delta is None:
     raise AttractServerError(status="You didn't submit any data", delta=None)      
   
   # Create a result directory

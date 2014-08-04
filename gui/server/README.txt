@@ -27,7 +27,7 @@ ScriptAliasMatch ^/cgi/server/([^/]*)/(.*) /home/user/server/$1/cgi/$2
 
 Step 3. Installing the ATTRACT server
 
-- Go to $ATTRACTGUI,
+- Go to $ATTRACTGUI/server,
 - Choose one of the generate-html*.sh scripts.  
 generate-html-tum.sh sets up a TUM web server (www.attract.ph.tum.de)
 generate-html-local.sh sets up a web server for local use (localhost). 

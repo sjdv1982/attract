@@ -35,14 +35,9 @@ extern "C" int ministate_new_() {
   ms.irst = 0; 
   ms.fixre = 0; 
   ms.rcut = 1500;
-  //ms.proxlim = 36;
-  ms.proxlim = 0;
-  ms.proxmax = 200;
-  ms.proxmaxtype = 31;
   ms.nr_restraints = 0;   
   ms.has_globalenergy = 0;
   ms.gravity = 0;
-  //ms.rstk = 0.015; //for second order restraints...; too much?
   ms.rstk = 0.2; //for harmonic restraints...
   ms.ghost = 0;
   ms.ghost_ligands = 0;

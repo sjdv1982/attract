@@ -1,8 +1,29 @@
 import subprocess,sys
 import argparse
-import os,re
+import os,re, numpy
+from math import *
 import euler
+def read_pdb(f):
+  ret = []
+  for l in open(f):
+    if not l.startswith("ATOM"): continue
+    x,y,z = (float(f) for f in (l[30:38],l[38:46],l[46:54]))
+    ret.append((x,y,z))
+  return ret
 
+def get_euler(pdb1, pdb2):
+  atoms1 = read_pdb(pdb1)
+  atoms2 = read_pdb(pdb2)
+
+  if len(atoms1) != len(atoms2):
+    raise Exception("Different atom numbers: %s: %d, %s: %d" % (pdb1, len(atoms1), pdb2, len(atoms2)))
+
+  atoms1 = numpy.array(atoms1)
+  atoms2 = numpy.array(atoms2)
+
+  return euler.euler(atoms1, atoms2)
+
+  
 attractdir = os.path.abspath(os.path.split(__file__)[0])
 if len(attractdir) == 0: attractdir = './'
 parser = argparse.ArgumentParser()
@@ -70,18 +91,18 @@ for i in range(1,201):
     if len(conf_l) > 0:
       ligandfile = conf_l[myens[1]-1].replace('\n','')
   
-  euler.run(receptorfile,'tmprec.pdb','tmp')
-  tmp = open('tmp').readlines()
+  ret = get_euler(receptorfile,'tmprec.pdb')
+  ret = ["%.5f" % x if fabs(x) > 1e-5 else 0 for x in ret ]
   if len(conf_r) > 0:
-    print(str(myens[0])+' '+tmp[0].replace('\n',''))
+    print(str(myens[0])+' '+" ".join(ret))
   else:
-    print(tmp[0].replace('\n',''))
+    print(" ".join(ret))
     
-  euler.run(ligandfile,'tmplig.pdb','tmp')
-  tmp = open('tmp').readlines()
+  ret = get_euler(ligandfile,'tmplig.pdb')
+  ret = ["%.5f" % x if fabs(x) > 1e-5 else 0 for x in ret ]
   if len(conf_l) > 0:
-    print(str(myens[1])+' '+tmp[0].replace('\n',''))
+    print(str(myens[1])+' '+" ".join(ret))
   else:
-    print(tmp[0].replace('\n',''))
+    print(" ".join(ret))
   
   

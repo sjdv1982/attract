@@ -126,7 +126,14 @@ int morphing[MAXLIG];
 coors2 locrests;
 int has_locrests[MAXLIG];
 
+bool initialized=0;
+
 extern "C" void collect_init(int argc00, char *argv00[]) {
+  if (initialized) {
+    fprintf(stderr, "ERROR: Cannot re-initialize collectlib\n");
+    exit(1);
+  } 
+  initialized=1;
   memset(morphing,0,MAXLIG*sizeof(int));
 
   int i;
