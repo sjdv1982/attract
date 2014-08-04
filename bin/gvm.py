@@ -46,7 +46,9 @@ def calc_gvm(coor):
   sxx = sumxx - sumx * sumx / corrcount;
   sxy = sumxy - sumx * sumy / corrcount;
   syy = sumyy - sumy * sumy / corrcount;
-  return sxy/sqrt(sxx*syy)            
+  variance = sxx*syy
+  if variance < 0.0000001: return 0.0
+  return sxy/sqrt(variance)            
   
   
 if __name__ == "__main__":    
@@ -111,6 +113,7 @@ if __name__ == "__main__":
     sumy += numpy.sum(emgradm, axis=None)
     sumyy += numpy.sum(emgradm * emgradm, axis=None)
     corrcount += numpy.count_nonzero(em_mask)
+  assert corrcount > 0, #gradients are too weak
   
   initargs = [datfile, pdbfile]
   if modefile: initargs += ["--modes", modefile]
