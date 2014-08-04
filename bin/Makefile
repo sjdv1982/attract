@@ -48,23 +48,6 @@ score-deform: score-deform.o deformscore.o read_parameters.o read_pdb.o read_pdb
   read_ens.o axsym.o matinv.o matmult.o state.h
 	$(CXX) $(CFLAGS)  $^ -lgfortran -o $@
 
-emcorr: emcorr.o read_parameters.o read_pdb.o read_pdb2.o read_dof.o \
-  cartstate.o euler2rotmat.o deform.o rotate.o read_hm.o memcpy.o write_pdb.o \
-  read_ens.o em/lib_em.o em/lib_corr.o em/situs/lib_vio.o em/situs/lib_pio.o em/situs/lib_err.o \
-  axsym.o matinv.o matmult.o state.h
-	$(CXX) $(CFLAGS)  $^ -lgfortran -o $@
-
-gvm: gvm.o read_parameters.o read_pdb.o read_pdb2.o read_dof.o \
-  cartstate.o euler2rotmat.o deform.o rotate.o read_hm.o memcpy.o write_pdb.o \
-  read_ens.o em/lib_em.o em/lib_corr.o em/situs/lib_vio.o em/situs/lib_pio.o em/situs/lib_err.o \
-  axsym.o matinv.o matmult.o state.h
-	$(CXX) $(CFLAGS)  $^ -lgfortran -o $@
-
-gvm-pdb: gvm-pdb.o read_pdb2.o memcpy.o em/lib_em.o \
-  em/lib_corr.o em/situs/lib_vio.o em/situs/lib_pio.o em/situs/lib_err.o \
-  state.h
-	$(CXX) $(CFLAGS)  $^ -lgfortran -o $@
-
 matrix-lrmsd: matrix-lrmsd.o read_parameters.o read_pdb.o read_pdb2.o read_dof.o \
   cartstate.o euler2rotmat.o deform.o rotate.o read_hm.o memcpy.o write_pdb.o \
   read_ens.o axsym.o matinv.o matmult.o state.h
@@ -110,10 +93,6 @@ grid.o: grid.cpp $(H)
 grid-torque.o: grid.cpp $(H) 
 	$(CXX) $(CFLAGS) --param max-inline-insns-single=2000 -DTORQUEGRID -c $< -o $@ 
 
-map2map:	em/situs/map2map.o em/situs/lib_err.o em/situs/lib_vio.o \
-		em/situs/lib_vwk.o em/situs/lib_vec.o em/situs/lib_std.o 
-	$(CC) $(CFLAGS) $^ -o $@ -lm
-
 fix_receptor:   fix_receptor.o read_dof.o euler2rotmat.o matinv.o matmult.o \
                 print_struc.o state.h
 	$(CXX) $(CFLAGS) $^ -o $@ -lm
@@ -154,6 +133,9 @@ collectlib.so: collectlib-pic.o read_parameters-pic.o read_pdb-pic.o \
   read_ens-pic.o axsym-pic.o matmult-pic.o state.h max.h
 	$(CXX) $(CFLAGS) -Wall -shared -fPIC $^ -lgfortran -lm -o $@ 
 
+_gridify.so: gridify-pic.o	
+	$(CXX) $(CFLAGS) -Wall -shared -fPIC $^ -lm -o $@ 
+	
 max.fin: max.h
 	python make_max.py max.h > max.fin
 	
@@ -177,8 +159,6 @@ max.fin: max.h
 
 clean: 
 	rm -f *.o
-	rm -f em/*.o 
-	rm -f em/situs/*.o 
 	rm -f attract
 	rm -f attract-infinite
 
@@ -213,6 +193,7 @@ rest: reduce redatom reduce_rna translate rotam compare viewe rmsca center trans
 
 all: max.fin attract attract-infinite collect collectlib.so lrmsd rmsd make-grid \
  make-grid-omp make-grid-torque make-grid-torque-omp shm-grid \
- shm-grid-torque shm-clean systsearch map2map fix_receptor \
- omp_threadnum deredundant matrix-lrmsd rest emcorr gvm gvm-pdb axsymmetry ncsymmetry
+ shm-grid-torque shm-clean systsearch fix_receptor \
+ omp_threadnum deredundant matrix-lrmsd rest axsymmetry ncsymmetry \
+ _gridify.so
 

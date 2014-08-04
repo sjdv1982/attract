@@ -8,7 +8,9 @@ const int ATOMDENSITYGRIDS = 100;
 struct AtomDensityGrid {
   float voxelsize;
   int dimx, dimy, dimz;
+  float orix, oriy, oriz;
   double *density;
+  bool *maskgrid;
   float clash_threshold;
   float forceconstant;
 };
@@ -126,11 +128,82 @@ void apply_clash(AtomDensityGrid &g, int indxyz, double cwxyz, double &overlap, 
   gradz -= sz * cgrad;
 }
 
+void apply_clash_mask(AtomDensityGrid &g, int indxyz, double cwxyz, double &overlap, double &gradx, double &grady, double &gradz, double sx, double sy, double sz, double weight) {
+  double w = g.density[indxyz];
+  double clash = w/g.clash_threshold-g.maskgrid[indxyz];
+  if (clash <= 0) return; 
+  overlap += clash*clash;
+  double cgrad = 2*clash*cwxyz;
+  gradx -= sx * cgrad;
+  grady -= sy * cgrad;
+  gradz -= sz * cgrad;
+}
+
 void apply_clash_noforces(AtomDensityGrid &g, int indxyz, double cwxyz, double &overlap, double &gradx, double &grady, double &gradz, double sx, double sy, double sz, double weight) {
   double w = g.density[indxyz];
   double clash = w/g.clash_threshold-1;
   if (clash <= 0) return; 
   overlap += clash*clash;
+}
+
+void apply_clash_mask_noforces(AtomDensityGrid &g, int indxyz, double cwxyz, double &overlap, double &gradx, double &grady, double &gradz, double sx, double sy, double sz, double weight) {
+  double w = g.density[indxyz];
+  double clash = w/g.clash_threshold-g.maskgrid[indxyz];
+  if (clash <= 0) return; 
+  overlap += clash*clash;
+}
+
+static void error(const char *filename) {
+  fprintf(stderr, "Reading error in mask file %s\n", filename);
+  exit(1);
+}
+
+extern "C" void define_atomdensitymask_(char *maskfile, float forceconstant) {
+  if (ngrids == ATOMDENSITYGRIDS) {
+    fprintf(stderr, "Too many atom density grids\n");
+    exit(1);
+  }
+  FILE *f = fopen(maskfile, "rb");
+  if (!f) {
+    fprintf(stderr, "Mask file %s does not exist\n", maskfile);
+    exit(1);
+  }
+  AtomDensityGrid &g = grids[ngrids];
+  char attractmask[12];
+  attractmask[11]=0;
+  int read;
+  read = fread(attractmask, 11, 1, f);
+  if (!read) error(maskfile);
+  if (strcmp(attractmask, "ATTRACTMASK")) {
+    fprintf(stderr, "File %s is not a mask file\n", maskfile);
+    exit(1);    
+  }
+  read = fread(&g.voxelsize, sizeof(float), 1, f);
+  if (!read) error(maskfile);
+  read = fread(&g.orix, sizeof(float), 1, f);
+  if (!read) error(maskfile);  
+  read = fread(&g.oriy, sizeof(float), 1, f);
+  if (!read) error(maskfile);  
+  read = fread(&g.oriz, sizeof(float), 1, f);
+  if (!read) error(maskfile);      
+  read = fread(&g.dimx, sizeof(int), 1, f);
+  if (!read) error(maskfile);
+  read = fread(&g.dimy, sizeof(int), 1, f);
+  if (!read) error(maskfile);
+  read = fread(&g.dimz, sizeof(int), 1, f);
+  if (!read) error(maskfile);
+  g.clash_threshold = 0.990 * g.voxelsize*g.voxelsize*g.voxelsize; //average protein packing density is 0.824 Da/A**3 => 0.990 Da/A**3 with 20 % margin
+  int nvox = g.dimx*g.dimy*g.dimz;
+  g.density = new double[nvox];  
+  g.maskgrid = new bool[nvox];
+  if ((!g.density) || (!g.maskgrid)) {
+    fprintf(stderr, "Cannot allocate memory for atom density grid of dimension %d x %d x %d\n", g.dimx,g.dimy,g.dimz);
+    exit(1);    
+  }
+  read = fread(g.maskgrid, nvox*sizeof(bool), 1, f);
+  if (!read) error(maskfile);
+  g.forceconstant = forceconstant;
+  ngrids++;
 }
 
 extern "C" void define_atomdensitygrid_(float voxelsize, int dimension, float forceconstant) {
@@ -143,12 +216,16 @@ extern "C" void define_atomdensitygrid_(float voxelsize, int dimension, float fo
   g.dimx = dimension;
   g.dimy = dimension;
   g.dimz = dimension;
+  g.orix = -0.5 * dimension * g.voxelsize;
+  g.oriy = -0.5 * dimension * g.voxelsize;
+  g.oriz = -0.5 * dimension * g.voxelsize;  
   g.clash_threshold = 0.990 * voxelsize*voxelsize*voxelsize; //average protein packing density is 0.824 Da/A**3 => 0.990 Da/A**3 with 20 % margin
-  g.density = new double[dimension*dimension*dimension];
+  g.density = new double[dimension*dimension*dimension];  
   if (!g.density) {
     fprintf(stderr, "Cannot allocate memory for atom density grid of dimension %d\n", dimension);
     exit(1);    
   }
+  g.maskgrid = NULL;
   g.forceconstant = forceconstant;
   ngrids++;
 }
@@ -161,17 +238,14 @@ extern "C" void atomdensitygridenergy_(double &energy, const int &nratoms, const
   double *atomweights = weight_atoms(nratoms, atomtypes);
   for (int i=0;i < ngrids;i++) {
     AtomDensityGrid &g = grids[i];
-    double orix = -0.5 * g.dimx * g.voxelsize;
-    double oriy = -0.5 * g.dimy * g.voxelsize;
-    double oriz = -0.5 * g.dimz * g.voxelsize;
     int gridsize = g.dimx*g.dimy*g.dimz;
     memset(g.density, 0, gridsize * sizeof(double));    
     
     //Calculate all the densities
     for (int n=0;n<nratoms;n++) {
-      double ax = (atoms[3*n]-orix)/g.voxelsize;    
-      double ay = (atoms[3*n+1]-oriy)/g.voxelsize;
-      double az = (atoms[3*n+2]-oriz)/g.voxelsize;
+      double ax = (atoms[3*n]-g.orix)/g.voxelsize;    
+      double ay = (atoms[3*n+1]-g.oriy)/g.voxelsize;
+      double az = (atoms[3*n+2]-g.oriz)/g.voxelsize;
       //printf("%.3f %.3f %.3f\n", ax, ay, ax);
       
       app = apply_weight;
@@ -183,14 +257,20 @@ extern "C" void atomdensitygridenergy_(double &energy, const int &nratoms, const
     //Detect clashes (regions with too high atom densities), 
     // and apply repulsive forces to atoms in those regions
     for (int n=0;n<nratoms;n++) {
-      double ax = (atoms[3*n]-orix)/g.voxelsize;    
-      double ay = (atoms[3*n+1]-oriy)/g.voxelsize;
-      double az = (atoms[3*n+2]-oriz)/g.voxelsize;
+      double ax = (atoms[3*n]-g.orix)/g.voxelsize;    
+      double ay = (atoms[3*n+1]-g.oriy)/g.voxelsize;
+      double az = (atoms[3*n+2]-g.oriz)/g.voxelsize;
       double totclash = 0;
       double gradx = 0, grady = 0, gradz = 0;
-            
-      app = apply_clash;
-      if (!update_forces) app = apply_clash_noforces;
+      
+      if (g.maskgrid) {
+        app = apply_clash_mask;
+        if (!update_forces) app = apply_clash_mask_noforces;        
+      }  
+      else {
+        app = apply_clash;
+        if (!update_forces) app = apply_clash_noforces;                
+      }  
       trilin(g,app, ax,ay,az, 0, totclash, gradx,grady,gradz);
 
       energy += totclash * g.forceconstant;
