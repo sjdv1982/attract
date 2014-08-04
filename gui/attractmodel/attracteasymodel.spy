@@ -73,7 +73,7 @@ Type AttractEasyModel {
   
 
   #***Energy and interaction parameters***
-  Bool use_grids = False
+  Bool use_grids = True
   ## form use_grids.name = "Grids"
   ## form use_grids.add_header("Perform grid-accelerated docking")
   Bool gravity = False

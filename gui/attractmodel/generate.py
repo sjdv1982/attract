@@ -146,13 +146,10 @@ cat /dev/null > hm-all.dat
       if p.aa_modes_file is not None: aa_modes_file_name = p.aa_modes_file.name
       if p.generate_modes: 
         modes_file_name = "partner%d-hm.dat" % (pnr+1)
-        partnercode += "python $ATTRACTTOOLS/modes.py %s\n" % filenames[pnr]
-        partnercode += "cat hm.dat > %s\n" % modes_file_name
+        partnercode += "python $ATTRACTTOOLS/modes.py %s > %s\n" % (filenames[pnr], modes_file_name)
         if p.collect_pdb is not None:
           aa_modes_file_name = "partner%d-hm-aa.dat" % (pnr+1)
-          partnercode += "python $ATTRACTTOOLS/modes.py %s\n" % p.collect_pdb.name
-          partnercode += "cat hm.dat > %s\n" % aa_modes_file_name
-        partnercode += "rm -f hm.dat\n"
+          partnercode += "python $ATTRACTTOOLS/modes.py %s > %s\n" % (p.collect_pdb.name, aa_modes_file_name)
       if p.moleculetype != "Protein": raise Exception #TODO: not yet implemented
       if p.nr_modes == 0 or modes_file_name is None:
         partnercode += "echo 0 >> hm-all.dat\n"
@@ -394,19 +391,8 @@ echo '**************************************************************'
     if m.dielec == "cdie": tail += " --cdie"
     if m.epsilon != 15: tail += " --epsilon %s" % (str(m.epsilon))    
     if g.calc_potentials == False: tail += " -calc-potentials=0"
-    if g.omp:
-      ret += "for i in `seq 1 10`; do\n\n"      
     ret += "$ATTRACTDIR/make-grid%s %s %s %s %s %s %s\n\n" % \
      (tomp, f, ffpar, g.plateau_distance, g.neighbour_distance, gridfile, tail)
-    if g.omp:
-      ret += """
-if [ $? = 0 ]; then
-  break
-fi
-echo 'Retry grid calculation...'
-done
-"""
-  
   ret += """
 echo '**************************************************************'
 echo 'Docking'
@@ -457,7 +443,7 @@ echo '**************************************************************'
       outp = "stage%d_$name.dat" % (i+1)  
     gridpar = ""
     if len(gridparams): gridpar = " $gridparams" 
-    ret += "%s %s $params%s %s %s %s\n" % (attract, inp, gridpar, itparams, tail, outp)
+    ret += "%s %s $params%s%s %s %s\n" % (attract, inp, gridpar, itparams, tail, outp)
     inp = outp       
   ret += "\n"  
 
