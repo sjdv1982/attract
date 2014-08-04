@@ -1,6 +1,8 @@
 import sys, numpy, scipy.ndimage, scipy.signal, struct
 from math import *
 
+boxlim = 500 #construct a mask from -boxlim to boxlim Angstroms, in all directions
+
 try:
   situsfile = sys.argv[1]
   threshold = float(sys.argv[2])
@@ -83,9 +85,23 @@ mask[mask>=0.02]=1
 boolmask = numpy.greater(mask, 0)
 originshift = (ratio-1)*gridspacing
 maskorigin = origin + originshift
-write_mask(maskfile, boolmask, maskvoxelsize, maskorigin )
+pad = []
+maskpadorigin = []
+for ori,d in zip(maskorigin, mask.shape):
+  lpad = int(ceil(ori+boxlim)/maskvoxelsize)
+  end = ori + maskvoxelsize * d
+  rpad = int(ceil(boxlim-end)/maskvoxelsize)
+  pad.append((lpad, lpad+d, lpad+rpad+d))
+  maskpadorigin.append(ori-lpad*maskvoxelsize)
+maskpadorigin=numpy.array(maskpadorigin)  
+padmask = numpy.zeros([v[2] for v in pad], dtype=float,order='F')
+padboolmask = numpy.zeros([v[2] for v in pad], dtype=bool,order='F')
+padboolmask[pad[0][0]:pad[0][1],pad[1][0]:pad[1][1],pad[2][0]:pad[2][1]] = boolmask
+padmask[pad[0][0]:pad[0][1],pad[1][0]:pad[1][1],pad[2][0]:pad[2][1]] = mask
+
+write_mask(maskfile, padboolmask, maskvoxelsize, maskpadorigin)
 
 if outputsitusfile:
-  write_situs(outputsitusfile, mask, maskvoxelsize, maskorigin )
+  write_situs(outputsitusfile, padmask, maskvoxelsize, maskpadorigin )
 
 
