@@ -64,7 +64,7 @@ def write_mask(maskfile, data, voxelsize, origin):
 data, gridspacing, origin = read_situs(situsfile)
 data[data<threshold]=-1
 data[data>=threshold]=1
-assert gridspacing < maskvoxelsize
+assert gridspacing <= maskvoxelsize
 ratio = maskvoxelsize/gridspacing
 ceilratio = int(ceil(ratio))
 zoomratio = ceilratio/ratio
