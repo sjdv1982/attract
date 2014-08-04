@@ -19,26 +19,26 @@ int ngrids = 0;
 
 typedef void (*Applyfunc) (AtomDensityGrid &g, int indxyz, double cwxyz, double &overlap, double &gradx, double &grady, double &gradz, double sx, double sy, double sz, double weight);
 
-inline void trilin(AtomDensityGrid &g, Applyfunc apply, double ax, double ay, double az, double weight, double &overlap, double &gradx, double &grady, double &gradz) {
+inline bool trilin(AtomDensityGrid &g, Applyfunc apply, double ax, double ay, double az, double weight, double &overlap, double &gradx, double &grady, double &gradz) {
   double wx1=0,wy1=0,wz1=0;
     
   int px0 = floor(ax);  
   int px1 = ceil(ax);
-  if (px1 < 0 || px0 >= g.dimx) return;
+  if (px1 < 0 || px0 >= g.dimx) return 0;
   if (px0 < 0) wx1 = 1;
   else if (px1 >= g.dimx) wx1 = 0;
   else wx1 = ax - px0;
 
   int py0 = floor(ay);  
   int py1 = ceil(ay);
-  if (py1 < 0 || py0 >= g.dimy) return;
+  if (py1 < 0 || py0 >= g.dimy) return 0;
   if (py0 < 0) wy1 = 1;
   else if (py1 >= g.dimy) wy1 = 0;
   else wy1 = ay - py0;
 
   int pz0 = floor(az);  
   int pz1 = ceil(az);
-  if (pz1 < 0 || pz0 >= g.dimz) return;
+  if (pz1 < 0 || pz0 >= g.dimz) return 0;
   if (pz0 < 0) wz1 = 1;
   else if (pz1 >= g.dimz) wz1 = 0;
   else wz1 = az - pz0;
@@ -46,7 +46,7 @@ inline void trilin(AtomDensityGrid &g, Applyfunc apply, double ax, double ay, do
   double wx0 = 1-wx1, wy0 = 1-wy1, wz0 = 1-wz1;
   double dimxy = g.dimx*g.dimy;
   double cwx, cwxy, cwxyz;
-  int indx,indxy,indxyz; 
+  int indx,indxy,indxyz;   
   if (wx0 > 0) {
     cwx = wx0;
     indx = px0;
@@ -111,6 +111,7 @@ inline void trilin(AtomDensityGrid &g, Applyfunc apply, double ax, double ay, do
       }
     }
   }
+  return (wx0 > 0 || wx1 > 0 || wy0 > 0 || wy1 > 0 || wz0 > 0 || wz1 > 0);
 }
 
 void apply_weight(AtomDensityGrid &g, int indxyz, double cwxyz, double &dummy, double &gradx, double &grady, double &gradz, double sx, double sy, double sz, double weight) {
@@ -271,7 +272,8 @@ extern "C" void atomdensitygridenergy_(double &energy, const int &nratoms, const
         app = apply_clash;
         if (!update_forces) app = apply_clash_noforces;                
       }  
-      trilin(g,app, ax,ay,az, 0, totclash, gradx,grady,gradz);
+      bool ingrid = trilin(g,app, ax,ay,az, 0, totclash, gradx,grady,gradz);
+      if ((!ingrid) && g.maskgrid) totclash = 1;
 
       energy += totclash * g.forceconstant;
       if (update_forces) {
