@@ -145,7 +145,7 @@ def prepare_input2(ilist, ligands, name, args):
     ensemblefiles = []
     for i, item in enumerate(args):
       if item == '--ens':
-	ensemblefiles.append(args[i+1],args[i+2])
+	ensemblefiles.append((args[i+1],args[i+2]))
     
     imodes.make_defined(ilist,ligands,name)
     offset = 0
@@ -176,7 +176,7 @@ def run_docking(datain):
     ligands = [item for item in args if '.pdb' in item]
     for i, item in enumerate(args):
       if item == '--ens':
-	ensemblefiles.append(args[i+1],args[i+2])
+	ensemblefiles.append((args[i+1],args[i+2]))
 	
       elif item == '--modes':
 	modefile = args[i+1]
@@ -353,7 +353,7 @@ if __name__ == "__main__":
    
     for i, item in enumerate(args):
       if item == '--ens':
-	ensfiles.append(args[i+1],args[i+2])
+	ensfiles.append((args[i+1],args[i+2]))
 
       elif item == '--modes':
 	modefile = args[i+1]
