@@ -41,22 +41,9 @@ def make_interfacelist(ilist, pdb):
     return ratoms, receptor, receptorid  
 
 from scipy.spatial.distance import cdist
-def find_neighbors(atom, xr, sigma2, c, rc):   
-    tmp0, tmp1, x0, y0, z0  = xr[atom-1]
-    r1 = np.matrix([[x0,y0,z0]])
-    r2 = [[x,y,z] for id, res, x, y, z in xr]
-    r2 = np.matrix(r2)
-    Y = cdist(r1,r2,'euclidean')
-    nlist = []
-    for j in range(len(xr)):
-        if j == atom-1:
-	  continue
-        dist = Y[0][j]
-        if dist < rc:
-            nlist.append((atom, j+1, dist))
-                 
+def find_neighbors(atom, Y, rc):   
+    nlist = [(atom,j+1,Y[atom-1][j]) for j in range(len(atomlist)) if Y[atom-1][j] < rcut and not j == atom-1]
     return nlist
-  
   
 
 def make_model(filelist,residues,presidues,nlistcut=30):
@@ -64,10 +51,6 @@ def make_model(filelist,residues,presidues,nlistcut=30):
     offset = 0
     if len(filelist) > 4 and not filelist[4] == '--strong':
         offset = int(filelist[4])
-    
-    c = 100.0
-    if len(filelist) > 5 and not filelist[5] == '--strong':
-        c = float(filelist[5])
         
     interfacelist, atomlist, atomid = make_interfacelist(interface, pdb)
     nbonds = []
@@ -85,8 +68,15 @@ def make_model(filelist,residues,presidues,nlistcut=30):
         #Find and write bonds
         nlist = []
         rc = 5.0
+        coor = r2 = [[x,y,z] for id, res, x, y, z in atomlist]
+        coor = np.matrix(coor)
+        Y = cdist(cor,coor,'euclidean')
+        access = []
+        for ii in range(len(atomlist)):
+	  for jj in range(len(atomlist)):
+	    access.append((ii,jj))
         while len(nlist) < nlistcut:
-            nlist = find_neighbors(atom, atomlist, 9.0, c, rc)
+            nlist = find_neighbors(atom, Y,access, rc)
             rc += 1.0
             
         for item in nlist:
@@ -107,19 +97,19 @@ def make_model(filelist,residues,presidues,nlistcut=30):
                   
                 elif resi2 == resi + 1 or resi2 == resi - 1:
 		  #write babckbone bonds and angles with neighboring amino acids
-		  if resi2 == resi + 1 and (natom,n2) == ('C','N'):
+		  if resi2 == resi + 1 and (natom,n2) in [('C','N'),("O3'",'P')]:
 		    if not (atom, n, 1, item[2]) in nbonds and not (n, atom, 1, item[2]) in nbonds:
 		      nbonds.append((atom, n, 1, item[2])) #Write 1-2 bonds
 		      
-		  elif resi2 == resi - 1 and (natom,n2) == ('N','C'):
+		  elif resi2 == resi - 1 and (natom,n2) in [('N','C'),('P',"O3'")]:
 		    if not (atom, n, 1, item[2]) in nbonds and not (n, atom, 1, item[2]) in nbonds:
 		      nbonds.append((atom, n, 1, item[2])) #Write 1-2 bonds
 		      
-		  elif resi2 == resi + 1 and (natom, n2) in [('O','N'),('C','HN'),('C','H'),('C','CA'),('CA','N')]:
+		  elif resi2 == resi + 1 and (natom, n2) in [('O','N'),('C','HN'),('C','H'),('C','CA'),('CA','N'),("C3\'",'P'),("O3\'",'O1P'),("O3\'",'O2P'),("O3\'","O5\'")]:
 		    if not (atom, n, 2, item[2]) in nbonds and not (n, atom, 2, item[2]) in nbonds:
 		      nbonds.append((atom, n, 2, item[2])) #Write 1-3 bonds
 		      
-		  elif resi2 == resi - 1 and (natom, n2) in [('N','O'),('CA','C'),('H','C'),('HN','C'),('N','CA')]:
+		  elif resi2 == resi - 1 and (natom, n2) in [('N','O'),('CA','C'),('H','C'),('HN','C'),('N','CA'),('O1P',"O3\'"),('O2P',"O3\'"),("O5\'","O3\'"),('P',"C3\'")]:
 		    if not (atom, n, 2, item[2]) in nbonds and not (n, atom, 2, item[2]) in nbonds:
 		      nbonds.append((atom, n, 2, item[2])) #Write 1-3 bonds
 		      
