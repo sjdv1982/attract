@@ -41,8 +41,8 @@ def make_interfacelist(ilist, pdb):
     return ratoms, receptor, receptorid  
 
 from scipy.spatial.distance import cdist
-def find_neighbors(atom, Y, rc):   
-    nlist = [(atom,j+1,Y[atom-1][j]) for j in range(len(atomlist)) if Y[atom-1][j] < rcut and not j == atom-1]
+def find_neighbors(atom, atomlist,Y, rc):   
+    nlist = [(atom,j+1,Y[atom-1][j]) for j in range(len(atomlist)) if Y[atom-1][j] < rc and not j == atom-1]
     return nlist
   
 
@@ -70,13 +70,10 @@ def make_model(filelist,residues,presidues,nlistcut=30):
         rc = 5.0
         coor = r2 = [[x,y,z] for id, res, x, y, z in atomlist]
         coor = np.matrix(coor)
-        Y = cdist(cor,coor,'euclidean')
-        access = []
-        for ii in range(len(atomlist)):
-	  for jj in range(len(atomlist)):
-	    access.append((ii,jj))
+        Y = cdist(coor,coor,'euclidean')
+
         while len(nlist) < nlistcut:
-            nlist = find_neighbors(atom, Y,access, rc)
+            nlist = find_neighbors(atom,atomlist, Y, rc)
             rc += 1.0
             
         for item in nlist:
@@ -147,9 +144,9 @@ def make_model(filelist,residues,presidues,nlistcut=30):
 		    nbonds.append((atom, n, 3, item[2])) # Write non-bonded interaction: at least 1-4, atoms connected by bonds and angles are excluded
             
 
-    return nbonds, pdb, name, c, offset, atomid  
+    return nbonds, pdb, name, offset, atomid  
   
-def write_output(nbonds, pdb, name, c, offset, atomid,strong=1.0):
+def write_output(nbonds, pdb, name, offset, atomid,strong=1.0):
     sel = []
     output = os.path.splitext(pdb)[0]+'_'+name+'.txt'
     out = open(output,'w')
@@ -219,16 +216,16 @@ def write_output(nbonds, pdb, name, c, offset, atomid,strong=1.0):
 
 def make_restraints(args):
     residues, presidues = parse_stream(open(args[0]))
-    nbonds, pdb, name, c, offset, atomid = make_model(args[1:],residues,presidues)
+    nbonds, pdb, name, offset, atomid = make_model(args[1:],residues,presidues)
     cut = 31
     while len(nbonds) > 9000 and cut > 0:
       cut -= 5
-      nbonds, pdb, name, c, offset, atomid = make_model(args[1:],residues,presidues,cut)
+      nbonds, pdb, name, offset, atomid = make_model(args[1:],residues,presidues,cut)
           
     if '--strong' in args:
-      write_output(nbonds,pdb,name,c,offset,atomid,10.0)
+      write_output(nbonds,pdb,name,offset,atomid,10.0)
     else:
-      write_output(nbonds,pdb,name,c,offset,atomid)
+      write_output(nbonds,pdb,name,offset,atomid)
   
 #Main
 if __name__ == "__main__":
