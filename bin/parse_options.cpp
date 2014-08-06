@@ -448,7 +448,7 @@ void parse_options(int ministatehandle, int cartstatehandle, int nlig, int argc,
       read_hm_(hmf, "ligand", c.nlig, c.natom, c.nhm, c.val, (double *) c.eig, multi, strlen(hmf), strlen("ligand"));      
       n += 1;
       ms.ieig = 1;
-      ms.has_globalenergy = 1; //because of val forces => moderest
+      if (ms.has_globalenergy == 0) ms.has_globalenergy = 2;
     }
     else if (!strcmp(arg,"--imodes")) {
       if (argc-n < 2) modes_usage();
@@ -461,7 +461,6 @@ void parse_options(int ministatehandle, int cartstatehandle, int nlig, int argc,
       read_indexmode_(hmf, "ligand", c.nlig, c.nihm, (int *) c.index_eig, (double *) c.index_val, multi, strlen(hmf), strlen("ligand"));
       n += 1;
       ms.iindex = 1;
-      ms.has_globalenergy = 1; //because of restraint forces to secure secondary structure
     }
     else if (!strcmp(arg,"--em")) {
       if (argc-n < 3) em_usage();    

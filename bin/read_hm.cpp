@@ -64,14 +64,14 @@ inline void check_hm(const char *hmfile, const int *natom, int line, int currlig
   for (n = 0; n < currpos; n++) {
     double v;
     if (multi) v = eigl_multi[currlig-1][currmode-1][n];
-    else v = eigl_mono[currmode-1][n];
+    else v = eigl_mono[n][currmode-1];
     eigval += v * v;
   }
   eigval = sqrt(eigval);
   for (n = 0; n < currpos; n++) {
     double *v;
     if (multi) v = &eigl_multi[currlig-1][currmode-1][n];
-    else v = &eigl_mono[currmode-1][n];
+    else v = &eigl_mono[n][currmode-1];
     *v /= eigval;
   }
 }

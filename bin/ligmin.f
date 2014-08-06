@@ -26,7 +26,7 @@ c  dei(i): skalar product between difference(actual pos.-ori-pos.) and eig(i).
       
       delta(6+i)=delta(6+i)-force
    30 continue
-c      write(ERROR_UNIT,*) "Mode delta", i, delta(6+i)
+c     write(ERROR_UNIT,*) "Mode delta", i, delta(6+i)
    20 continue
 
       return 
