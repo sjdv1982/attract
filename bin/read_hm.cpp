@@ -36,18 +36,18 @@
 #include "max.h"
 
 const int MAX3ATOM = 3 * MAXATOM;
-typedef double (*eigptr_multi)[MAX3ATOM][MAXMODE][MAXLIG];
-typedef double (&eigref_multi)[MAX3ATOM][MAXMODE][MAXLIG];
-typedef double (*eigptr_mono)[MAX3ATOM][MAXMODE];
-typedef double (&eigref_mono)[MAX3ATOM][MAXMODE];
-typedef double (*index_eigptr_multi)[MAXLENINDEXMODE][MAXINDEXMODE][MAXLIG];
-typedef double (&index_eigref_multi)[MAXLENINDEXMODE][MAXINDEXMODE][MAXLIG];
-typedef double (*index_eigptr_mono)[MAXLENINDEXMODE][MAXINDEXMODE];
-typedef double (&index_eigref_mono)[MAXLENINDEXMODE][MAXINDEXMODE];
-typedef int (*index_eigptr_multi2)[MAXLENINDEXMODE][MAXINDEXMODE][MAXLIG];
-typedef int (&index_eigref_multi2)[MAXLENINDEXMODE][MAXINDEXMODE][MAXLIG];
-typedef int (*index_eigptr_mono2)[MAXLENINDEXMODE][MAXINDEXMODE];
-typedef int (&index_eigref_mono2)[MAXLENINDEXMODE][MAXINDEXMODE];
+typedef double (*eigptr_multi)[MAXLIG][MAXMODE][MAX3ATOM];
+typedef double (&eigref_multi)[MAXLIG][MAXMODE][MAX3ATOM];
+typedef double (*eigptr_mono)[MAXMODE][MAX3ATOM];
+typedef double (&eigref_mono)[MAXMODE][MAX3ATOM];
+typedef double (*index_eigptr_multi)[MAXLIG][MAXINDEXMODE][MAXLENINDEXMODE];
+typedef double (&index_eigref_multi)[MAXLIG][MAXINDEXMODE][MAXLENINDEXMODE];
+typedef double (*index_eigptr_mono)[MAXINDEXMODE][MAXLENINDEXMODE];
+typedef double (&index_eigref_mono)[MAXINDEXMODE][MAXLENINDEXMODE];
+typedef int (*index_eigptr_multi2)[MAXLIG][MAXINDEXMODE][MAXLENINDEXMODE];
+typedef int (&index_eigref_multi2)[MAXLIG][MAXINDEXMODE][MAXLENINDEXMODE];
+typedef int (*index_eigptr_mono2)[MAXINDEXMODE][MAXLENINDEXMODE];
+typedef int (&index_eigref_mono2)[MAXINDEXMODE][MAXLENINDEXMODE];
 
 
 inline void check_hm(const char *hmfile, const int *natom, int line, int currlig, int currmode, int currpos, double *eigl, int multi) {
@@ -63,20 +63,20 @@ inline void check_hm(const char *hmfile, const int *natom, int line, int currlig
   int n;
   for (n = 0; n < currpos; n++) {
     double v;
-    if (multi) v = eigl_multi[n][currmode-1][currlig-1];
-    else v = eigl_mono[n][currmode-1];
+    if (multi) v = eigl_multi[currlig-1][currmode-1][n];
+    else v = eigl_mono[currmode-1][n];
     eigval += v * v;
   }
   eigval = sqrt(eigval);
   for (n = 0; n < currpos; n++) {
     double *v;
-    if (multi) v = &eigl_multi[n][currmode-1][currlig-1];
-    else v = &eigl_mono[n][currmode-1];
+    if (multi) v = &eigl_multi[currlig-1][currmode-1][n];
+    else v = &eigl_mono[currmode-1][n];
     *v /= eigval;
   }
 }
 
-extern "C" void read_hm_(const char *hmfile_, const char *hmword_, const int &nlig, const int *natom, int *nhm, double (&vall)[MAXMODE][MAXLIG], double *eigl, const int &multi, int hmfile_len, int hmword_len) {
+extern "C" void read_hm_(const char *hmfile_, const char *hmword_, const int &nlig, const int *natom, int *nhm, double (&vall)[MAXLIG][MAXMODE], double *eigl, const int &multi, int hmfile_len, int hmword_len) {
   char hmfile[1000];
   memcpy(hmfile, hmfile_, hmfile_len);
   hmfile[hmfile_len] = 0;
@@ -144,7 +144,7 @@ extern "C" void read_hm_(const char *hmfile_, const char *hmword_, const int &nl
       }
       //We have reached the next mode
       currmode++;
-      vall[currmode-1][currlig-1] = fields[1] * fields[1];  //square the amplitude
+      vall[currlig-1][currmode-1] = fields[1] * fields[1];  //square the amplitude
       if (currmode > MAXMODE) {
         fprintf(stderr, "Reading error in %s, line %d: Cannot read more than %d modes for %s %d\n", hmfile, line, MAXMODE, hmword, currlig);        
 	exit(1);
@@ -183,10 +183,10 @@ extern "C" void read_hm_(const char *hmfile_, const char *hmword_, const int &nl
     }
     for (int n = 0; n < nf; n++) {
       if (multi) {
-        eigl_multi[currpos+n][currmode-1][currlig-1] = fields[n]; 
+        eigl_multi[currlig-1][currmode-1][currpos+n] = fields[n]; 
       }
       else {
-        eigl_mono[currpos+n][currmode-1] = fields[n]; 
+        eigl_mono[currmode-1][currpos+n] = fields[n]; 
       }
     }
     currpos += nf;    
@@ -290,12 +290,12 @@ extern "C" void read_indexmode_(const char *hmfile_, const char *hmword_, const 
       for (int c=0; c< MAXLENINDEXMODE; c++){
 	for (int c2=0; c2< MAXINDEXMODE; c2++){
 	  if (multi){
-		  eigl_multi[c][c2][currlig-1] = -1;
-		  val_eigl_multi[c][c2][currlig-1] = 0;
+		  eigl_multi[currlig-1][c2][c] = -1;
+		  val_eigl_multi[currlig-1][c2][c] = 0;
 		  }
 	  else{
-		  eigl_mono[c][c2] = -1;
-		  val_eigl_mono[c][c2] = 0;
+		  eigl_mono[c2][c] = -1;
+		  val_eigl_mono[c2][c] = 0;
 		  }
 	}
       }
@@ -315,12 +315,12 @@ extern "C" void read_indexmode_(const char *hmfile_, const char *hmword_, const 
       if (multi) {
     	  if ( fields[n] != 0 ){
     		  if ( count < MAXLENINDEXMODE ){
-    		  eigl_multi[count][currmode][currlig-1] = 3*(fields[n]-1);
-    		  val_eigl_multi[count][currmode][currlig-1] = 1.0;
-    		  eigl_multi[count][currmode+1][currlig-1] = 3*(fields[n]-1)+1;
-    		  val_eigl_multi[count][currmode+1][currlig-1] = 1.0;
-    		  eigl_multi[count][currmode+2][currlig-1] = 3*(fields[n]-1)+2;
-    		  val_eigl_multi[count][currmode+2][currlig-1] = 1.0;
+    		  eigl_multi[currlig-1][currmode][count] = 3*(fields[n]-1);
+    		  val_eigl_multi[currlig-1][currmode][count] = 1.0;
+    		  eigl_multi[currlig-1][currmode+1][count] = 3*(fields[n]-1)+1;
+    		  val_eigl_multi[currlig-1][currmode+1][count] = 1.0;
+    		  eigl_multi[currlig-1][currmode+2][count] = 3*(fields[n]-1)+2;
+    		  val_eigl_multi[currlig-1][currmode+2][count] = 1.0;
     		  //fprintf(stderr,"Nonzero %i %i %i\n", currlig-1, currmode, fields[n]);
     		  count ++;
     		  }
@@ -334,12 +334,12 @@ extern "C" void read_indexmode_(const char *hmfile_, const char *hmword_, const 
       else {
     	  if (fields[n] != 0.0){
     		  if ( count < MAXLENINDEXMODE ){
-    		  eigl_mono[count][currmode] = 3*(fields[n]-1);
-    		  val_eigl_mono[count][currmode] = 1.0;
-    		  eigl_mono[count][currmode+1] = 3*(fields[n]-1)+1;
-    		  val_eigl_mono[count][currmode+1] = 1.0;
-    		  eigl_mono[count][currmode+2] = 3*(fields[n]-1)+2;
-    		  val_eigl_mono[count][currmode+2] = 1.0;
+    		  eigl_mono[currmode][count] = 3*(fields[n]-1);
+    		  val_eigl_mono[currmode][count] = 1.0;
+    		  eigl_mono[currmode+1][count] = 3*(fields[n]-1)+1;
+    		  val_eigl_mono[currmode+1][count] = 1.0;
+    		  eigl_mono[currmode+2][count] = 3*(fields[n]-1)+2;
+    		  val_eigl_mono[currmode+2][count] = 1.0;
     		  count ++;
     		  }
     		  else{
