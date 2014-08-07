@@ -6,8 +6,6 @@ import os
 #TODO: a script to add energies back to deredundant output
 #TODO: add --atomdensitygrid to data model
 #TODO: add grid alphabet to data model
-#TODO: add cryo-EM scoring to data model
-#TODO: add zoom-in protocol to code generator
 #TODO: non-protein molecules
 #TODO: decide upon PDB code, chain select
 
@@ -42,6 +40,8 @@ Therefore, you can only define docking partners that are already in the reduced 
   ret += 'trap "kill -- -$BASHPID" 2\n'
   ret += "if [ 1 -eq 1 ]; then ### move and change to disable parts of the protocol\n"
   ret += "$ATTRACTDIR/shm-clean\n\n"
+  results = "result.dat result.pdb result.lrmsd result.irmsd result.fnat"
+  ret += "rm -rf %s >& /dev/null\n" % results
 
   partnercode = ""
   filenames = []
@@ -521,7 +521,13 @@ echo '**************************************************************'
     ret += "\n"  
     result = outp
   result0 = result
-  
+
+  ret += """
+echo '**************************************************************'
+echo 'Soft-link the final results'
+echo '**************************************************************'
+"""       
+  ret += "ln -s %s result.dat\n" % result
   if m.calc_lrmsd or m.calc_irmsd or m.calc_fnat:    
     flexpar2 = ""    
     if m.calc_lrmsd or m.calc_irmsd or m.calc_fnat:
@@ -647,6 +653,7 @@ echo '**************************************************************'
     lrmsd_allfilenames = " ".join(lrmsd_allfilenames)
     lrmsdresult = os.path.splitext(result0)[0] + ".lrmsd"
     ret += "$ATTRACTDIR/lrmsd %s %s%s > %s\n" % (result, lrmsd_allfilenames, flexpar2, lrmsdresult)
+    ret += "ln -s %s result.lrmsd\n" % lrmsdresult
     ret += "\n"
 
   if m.calc_irmsd:      
@@ -664,6 +671,7 @@ echo '**************************************************************'
     irmsdresult = os.path.splitext(result0)[0] + ".irmsd"
     bbo = "" if any_bb else "--allatoms"
     ret += "python $ATTRACTDIR/irmsd.py %s %s%s %s > %s\n" % (result, irmsd_allfilenames, flexpar2, bbo, irmsdresult)
+    ret += "ln -s %s result.irmsd\n" % irmsdresult
     ret += "\n"
 
   if m.calc_fnat:      
@@ -679,6 +687,7 @@ echo '**************************************************************'
     fnat_allfilenames = " ".join(fnat_allfilenames)
     fnatresult = os.path.splitext(result0)[0] + ".fnat"
     ret += "python $ATTRACTDIR/fnat.py %s 5 %s%s > %s\n" % (result, fnat_allfilenames, flexpar2, fnatresult)
+    ret += "ln -s %s result.fnat\n" % lrmsdresult
     ret += "\n"
 
   if m.calc_lrmsd or m.calc_irmsd or m.calc_fnat:
@@ -716,6 +725,7 @@ echo '**************************************************************'
         flexpar_aa += " --ens %d %s" % (pnr+1,ensemble_lists[pnr])    
     ret += "$ATTRACTDIR/collect out_$name-top%d.dat %s%s > out_$name-top%d.pdb\n" % \
      (nr, collect_filenames, flexpar_aa, nr)
+    ret += "ln -s out_$name-top%d.pdb result.pdb\n" % nr
     ret += "\n"
   if len(cleanupfiles):  
     ret += "\nrm -f " + " ".join(cleanupfiles) + "\n"

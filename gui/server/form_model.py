@@ -37,10 +37,9 @@ header = """<!DOCTYPE html>
                 <li id="view-page3"><a id="nav-block-iterations" class="iteration-icon">Iteration</a></li>
                 <li id="view-page4"><a id="nav-block-sampling" class="sampling-icon">Sampling</a></li>
                 <li id="view-page5"><a id="nav-block-energy" class="energy-icon">Energy and Interaction</a></li>
-                <li id="view-page6"><a id="nav-block-cryoem" class="cryo-icon">Cryo-EM</a></li>
-                <li id="view-page7"><a id="nav-block-symmetry" class="symmetry-icon">Symmetry</a></li>
-                <li id="view-page8"><a id="nav-block-analysis" class="analysis-icon">Analysis</a></li>
-                <li id="view-page9"><a id="nav-block-computation" class="computation-icon">Computation</a></li>
+                <li id="view-page6"><a id="nav-block-symmetry" class="symmetry-icon">Symmetry</a></li>
+                <li id="view-page7"><a id="nav-block-analysis" class="analysis-icon">Analysis</a></li>
+                <li id="view-page8"><a id="nav-block-computation" class="computation-icon">Computation</a></li>
               </ul>
             </nav>
             
@@ -297,32 +296,8 @@ def webform(f, model=None,
   f.iterations.clonelength = 5
   f.iterations.controltitle = "Iteration"
 
-  b = f.new_group("b_iterations", "block")
-  b.blockname = "iterations-zoom-in"
-  b.controltitle = "Zoom-in protocol"
-  b.members.append("zoom")
-  b.members.append("zoom_select")
-  b.members.append("zoom_clone")
-  b.members.append("zoom_ori")
-  b.members.append("zoom_trans")
-  b.members.append("zoom_it_initial")
-  b.members.append("zoom_it_subsequent")
-  for m in b.members:
-    ff = getattr(f, m)
-    ff.group = None
-  ff = f.zoom
-  ff.name = "Use zoom-in protocol: ignores the parameters for the individual iterations"
-  ff.span = True
-  ff = f.zoom_select
-  ff.name = "number of structures to select after each iteration"
-  ff = f.zoom_clone
-  ff.name = "Cloning factor"
-  ff = f.zoom_ori
-  ff.name = "Rotational displacement (radians)"
-  ff = f.zoom_trans
-  ff.name = "Translation displacement (angstroms)"
 
-  for fi in (f.zoom_it_initial, f.zoom_it_subsequent) + tuple([f.iterations[i] for i in range(f.iterations.length)]):
+  for fi in [f.iterations[i] for i in range(f.iterations.length)]:
     fi.group = None
     ff = fi.rcut
     ff.name = ff.get_header()[0]
@@ -371,19 +346,9 @@ def webform(f, model=None,
   ff.name = ff.get_header()[0]
   ### END energy category  
 
-  ### START cryoEM category
-  c = f.new_group("c_cryoem", "category")
-  c.page = 6
-  c.icon = "cryo-icon"
-  c.title = "Cryo-EM"
-  c.categoryname = "cryoem"
-  c.description = ""
-  _assign_category(f, c, "Cryo-EM data", span = True)
-  ### END cryoEM category  
-
   ### START symmetry category
   c = f.new_group("c_symmetry", "category")
-  c.page = 7
+  c.page = 6
   c.title = "Symmetry"
   c.icon = "symmetry-icon"
   c.categoryname = "symmetry"
@@ -428,7 +393,7 @@ def webform(f, model=None,
 
   ### START analysis category
   c = f.new_group("c_analysis", "category")
-  c.page = 8
+  c.page = 7
   c.icon = "analysis-icon"
   c.title = "Analysis"
   c.categoryname = "analysis"
@@ -445,7 +410,7 @@ def webform(f, model=None,
 
   ### START computation category
   c = f.new_group("c_computation", "category")
-  c.page = 9
+  c.page = 8
   c.icon = "computation-icon"
   c.title = "Computation"
   c.categoryname = "computation"
