@@ -353,6 +353,22 @@ Type AttractIteration {
   }
 }
 
+Type AttractAtomDensityGrid {
+  Float voxelsize
+  Integer dimension = 50
+  Float forceconstant = 1000.0
+  form {
+    voxelsize.name = "Voxel size (A)"
+    dimension.name = "Grid dimension (voxels)"
+    forceconstant.name = "Force constant"
+  }
+  validate {
+    assert voxelsize > 0
+    assert dimension > 0
+    assert forceconstant > 0
+  }
+}
+
 Type AttractModel {
   String runname = "attract"
   form {
@@ -483,8 +499,14 @@ Type AttractModel {
   ## form ghost.add_header("In ghost mode, the forcefield is turned off")
   ## form ghost.name = "Enable ghost mode"
 
+  *AttractAtomDensityGridArray atomdensitygrids
+  ## form atomdensitygrids.length = 3
+  ## form atomdensitygrids.count_from_one = True
+  ## form atomdensitygrids.form = "soft"
+  ## form atomdensitygrids.add_header("Instead of a forcefield, you can define an atom density grid to prevent clashes")
+  ## form atomdensitygrids.name = "Atom density grid"
+  
   Float epsilon = 15
-  ## form #epsilon.group = "Sampling parameters"
   ## form epsilon.add_header("Epsilon constant for the electrostatic energy term")
   ## form epsilon.name = "Epsilon"
   
@@ -496,6 +518,7 @@ Type AttractModel {
     rstk.group = _g
     forcefield.group = _g
     ghost.group = _g
+    atomdensitygrids.group = _g
     epsilon.group = _g
     dielec.group = _g
   }
@@ -588,6 +611,8 @@ Type AttractModel {
     assert len(partners) > 0
     if calc_lrmsd: assert len(partners) == 2
     if calc_irmsd: assert len(partners) == 2
+    
+    if atomdensitygrids is not None and len(atomdensitygrids): assert ghost == True
   }
   
   error {

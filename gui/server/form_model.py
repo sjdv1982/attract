@@ -37,9 +37,10 @@ header = """<!DOCTYPE html>
                 <li id="view-page3"><a id="nav-block-iterations" class="iteration-icon">Iteration</a></li>
                 <li id="view-page4"><a id="nav-block-sampling" class="sampling-icon">Sampling</a></li>
                 <li id="view-page5"><a id="nav-block-energy" class="energy-icon">Energy and Interaction</a></li>
-                <li id="view-page6"><a id="nav-block-symmetry" class="symmetry-icon">Symmetry</a></li>
-                <li id="view-page7"><a id="nav-block-analysis" class="analysis-icon">Analysis</a></li>
-                <li id="view-page8"><a id="nav-block-computation" class="computation-icon">Computation</a></li>
+                <li id="view-page6"><a id="nav-block-atomdensitygrid" class="cryo-icon">Atom density grids</a></li>
+                <li id="view-page7"><a id="nav-block-symmetry" class="symmetry-icon">Symmetry</a></li>
+                <li id="view-page8"><a id="nav-block-analysis" class="analysis-icon">Analysis</a></li>
+                <li id="view-page9"><a id="nav-block-computation" class="computation-icon">Computation</a></li>
               </ul>
             </nav>
             
@@ -286,7 +287,6 @@ def webform(f, model=None,
   c.icon = "iteration-icon"
   c.categoryname = "iterations"
   c.description = ""
-  c.members.append("b_iterations")
   c.members.append("iterations")
   f.nr_iterations.type = None #hide explicit nr_iterations parameter
   f.nr_iterations.group = None
@@ -296,8 +296,8 @@ def webform(f, model=None,
   f.iterations.clonelength = 5
   f.iterations.controltitle = "Iteration"
 
-
   for fi in [f.iterations[i] for i in range(f.iterations.length)]:
+    fi.name = None
     fi.group = None
     ff = fi.rcut
     ff.name = ff.get_header()[0]
@@ -337,18 +337,34 @@ def webform(f, model=None,
   c.title = "Energy and Interaction"
   c.categoryname = "energy"
   c.description = ""
+  f.atomdensitygrids.group = None
   _assign_category(f, c, "Energy and interaction parameters", span = True)
   f.gravity.default = 0
   ff = f.rstk
   f.forcefield.name = f.forcefield.get_header()[0]
   f.ghost.name = "Enable ghost mode, forcefield is turned off"
   ff = f.epsilon
-  ff.name = ff.get_header()[0]
+  ff.name = ff.get_header()[0]  
   ### END energy category  
+  
+  ### START atomdensitygrid category
+  c = f.new_group("c_atomdensitygrid", "category")
+  c.page = 6
+  c.title = "Atom density grids"
+  c.icon = "cryo-icon"  
+  c.categoryname = "atomdensitygrids"
+  c.description = ""  
+  c.members.append("atomdensitygrids")
+  ff = f.atomdensitygrids  
+  ff.clonebutton = "Add atom density grid"
+  ff.length = 1
+  ff.clonelength = 3
+  ff.blockname = "atomdensitygrid"
+  ff.controltitle = "Atom density grid"  
 
   ### START symmetry category
   c = f.new_group("c_symmetry", "category")
-  c.page = 6
+  c.page = 7
   c.title = "Symmetry"
   c.icon = "symmetry-icon"
   c.categoryname = "symmetry"
@@ -410,7 +426,7 @@ def webform(f, model=None,
 
   ### START computation category
   c = f.new_group("c_computation", "category")
-  c.page = 8
+  c.page = 9
   c.icon = "computation-icon"
   c.title = "Computation"
   c.categoryname = "computation"

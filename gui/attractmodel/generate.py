@@ -1,5 +1,10 @@
 import os
 
+#TODO: add atom density grids to code generator
+#TODO: add iATTRACT to data model and code generator
+#TODO: test on 1ML0_hm
+#TODO: remove cryo, create separate ATTRACT-EM interface
+
 #TODO: add check between p.modes_file and p.nr_modes
 #TODO: add check that either all interactions are grid-accelerated, or none are
 #  (and an option to disable this check; for this, adapt --rcut iteration as well)
