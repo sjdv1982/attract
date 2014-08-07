@@ -2,11 +2,12 @@ import sys
 
 import numpy
 import collectlibpy as collectlib
-
+import os
 ensfiles = []
 modefile = None
 imodefile = None
 output = None
+name = None
 anr = 0
 while 1:
   anr += 1
@@ -31,7 +32,13 @@ while 1:
     sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
     anr -= 2
     continue
-  
+# Suppport for direct IRMSD with iATTRACT files
+  if anr <= len(sys.argv)-2 and arg == "--name":
+    name = sys.argv[anr+1]
+    sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
+    anr -= 2
+    continue
+    
   if anr <= len(sys.argv)-2 and arg == "--output":
     output = sys.argv[anr+1]
     sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
@@ -171,6 +178,12 @@ if output is not None:
   f = open(output,'w')
   
 while 1:
+  if name is not None: 
+    newargs = initargs + ['--imodes','flexm-'+str(nstruc+1)+name+'.dat']
+    if not os.path.exists('flexm-'+str(nstruc+1)+name+'.dat'):
+      break
+    collectlib.collect_iattract(newargs)
+    
   result = collectlib.collect_next()
   if result: break
   nstruc += 1

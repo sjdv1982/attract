@@ -114,9 +114,9 @@ c      Handle variables: full coordinates and modes
        integer ieins,nhm,nihm
        dimension xb(3*totmaxatom),x(3*totmaxatom)
        dimension xori(3*totmaxatom),xori0(3*totmaxatom)
-       dimension eig(maxlig,maxmode,3*maxatom)
-       dimension index_eig(maxlig,maxindexmode,maxlenindexmode)
-       dimension index_val(maxlig,maxindexmode,maxlenindexmode)
+       dimension eig(maxmode,3*maxatom,maxlig)
+       dimension index_eig(maxlenindexmode,maxindexmode,maxlig)
+       dimension index_val(maxlenindexmode,maxindexmode,maxlig)
        dimension ieins(maxlig),nhm(maxlig), nihm(maxlig)
        pointer(ptr_xb,xb)
        pointer(ptr_x,x)

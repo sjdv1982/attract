@@ -2,12 +2,16 @@
 This script generates the restraints necessary to preserve secondary structure in flexible docking
 Advanced elastic network based on unbound protein structure
 """
-from topology import read_topology
 import sys
 import numpy as np
 import math
 import os
 import re
+
+currdir = os.path.abspath(os.path.split(__file__)[0])
+allatomdir = currdir + "/../allatom"
+sys.path.append(allatomdir)
+from parse_cns_top import *
 
 def make_interfacelist(ilist, pdb):
      # Read interface residues from files
@@ -37,33 +41,16 @@ def make_interfacelist(ilist, pdb):
     return ratoms, receptor, receptorid  
 
 from scipy.spatial.distance import cdist
-def find_neighbors(atom, xr, sigma2, c, rc):   
-    tmp0, tmp1, x0, y0, z0  = xr[atom-1]
-    r1 = np.matrix([[x0,y0,z0]])
-    r2 = [[x,y,z] for id, res, x, y, z in xr]
-    r2 = np.matrix(r2)
-    Y = cdist(r1,r2,'euclidean')
-    nlist = []
-    for j in range(len(xr)):
-        if j == atom-1:
-	  continue
-        dist = Y[0][j]
-        if dist < rc:
-            nlist.append((atom, j+1, dist))
-                 
+def find_neighbors(atom, atomlist,Y, rc):   
+    nlist = [(atom,j+1,Y[atom-1][j]) for j in range(len(atomlist)) if Y[atom-1][j] < rc and not j == atom-1]
     return nlist
   
-  
 
-def make_model(filelist,nlistcut=30):
-    directory, pdb, interface, name = filelist[1:5]
+def make_model(filelist,residues,presidues,nlistcut=30):
+    directory, pdb, interface, name = filelist[:4]
     offset = 0
-    if len(filelist) > 5 and not filelist[5] == '--strong':
-        offset = int(filelist[5])
-    
-    c = 100.0
-    if len(filelist) > 6 and not filelist[6] == '--strong':
-        c = float(filelist[6])
+    if len(filelist) > 4 and not filelist[4] == '--strong':
+        offset = int(filelist[4])
         
     interfacelist, atomlist, atomid = make_interfacelist(interface, pdb)
     nbonds = []
@@ -72,12 +59,21 @@ def make_model(filelist,nlistcut=30):
         natom = atomid[atom-1][2]
         resn = atomid[atom-1][0]
         resi = int(atomid[atom-1][1])
-        bonds, angles = read_topology(natom,resn)
+        a = residues[resn.lower()].copy()
+        bonds = [ (b[0].upper(),b[1].upper()) for b in a.bonds]
+        bonds = bonds + [('N','HT1'),('N','HT2'),('N','HT3'),('C','OXT')]
+        angles = [ (ang[0].upper(),ang[1].upper(),ang[2].upper()) for ang in a.get_angles()]
+        angles = angles + [('HT1','N','HT2'),('HT2','N','HT3'),('HT1','N','HT3'),('HT1','N','CA'),('HT2','N','CA'),('HT3','N','CA'),
+	      ('O','C','OXT'),('CA','C','OXT')]
         #Find and write bonds
         nlist = []
         rc = 5.0
+        coor = r2 = [[x,y,z] for id, res, x, y, z in atomlist]
+        coor = np.matrix(coor)
+        Y = cdist(coor,coor,'euclidean')
+
         while len(nlist) < nlistcut:
-            nlist = find_neighbors(atom, atomlist, 9.0, c, rc)
+            nlist = find_neighbors(atom,atomlist, Y, rc)
             rc += 1.0
             
         for item in nlist:
@@ -98,19 +94,19 @@ def make_model(filelist,nlistcut=30):
                   
                 elif resi2 == resi + 1 or resi2 == resi - 1:
 		  #write babckbone bonds and angles with neighboring amino acids
-		  if resi2 == resi + 1 and (natom,n2) == ('C','N'):
+		  if resi2 == resi + 1 and (natom,n2) in [('C','N'),("O3'",'P')]:
 		    if not (atom, n, 1, item[2]) in nbonds and not (n, atom, 1, item[2]) in nbonds:
 		      nbonds.append((atom, n, 1, item[2])) #Write 1-2 bonds
 		      
-		  elif resi2 == resi - 1 and (natom,n2) == ('N','C'):
+		  elif resi2 == resi - 1 and (natom,n2) in [('N','C'),('P',"O3'")]:
 		    if not (atom, n, 1, item[2]) in nbonds and not (n, atom, 1, item[2]) in nbonds:
 		      nbonds.append((atom, n, 1, item[2])) #Write 1-2 bonds
 		      
-		  elif resi2 == resi + 1 and (natom, n2) in [('O','N'),('C','HN'),('C','H'),('C','CA'),('CA','N')]:
+		  elif resi2 == resi + 1 and (natom, n2) in [('O','N'),('C','HN'),('C','H'),('C','CA'),('CA','N'),("C3\'",'P'),("O3\'",'O1P'),("O3\'",'O2P'),("O3\'","O5\'")]:
 		    if not (atom, n, 2, item[2]) in nbonds and not (n, atom, 2, item[2]) in nbonds:
 		      nbonds.append((atom, n, 2, item[2])) #Write 1-3 bonds
 		      
-		  elif resi2 == resi - 1 and (natom, n2) in [('N','O'),('CA','C'),('H','C'),('HN','C'),('N','CA')]:
+		  elif resi2 == resi - 1 and (natom, n2) in [('N','O'),('CA','C'),('H','C'),('HN','C'),('N','CA'),('O1P',"O3\'"),('O2P',"O3\'"),("O5\'","O3\'"),('P',"C3\'")]:
 		    if not (atom, n, 2, item[2]) in nbonds and not (n, atom, 2, item[2]) in nbonds:
 		      nbonds.append((atom, n, 2, item[2])) #Write 1-3 bonds
 		      
@@ -148,14 +144,12 @@ def make_model(filelist,nlistcut=30):
 		    nbonds.append((atom, n, 3, item[2])) # Write non-bonded interaction: at least 1-4, atoms connected by bonds and angles are excluded
             
 
-    return nbonds, pdb, name, c, offset, atomid  
+    return nbonds, pdb, name, offset, atomid  
   
-def write_output(nbonds, pdb, name, c, offset, atomid,strong=1.0):
+def write_output(nbonds, pdb, name, offset, atomid,strong=1.0):
     sel = []
     output = os.path.splitext(pdb)[0]+'_'+name+'.txt'
-    #print output
     out = open(output,'w')
-    #print "Write bonds..."
     countb = 0
     counta = 0
     countc = 0
@@ -219,8 +213,20 @@ def write_output(nbonds, pdb, name, c, offset, atomid,strong=1.0):
                 countc += 1
     
     out.close()    
-    #print countb, counta, countc
-    
+
+def make_restraints(args):
+    residues, presidues = parse_stream(open(args[0]))
+    nbonds, pdb, name, offset, atomid = make_model(args[1:],residues,presidues)
+    cut = 31
+    while len(nbonds) > 9000 and cut > 0:
+      cut -= 5
+      nbonds, pdb, name, offset, atomid = make_model(args[1:],residues,presidues,cut)
+          
+    if '--strong' in args:
+      write_output(nbonds,pdb,name,offset,atomid,10.0)
+    else:
+      write_output(nbonds,pdb,name,offset,atomid)
+  
 #Main
 if __name__ == "__main__":
     import sys
@@ -240,15 +246,5 @@ if __name__ == "__main__":
             
         out.close()
         
-    else:    
-        nbonds, pdb, name, c, offset, atomid = make_model(sys.argv)
-        cut = 31
-        while len(nbonds) > 5000 and cut > 0:
-            cut -= 5
-            nbonds, pdb, name, c, offset, atomid = make_model(sys.argv,cut)
-          
-        if '--strong' in sys.argv:
-	  write_output(nbonds,pdb,name,c,offset,atomid,10.0)
-	  
-	else:
-	  write_output(nbonds,pdb,name,c,offset,atomid)
+    else: 
+        make_restraints(sys.argv[1:])

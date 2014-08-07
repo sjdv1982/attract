@@ -49,13 +49,13 @@ struct CartState {
 
   /* modes */
   int nhm[MAXLIG];          //number of modes per ligand
-  double val[MAXMODE][MAXLIG];  //force constant per mode
-  double eig[3*MAXATOM][MAXMODE][MAXLIG];  //modes
+  double val[MAXLIG][MAXMODE];  //force constant per mode
+  double eig[MAXLIG][MAXMODE][3*MAXATOM];  //modes
 
   /* index modes */
   int nihm[MAXLIG];        //number of index modes per ligand
-  int index_eig[MAXLENINDEXMODE][MAXINDEXMODE][MAXLIG]; //index modes: position of nonzero mode entries
-  double index_val[MAXLENINDEXMODE][MAXINDEXMODE][MAXLIG]; //index modes: values of nonzero mode entries
+  int index_eig[MAXLIG][MAXINDEXMODE][MAXLENINDEXMODE]; //index modes: position of nonzero mode entries
+  double index_val[MAXLIG][MAXINDEXMODE][MAXLENINDEXMODE]; //index modes: values of nonzero mode entries
 
   /* copies */
   int ncop[TOTMAXRES][21][11];
@@ -182,7 +182,7 @@ typedef int (&copyarr)[TOTMAXRES];
 typedef int (&limitarr)[MAXLIG];
 
 
-extern "C" void read_hm_(const char *hmfile_, const char *hmword_, const int &nlig, const int *natom, int *nhm, double (&vall)[MAXMODE][MAXLIG], double *eigl, const int &multi, int hmfile_len, int hmword_len);
+extern "C" void read_hm_(const char *hmfile_, const char *hmword_, const int &nlig, const int *natom, int *nhm, double (&vall)[MAXLIG][MAXMODE], double *eigl, const int &multi, int hmfile_len, int hmword_len);
 
 extern "C" void read_indexmode_(const char *hmfile_, const char *hmword_, const int &nlig, int *nhm, int *eigl, double *eigl_val, const int &multi, int hmfile_len, int hmword_len);
 

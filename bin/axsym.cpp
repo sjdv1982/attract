@@ -142,17 +142,17 @@ extern void prepare_axsym_cartstate(CartState &c) {
     memcpy(&c.chai[cnall], &c.chai[pos], natoml*sizeof(double)); 
 
     for (int i = 0; i < c.nhm[l]; i++) {
-      c.val[i][nlig] = c.val[i][l];
+      c.val[nlig][i] = c.val[l][i];
     }
     for (int j = 0; j < n3atoml; j++) {      
       for (int i = 0; i < c.nhm[l]; i++) {
-        c.eig[j][i][nlig] = c.eig[j][i][l];
+        c.eig[nlig][i][j] = c.eig[l][i][j];
       }
     }
     for (int i = 0; i < c.nihm[l]; i++) {
     	for (int j=0; j < MAXLENINDEXMODE; j++){
-    		c.index_eig[j][i][nlig] = c.index_eig[j][i][l];
-    		c.index_val[j][i][nlig] = c.index_val[j][i][l];
+    		c.index_eig[nlig][i][j] = c.index_eig[l][i][j];
+    		c.index_val[nlig][i][j] = c.index_val[l][i][j];
     	}
     }
     memcpy(&c.ncop[nresall], &c.ncop[posres], nresl*21*11*sizeof(int)); 

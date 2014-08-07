@@ -44,9 +44,9 @@ c      Handle variables: full coordinates and modes
        dimension xb(3*totmaxatom),x(3*totmaxatom),f(3*totmaxatom)
        dimension xold(3*totmaxatom)
        dimension xori(3*totmaxatom),xori0(3*totmaxatom)
-       dimension eig(maxlig,maxmode,3*maxatom)
-       dimension index_eig(maxlig,maxindexmode,maxlenindexmode)
-       dimension index_val(maxlig,maxindexmode,maxlenindexmode)
+       dimension eig(3*maxatom,maxmode,maxlig)
+       dimension index_eig(maxlenindexmode,maxindexmode,maxlig)
+       dimension index_val(maxlenindexmode,maxindexmode,maxlig)
        dimension val(maxlig,maxmode)
        dimension ieins(maxlig),nhm(maxlig), nihm(maxlig)
        dimension pivot(maxlig,3)
@@ -103,7 +103,7 @@ c      Is global energy used at all?
        call ministate_has_globalenergy(ministatehandle, 
      1  has_globalenergy)
 
-       if (has_globalenergy.eq.1) then
+       if (has_globalenergy.gt.0) then
 c reset forces
        call reset_forces(cartstatehandle)
   
@@ -126,6 +126,7 @@ c get parameters
        ju = jb + ieig*nmodes
        jn = ju + iindex*nimodes
 c apply ensemble/normal mode/index mode deformations
+       if (has_globalenergy.eq.1) then
        do 5 i=1, nlig
        call cartstate_get_ensd(cartstatehandle,i-1,ens(i),ptr_ensd,
      1  -1.0d0,dmmy1,dmmy2)
@@ -162,7 +163,8 @@ c      WRITE(ERROR_UNIT,*) "Restrain energy", energies(3)
 
        x(1:nall3) = xold(1:nall3)
 c       call memcpy(x,xold,nall3*8)
-
+c endif has_globalenergy.eq.1
+       endif 
 c calculate DOF deltas
        do 10 i=1, nlig
 
@@ -175,7 +177,7 @@ c calculate DOF deltas
 
        call forcerotscale(3*maxatom,
      1  ff(i),frot(:,i),natom(i),f(i))
-       
+       if (has_globalenergy.eq.1)then
        if ((iori.eq.1).AND.(i.gt.fixre)) then
 c       write(*,'(a4,i3,f8.3,f8.3,f8.3,f8.3,f8.3,f8.3)'),
 c     1  'DOFS',i,phi(i),ssi(i),rot(i),xa(i),ya(i),za(i)
@@ -194,8 +196,9 @@ c     1  'DOFS',i,phi(i),ssi(i),rot(i),xa(i),ya(i),za(i)
        delta(ii+2) = delta(ii+2) + cdelta(5)
        delta(ii+3) = delta(ii+3) + cdelta(6)
        endif
-       
+       endif
        if (ieig.eq.1) then
+       if (has_globalenergy.eq.1)then
 c      rotate forces into ligand frame
        call euler2rotmat(phi(i),ssi(i),rot(i),rotmat)
        call matcopy(rotmat, rotmatinv)
@@ -205,9 +208,10 @@ c      rotate forces into ligand frame
      1  rotmatinv,zero,zero,zero,
      2   pivotnull, natom(i),flcopy)
        call ligmin(flcopy,natom(i),i,eig,nhm(i),cdelta)
+       endif
+       call moderest(maxdof,maxmode,dlig(:,i),nhm(i),val(:,i),
+     1  cdelta, energies(3))      
 
-      call moderest(maxdof,maxmode,dlig(:,i),nhm(i),val(i,:),
-     1  cdelta, energies(3))
 c      WRITE(ERROR_UNIT,*) "Moderest energy", energies(3)
        	
        ii = jb
@@ -218,8 +222,10 @@ c      WRITE(ERROR_UNIT,*) "Moderest energy", energies(3)
        delta(ii+n) = delta(ii+n) + cdelta(6+n)
 24     continue
        endif
+       
 
-       if (iindex.eq.1) then
+     
+       if ((iindex.eq.1).and.(has_globalenergy.eq.1)) then
 c      rotate forces into ligand frame
        call euler2rotmat(phi(i),ssi(i),rot(i),rotmat)
        call matcopy(rotmat, rotmatinv)
@@ -231,7 +237,7 @@ c      rotate forces into ligand frame
        call ligmin_index(flcopy,natom(i),i,index_eig,index_val,
      1                    nhm(i),nihm(i),cdelta)
 
-
+     
        ii = ju
        do 13 n=1,i-1
        ii = ii + nihm(n)
@@ -242,8 +248,9 @@ c      rotate forces into ligand frame
        endif
        
 10     continue      
-c      end if (has_globalenergy)
+c      end if (has_globalenergy.gt.0)
        endif 
+
        call disre(maxlig,cartstatehandle,ministatehandle,
      1  iab,iori,itra,fixre,xa,ya,za,
      2  locrests, has_locrests,

@@ -22,12 +22,12 @@ c     parameters
       dimension ieins(0:maxlig-1)
       integer do_morph
       integer index_eig
-      dimension index_eig(0:maxlig-1,maxindexmode,maxlenindexmode)
+      dimension index_eig(maxlenindexmode,maxindexmode,0:maxlig-1)
       real*8 dligp, xb, eig,index_val,x,xori,xori0
       dimension dligp(maxmode+maxindexmode),xb(totmax3atom),
-     1  eig(0:maxlig-1,maxmode,max3atom), x(totmax3atom),
+     1  eig(max3atom,maxmode,0:maxlig-1), x(totmax3atom),
      2  xori(totmax3atom), xori0(totmax3atom)
-      dimension index_val(0:maxlig-1,maxindexmode,maxlenindexmode)
+      dimension index_val(maxlenindexmode,maxindexmode,0:maxlig-1)
       real*8 ensdp, cmorphdp
       dimension ensdp(max3atom)
       dimension cmorphdp(max3atom)
@@ -79,27 +79,27 @@ c calculate deformations
       hm = 1
       do 50 i=1,isize
       ii = 3 * (i-1)
-c      if(eig(ijk,n,ii+1).ne.0) then
-c      write(ERROR_UNIT,*) "Contribution",ii+1, eig(ijk,n,ii+1),dligp(n)
-c      else if (eig(ijk,n,ii+2).ne.0) then
-c      write(ERROR_UNIT,*) "Contribution",ii+2, eig(ijk,n,ii+2),dligp(n)
-c      else if (eig(ijk,n,ii+3).ne.0) then
-c      write(ERROR_UNIT,*) "Contribution",ii+3, eig(ijk,n,ii+3),dligp(n)
+c      if(eig(ii+1,n,ijk).ne.0) then
+c      write(ERROR_UNIT,*) "Contribution",ii+1, eig(ii+1,n,ijk),dligp(n)
+c      else if (eig(ii+2,n,ijk).ne.0) then
+c      write(ERROR_UNIT,*) "Contribution",ii+2, eig(ii+2,n,ijk),dligp(n)
+c      else if (eig(ii+3,n,ijk).ne.0) then
+c      write(ERROR_UNIT,*) "Contribution",ii+3, eig(ii+3,n,ijk),dligp(n)
 c      endif
-      hmdeform(ii+1) = hmdeform(ii+1) + dligp(n) * eig(ijk,n,ii+1)
-      hmdeform(ii+2) = hmdeform(ii+2) + dligp(n) * eig(ijk,n,ii+2)
-      hmdeform(ii+3) = hmdeform(ii+3) + dligp(n) * eig(ijk,n,ii+3)
+      hmdeform(ii+1) = hmdeform(ii+1) + dligp(n) * eig(ii+1,n,ijk)
+      hmdeform(ii+2) = hmdeform(ii+2) + dligp(n) * eig(ii+2,n,ijk)
+      hmdeform(ii+3) = hmdeform(ii+3) + dligp(n) * eig(ii+3,n,ijk)
    50 continue 
    55 continue
 c      write(ERROR_UNIT,*) "Index modes:", nihm(ijk)
       do 66 n=1,nihm(ijk)
       hm = 1
       do 65 i=1,maxlenindexmode
-      ii = index_eig(ijk,n,i)
+      ii = index_eig(i,n,ijk)
       if (ii.ne.-1) then
 c      write(ERROR_UNIT,*) ii+1,index_val(ijk,n,i),dligp(6+nhm(ijk)+n)
       hmdeform(ii+1)=hmdeform(ii+1)+
-     1 dligp(nhm(ijk)+n)*index_val(ijk,n,i)
+     1 dligp(nhm(ijk)+n)*index_val(i,n,ijk)
       else
       exit
       endif
