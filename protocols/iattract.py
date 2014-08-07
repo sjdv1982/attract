@@ -207,6 +207,7 @@ if __name__ == "__main__":
   interface_cutoff = 3.0
   otf = True
   topfiles = []
+  exists = False
   while 1:
     anr += 1
 
@@ -214,6 +215,12 @@ if __name__ == "__main__":
     arg = sys.argv[anr]
     if arg == "--torque":
       torque = "-torque"
+      sys.argv = sys.argv[:anr] + sys.argv[anr+1:]
+      anr -= 1
+      continue
+    
+    if arg == "--exists":
+      exists= True
       sys.argv = sys.argv[:anr] + sys.argv[anr+1:]
       anr -= 1
       continue
@@ -289,6 +296,7 @@ if __name__ == "__main__":
       output = nextarg
       sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
       anr -= 1
+      
 
   if output is None:
     raise ValueError("You must specify an output file with --output")
@@ -373,15 +381,20 @@ if __name__ == "__main__":
     for i in collectlib.ieins[:len(ligands)]:
       ligandrange.append((start0,i))
       start0 = i
-  
+    
     nstruc = 0
     coor = []
     while 1:
+      if exists: break
       result = collectlib.collect_next()
       if result: break
       nstruc += 1
       coor.append(collectlib.collect_all_coor())
 
+  if exists:
+    for i in range(int(chunks)):
+      coor.append([])
+      
   if otf and not len(coor) == int(chunks):
     raise ValueError("For on the fly interface docking we need to determine the interface of all structures separately, please specify --jobsize 1")
     
