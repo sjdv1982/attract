@@ -65,11 +65,11 @@ V = V[:, ind]
 for i in range(20):  
   n = asize-7-i
   vec = [-float(x) for x in V[n]]
-  print i+1, float(s[n])
+  print " ", i+1, float(s[n])
   for resindex in res:
     pos = 3 * (resindex - 1)
     for n in range(3):
       print vec[pos+n],
-    print  
-      
+    print
+    
   print

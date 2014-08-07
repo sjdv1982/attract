@@ -14,6 +14,7 @@ Type AttractSymmetry {
     symmetry_axis.add_header("You can use generative symmetry or distance-restrained symmetry")
     symmetry_axis.add_header("If you want to use generative symmetry:")
     symmetry_axis.add_header(" - Provide an explicit symmetry axis and origin")    
+    symmetry_axis.add_header(" - Provide an explicit symmetry fold")    
     symmetry_axis.add_header(" - Specify a single reference symmetry partner")
     symmetry_axis.add_header(" - In the Docking Partner section, only define the reference partner structure")    
     symmetry_axis.add_header("If you want to use distance-restrained symmetry:")
@@ -22,6 +23,13 @@ Type AttractSymmetry {
     symmetry_axis.add_header(" - In the Docking Partner section, specify all partner structures, which must be identical")
     symmetry_axis.name = "Generative symmetry axis"
     symmetry_origin.name = "Origin for generative symmetry axis"
+  }
+  *Integer symmetry_fold
+  form {
+    symmetry_fold.name = "Symmetry fold (2-fold, 3-fold, ...)"
+  }
+  validate {
+    if symmetry_fold is not None: assert symmetry_fold > 1
   }
   Enum symmetry("Cx","Dx") = "Cx"
   validate {
@@ -33,9 +41,13 @@ Type AttractSymmetry {
     partners.form = "soft"
   }  
   validate {
-    if symmetry_axis is not None: assert len(partners) == 1
+    if symmetry_axis is not None: 
+      assert len(partners) == 1
+      assert symmetry_fold is not None
+      assert symmetry == "Cx"
     else:
       assert len(partners) > 1
+      assert symmetry_fold is None or symmetry_fold == len(partners)
       if symmetry == "Dx": assert len(partners) == 4
   }
   error {

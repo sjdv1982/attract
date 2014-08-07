@@ -202,7 +202,7 @@ name=%s
   ret_shm = ""
   for g in m.grids:
     if g.gridfile is not None: 
-      v = g.gridfile.name
+      v = g.gridfile
       if m.np > 1:
         v2 = v +"header"      
         cleanupfiles.append(v2)
@@ -252,11 +252,20 @@ name=%s
     scoreparams += ps
     
     
-  for sym in m.symmetries:
-    symcode = len(sym.partners)
-    if sym.symmetry == "Dx": symcode = -4
-    partners = " ".join([str(v) for v in sym.partners])
-    params += " --sym %d %s" % (symcode, partners)
+  for sym in m.symmetries:        
+    if sym.symmetry_axis is None: #distance-restrained symmetry      
+      symcode = len(sym.partners)
+      if sym.symmetry == "Dx": symcode = -4
+      partners = " ".join([str(v) for v in sym.partners])
+      params += " --sym %d %s" % (symcode, partners)
+    else: #generative symmetry
+      symcode = sym.symmetry_fold
+      partner = sym.partners[0]
+      s = sym.symmetry_axis
+      sym_axis = "%.3f %.3f %.3f" % (s.x, s.y, s.z)
+      s = sym.symmetry_origin
+      sym_origin = "%.3f %.3f %.3f" % (s.x, s.y, s.z)      
+      params += " --axsym %d %d %s %s" % (partner, symcode, sym_axis, sym_origin)
   if m.cryoem_data:
     params += " --em %s %.3f" % (m.cryoem_data.name, m.cryoem_resolution)
   params += "\""

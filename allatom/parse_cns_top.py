@@ -65,44 +65,102 @@ class Residue(object):
     self.name = name
     self.atomorder = []
     self.atoms = {}
-  def add(self, species,tokens):
+    self.bonds = []
+  
+  def _identify(self, species):
     assert species in allspecies, species
-    if species != "atom": return
-    assert tokens[-1] == "end", tokens[-1]
-    a = Atom.parse(tokens[:-1])
-    self.atomorder.append(a.name)
-    self.atoms[a.name] = a
+    if species == "atom": 
+      order = self.atomorder
+      data = self.atoms
+    elif species == "bond":	
+      order = [] #dummy
+      data = self.bonds
+    else:
+      return None
+    return data, order
+  
+  def add(self, species,tokens):
+    id = self._identify(species)
+    if id is None: return
+    data, order = id
+    if species == "atom":
+      assert tokens[-1] == "end", tokens[-1]    
+      a = Atom.parse(tokens[:-1])
+      order.append(a.name)
+      data[a.name] = a      
+    else:  
+      a = tokens
+      if len(a) != 2 and species == "bond":
+	assert len(a) >= 5 and a[2] == "bond", a
+	data.append(a[:2])
+	self.add("bond", a[3:])
+      else:
+	if species == "bond":
+	  a = [aa.lstrip("-").lstrip("+") for aa in a]
+        data.append(a)
+ 
   def delete(self, species, name):
-    assert species in allspecies
-    if species != "atom": return
-    #assert name in self.atoms, name
+    assert species == "atom", species
     try:
       del self.atoms[name]
       self.atomorder.remove(name)
-    except KeyError: 
+    except KeyError:
       pass
-  def modify(self, species, a):
-    assert species in allspecies
-    if species != "atom": return
+    bonds2 = []
+    for b in self.bonds:
+      if b[0] != name and b[1] != name: bonds2.append(b)
+    #TODO: delete dihedrals (once we read them)  
+    self.bonds = bonds2  
+      
+  def modify(self, species, tokens):
+    assert species == "atom", species    
+    assert tokens[-1] == "end", tokens
+    if len(tokens) == 2:
+      return    
+    a = Atom.partparse(tokens[:-1])
     assert a.name in self.atoms, a.name
     self.atoms[a.name].modify(a)
+    
   def copy(self):
     ret = type(self)(self.name)
     ret.atomorder = list(self.atomorder)
     for aname in self.atoms:
-      ret.atoms[aname] = self.atoms[aname].copy()
+      ret.atoms[aname] = self.atoms[aname].copy()    
+    ret.bonds[:] = self.bonds
     return ret
+  
   def patch(self, pres):
     for mode, species, obj in pres.commands:
-      if species != "atom": continue
       if mode == "add":
-        self.atomorder.append(obj.name)
-        self.atoms[obj.name] = obj
+        self.add(species, obj)
       elif mode == "modify":
         self.modify(species, obj)
       elif mode == "delete":
         self.delete(species, obj)
       else: raise ValueError(mode)
+  
+  def get_angles(self):
+    connectivity = {}
+    angles = []
+    for atom1, atom2 in self.bonds:
+      a1 = self.atomorder.index(atom1)
+      a2 = self.atomorder.index(atom2)
+      if atom1 not in connectivity: connectivity[atom1] = set()
+      if atom2 not in connectivity: connectivity[atom2] = set()
+      con1 = connectivity[atom1]
+      con2 = connectivity[atom2]
+      con1.add(a2)
+      con2.add(a1)
+    for atom in connectivity.keys():
+      con = connectivity[atom]
+      for a1 in con:
+	atom1 = self.atomorder[a1]
+	for a2 in con:
+	  if a2 <= a1: continue
+	  atom2 = self.atomorder[a2]
+	  angles.append((atom1, atom, atom2))
+    return angles
+      
     
 
 class PResidue(object):
@@ -112,18 +170,16 @@ class PResidue(object):
   def add_command(self,mode,tokens):
     species = tokens[0]
     assert species in allspecies
-    if species != "atom": return
+    if species not in ("bond", "atom"): return
     if mode == "dele": mode = "delete"
     if mode == "modi": mode = "modify"
     if mode == "add":
-      a = Atom.parse(tokens[1:])
-      self.commands.append((mode, species, a))
+      self.commands.append((mode, species, tokens[1:]))
     elif mode == "modify":
       assert tokens[-1] == "end"
       if len(tokens) == 3:
         return
-      a = Atom.partparse(tokens[1:-1])
-      self.commands.append((mode, species, a))
+      self.commands.append((mode, species, tokens[1:]))
     elif mode == "delete":
       assert tokens[-1] == "end", tokens
       assert len(tokens) == 3
@@ -177,10 +233,19 @@ def parse_stream(stream):
     
     
 if __name__ == "__main__":
-  residues, presidues = parse_stream(open("topallhdg5.3.pro"))      
+  import sys
+  resid = "ala"
+  if len(sys.argv) == 3: resid = sys.argv[2]
+  residues, presidues = parse_stream(open(sys.argv[1]))      
   print residues.keys()    
-  a = residues["ala"].copy()
+  a = residues[resid].copy()
   for atom in a.atoms: print a.atoms[atom]
-  print  
+  print a.bonds
+  for ang in a.get_angles(): print ang
+  print
   a.patch(presidues["cter"])
   for atom in a.atoms: print a.atoms[atom]
+  print a.bonds
+  for ang in a.get_angles(): print ang
+  print
+  

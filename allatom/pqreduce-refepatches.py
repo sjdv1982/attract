@@ -117,12 +117,13 @@ for resid in his:
 outf = StringIO.StringIO()   
 mapf2 = StringIO.StringIO()   
 
-reduce.run(pdblines, topfile, transfile, outf, mapf2, patches, termini = False)
+reduce.run(pdblines, topfile, transfile, outf, mapf2, patches)
 outlines = outf.getvalue().split("\n")
 for l in outlines: 
   if l.find("XXX") > -1:
     ok = False
     if l[12:16] == " HG " and  l[17:20] == "CYS": ok = True
+    if l[12:16] == " HT3" and  l[17:20] == "PRO": ok = True
     if 'HIS' in l: ok=True
     if not ok:
       raise ValueError("Missing atom:\n%s" % l)
@@ -137,12 +138,13 @@ out.close()
 outfref = StringIO.StringIO()   
 mapf2ref = StringIO.StringIO()   
 
-reduce.run(pdbreflines, topfile, transfile, outfref, mapf2ref, patches, termini = False)
+reduce.run(pdbreflines, topfile, transfile, outfref, mapf2ref, patches)
 outlines = outfref.getvalue().split("\n")
 for l in outlines: 
   if l.find("XXX") > -1:
     ok = False
     if l[12:16] == " HG " and  l[17:20] == "CYS": ok = True
+    if l[12:16] == " HT3" and  l[17:20] == "PRO": ok = True
     if not ok:
       raise ValueError("Missing atom:\n%s" % l)
 

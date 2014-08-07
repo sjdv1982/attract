@@ -127,6 +127,7 @@ c
 c   start Monte Carlo
       iaccept=1
       do 4000 ijk=1,ivmax 
+c      write (ERROR_UNIT,*), ijk, ivmax
 c store old Euler angle, position and ligand and receptor coordinates
 c
 c phi,ssi,rot for first molecule are fixed!

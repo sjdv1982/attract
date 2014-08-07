@@ -8,6 +8,9 @@
 #include "max.h"
 #include <cmath>
 #include <cstdio>
+#include <iostream>
+#include <sstream> // for ostringstream
+#include <string>
 
 extern int cartstate_new(int argc, char *argv[],bool single=0);
 
@@ -117,6 +120,7 @@ int main(int argc, char *argv[]) {
   
   char *modefile = NULL;
   char *indexmodefile = NULL;
+  char *name = NULL;
   int enscount = 0;
   int ens_ligands[MAXLIG];
   char *ens_files[MAXLIG];
@@ -149,6 +153,17 @@ int main(int argc, char *argv[]) {
   for (int n = 1; n < argc-1; n++) {
     if (!strcmp(argv[n],"--imodes")) {
       indexmodefile = argv[n+1];
+      char **argv2 = new char *[argc-1];
+      if (n > 0) memcpy(argv2, argv,n*sizeof(char*));
+      if (n+2 < argc) memcpy(argv2+n,argv+n+2,(argc-n-2)*sizeof(char*));
+      argv = argv2;
+      argc -= 2;
+      break;
+    }
+  }
+  for (int n = 1; n < argc-1; n++) {
+    if (!strcmp(argv[n],"--name")) {
+      name = argv[n+1];
       char **argv2 = new char *[argc-1];
       if (n > 0) memcpy(argv2, argv,n*sizeof(char*));
       if (n+2 < argc) memcpy(argv2+n,argv+n+2,(argc-n-2)*sizeof(char*));
@@ -292,7 +307,18 @@ int main(int argc, char *argv[]) {
   //main loop
   int nstruc = 0;  
   while (1) {
-    
+    if (name != NULL){
+       std::ostringstream out; 
+       out << "flexm-" << nstruc+1 << name << ".dat";
+       std::string save;
+       save = out.str();
+       const char * newindexmodefile;
+       newindexmodefile = save.c_str();
+       if (newindexmodefile != NULL) {
+	  const int multi = 1;
+	  read_indexmode_(newindexmodefile,"ligand",cs.nlig, cs.nihm, (int *) cs.index_eig, (double *) cs.index_val, multi, strlen(newindexmodefile), strlen("ligand"));
+       }
+    }
     int result = read_dof_(fil, line, nstruc, argv[1], ens, phi, ssi, rot, 
      xa, ya, za, locrests, 
      morph, dlig, nlig, nhm, nihm, nrens, morphing, has_locrests,
