@@ -12,7 +12,11 @@ energies = []
 for l1,l2 in structures:
   for ll in l1:
     if ll.startswith("## Energy:"):
-      e = float(ll[10:])
+      ee = ll[10:].strip()
+      if ee.startswith("nan"):
+        e = 99999999999999
+      else:
+        e = float(ee)
       energies.append(e)
 assert len(energies) == len(structures)
 strucs = zip(range(1,len(structures)+1), energies, structures)

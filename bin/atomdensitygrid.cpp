@@ -19,6 +19,13 @@ int ngrids = 0;
 
 typedef void (*Applyfunc) (AtomDensityGrid &g, int indxyz, double cwxyz, double &overlap, double &gradx, double &grady, double &gradz, double sx, double sy, double sz, double weight);
 
+float get_clash_threshold(float voxelsize) {
+  const float density = 0.824;
+  //average protein packing density is 0.824 Da/A**3  
+  const float margin = 1.5*pow(voxelsize, -2.0/3);
+  return (density+margin*density) * pow(voxelsize,3);
+}
+
 inline bool trilin(AtomDensityGrid &g, Applyfunc apply, double ax, double ay, double az, double weight, double &overlap, double &gradx, double &grady, double &gradz) {
   double wx1=0,wy1=0,wz1=0;
     
@@ -121,6 +128,7 @@ void apply_clash(AtomDensityGrid &g, int indxyz, double cwxyz, double &overlap, 
   double w = g.density[indxyz];
   double clash = w/g.clash_threshold-1;
   if (clash <= 0) return; 
+  //printf("W %.3f %3f\n", w, g.clash_threshold);
   overlap += clash*clash;
   double cgrad = 2*clash*cwxyz;
   gradx -= sx * cgrad;
@@ -192,7 +200,7 @@ extern "C" void define_atomdensitymask_(char *maskfile, float forceconstant) {
   if (!read) error(maskfile);
   read = fread(&g.dimz, sizeof(int), 1, f);
   if (!read) error(maskfile);
-  g.clash_threshold = 0.990 * g.voxelsize*g.voxelsize*g.voxelsize; //average protein packing density is 0.824 Da/A**3 => 0.990 Da/A**3 with 20 % margin
+  g.clash_threshold = get_clash_threshold(g.voxelsize);
   int nvox = g.dimx*g.dimy*g.dimz;
   g.density = new double[nvox];  
   g.maskgrid = new bool[nvox];
@@ -219,7 +227,7 @@ extern "C" void define_atomdensitygrid_(float voxelsize, int dimension, float fo
   g.orix = -0.5 * dimension * g.voxelsize;
   g.oriy = -0.5 * dimension * g.voxelsize;
   g.oriz = -0.5 * dimension * g.voxelsize;  
-  g.clash_threshold = 0.990 * voxelsize*voxelsize*voxelsize; //average protein packing density is 0.824 Da/A**3 => 0.990 Da/A**3 with 20 % margin
+  g.clash_threshold = get_clash_threshold(g.voxelsize);
   g.density = new double[dimension*dimension*dimension];  
   if (!g.density) {
     fprintf(stderr, "Cannot allocate memory for atom density grid of dimension %d\n", dimension);

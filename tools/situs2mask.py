@@ -1,24 +1,24 @@
 import sys, numpy, scipy.ndimage, scipy.signal, struct
 from math import *
 
-boxlim = 500 #construct a mask from -boxlim to boxlim Angstroms, in all directions
-
 try:
   situsfile = sys.argv[1]
   threshold = float(sys.argv[2])
   maskvoxelsize = float(sys.argv[3])
-  maskfile = sys.argv[4]
+  boxlim = float(sys.argv[4]) #construct a mask from -boxlim to boxlim Angstroms, in all directions
+  maskfile = sys.argv[5]
   outputsitusfile = None
-  if len(sys.argv) == 6:
-    outputsitusfile = sys.argv[5] 
+  if len(sys.argv) == 7:
+    outputsitusfile = sys.argv[6] 
 except:
   import traceback
   traceback.print_exc()
   print
-  print("Syntax: situs2mask <SITUS map file> <map threshold> <mask voxelsize> <output mask file in .mask format> [output mask file in SITUS format]")
+  print("Syntax: situs2mask <SITUS map file> <map threshold> <mask voxelsize> <box limit in A> <output mask file in .mask format> [output mask file in SITUS format]")
   sys.exit(1)
   
-  
+extrusion = 3 #1 on each side
+
 def read_situs(situsfile):
   header = open(situsfile).readline()
   h = header.split()
@@ -79,8 +79,8 @@ masksize = [v/ceilratio for v in padzoomdata.shape]
 mask = padzoomdata.reshape([masksize[0], ceilratio, masksize[1], ceilratio, masksize[2], ceilratio]).mean(5).mean(3).mean(1)
 mask[mask>=0]=1
 mask[mask<0]=0
-extrusion = numpy.array([1/27.0]*27).reshape((3,3,3))
-mask = scipy.signal.convolve(mask, extrusion, "same")
+extrusionkernel = numpy.array([1.0]*extrusion**3).reshape((extrusion,extrusion,extrusion))
+mask = scipy.signal.convolve(mask, extrusionkernel, "same")
 mask[mask>=0.02]=1
 boolmask = numpy.greater(mask, 0)
 originshift = (ratio-1)*gridspacing
