@@ -484,17 +484,7 @@ Type AttractModel {
       assert translations_file is None
     else:
       assert rotations_file is not None or translations_file is not None
-      assert len(partners) == 2
-      
-    if search == "random":
-      check = False
-      for g in grids:
-        if g.gridname is not None:
-          check = True
-          
-      if check:
-        for p in partners:
-          assert p.gridname is not None
+      assert len(partners) == 2          
   }   
   form {
     fix_receptor.group = "Sampling parameters"
@@ -547,46 +537,27 @@ Type AttractModel {
   }
   #***
   
+  Enum cryoem_mode("gvm","cc") = "gvm"
+  form {
+    cryoem_mode.group = "Cryo-EM data"
+    cryoem_mode.name = "Cryo-EM scoring criterion"
+    cryoem_mode.optiontitles = ("GVM score", "cross-correlation")
+  }
   *ResourceData_CryoEM_SITUS cryoem_data
   form {
     cryoem_data.group = "Cryo-EM data"
     cryoem_data.type = "file"
-    cryoem_data.name = "Cryo-EM density map (SITUS format)"
+    cryoem_data.name = "Cryo-EM density map used in scoring (SITUS format)"
   }  
   *Float cryoem_resolution
   form {
     cryoem_resolution.group = "Cryo-EM data"
-    cryoem_resolution.name = "Cryo-EM density map resolution (in angstroms)"
+    cryoem_resolution.name = "Cryo-EM scoring density map resolution (in angstroms)"
   }  
   validate {
-    if cryoem_data is not None: assert cryoem_resolution > 0
+    if cryoem_data is not None: assert cryoem_resolution is not None
     if cryoem_data is None: assert cryoem_resolution is None
-  }
-
-  Enum cryoem_scoring_mode("no","attract","gvm","cc") = "no"
-  form {
-    cryoem_scoring_mode.group = "Cryo-EM data"
-    cryoem_scoring_mode.name = "Cryo-EM scoring criterion"
-    cryoem_scoring_mode.optiontitles = ("No separate scoring step with a higher-resolution map", "ATTRACT energy", "GVM score", "cross-correlation")
-  }
-  *ResourceData_CryoEM_SITUS cryoem_scoring_data
-  form {
-    cryoem_scoring_data.group = "Cryo-EM data"
-    cryoem_scoring_data.type = "file"
-    cryoem_scoring_data.name = "Cryo-EM density map used in scoring (SITUS format)"
-  }  
-  *Float cryoem_scoring_resolution
-  form {
-    cryoem_scoring_resolution.group = "Cryo-EM data"
-    cryoem_scoring_resolution.name = "Cryo-EM scoring density map resolution (in angstroms)"
-  }  
-  validate {
-    if cryoem_scoring_mode == "no": assert cryoem_scoring_data is None
-    if cryoem_scoring_mode != "no": assert cryoem_scoring_data is not None
-    if cryoem_scoring_data is not None: assert cryoem_scoring_resolution is not None
-    if cryoem_scoring_data is None: assert cryoem_scoring_resolution is None
-    if cryoem_scoring_data is not None: assert cryoem_data is not None
-    if cryoem_scoring_resolution is not None: assert cryoem_scoring_resolution <= cryoem_resolution    
+    if cryoem_resolution is not None: assert cryoem_resolution > 0    
   }
   
   AttractSymmetryArray symmetries = []
@@ -679,7 +650,7 @@ Type AttractModel {
   }
   
   error {
-    'if cryoem_scoring_mode is not None: assert cryoem_scoring_mode in ("no","attract","gvm","cc")'
+    'if cryoem_mode is not None: assert cryoem_mode in ("gvm","cc")'
     =>
     ''
 
@@ -703,25 +674,13 @@ Type AttractModel {
     =>
     'You supplied a starting structures file, you can't upload a rotations file'
     
-    'if cryoem_data is None: assert cryoem_resolution is None'
-    =>
-    'You supply a resolution for a CryoEM map, but you didn't define the map itself'
-
-    'if cryoem_scoring_mode != "no": assert cryoem_scoring_data is not None'
-    =>
-    'You turned of CryoEM scoring mode, but you didn't supply a map'
-
     'if forcefield is not None: assert forcefield in ("ATTRACT", "OPLSX")'
     =>
     ''
 
-    'if cryoem_scoring_resolution is not None: assert cryoem_scoring_resolution <= cryoem_resolution'
+    'if cryoem_resolution is not None: assert cryoem_resolution > 0'
     =>
-    'You supplied a CryoEM map for scoring with worse resolution than for sampling'
-
-    'if cryoem_scoring_data is not None: assert cryoem_data is not None'
-    =>
-    'You supply a CryoEM map for scoring, but not for sampling'
+    'You supplied a CryoEM map for scoring, but you did not specify its resolution'
 
     'assert start_structures_file is None'
     =>
@@ -739,7 +698,7 @@ Type AttractModel {
     =>
     'You defined a non-existing grid name {partner.gridname} for partner {pnr+1}'
 
-    'if cryoem_scoring_data is not None: assert cryoem_scoring_resolution is not None'
+    'if cryoem_data is not None: assert cryoem_resolution is not None'
     =>
     'You specified a CryoEM map for scoring, but did not specify its resolutuon'
 
@@ -767,10 +726,6 @@ Type AttractModel {
     =>
     'Custom ensemble selection can only be done with a custom docking search'
 
-    'if cryoem_data is not None: assert cryoem_resolution > 0'
-    =>
-    'You specified a CryoEM map, but did not specify its resolutuon'
-
     'if search == "syst": assert len(partners) == 2'
     =>
     'For systematic search, the number of partners must be two, not {len(partners)}'
@@ -787,10 +742,6 @@ Type AttractModel {
     =>
     'You must define a rotations or translations file'
 
-    'if cryoem_scoring_mode == "no": assert cryoem_scoring_data is None'
-    =>
-    'You supplied a CryoEM map for scoring, but you turned off CryoEM scoring mode'
-
     'assert translations_file is None'
     =>
     'You can only specify a docking translations file with Custom search, and if you don't upload specific starting structures'
@@ -799,14 +750,10 @@ Type AttractModel {
     =>
     ''
 
-    'if cryoem_scoring_data is None: assert cryoem_scoring_resolution is None'
+    'if cryoem_data is None: assert cryoem_resolution is None'
     =>
     'You supply a resolution for a CryoEM map for scoring, but you didn't define the map itself'
     
-    'assert p.gridname is not None'
-    =>
-    'If you define grids, you must assign a grid to every docking partner'
-
     'assert len(partners) > 0'
     =>
     'Please define at least one docking partner'
