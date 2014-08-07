@@ -18,12 +18,15 @@
 typedef double Coor[3]; /*Coor is double[3]*/
 typedef float Coorf[3]; /*Coorf is float[3]*/
 
-struct EnerGrad {
+struct EnerGradStd {
   float energy;
   Coorf grad;
-#ifdef TORQUEGRID  
+};
+
+struct EnerGradTorque {
+  float energy;
+  Coorf grad;
   float torques[9];
-#endif  
 };
 
 typedef unsigned int Potential[MAXATOMTYPES+1]; 
@@ -42,6 +45,7 @@ struct Voxel {
 };
 
 struct Grid {
+  bool torquegrid; //are we a torque grid?
   unsigned short architecture; //32 or 64 bits
   double gridspacing; /* 0.9 A */
   int gridextension; /* 32; always make this number even!*/
@@ -65,16 +69,20 @@ struct Grid {
   /* dimensions of the big grid*/
     
   int nr_energrads;
-  /*contains all EnerGrads, for both biggrid and innergrid */  
+  /*contains all EnerGrads (either std or torque), for both biggrid and innergrid */  
   int shm_energrads; /*shared memory segment key: -1 by default*/
-  EnerGrad *energrads; 
-
+  
+  //Defined is either this: 
+  EnerGradStd *energrads_std; 
+  //or this:
+  EnerGradTorque *energrads_torque; 
+  //or neither (if we calculate no potentials)
+  
   int nr_neighbours;
   /* contains all Neighbours of the innergrid */
   int shm_neighbours; /*shared memory segment key: -1 by default*/
   Neighbour *neighbours;
-  
-  
+    
   Potential *biggrid; 
   /* The outer grid (double grid spacing)
     It extends (gridextension*gridspacing = 32*0.9 A = 29 A)
@@ -98,8 +106,10 @@ struct Grid {
 
   void init(double gridspacing0, int gridextension0, 
    double plateaudis0,double neighbourdis0,bool (&alphabet0)[MAXATOMTYPES]);
-  void read(const char *filename);
-  void write(const char *filename);
+  void read_std(const char *filename);
+  void read_torque(const char *filename);
+  void write_std(const char *filename);
+  void write_torque(const char *filename);
 
   double *_ratio; /*precomputed ratios to scale down distances, to reach 5 A*/  
   inline double get_ratio(double dissq) const {
@@ -107,7 +117,8 @@ struct Grid {
   }  
   
   
-  void calculate(int cartstatehandle, double plateaudis, double neighbourdis, float gridspacing, int gridextension, bool (&alphabet)[MAXATOMTYPES], bool cdie, float epsilon, bool calc_pot);
+  void calculate_std(int cartstatehandle, double plateaudis, double neighbourdis, float gridspacing, int gridextension, bool (&alphabet)[MAXATOMTYPES], bool cdie, float epsilon, bool calc_pot);
+  void calculate_torque(int cartstatehandle, double plateaudis, double neighbourdis, float gridspacing, int gridextension, bool (&alphabet)[MAXATOMTYPES], bool cdie, float epsilon, bool calc_pot);
 };
 
 #endif

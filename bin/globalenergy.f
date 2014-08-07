@@ -12,6 +12,12 @@ c      Parameters
        integer cartstatehandle,ministatehandle
        integer iab,iori,itra,ieig,iindex,fixre,seed
        real*8 energies(6)
+c      energies(1): vdw
+c      energies(2): elec
+c      energies(3): restraints (distance and symmetry)
+c      energies(4): flexible displacement (modes and morphing)
+c      energies(5): origin displacement (gravity and location restraints)
+c      energies(6): atom density grid
        real*8 delta(maxdof)
 
        real*8 locrests
@@ -90,7 +96,7 @@ c      Local variables
        real*8 zero
        real*8 pivotnull
        dimension pivotnull(3)
-       real*8 emorph       
+       real*8 energy0
        integer has_globalenergy
        integer nmodes, nimodes
        integer, parameter :: ERROR_UNIT = 0
@@ -155,11 +161,14 @@ c     2  (x(3*902+3)-x(3*1454+3))* (x(3*902+3)-x(3*1454+3))
 c       stop
 
        call restrain(ministatehandle,cartstatehandle,seed,
-     1  iab,energies(3))
-c      WRITE(ERROR_UNIT,*) "Restrain energy", energies(3)
-       call emenergy(energies(6),nall,x,xori,iaci_old,
+     1  iab,energy0)
+       energies(3) = energies(3) + energy0
+c      WRITE(ERROR_UNIT,*) "Restrain energy", energy0
+       call sym(cartstatehandle, iab, energy0)
+       energies(3) = energies(3) + energy0
+       call atomdensitygridenergy(energy0,nall,x,xori,iaci_old,
      1  nlig,natom,f,iab)
-       call sym(cartstatehandle, iab, energies(3))
+       energies(6) = energies(6) + energy0
 
        x(1:nall3) = xold(1:nall3)
 c       call memcpy(x,xold,nall3*8)
@@ -212,7 +221,10 @@ c      rotate forces into ligand frame
        call moderest(maxdof,maxmode,dlig(:,i),nhm(i),val(:,i),
      1  cdelta, energies(3))      
 
-c      WRITE(ERROR_UNIT,*) "Moderest energy", energies(3)
+      call moderest(maxdof,maxmode,dlig(:,i),nhm(i),val(i,:),
+     1  cdelta, energy0)
+       energies(4) = energies(4) + energy0
+c      WRITE(ERROR_UNIT,*) "Moderest energy", energy0
        	
        ii = jb
        do 23 n=1,i-1
@@ -254,9 +266,11 @@ c      end if (has_globalenergy.gt.0)
        call disre(maxlig,cartstatehandle,ministatehandle,
      1  iab,iori,itra,fixre,xa,ya,za,
      2  locrests, has_locrests,
-     3  delta,energies(3))
+     3  delta,energy0)
+       energies(5) = energies(5) + energy0
 
-       call ene_morph(morph_fconstant, morph, deltamorph, nlig, emorph)
-       energies(4) = energies(4) + emorph     
+       call ene_morph(morph_fconstant, morph, deltamorph, 
+     1  nlig, energy0)
+       energies(4) = energies(4) + energy0     
 
        end

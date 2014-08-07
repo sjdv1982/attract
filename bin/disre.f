@@ -28,6 +28,7 @@ c     Local variables
       integer n,nn,i,jl
       real*8 et,et2,xd,yd,zd,xf,yf,zf,k
       
+      erest = 0.0d0
       call cartstate_f_disre(cartstatehandle,nlig,ptr_pivot)      
       call ministate_f_disre(ministatehandle,gravity,rstk)
            
