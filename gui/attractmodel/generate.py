@@ -407,6 +407,10 @@ echo '**************************************************************'
 echo 'Docking'
 echo '**************************************************************'
 """
+  itparams0 = ""
+  if m.atomdensitygrids is not None:
+    for g in m.atomdensitygrids:
+      itparams0 += " --atomdensitygrid %s %s %s" % (g.voxelsize, g.dimension, g.forceconstant)
   ordinals = ["1st", "2nd", "3rd",] + ["%dth" % n for n in range(4,51)]
   iterations = []
   outp = ""
@@ -427,10 +431,14 @@ echo '**************************************************************'
 echo '%s minimization'
 echo '**************************************************************'
 """ % ordinals[i]
-    itparams = ""
+    itparams = itparams0
     rcut, vmax, traj, mc = it[:4]
     if rcut != 1500 and len(grid_used) == 0: itparams += " --rcut %s" % str(rcut)
-    if vmax != 100: itparams += " --vmax %s" % str(vmax)
+    if vmax != 100: 
+      if mc:
+        itparams += " --mcmax %s" % str(vmax)
+      else:
+        itparams += " --vmax %s" % str(vmax)
     if traj: itparams += " --traj"
     if mc: 
       itparams += " --mc"
