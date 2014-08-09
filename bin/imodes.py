@@ -1,6 +1,6 @@
 """ -------------------------
 Get interface for iATTRACT calculation and make imodes file
-supports ensemble und mutliple ligands
+supports ensemble und multiple ligands
 
 Author: CEM Schindler
 31/7/2014

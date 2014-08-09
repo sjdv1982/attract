@@ -18,6 +18,7 @@ c     Local variables
 c
 c  add the implicit part
 c
+      enlig=0.0d0
       do 50 i=1,nhm
       en=val(i)*dlig(i)**4
       enlig=enlig+en
