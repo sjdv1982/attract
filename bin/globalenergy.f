@@ -219,7 +219,8 @@ c      rotate forces into ligand frame
        call ligmin(flcopy,natom(i),i,eig,nhm(i),cdelta)
        endif
        call moderest(maxdof,maxmode,dlig(:,i),nhm(i),val(:,i),
-     1  cdelta, energies(3))      
+     1  cdelta, energy0)
+       energies(3) = energies(3) + energy0
 c      WRITE(ERROR_UNIT,*) "Moderest energy", energy0
        	
        ii = jb
