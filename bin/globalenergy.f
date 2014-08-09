@@ -53,7 +53,7 @@ c      Handle variables: full coordinates and modes
        dimension eig(3*maxatom,maxmode,maxlig)
        dimension index_eig(maxlenindexmode,maxindexmode,maxlig)
        dimension index_val(maxlenindexmode,maxindexmode,maxlig)
-       dimension val(maxlig,maxmode)
+       dimension val(maxmode,maxlig)
        dimension ieins(maxlig),nhm(maxlig), nihm(maxlig)
        dimension pivot(maxlig,3)
        dimension ff(maxlig)
@@ -220,10 +220,6 @@ c      rotate forces into ligand frame
        endif
        call moderest(maxdof,maxmode,dlig(:,i),nhm(i),val(:,i),
      1  cdelta, energies(3))      
-
-      call moderest(maxdof,maxmode,dlig(:,i),nhm(i),val(i,:),
-     1  cdelta, energy0)
-       energies(4) = energies(4) + energy0
 c      WRITE(ERROR_UNIT,*) "Moderest energy", energy0
        	
        ii = jb
