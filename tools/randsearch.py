@@ -12,6 +12,8 @@ In case of 1 or >2 bodies:
 """
 from __future__ import print_function
 
+radius = 35
+
 import sys
 try:
   import psyco
@@ -34,7 +36,14 @@ try:
   fix_receptor = True
 except ValueError:
   pass  
-  
+
+try:
+  i = sys.argv.index("--radius")
+  radius = float(sys.argv.pop(i+1))
+  sys.argv.pop(i)
+except ValueError:
+  pass
+
 try:
   assert len(sys.argv) in (3, 4)
   bodies = int(sys.argv[1])
@@ -51,7 +60,7 @@ import random
 if seed != -1:
   random.seed(seed)
 
-rsq = 35 * 35
+rsq = radius * radius
 from math import *
 
 def adjust(x,y,z):

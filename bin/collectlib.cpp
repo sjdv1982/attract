@@ -126,7 +126,14 @@ int morphing[MAXLIG];
 coors2 locrests;
 int has_locrests[MAXLIG];
 
+bool initialized=0;
+
 extern "C" void collect_init(int argc00, char *argv00[]) {
+  if (initialized) {
+    fprintf(stderr, "ERROR: Cannot re-initialize collectlib\n");
+    exit(1);
+  } 
+  initialized=1;
   memset(morphing,0,MAXLIG*sizeof(int));
 
   int i;
@@ -356,4 +363,60 @@ extern "C" int collect_next() {
   }
   */
   return 0;
+}
+
+extern "C" void collect_iattract(int argc00, char *argv00[]){
+  argc = argc00;
+  argv = new char *[argc];
+  for (int n = 1; n < argc; n++) {
+    argv[n] = new char[strlen(argv00[n])+1];
+    strcpy(argv[n], argv00[n]);
+  }
+  char *modefile = NULL;
+  for (int n = 1; n < argc-1; n++) {
+    if (!strcmp(argv[n],"--modes")) {
+      modefile = argv[n+1];
+      char **argv2 = new char *[argc-1];
+      if (n > 0) memcpy(argv2, argv,n*sizeof(char*));
+      if (n+2 < argc) memcpy(argv2+n,argv+n+2,(argc-n-2)*sizeof(char*));
+      argv = argv2;
+      argc -= 2;
+      break;
+    }
+  }
+  char *indexmodefile = NULL;
+  for (int n = 1; n < argc-1; n++) {
+    if (!strcmp(argv[n],"--imodes")) {
+      indexmodefile = argv[n+1];
+      char **argv2 = new char *[argc-1];
+      if (n > 0) memcpy(argv2, argv,n*sizeof(char*));
+      if (n+2 < argc) memcpy(argv2+n,argv+n+2,(argc-n-2)*sizeof(char*));
+      argv = argv2;
+      argc -= 2;
+      break;
+    }
+  }
+
+
+  CartState &cs = cartstate_get(cartstatehandle);
+  if (modefile != NULL) {
+    const int multi = 1;
+    read_hm_(modefile,"ligand",cs.nlig, cs.natom, cs.nhm, cs.val, (double *) cs.eig, multi, strlen(modefile), strlen("ligand"));
+  }
+  if (indexmodefile != NULL) {
+	  const int multi = 1;
+	  read_indexmode_(indexmodefile,"ligand",cs.nlig, cs.nihm, (int *) cs.index_eig, (double *) cs.index_val, multi, strlen(indexmodefile), strlen("ligand"));
+  }  
+    //retrieve the parameters needed to read the DOFs
+  cartstate_get_nlig_nhm_(cartstatehandle, nlig,nhm, nihm);
+  nrdof = 6 * nlig;
+  for (int n = 0; n < nlig; n++) {
+	  nrdof += nhm[n];
+	  nrdof += nihm[n];
+  }
+  if (nrdof > MAXDOF) {
+    fprintf(stderr, "Too many DOFs: %d, MAXDOF=%d\n",nrdof, MAXDOF); 
+    exit(1);
+  }
+
 }

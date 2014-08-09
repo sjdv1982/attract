@@ -37,7 +37,7 @@ header = """<!DOCTYPE html>
                 <li id="view-page3"><a id="nav-block-iterations" class="iteration-icon">Iteration</a></li>
                 <li id="view-page4"><a id="nav-block-sampling" class="sampling-icon">Sampling</a></li>
                 <li id="view-page5"><a id="nav-block-energy" class="energy-icon">Energy and Interaction</a></li>
-                <li id="view-page6"><a id="nav-block-cryoem" class="cryo-icon">Cryo-em</a></li>
+                <li id="view-page6"><a id="nav-block-atomdensitygrid" class="cryo-icon">Atom density grids</a></li>
                 <li id="view-page7"><a id="nav-block-symmetry" class="symmetry-icon">Symmetry</a></li>
                 <li id="view-page8"><a id="nav-block-analysis" class="analysis-icon">Analysis</a></li>
                 <li id="view-page9"><a id="nav-block-computation" class="computation-icon">Computation</a></li>
@@ -112,11 +112,11 @@ def webform(f, model=None,
     if symmetrieslength is None: symmetrieslength = 1
   import copy
   f = copy.deepcopy(f)
+  f.arraymarker = "_clonearraymarker"
+  f.resourcefilevar = "_tempresource"
   
   f.partners.length = partnerslength
   
-  f.runname.type = None
-
   ### START partners category
   c = f.new_group("c_partners", "category")
   c.page = 1
@@ -250,7 +250,7 @@ def webform(f, model=None,
   c.members.append("grids")
   f.grids.length = gridslength
   f.grids.clonebutton = "Add grid"
-  f.grids.clonelength = 5
+  f.grids.clonelength = 10
   f.grids.controltitle = "Grid"
   f.grids.group = None
   fg = f.grids[0]
@@ -263,12 +263,14 @@ def webform(f, model=None,
   b.members.append("neighbour_distance")
   b.members.append("omp")
   b.members.append("torque")
-  b.members.append("mask_interior")
   b.members.append("calc_potentials")
   ff = fg.gridname
   ff.placeholder = "name..."
-  ff = fg.gridfile
-  ff.type = "text"
+  for n in range(f.grids.length):
+    ff = f.grids[n]
+    ff.gridfile.type = "text"
+  f.grids[None].gridfile.type = "text"  
+  ff = fg.gridfile  
   ff.name = "Path to grid file if previously generated"
   ff = fg.omp
   ff.name = "Calculate grid using OpenMP?"
@@ -285,7 +287,6 @@ def webform(f, model=None,
   c.icon = "iteration-icon"
   c.categoryname = "iterations"
   c.description = ""
-  c.members.append("b_iterations")
   c.members.append("iterations")
   f.nr_iterations.type = None #hide explicit nr_iterations parameter
   f.nr_iterations.group = None
@@ -295,32 +296,8 @@ def webform(f, model=None,
   f.iterations.clonelength = 5
   f.iterations.controltitle = "Iteration"
 
-  b = f.new_group("b_iterations", "block")
-  b.blockname = "iterations-zoom-in"
-  b.controltitle = "Zoom-in protocol"
-  b.members.append("zoom")
-  b.members.append("zoom_select")
-  b.members.append("zoom_clone")
-  b.members.append("zoom_ori")
-  b.members.append("zoom_trans")
-  b.members.append("zoom_it_initial")
-  b.members.append("zoom_it_subsequent")
-  for m in b.members:
-    ff = getattr(f, m)
-    ff.group = None
-  ff = f.zoom
-  ff.name = "Use zoom-in protocol: ignores the parameters for the individual iterations"
-  ff.span = True
-  ff = f.zoom_select
-  ff.name = "number of structures to select after each iteration"
-  ff = f.zoom_clone
-  ff.name = "Cloning factor"
-  ff = f.zoom_ori
-  ff.name = "Rotational displacement (radians)"
-  ff = f.zoom_trans
-  ff.name = "Translation displacement (angstroms)"
-
-  for fi in (f.zoom_it_initial, f.zoom_it_subsequent) + tuple([f.iterations[i] for i in range(f.iterations.length)]):
+  for fi in [f.iterations[i] for i in range(f.iterations.length)]:
+    fi.name = None
     fi.group = None
     ff = fi.rcut
     ff.name = ff.get_header()[0]
@@ -360,24 +337,30 @@ def webform(f, model=None,
   c.title = "Energy and Interaction"
   c.categoryname = "energy"
   c.description = ""
+  f.atomdensitygrids.group = None
   _assign_category(f, c, "Energy and interaction parameters", span = True)
   f.gravity.default = 0
   ff = f.rstk
   f.forcefield.name = f.forcefield.get_header()[0]
   f.ghost.name = "Enable ghost mode, forcefield is turned off"
   ff = f.epsilon
-  ff.name = ff.get_header()[0]
+  ff.name = ff.get_header()[0]  
   ### END energy category  
-
-  ### START cryoEM category
-  c = f.new_group("c_cryoem", "category")
+  
+  ### START atomdensitygrid category
+  c = f.new_group("c_atomdensitygrid", "category")
   c.page = 6
-  c.icon = "cryo-icon"
-  c.title = "Cryo-EM"
-  c.categoryname = "cryoem"
-  c.description = ""
-  _assign_category(f, c, "Cryo-EM data", span = True)
-  ### END cryoEM category  
+  c.title = "Atom density grids"
+  c.icon = "cryo-icon"  
+  c.categoryname = "atomdensitygrids"
+  c.description = ""  
+  c.members.append("atomdensitygrids")
+  ff = f.atomdensitygrids  
+  ff.clonebutton = "Add atom density grid"
+  ff.length = 1
+  ff.clonelength = 3
+  ff.blockname = "atomdensitygrid"
+  ff.controltitle = "Atom density grid"  
 
   ### START symmetry category
   c = f.new_group("c_symmetry", "category")
@@ -426,7 +409,7 @@ def webform(f, model=None,
 
   ### START analysis category
   c = f.new_group("c_analysis", "category")
-  c.page = 8
+  c.page = 7
   c.icon = "analysis-icon"
   c.title = "Analysis"
   c.categoryname = "analysis"
@@ -450,12 +433,12 @@ def webform(f, model=None,
   c.description = ""
   f.header.rows = 25
   _assign_category(f, c, "Computing and parallelization parameters", span = True)
+  c.members.insert(0, "runname")
   ### END computation category
 
   return f
 
 import os
-import spyder.htmlform
 
 def webserverform(webdict, form=None, spydertype=None):
   if spydertype is not None: form = spydertype._form()
@@ -488,13 +471,13 @@ def html(form, cgi, spyderobj, newtab=False, header=header0, footer=footer0):
   if spyderobj is not None:
     from spyder.formtools import embed
     embed(spyderobj)
-    mydir = "run" + str(random.randint(1,1000000))  
+    mydir = "attractrun" + str(random.randint(1,1000000))  
     fname = "attract.web"
     os.chdir("/tmp/")
     os.mkdir(mydir)
     os.chdir(mydir)
-    spyderobj.tofile(fname)    
-    args["hidden"] = {"_tmpresource":mydir+"/"+fname}
+    spyderobj.tofile(fname)
+    args["resourcefilename"] = mydir+"/"+fname
   html = attracthtmlform.htmlform(**args)
   return html
   

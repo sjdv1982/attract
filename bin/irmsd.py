@@ -85,16 +85,16 @@ def get_interface(boundatoms):
   ret = [(v[0],v[1]) for v in ret]
   return ret
   
-def get_selection(boundatoms):
+def get_selection(boundatoms, use_allresidues, use_allatoms):
   
   allatoms = []
   for b in boundatoms: allatoms += b[1]
-  if not opt_allresidues:
+  if not use_allresidues:
     selatoms = get_interface(boundatoms)
   else:
-    selatoms = [(n+1,a[1]) for n,a in enumerate(allatoms)]
+    selatoms = [(n+1,a) for n,a in enumerate(allatoms)]
       
-  if not opt_allatoms:
+  if not use_allatoms:
     selatoms = [(n,a) for n,a in selatoms if a[13:15] in ("CA","C ","O ","N ")]
   selected = set([n for n,a in selatoms])
 
@@ -147,63 +147,6 @@ def irmsd(atoms1, atoms2):
   RMSD = numpy.sqrt(abs(RMSD / L))
   return RMSD
 
-ensfiles = []
-modefile = None
-imodefile = None
-opt_allatoms = False
-opt_allresidues = False
-
-anr = 0
-output = None
-while 1:
-  anr += 1
-      
-  if anr > len(sys.argv)-1: break  
-  arg = sys.argv[anr]
-
-  if arg == "--allatoms": 
-    sys.argv = sys.argv[:anr] + sys.argv[anr+1:]
-    opt_allatoms = True
-    anr -= 1
-    continue
-  
-  if arg == "--allresidues": 
-    sys.argv = sys.argv[:anr] + sys.argv[anr+1:]
-    opt_allresidues = True
-    anr -= 1
-    continue  
-  
-  if anr <= len(sys.argv)-3 and arg == "--ens":
-    ensfiles.append((sys.argv[anr+1],sys.argv[anr+2]))
-    sys.argv = sys.argv[:anr] + sys.argv[anr+3:]
-    anr -= 3
-    continue
-
-  if anr <= len(sys.argv)-2 and arg == "--modes":
-    modefile = sys.argv[anr+1]
-    sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
-    anr -= 2
-    continue
-  
-  if anr <= len(sys.argv)-2 and arg == "--imodes":
-    imodefile = sys.argv[anr+1]
-    sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
-    anr -= 2
-    continue
-  
-  if anr <= len(sys.argv)-2 and arg == "--output":
-    output = sys.argv[anr+1]
-    sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
-    anr -= 2
-    continue
-  if arg.startswith("--"): raise Exception("Unknown option '%s'" % arg)
-    
-
-if len(sys.argv) < 4 or len(sys.argv) % 2:
-  raise Exception("Please supply an even number of PDB files (unbound, bound)")
-
-unbounds = []
-bounds = []
 
 def read_pdb(f):
   ret1 = []
@@ -215,53 +158,135 @@ def read_pdb(f):
     ret2.append(l)
   return ret1, ret2
   
-for n in range(2, len(sys.argv), 2):
-  unbounds.append(sys.argv[n])
-  bounds.append(sys.argv[n+1])
+if __name__ == "__main__":  
+  import os
+  ensfiles = []
+  modefile = None
+  imodefile = None
+  name = None
+  opt_allatoms = False
+  opt_allresidues = False
 
-if len(bounds) == 1 and opt_allresidues == False:
-  raise Exception("Cannot determine the interface for a single PDB")
+  anr = 0
+  output = None
+  while 1:
+    anr += 1
+        
+    if anr > len(sys.argv)-1: break  
+    arg = sys.argv[anr]
 
-initargs = [sys.argv[1]] + unbounds
-if modefile: initargs += ["--modes", modefile]
-if imodefile: initargs += ["--imodes", imodefile]
-for nr, ensfile in ensfiles:
-  initargs += ["--ens", nr, ensfile]
+    if arg == "--allatoms": 
+      sys.argv = sys.argv[:anr] + sys.argv[anr+1:]
+      opt_allatoms = True
+      anr -= 1
+      continue
+    
+    if arg == "--allresidues": 
+      sys.argv = sys.argv[:anr] + sys.argv[anr+1:]
+      opt_allresidues = True
+      anr -= 1
+      continue  
+    
+    if anr <= len(sys.argv)-3 and arg == "--ens":
+      ensfiles.append((sys.argv[anr+1],sys.argv[anr+2]))
+      sys.argv = sys.argv[:anr] + sys.argv[anr+3:]
+      anr -= 3
+      continue
 
-collectlib.collect_init(initargs)
+    if anr <= len(sys.argv)-2 and arg == "--modes":
+      modefile = sys.argv[anr+1]
+      sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
+      anr -= 2
+      continue
+    
+    if anr <= len(sys.argv)-2 and arg == "--imodes":
+      imodefile = sys.argv[anr+1]
+      sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
+      anr -= 2
+      continue
 
-boundatoms = []
-for b in bounds:
-  boundatoms.append(read_pdb(b))
+# Suppport for direct IRMSD with iATTRACT files
+    if anr <= len(sys.argv)-2 and arg == "--name":
+      name = sys.argv[anr+1]
+      sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
+      anr -= 2
+      continue
+    
+    if anr <= len(sys.argv)-2 and arg == "--thresh":
+      thresh = float(sys.argv[anr+1])
+      threshsq = thresh*thresh
+      sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
+      anr -= 2
+      continue 
+  
+    if anr <= len(sys.argv)-2 and arg == "--output":
+      output = sys.argv[anr+1]
+      sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
+      anr -= 2
+      continue
+    if arg.startswith("--"): raise Exception("Unknown option '%s'" % arg)
+      
 
-boundsizes = [len(b[1]) for b in boundatoms]
-unboundsizes = []
-start = 0
-for i in collectlib.ieins[:len(unbounds)]:
-  unboundsizes.append(i-start)
-  start = i
+  if len(sys.argv) < 4 or len(sys.argv) % 2:
+    raise Exception("Please supply an even number of PDB files (unbound, bound)")
 
-for bname, ubname, bsize, ubsize in zip(bounds,unbounds,boundsizes,unboundsizes):
-  if bsize != ubsize:
-    raise Exception("Different atom numbers: %s: %d, %s: %d" % (ubname, ubsize, bname, bsize))
+  unbounds = []
+  bounds = []
 
-allboundatoms = []
-for b in boundatoms: allboundatoms += b[0]
-sel = get_selection(boundatoms)
-allboundatoms = numpy.array(allboundatoms)
-fboundatoms = allboundatoms[sel]
+  
+  for n in range(2, len(sys.argv), 2):
+    unbounds.append(sys.argv[n])
+    bounds.append(sys.argv[n+1])
 
-nstruc = 0
-f1 = sys.stdout
-if output is not None:
-  f1 = open(output,'w')
-while 1:
-  sys.stdout.flush()
-  result = collectlib.collect_next()
-  if result: break
-  nstruc += 1
-  coor = collectlib.collect_all_coor()
-  coor = numpy.array(coor)
-  fcoor = coor[sel]
-  f1.write(str(nstruc)+" %.3f\n" % irmsd(fboundatoms,fcoor))
-  #for co in coor: print co[0], co[-1]
+  if len(bounds) == 1 and opt_allresidues == False:
+    raise Exception("Cannot determine the interface for a single PDB")
+
+  initargs = [sys.argv[1]] + unbounds
+  if modefile: initargs += ["--modes", modefile]
+  if imodefile: initargs += ["--imodes", imodefile]
+  for nr, ensfile in ensfiles:
+    initargs += ["--ens", nr, ensfile]
+
+  collectlib.collect_init(initargs)
+
+  boundatoms = []
+  for b in bounds:
+    boundatoms.append(read_pdb(b))
+
+  boundsizes = [len(b[1]) for b in boundatoms]
+  unboundsizes = []
+  start = 0
+  for i in collectlib.ieins[:len(unbounds)]:
+    unboundsizes.append(i-start)
+    start = i
+
+  for bname, ubname, bsize, ubsize in zip(bounds,unbounds,boundsizes,unboundsizes):
+    if bsize != ubsize:
+      raise Exception("Different atom numbers: %s: %d, %s: %d" % (ubname, ubsize, bname, bsize))
+
+  allboundatoms = []
+  for b in boundatoms: allboundatoms += b[0]
+  sel = get_selection(boundatoms, opt_allresidues, opt_allatoms)
+  allboundatoms = numpy.array(allboundatoms)
+  fboundatoms = allboundatoms[sel]
+
+  nstruc = 0
+  f1 = sys.stdout
+  if output is not None:
+    f1 = open(output,'w')
+  while 1:
+    sys.stdout.flush()
+    if name is not None: 
+      newargs = initargs + ['--imodes','flexm-'+str(nstruc+1)+name+'.dat']
+      if not os.path.exists('flexm-'+str(nstruc+1)+name+'.dat'):
+	break
+      collectlib.collect_iattract(newargs)
+     
+    result = collectlib.collect_next()
+    if result: break
+    nstruc += 1    
+    coor = collectlib.collect_all_coor()
+    coor = numpy.array(coor)
+    fcoor = coor[sel]
+    f1.write(str(nstruc)+" %.3f\n" % irmsd(fboundatoms,fcoor))
+    #for co in coor: print co[0], co[-1]

@@ -49,13 +49,13 @@ struct CartState {
 
   /* modes */
   int nhm[MAXLIG];          //number of modes per ligand
-  double val[MAXMODE][MAXLIG];  //force constant per mode
-  double eig[3*MAXATOM][MAXMODE][MAXLIG];  //modes
+  double val[MAXLIG][MAXMODE];  //force constant per mode
+  double eig[MAXLIG][MAXMODE][3*MAXATOM];  //modes
 
   /* index modes */
   int nihm[MAXLIG];        //number of index modes per ligand
-  int index_eig[MAXLENINDEXMODE][MAXINDEXMODE][MAXLIG]; //index modes: position of nonzero mode entries
-  double index_val[MAXLENINDEXMODE][MAXINDEXMODE][MAXLIG]; //index modes: values of nonzero mode entries
+  int index_eig[MAXLIG][MAXINDEXMODE][MAXLENINDEXMODE]; //index modes: position of nonzero mode entries
+  double index_val[MAXLIG][MAXINDEXMODE][MAXLENINDEXMODE]; //index modes: values of nonzero mode entries
 
   /* copies */
   int ncop[TOTMAXRES][21][11];
@@ -164,10 +164,7 @@ struct MiniState {
   int fixre; //fix receptor
   double rcut;  //square of distance cutoff
   Restraint *restraints;
-  int nr_restraints;
-  int gridmode; //1 = two evaluations per pair, 2 = one evaluation per pair
-  double proxlim, proxmax; //vdW approximation thresholds for grids
-  int proxmaxtype; //number of types for which the approximation is made
+  int nr_restraints;  
   int has_globalenergy; //1 = the energy has a global component, globalenergy must be called
   int gravity; //gravity modes: 0 = off, 1 = to global origin, 2 = to receptor origin, 3 = to all other centers;
   double rstk; //gravity force constant
@@ -184,7 +181,7 @@ typedef int (&copyarr)[TOTMAXRES];
 typedef int (&limitarr)[MAXLIG];
 
 
-extern "C" void read_hm_(const char *hmfile_, const char *hmword_, const int &nlig, const int *natom, int *nhm, double (&vall)[MAXMODE][MAXLIG], double *eigl, const int &multi, int hmfile_len, int hmword_len);
+extern "C" void read_hm_(const char *hmfile_, const char *hmword_, const int &nlig, const int *natom, int *nhm, double (&vall)[MAXLIG][MAXMODE], double *eigl, const int &multi, int hmfile_len, int hmword_len);
 
 extern "C" void read_indexmode_(const char *hmfile_, const char *hmword_, const int &nlig, int *nhm, int *eigl, double *eigl_val, const int &multi, int hmfile_len, int hmword_len);
 

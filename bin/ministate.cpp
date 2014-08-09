@@ -35,14 +35,9 @@ extern "C" int ministate_new_() {
   ms.irst = 0; 
   ms.fixre = 0; 
   ms.rcut = 1500;
-  //ms.proxlim = 36;
-  ms.proxlim = 0;
-  ms.proxmax = 200;
-  ms.proxmaxtype = 31;
   ms.nr_restraints = 0;   
   ms.has_globalenergy = 0;
   ms.gravity = 0;
-  //ms.rstk = 0.015; //for second order restraints...; too much?
   ms.rstk = 0.2; //for harmonic restraints...
   ms.ghost = 0;
   ms.ghost_ligands = 0;
@@ -65,29 +60,29 @@ extern "C" void ministate_iscore_imc_(const int &handle, int &iscore, int &imc) 
   imc = ms.imc;
 }
 
-extern "C" void ministate_f_minfor_(const int &handle, int &iscore, int &ivmax, int &iori, int &itra, int &ieig, int &iindex, int &fixre, int &gridmode) {
+extern "C" void ministate_f_minfor_(const int &handle, int &iscore, int &ivmax, int &iori, int &itra, int &ieig, int &iindex, int &fixre) {
   MiniState &ms = *ministates[handle];
   iscore=ms.iscore; ivmax = ms.ivmax;iori = ms.iori;itra = ms.itra;ieig = ms.ieig;iindex = ms.iindex;
-  fixre = ms.fixre; gridmode = ms.gridmode;
+  fixre = ms.fixre;
 }
 
-extern "C" void ministate_f_minfor_min_(const int &handle, int &iscore, int &ivmax, int &iori, int &itra, int &ieig, int &iindex, int &fixre, int &gridmode) {
+extern "C" void ministate_f_minfor_min_(const int &handle, int &iscore, int &ivmax, int &iori, int &itra, int &ieig, int &iindex, int &fixre) {
   MiniState &ms = *ministates[handle];
   iscore=ms.iscore; ivmax = ms.ivmax;iori = ms.iori;itra = ms.itra;ieig = ms.ieig;iindex = ms.iindex;
-  fixre = ms.fixre; gridmode = ms.gridmode;
+  fixre = ms.fixre;
 }
 
-extern "C" void ministate_f_monte_(const int &handle, int &iscore, int &imcmax, int &iori, int &itra, int &ieig, int &iindex, int &fixre, int &gridmode, double &mctemp, double &mcscalerot, double &mcscalecenter, double &mcscalemode, double &mcensprob) {
+extern "C" void ministate_f_monte_(const int &handle, int &iscore, int &imcmax, int &iori, int &itra, int &ieig, int &iindex, int &fixre, double &mctemp, double &mcscalerot, double &mcscalecenter, double &mcscalemode, double &mcensprob) {
   MiniState &ms = *ministates[handle];
   iscore=ms.iscore; imcmax = ms.imcmax;iori = ms.iori;itra = ms.itra;ieig = ms.ieig; iindex=ms.iindex;
-  fixre = ms.fixre; gridmode = ms.gridmode; 
+  fixre = ms.fixre;
   mctemp = ms.mctemp; mcscalerot = ms.mcscalerot; mcscalecenter = ms.mcscalecenter; mcscalemode = ms.mcscalemode; mcensprob = ms.mcensprob;
 }
 
-extern "C" void ministate_f_monte_min_(const int &handle, int &iscore, int &imcmax, int &iori, int &itra, int &ieig, int &iindex, int &fixre, int &gridmode, double &mctemp, double &mcmtemp, double &mcscalerot, double &mcscalecenter, double &mcscalemode, double &mcensprob) {
+extern "C" void ministate_f_monte_min_(const int &handle, int &iscore, int &imcmax, int &iori, int &itra, int &ieig, int &iindex, int &fixre,  double &mctemp, double &mcmtemp, double &mcscalerot, double &mcscalecenter, double &mcscalemode, double &mcensprob) {
   MiniState &ms = *ministates[handle];
   iscore=ms.iscore; imcmax = ms.imcmax;iori = ms.iori;itra = ms.itra;ieig = ms.ieig; iindex=ms.iindex;
-  fixre = ms.fixre; gridmode = ms.gridmode;
+  fixre = ms.fixre; 
   mctemp = ms.mctemp; mcmtemp = ms.mcmtemp; mcscalerot = ms.mcscalerot; mcscalecenter = ms.mcscalecenter; mcscalemode = ms.mcscalemode; mcensprob = ms.mcensprob;
 }
 
@@ -129,43 +124,68 @@ extern "C" void ministate_calc_pairlist_(const int &ministatehandle, const int  
   /*
    * For every partner-partner interaction, we have to create one or two molpairs
    * The second molpair is only to get the forces on the "receptor" (= the first molecule)
-   * Secondary molpairs are only ever created for standard grids (gridmode == 1)
+   * Secondary molpairs are only ever created for standard grids 
    *  if we are not using grids (or if we are using torque grids), the receptor forces are already taken care of
    *  if we are using Monte Carlo, we don't care about forces and we never create a secondary molpair
+   *  TODO: adapt this logic for imodes!
    */
-  if ((!ms.fixre) && ms.ghost_ligands) {
-    fprintf(stderr, "With ghost ligands, you must fix the receptor");
-    exit(1);
-  }  
+  
+  bool use_grids = 0;
   for (int i = 0; i < cartstate.nlig; i++) {
+    if (cartstate.grids[i]) {
+      use_grids = 1;
+      break;
+    }
+  }
+  
+  for (int i = 0; i < cartstate.nlig; i++) {
+    if (ms.ghost_ligands && i > 0) continue; //in ghost-ligand mode, skip the molpair if the first one isn't the receptor
     for (int j = i+1; j < cartstate.nlig; j++) {
-      bool two_molpairs = 0;
+      int two_molpairs = 0;            
       
-      if (ms.gridmode == 1 && ms.imc == 0) { /*use normal grids, no Monte Carlo*/
-	two_molpairs = 1;
-        if (ms.fixre) {
-          if (i == 0 && (cartstate.nhm[i] == 0 || !ms.ieig) ) {
-            two_molpairs = 0;
-          }
+      if (use_grids && !ms.imc) { /*we use grids, no Monte Carlo*/
+        
+        if (ms.fixre && i == 0 && (cartstate.nhm[i] == 0 || !ms.ieig) ) {
+          //fixed receptor and no modes on the receptor: 
+          //  => we don't care about receptor forces, so we don't need a ligand grid
+          two_molpairs = 0; 
+        }  
+        else if (ms.ieig && cartstate.nhm[i] && cartstate.nhm[j]) {
+          //modes on both receptor and ligand
+          // => we always need two molpairs, even with torque grids
+          two_molpairs = 1;
+        }      
+        else {
+          //default: we need 2 grids for 2 molpairs, or 1 torquegrid for 1 molpair
+          two_molpairs = 2; 
         }
-      }
-      else if (ms.gridmode == 2 || (ms.gridmode == 1 && ms.imc) ) { /*use torque grids OR Monte Carlo (we don't care about forces)*/
-	two_molpairs = 0;
-	/* If you use torque grids, then any partner with modes must be matched by a grid on the other partner */
-	if (!ms.imc && ms.ieig && cartstate.nhm[i] && cartstate.nhm[j]) two_molpairs = 1;
-      }
-      else { /*use no grids at all*/
-	two_molpairs = 0;
       }
       
       int m1 = i, m2 = j;      
       int error = 0;
-      if (ms.gridmode) {
+      if (use_grids) {
 	
-	if (two_molpairs){
+	if (two_molpairs == 1) { //we need two grids
 	  if (cartstate.grids[i] == NULL || cartstate.grids[j] == NULL) error = 1;
 	}
-	else {
+	else if (two_molpairs == 2) { // we need a EITHER a torque grid with no modes on the molecule OR two grids
+          error = 1;
+          if (cartstate.grids[i] != NULL && cartstate.grids[i]->torquegrid && (!ms.ieig  || cartstate.nhm[i] == 0) ) {
+            error = 0;            
+            two_molpairs = 0;
+          }
+          else if (cartstate.grids[j] != NULL && cartstate.grids[j]->torquegrid && (!ms.ieig  || cartstate.nhm[j] == 0) ) {
+            m1 = j;
+            m2 = i;
+            error = 0;      
+            two_molpairs = 0;
+          }          
+          else if (cartstate.grids[i] != NULL && cartstate.grids[j] != NULL) {            
+            error = 0;
+            two_molpairs = 1;
+          }
+        }
+	else { //two_molpairs == 0, we need just one grid
 	  error = 1;
 	  if (cartstate.grids[i] != NULL && (ms.imc || !ms.ieig  || cartstate.nhm[i] == 0) ) { 	    
 	    error = 0;
@@ -175,31 +195,34 @@ extern "C" void ministate_calc_pairlist_(const int &ministatehandle, const int  
 	    m2 = i;
 	    error = 0;	    
 	  }
-	  if (cartstate.nhm[m1]) error = 2;
 	}  	
       }
-      if (ms.ghost_ligands && m1 > 0) continue; //in ghost-ligand mode, skip the molpair if the first one isn't the receptor
+
+      if (error == 1) {
+        if (cartstate.grids[i] != NULL && ms.ieig && cartstate.nhm[i]) error = 2;
+        if (cartstate.grids[j] != NULL && ms.ieig && cartstate.nhm[j]) error = 2;
+      }  
 	
       if (error == 1) {
-        printf("ERROR: using a single grid is not possible! Please recheck your input (maybe you are using modes?)\n");
+        printf("ERROR: using a single grid is not possible! Please re-check your input (maybe you are using modes, or did you forget to fix the receptor?)\n");
         exit(1);
       }
       else if (error == 2){
-        printf("ERROR: when using modes on a ligand the grid for the other ligand has to be supplied!\n");
+        printf("ERROR: when using modes on a molecule, a grid for each other molecule has to be supplied!\n");
 	exit(1); 
       }
             
-      //printf("PAIR %d %d %d %d %d %d\n", i,j, is_grid, ms.gridmode, cartstate.grids[i],cartstate.grids[j]);          
       MolPair &mp = ms.pairs[molpairindex];
       mp.use_energy = 1;
       mp.receptor = m1;
       mp.ligand = m2;      
-      if (ms.gridmode) {
+      if (use_grids) {
         mp.grid = cartstate.grids[m1];
       }
       else {
          mp.pairgen_done = 0;
       }
+      //fprintf(stderr, "MOLPAIR %d LIGANDS %d %d\n", molpairindex+1, m1+1, m2+1);
       molpairindex++;
       
       if (two_molpairs) { 
@@ -208,6 +231,7 @@ extern "C" void ministate_calc_pairlist_(const int &ministatehandle, const int  
 	mp.receptor = m2;
 	mp.ligand = m1;      
         mp.grid = cartstate.grids[m2];
+        //fprintf(stderr, "MOLPAIR %d LIGANDS %d %d\n", molpairindex+1, m2+1, m1+1);
 	molpairindex++;	
       }
     }
@@ -254,7 +278,7 @@ extern "C" void ministate_get_molpairhandle_(const int &ministatehandle,
 
 extern "C" void molpair_get_rl_(
  const int &molpairhandle,
- int &receptor,int &ligand,Grid *&gridptr, int &use_energy
+ int &receptor,int &ligand,Grid *&gridptr, int &torquegrid, int &use_energy
 ) {
   int ministatehandle = int(molpairhandle/MAXMOLPAIR); //rounds down...
   MiniState &ms = *ministates[ministatehandle];
@@ -262,6 +286,8 @@ extern "C" void molpair_get_rl_(
   receptor = mp.receptor;
   ligand = mp.ligand;
   gridptr = mp.grid;
+  torquegrid = 0;
+  if (mp.grid) torquegrid = mp.grid->torquegrid;
   use_energy = mp.use_energy;
 }
 

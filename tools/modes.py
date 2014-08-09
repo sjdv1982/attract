@@ -30,6 +30,9 @@ def read_pdb(f):
 
   
 coor, res, atom = read_pdb(sys.argv[1])  
+nrmodes = 20
+if len(sys.argv) == 3:
+  nrmodes = int(sys.argv[2])
 
 ca = []
 for ccoor, catom in zip(coor, atom):
@@ -62,14 +65,14 @@ ind = numpy.argsort(s)[::-1]
 U = U[:, ind]
 s = s[ind]
 V = V[:, ind]
-for i in range(20):  
+for i in range(nrmodes):  
   n = asize-7-i
   vec = [-float(x) for x in V[n]]
-  print i+1, float(s[n])
+  print " ", i+1, float(s[n])
   for resindex in res:
     pos = 3 * (resindex - 1)
     for n in range(3):
       print vec[pos+n],
-    print  
-      
+    print
+    
   print

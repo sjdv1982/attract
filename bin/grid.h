@@ -2,7 +2,6 @@
 #define GRID_H /* to make sure that we include only once... */
 
 #include  "max.h"
-#include  "prox.h"
 #include  <cstdio>
 
 // Check GCC
@@ -19,12 +18,15 @@
 typedef double Coor[3]; /*Coor is double[3]*/
 typedef float Coorf[3]; /*Coorf is float[3]*/
 
-struct EnerGrad {
+struct EnerGradStd {
   float energy;
   Coorf grad;
-#ifdef TORQUEGRID  
+};
+
+struct EnerGradTorque {
+  float energy;
+  Coorf grad;
   float torques[9];
-#endif  
 };
 
 typedef unsigned int Potential[MAXATOMTYPES+1]; 
@@ -32,7 +34,7 @@ typedef unsigned int Potential[MAXATOMTYPES+1];
  99 for the atom types, the last one is for elec*/
 
 struct Neighbour {
-  char type; /*1 = under 5 A, 2 = 5-7 A*/
+  char type; /*1 = under plateaudis, 2 = between plateaudis and neighbourdis*/
   unsigned int index; /*receptor atom index*/
 };
 
@@ -43,6 +45,7 @@ struct Voxel {
 };
 
 struct Grid {
+  bool torquegrid; //are we a torque grid?
   unsigned short architecture; //32 or 64 bits
   double gridspacing; /* 0.9 A */
   int gridextension; /* 32; always make this number even!*/
@@ -51,11 +54,7 @@ struct Grid {
   double plateaudissqinv;
   double neighbourdis; 
   double neighbourdissq;
-  double proxlim, proxmax;
-  int proxmaxtype;
   int natoms;
-  int nhm;
-  double *modedofs;
   bool alphabet[MAXATOMTYPES];
   int alphabetsize; //the number of non-zero elements in alphabet
 
@@ -70,16 +69,20 @@ struct Grid {
   /* dimensions of the big grid*/
     
   int nr_energrads;
-  /*contains all EnerGrads, for both biggrid and innergrid */  
+  /*contains all EnerGrads (either std or torque), for both biggrid and innergrid */  
   int shm_energrads; /*shared memory segment key: -1 by default*/
-  EnerGrad *energrads; 
-
+  
+  //Defined is either this: 
+  EnerGradStd *energrads_std; 
+  //or this:
+  EnerGradTorque *energrads_torque; 
+  //or neither (if we calculate no potentials)
+  
   int nr_neighbours;
   /* contains all Neighbours of the innergrid */
   int shm_neighbours; /*shared memory segment key: -1 by default*/
   Neighbour *neighbours;
-  
-  
+    
   Potential *biggrid; 
   /* The outer grid (double grid spacing)
     It extends (gridextension*gridspacing = 32*0.9 A = 29 A)
@@ -93,10 +96,7 @@ struct Grid {
   Voxel *innergrid;    
   /* The inner grid (single gridspacing)
      It covers a box around the protein and distcutoff (10.8 A) beyond it
-     
-     Voxels computed to be deep in the interior of the protein are empty
-    (NULL potential, zero number of neighbours)
-  
+       
      A Voxel contains a Potential (list of pointers-to-EnerGrid), 
      pointer-to-Neighbour and number of Neighbours
     
@@ -104,13 +104,12 @@ struct Grid {
        they point to locations in Grid.potentials and Grid.neighbours           
   */			    
 
-  Prox *prox;
-
-  void init_prox(int cartstatehandle,double proxlim0, double proxmax0, int proxmaxtype0);
   void init(double gridspacing0, int gridextension0, 
    double plateaudis0,double neighbourdis0,bool (&alphabet0)[MAXATOMTYPES]);
-  void read(const char *filename);
-  void write(const char *filename);
+  void read_std(const char *filename);
+  void read_torque(const char *filename);
+  void write_std(const char *filename);
+  void write_torque(const char *filename);
 
   double *_ratio; /*precomputed ratios to scale down distances, to reach 5 A*/  
   inline double get_ratio(double dissq) const {
@@ -118,7 +117,8 @@ struct Grid {
   }  
   
   
-  void calculate(int cartstatehandle, int ligand, const char *interior_grid, double plateaudis, double neighbourdis, int gridextension, int nhm0, bool (&alphabet)[MAXATOMTYPES], bool cdie, float epsilon, bool calc_pot);
+  void calculate_std(int cartstatehandle, double plateaudis, double neighbourdis, float gridspacing, int gridextension, bool (&alphabet)[MAXATOMTYPES], bool cdie, float epsilon, bool calc_pot);
+  void calculate_torque(int cartstatehandle, double plateaudis, double neighbourdis, float gridspacing, int gridextension, bool (&alphabet)[MAXATOMTYPES], bool cdie, float epsilon, bool calc_pot);
 };
 
 #endif

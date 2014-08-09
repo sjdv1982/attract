@@ -42,7 +42,7 @@ c     Local variables
       dimension energies0(6)
 c     integer dseed,i,ii,j,jj,k,kk,itr,nfun
       integer i,ii,j,jj,k,kk,itr,nfun
-      integer itra, ieig, iindex, iori, fixre, gridmode,iscore,ivmax
+      integer itra, ieig, iindex, iori, fixre, iscore,ivmax
       integer ju,ju0,jl,jb,nmodes,nimodes, jn, jn0
       integer iab,ijk,iaccept
       real*8 xnull
@@ -67,7 +67,7 @@ c     integer dseed,i,ii,j,jj,k,kk,itr,nfun
       enddo
       
       call ministate_f_monte(ministatehandle,
-     1 iscore,ivmax,iori,itra,ieig,iindex,fixre,gridmode,mctemp,
+     1 iscore,ivmax,iori,itra,ieig,iindex,fixre,mctemp,
      2 scalerot,scalecenter,scalemode,ensprob)
      
 c     always calculate only energies
@@ -113,7 +113,7 @@ c     dseed=seed
 c intial energy evaluation      
 c
       call energy(cartstatehandle,ministatehandle,
-     1 iab,iori,itra,ieig,iindex,fixre,gridmode,
+     1 iab,iori,itra,ieig,iindex,fixre,
      2 ens,phi,ssi,rot,xa,ya,za,morph,dlig,
      3 locrests, has_locrests, seed,
      4 gesa,energies,delta,deltamorph)
@@ -127,6 +127,7 @@ c
 c   start Monte Carlo
       iaccept=1
       do 4000 ijk=1,ivmax 
+c      write (ERROR_UNIT,*), ijk, ivmax
 c store old Euler angle, position and ligand and receptor coordinates
 c
 c phi,ssi,rot for first molecule are fixed!
@@ -302,7 +303,7 @@ c    1 rr(ii+1),rr(ii+2),rr(ii+3),xaa(ii+1),xaa(ii+2),xaa(ii+3)
       enddo
       
       call energy(cartstatehandle,ministatehandle,
-     1 iab,iori,itra,ieig,iindex,fixre,gridmode,
+     1 iab,iori,itra,ieig,iindex,fixre,
      2 ens,phi,ssi,rot,xa,ya,za,morph,dlig,
      3 locrests, has_locrests, seed,
      4 enew,energies0,delta,deltamorph)

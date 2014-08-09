@@ -1,4 +1,5 @@
 #include "state.h"
+#include <cmath>
 
 extern CartState &cartstate_get(int handle);
 

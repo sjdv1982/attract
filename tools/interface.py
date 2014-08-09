@@ -103,7 +103,7 @@ def get_interface(a1, a2, output,output2,rcut):
             
     out2.close()
 
-def get_contacts(structure,rcut=5.0):
+def get_contacts(structure,rcut=3.0):
     a1, a2 = read_struc(structure)
     contacts = []
     ncontact = 0
@@ -133,7 +133,6 @@ def get_interface2(a1, a2, output,ouput2,rcut):
                 if not atom1[1] in ilist:
                     dist = (atom1[2]-atom2[2])**2+(atom1[3]-atom2[3])**2+(atom1[4]-atom2[4])**2
                     if dist < rcut2:
-                        #print dist, atom1, atom2
                         ilist.append(atom1[1])
                         break
                     
@@ -236,7 +235,7 @@ def check_contacts(struc,ilist1old, ilist2old,directory,name):
 import os    
 def make_interface(struc,directory,name,rcut=3.0):
     a1, a2 = read_struc(struc)
-    get_interface(a1, a2, directory+'/'+name+'rlist.txt',directory+'/'+name+'llist.txt',rcut*rcut)
+    get_interface(a1, a2, directory+'/'+name+'rlist.txt',directory+'/'+name+'llist.txt',rcut)
     
 #Main
 if __name__ == "__main__":

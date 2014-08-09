@@ -54,6 +54,8 @@ def deploy(model, dir):
   _deploy(model.start_structures_file,d+"startstruc.dat")
   _deploy(model.rotations_file,d+"rotations.dat")
   _deploy(model.translations_file,d+"translations.dat")
+  _deploy(model.restraints_file,d+"restraints.dat")
+  _deploy(model.restraints_score_file,d+"restraints-score.dat")
 
 def deploy_easy(model, dir):
   d = dir + "/"

@@ -1,5 +1,5 @@
 *.o
-RE:[^.]+
+RE:bin/[^.]+
 ~*
 */gmon.out
 gmon.out
@@ -19,3 +19,10 @@ max.fin
 *.TYPES
 gui/server/html/attract.tgz
 gui/server/html/index.html
+gui/test.html
+*/*.kate-swp
+gui/libpeerconnection.log
+*.kate-swp
+libpeerconnection.log
+html-local
+gui/server/cgi-local

@@ -12,35 +12,35 @@ sudo pip install pigments
 
 
 local GUI, basic:
-silk AttractModel -m attractmodel -I $ATTRACTGUI
+silk --default-output attract.web AttractModel -m attractmodel -I $ATTRACTGUI
 
 local GUI, full:
-silk AttractModel -m attractmodel -I $ATTRACTGUI --form localgui buttons --logic localgui logic
+silk --default-output attract.web AttractModel -m attractmodel -I $ATTRACTGUI --form localgui buttons --logic localgui logic
 
 web form, default style:
-silk AttractModel -m attractmodel -I $ATTRACTGUI --gui html
+silk --default-output attract.web AttractModel -m attractmodel -I $ATTRACTGUI --gui html
 
 full web server, ATTRACT style:
-silk AttractModel -m attractmodel -I $ATTRACTGUI --gui html \
+silk --default-output attract.web AttractModel -m attractmodel -I $ATTRACTGUI --gui html \
  -I $ATTRACTGUI/server --form form_model webform --view form_model html --webdir $ATTRACTGUI/server/html --webserver-pre form_model webserverform
 
 EASY INTERFACE:
 
 local GUI, basic:
-silk AttractEasyModel -m attractmodel -I $ATTRACTGUI
+silk --default-output attract.web AttractEasyModel -m attractmodel -I $ATTRACTGUI
 
 local GUI, full:
-silk AttractEasyModel -m attractmodel -I $ATTRACTGUI --form localgui buttons --logic localgui logic
+silk --default-output attract.web AttractEasyModel -m attractmodel -I $ATTRACTGUI --form localgui buttons --logic localgui logic
 
 web form, default style:
-silk AttractEasyModel -m attractmodel -I $ATTRACTGUI --gui html
+silk --default-output attract.web AttractEasyModel -m attractmodel -I $ATTRACTGUI --gui html
 
 full web server, ATTRACT style:
-silk AttractEasyModel -m attractmodel -I $ATTRACTGUI --gui html \
+silk --default-output attract.web AttractEasyModel -m attractmodel -I $ATTRACTGUI --gui html \
 -I $ATTRACTGUI/server --form formeasy webform --view formeasy html --webdir $ATTRACTGUI/server/html --webserver-pre formeasy webserverform
 
 CRYO INTERFACE
 
 full web server, ATTRACT style:
-silk CryoPartnerRun -I $ATTRACTGUI -m attractmodel -m cryo --gui html \
+silk --default-output attract.web CryoPartnerRun -I $ATTRACTGUI -m attractmodel -m cryo --gui html \
 -I $ATTRACTGUI/server --form form_cryo webform --view form_cryo html --webdir $ATTRACTGUI/server/html --webserver-pre form_cryo webserverform

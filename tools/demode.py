@@ -1,13 +1,24 @@
+"""
+Usage: demode <structure file> [ligand]
+Removes all modes from a ligand
+if ligand is not specified, then remove the modes from all ligands
+"""
 import sys
 from _read_struc import read_struc
 import random
 from math import *
 header,structures = read_struc(sys.argv[1])
 ligand = None
+ens = [0,0]
+if '--ens' in sys.argv:
+  i = sys.argv.index('--ens')
+  ensligand = int(sys.argv[i+1])
+  ens[ensligand-1] = 1
+  sys.argv = sys.argv[:i]+sys.argv[i+2:]
+  
 if len(sys.argv) > 2:
   ligand = int(sys.argv[2])
   
-ens = [0,0]
 for h in header: print h
 stnr = 0
 for s in structures:

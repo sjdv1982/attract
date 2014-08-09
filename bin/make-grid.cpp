@@ -10,6 +10,7 @@
 #include <unistd.h>
 
 const int gridextension = 32;
+const float gridspacing = 0.9;
 
 extern int cartstate_new(int argc, char *argv[],bool single=0);
 extern "C" void cartstate_pivot_auto_(const int &handle);
@@ -34,9 +35,9 @@ int new_shm_id() {
 }
 
 int main(int argc, char*argv[]) {
-  if (argc < 7) {
+  if (argc < 6) {
     fprintf(stderr,"Too few arguments\n");
-    fprintf(stderr, "Please provide PDB file, SITUS map of the interior, ATTRACT parameter file, plateau distance, neighbour distance, output file name  [--alphabet <alphabet file>] [--shm] [--cdie] [--epsilon=15] [calc-potentials=1]\n");
+    fprintf(stderr, "Please provide PDB file, ATTRACT parameter file, plateau distance, neighbour distance, output file name  [--alphabet <alphabet file>] [--shm] [--cdie] [--epsilon=15] [calc-potentials=1]\n");
     return -1;
   }
   bool use_shm = 0;
@@ -96,7 +97,7 @@ int main(int argc, char*argv[]) {
   
    //load the Cartesian parameters and get a handle to it
   int cartstatehandle;
-  char *argv0[] = {argv[3], argv[1]};
+  char *argv0[] = {argv[2], argv[1]};
   cartstatehandle = cartstate_new(2, argv0, 1);
   cartstate_pivot_auto_(cartstatehandle);
   Grid g;
@@ -138,14 +139,21 @@ int main(int argc, char*argv[]) {
   }
   
   bool calc_pot = 1;
-  if (argc > 7) calc_pot = atoi(argv[7]);
-  g.calculate(cartstatehandle, 0, argv[2], atof(argv[4]), atof(argv[5]), 
-   gridextension, 0, alphabet, cdie, epsilon, calc_pot);
+  if (argc > 6) calc_pot = atoi(argv[6]);
+#ifdef TORQUEGRID
+  #define CALCULATE g.calculate_torque
+  #define WRITE g.write_torque
+#else
+  #define CALCULATE g.calculate_std
+  #define WRITE g.write_std
+#endif  
+  CALCULATE(cartstatehandle, atof(argv[3]), atof(argv[4]), 
+   gridspacing, gridextension, alphabet, cdie, epsilon, calc_pot);
   if (use_shm) {
     g.shm_energrads = new_shm_id();
     g.shm_neighbours = new_shm_id();  
   }
-  g.write(argv[6]);
+  WRITE(argv[5]);
 }  
 
 
