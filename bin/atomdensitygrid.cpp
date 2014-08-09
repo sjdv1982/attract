@@ -242,6 +242,7 @@ extern double *weight_atoms(int nratoms,  const int *atomtypes);
 
 extern "C" void atomdensitygridenergy_(double &energy, const int &nratoms, const double *atoms, const double *atoms0, const int *atomtypes, const int &nlig, const int *natomlig, double *forces, const int &update_forces) {  
   energy = 0;
+  if (!ngrids) return;
   Applyfunc app;    
   double *atomweights = weight_atoms(nratoms, atomtypes);
   for (int i=0;i < ngrids;i++) {

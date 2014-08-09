@@ -163,7 +163,7 @@ Type AttractPartnerInterface {
   ## form collect_ensemble_list.add_header("If you specified a PDB file above, you may provide an ensemble conformer list for it")
   ## form collect_ensemble_list.name = "Collect ensemble list file"
   ## form collect_ensemble_list.type = "file"
-
+  Bool iattract_noflex = False  
   form {
     """
     For now, disable advanced features
@@ -369,6 +369,12 @@ Type AttractAtomDensityGrid {
   }
 }
 
+Type IAttractParameters {
+  Integer nstruc
+  Float icut = 3.0
+  #TODO for Christina: validation rules, error messages, form attributes....
+}
+
 Type AttractModel {
   String runname = "attract"
   form {
@@ -465,7 +471,12 @@ Type AttractModel {
     else:
       assert rotations_file is not None or translations_file is not None
       assert len(partners) == 2          
-  }   
+  }
+  Bool demode = False
+  ## form demode.add_header("If you used flexibility in the form normal modes or iATTRACT, you may choose remove the deformations (de-mode) after the docking")
+  ## form demode.name = "De-mode" 
+  
+  *IAttractParameters iattract
   form {
     fix_receptor.group = "Sampling parameters"
     search.group = "Sampling parameters"
@@ -475,6 +486,8 @@ Type AttractModel {
     translations_file.group = "Sampling parameters"
     restraints_file.group = "Sampling parameters"
     restraints_score_file.group = "Sampling parameters"
+    iattract.group = "Sampling parameters"
+    demode.group = "Sampling parameters"
   }
   #*** 
 
@@ -499,7 +512,7 @@ Type AttractModel {
   ## form ghost.add_header("In ghost mode, the forcefield is turned off")
   ## form ghost.name = "Enable ghost mode"
 
-  *AttractAtomDensityGridArray atomdensitygrids
+  AttractAtomDensityGridArray atomdensitygrids = []
   ## form atomdensitygrids.length = 3
   ## form atomdensitygrids.count_from_one = True
   ## form atomdensitygrids.form = "soft"
@@ -613,6 +626,9 @@ Type AttractModel {
     if calc_irmsd: assert len(partners) == 2
     
     if atomdensitygrids is not None and len(atomdensitygrids): assert ghost == True
+    if iattract is not None and forcefield != "OPLSX":
+      for pnr, partner in enumerate(partners):
+        assert not partner.is_reduced #iATTRACT + ATTRACT-reduced files don't mix
   }
   
   error {
