@@ -8,16 +8,19 @@ header,structures = read_struc(sys.argv[1])
 structures = list(structures)
 ligands = len(structures[0][1])
 assert ligands > 1
-combinations = long(len(structures))**2 * ligands
+cligands = ligands
+if ligands == 2: cligands = 1
+combinations = long(len(structures))**2 * cligands
 if combinations > 10**9:
   raise ValueError("swapcombine.py: more than 1 billion combinations, I give up...")
 
-combi = [list(range(len(structures)))] * ligands
+combi = [list(range(len(structures)))] * cligands
 
   
 stnr = 0
 for h in header: print h
 for varlig in reversed(range(ligands)):
+  if ligands == 2 and varlig == 0: break
   for n in range(len(structures)):
     x0, x1 = structures[n]
     for nn in range(len(structures)):
