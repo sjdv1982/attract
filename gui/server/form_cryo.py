@@ -5,7 +5,7 @@ header = """<!DOCTYPE html>
 <!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
     
     <head>
-        <title>ATTRACT Online</title>
+        <title>ATTRACT Easy Online</title>
         
         <meta charset="utf-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
@@ -32,13 +32,11 @@ header = """<!DOCTYPE html>
             
             <nav id="form-category-navigation" class="row">
               <ul>
-                <li id="view-page1"><a id="nav-block-sequences" class="grid-icon">Sequences</a></li>              
-                <li id="view-page2"><a id="nav-block-partners" class="puzzle-icon">Partners</a></li>
-                <li id="view-page3"><a id="nav-block-symmetry" class="symmetry-icon">Symmetry</a></li>
-                <li id="view-page4"><a id="nav-block-cryoem" class="cryo-icon">Cryo-EM density maps</a></li>
-                <li id="view-page5"><a id="nav-block-reference" class="analysis-icon">Reference structure</a></li>                
-                <li id="view-page6"><a id="nav-block-protocol" class="iteration-icon">Assembly protocol</a></li>
-                <li id="view-page7"><a id="nav-block-computation" class="computation-icon">Computation</a></li>
+                <li id="view-page1"><a id="nav-block-partners" class="puzzle-icon">Partners</a></li>
+                <li id="view-page2"><a id="nav-block-symmetry" class="symmetry-icon">Symmetry</a></li>
+                <li id="view-page3"><a id="nav-block-cryo" class="cryo-icon">Cryo-EM data</a></li>  
+                <li id="view-page4"><a id="nav-block-sampling" class="sampling-icon">Sampling</a></li>
+                <li id="view-page5"><a id="nav-block-computation" class="computation-icon">Computation</a></li>
               </ul>
             </nav>
             
@@ -91,244 +89,97 @@ def _assign_category(f, category, groupname, span = False):
     ff.group = None
     if span: ff.span = True
 
-def webform(f, model=None,
- partnerslength=None, sequenceslength=None,
-):
-  if model is not None:
-    if partnerslength is None:
-      partnerslength = max(1,len(model.partners))
-    if sequenceslength is None:
-      sequenceslength = max(1,len(model.sequences))
-  else:  
-    if partnerslength is None: partnerslength = 1
-    if sequenceslength is None: sequenceslength = 1  
+def webform(f, model=None):
   import copy
-  f = copy.deepcopy(f)
-  f.arraymarker = "_clonearraymarker"
+  f = copy.deepcopy(f)  
   f.resourcefilevar = "_tempresource"
-        
-  ### START sequences category
-  f.sequences.length = sequenceslength      
-  c = f.new_group("c_sequences", "category")
-  c.page = 1
-  c.icon = "grid-icon"
-  c.title = "Protein sequences"
-  c.categoryname = "sequences"
-  c.description = "Here you can define the sequences of the proteins that are present in your electron density map. They can be defined as SwissProt code or the sequence can be entered manually. It is also possible to derive the sequence from the assembly partner PDB (with chain). You can define subsequences to account for disordered regions, or if your construct only contains certain domains of the protein"
-  c.members.append("sequences")   
-  f.sequences.clonebutton = "Add sequence"
-  f.sequences.clonelength = 50
-  f.sequences.controltitle = "Assembly sequences"  
-  for fpnr in range(f.sequences.length):
-    fp = f.sequences[fpnr]
-    fp.group = None
-        
-    ### START b_sequence block
-    b = fp.new_group("b_sequence", "block")
-    b.title = "Sequence origin"
-    b.has_switch = False
-    b.members.append("mode")
-    b.members.append("proteincode")
-    b.members.append("sequence")
-    b.members.append("index")
-    b.members.append("chain")
-    ### END b_sequence block
-    
-    fp.subsequences.length = 5
-    fp.subsequences[None].span = True
-    
+  f.arraymarker = "_clonearraymarker"
+
   ### START partners category
-  f.partners.length = partnerslength      
   c = f.new_group("c_partners", "category")
-  c.page = 2
+  c.page = 1
   c.icon = "puzzle-icon"
   c.title = "Docking partners"
   c.categoryname = "partners"
-  c.description = """High-level definition of a component that is to be fitted
-A CryoPartner has a single PDB, and/or a sequence mapping, and/or a DSSP assignment  
-The PDB consists of one or more chains  
-A CryoPartner has different options for how it is to be converted into CryoBodies  
-- mode "single": 
-  The PDB consists of a single chain. If a sequence range has been defined, the PDB must align to that range, else it will be auto-aligned
-  The CryoPartner will be mapped onto a single CryoBody. 
-- mode "multi"
-  The PDB consists of multiple chains. If a sequence range has been defined, all chains together must align to that range, else it will be auto-aligned
-  -relplace "fixed": The relative positions of the chains is fixed. The partner maps to a single CryoBody
-  -relplace "guess": (guess) The relative positions of the chains are an initial estimate, they can re-adjust during refinement. The partner maps to one CryoBody per chain
-  -relplace "estimate": (good estimate) Same as above, but a restraining force will enforce resemblance to the initial positioning
-  -relplace "free": The CryoPartner will be split into independent CryoBodies, one per chain
-- mode "SSE":  
-  The PDB consists of a single chain. If a sequence range has been defined, the PDB must align to that range, else it will be auto-aligned
-  The PDB will be auto-fragmented into secondary structure element bodies, based on the DSSP assignment if provided, or else automatically
-- mode "ab_initio"  
-  No PDB has been provided. Sequence and DSSP alignment must be provided. The sequence will be fragmented into secondary structure element bodies, based on the DSSP assignment.
-  Idealized SSE fragment PDBs will be built ab initio.    
-"""
+  c.description = """Define docking partners by uploading a PDB structure file.""" 
   c.members.append("partners")   
-  f.partners.clonebutton = "Add partner"
-  f.partners.clonelength = 50
-  f.partners.controltitle = "Assembly partners"  
+  f.partners.clonelength = 6
+  f.partners.controltitle = "Docking partners"  
   for fpnr in range(f.partners.length):
     fp = f.partners[fpnr]
     fp.group = None
-    
+    fp.multi_active = True
+
     ### START b_struc block
     b = fp.new_group("b_struc", "block")
-    b.title =  "Structure sources"
+    b.title = "Structure Sources"
     b.has_switch = False
-    b.members.append("mode")
-    b.members.append("pdb")
-    b.members.append("dssp")
+    b.members.append("pdbfile") 
+    ff = fp.pdbfile
+    ff.name = "Structure file"
+    ff.tooltip = "Upload PDB structure file"
+    ff.tooltip_doc = "documentation.html#partners-structure_file"
+    ff.span = True
     ### END b_struc block
-        
-    ### START b_mappings block
-    for n in range(fp.sequencemappings.length):
-      b = fp.new_group("b_mappings-%d" % n, "block")
-      #b.title =  "Sequence mappings %d" % (n+1)
-      b.title =  ""      
-      b.has_switch = False          
-      fp.sequencemappings[n].subsequences[None].span = True
-      b.members.append("sequencemappings[%d]" % n)
-      for nn in range(fp.sequencemappings[0].subsequences.length):
-        b.members.append("sequencemappings[%d].subsequences[%d]" % (n, nn))
-      
-    ### END b_mappings block
-    
-    ### START b_advanced block    
-    #insert placeholder boolean to determine the state of the Advanced switch
-    b = fp.new_group("b_advanced", "block")
-    b.title =  "Advanced settings"
-    if "use_advanced" not in fp._membernames:
-      fp._membernames.append("use_advanced")
-    sw = f.cryozoom._members["pre_mini"].get_copy()        
-    sw.name = "Use advanced settings"
-    sw.type = "switch"
-    fp._members["use_advanced"] = sw
-    b.has_switch = True
-    b.members.append("use_advanced")
-    b.members.append("absplace")
-    b.members.append("relplace")
-    b.members.append("missing_loops")
-    b.members.append("floppiness")
-    ### END b_advanced block
-  
+
+
   ### START symmetry category
   c = f.new_group("c_symmetry", "category")
-  c.page = 3
-  c.title = "Symmetry"
+  c.page = 2
   c.icon = "symmetry-icon"
-  c.categoryname = "symmetry"
-  c.description = "Define the symmetry of your electron density map. It is assumed that the primary symmetry axis is the Z axis. For D symmetry, you can define a secondary symmetry axis"
-  b = f.new_group("b_symmetry", "block")
-  b.title = c.title
-  b.members.append("symmetry")
-  c.members.append("b_symmetry")
-  ### END symmetry category
-  
-  ### START cryo-EM category
-  c = f.new_group("c_cryoem", "category")
-  c.page = 4
+  c.title = "Symmetry"
+  c.description = c.title
+  c.always_active = True
+  c.categoryname = "symmetry"  
+  c.members.append("axsymmetry")
+  f.axsymmetry.clonelength = 6
+  f.axsymmetry.controltitle = "Symmetry"    
+  ### END symmetry category  
+
+  ### START cryo category
+  c = f.new_group("c_cryo", "category")
+  c.page = 3
+  c.icon = "cryo-icon"
   c.title = "Cryo-EM data"
-  c.icon = "cryoem-icon"
-  c.categoryname = "cryoem"
-  c.description = "Specify your electron density map here. It is recommended to downsample your map for the assembly stage, and to use the full-resolution map in scoring. For benchmarking and comparison, you can also specify a density map to be simulated from a PDB"
-  b = f.new_group("b_cryodata", "block")
-  b.title = f.cryodata.name
-  f.cryodata.name = ""
-  b.members.append("cryodata")
-  c.members.append("b_cryodata")
-  b = f.new_group("b_simdata", "block")
-  b.title = f.simdata.name
-  f.simdata.name = ""
-  b.members.append("simdata")
-  c.members.append("b_simdata")  
-  ### END cryo-EM category
+  c.description = c.title
+  c.always_active = True
+  c.categoryname = "cryo"  
+  _assign_category(f, c, c.title, span = True)
+  ### END cryo category  
 
-  ### START reference category
-  c = f.new_group("c_reference", "category")
-  c.page = 5
-  c.title = f.reference.name
-  c.icon = "analysis-icon"
-  c.categoryname = "reference"
-  c.description = "If you want to compare the assembly result against a known reference structure, you can define it here"
+  ### START sampling category
+  c = f.new_group("c_sampling", "category")
+  c.page = 4
+  c.icon = "sampling-icon"
+  c.title = "Sampling"
+  c.description = c.title
+  c.always_active = True
+  c.categoryname = "sampling"  
+  _assign_category(f, c, c.title, span = True)
+  f.maskweight.type = None #TODO
+  f.clone_rot.type = None #TODO
+  f.clone_center.type = None #TODO
+  f.mcscalerot.type = None #TODO
+  f.mcscalecenter.type = None #TODO
+  f.mcmax.type = None #TODO
+  ### END sampling category  
 
-  ### START reference block 
-  b = f.new_group("b_reference", "block")
-  b.title = "Reference"
-  b.members.append("reference")
-  c.members.append("b_reference")      
-  ### END reference block  
-  ### START sequencemapping blocks 
-  for n in range(f.reference.sequencemappings.length):
-    f.reference.sequencemappings[n].subsequences[None].span = True
-    bname = "b_reference-%d" % n
-    b = f.new_group(bname, "block")
-    b.title = f.reference.sequencemappings[n].name
-    b.members.append("reference.sequencemappings[%d]" % n)
-    b.members.append("reference.sequencemappings[%d].subsequences" % n)
-    c.members.append(bname)
-  ### END sequencemapping blocks
-  
-  ### END reference category
-
-  ### START protocol category
-  c = f.new_group("c_protocol", "category")
-  c.page = 6
-  c.title = f.cryozoom.name
-  c.icon = "iteration-icon"
-  c.categoryname = "protocol"
-  c.description = "Protocol settings"
-  b = f.new_group("b_protocol", "block")
-  b.title = "General settings"
-  b.members.append("cryozoom.struc_initial")
-  b.members.append("cryozoom.pre_mini")
-  b.members.append("cryozoom.pre_frac")
-  b.members.append("cryozoom.select")
-  b.members.append("cryozoom.clone")
-  b.members.append("cryozoom.ori")  
-  b.members.append("cryozoom.trans")
-  b.members.append("cryozoom.iterations")  
-  c.members.append("b_protocol")  
-  b = f.new_group("b_initial", "block")
-  b.title = "Initial iteration"
-  b.members.append("cryozoom.initial")
-  c.members.append("b_initial")
-  b = f.new_group("b_subsequent", "block")
-  b.title = "Subsequent iterations"
-  b.members.append("cryozoom.subsequent")  
-  c.members.append("b_subsequent")  
-  for fi in (f.cryozoom.initial, f.cryozoom.subsequent):
-    fi.group = None
-    b = fi.new_group("b_mc", "block")
-    b.insert_at_member = True
-    b.has_switch = True
-    _assign_category(fi, b, "Monte Carlo", span = True)
-    b.members.remove("mc")
-    b.members.insert(0, "mc")
-    ff = fi.mc
-    ff.type = "switch"
-  
-  ### END protocol category
-  
   ### START computation category
   c = f.new_group("c_computation", "category")
-  c.page = 7
+  c.page = 5
   c.icon = "computation-icon"
   c.title = "Computation"
-  c.categoryname = "computation"
-  c.description = ""
-  _assign_category(f, c, "Computing and parallelization parameters", span = True)
-  ### END computation category
-    
+  c.description = c.title
+  c.always_active = True
+  c.categoryname = "computation"  
+  _assign_category(f, c, c.title, span = True)
+  ### END computation category  
+  
   return f
 
 def webserverform(webdict, form=None, spydertype=None):
   if spydertype is not None: form = spydertype._form()
-  f = webform(
-   form,
-   partnerslength = 10,
-   sequenceslength = 10,
-  )  
+  f = webform(form)
   return f
   
 def html(form, cgi, spyderobj, newtab=False):
