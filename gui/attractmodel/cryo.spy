@@ -1,0 +1,198 @@
+Type Data_CryoEM_SITUS:Data{}
+
+Type CryoPartnerInterface {
+  ## form pdbfile.type = "file"
+  ## form pdbfile.name = "Structure file"
+  *ResourceData_PDB pdbfile
+  
+  ## form code.length = 4  
+  ## form code.name = "Or define?"
+  *PDBCode code
+
+  ## form chain.name = "Which chain of the structure must be used?"
+  ## form chain.options = "All", "A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"
+  String chain = "All"
+  validate {
+    assert not (pdbfile is None and code is None)
+    assert pdbfile is not None or code is not None
+  }
+}
+
+Type AxSymmetry {
+  Integer molecule
+  Integer fold
+  Vector axis
+  validate {
+    assert molecule > 0
+    assert fold > 0
+  }
+}
+
+Type CryoInterface {
+  
+  CryoPartnerInterfaceArray partners = []
+  ## form partners.length = 6
+  ## form partners.form = "soft"
+  AxSymmetryArray axsymmetry = []
+  ## form axsymmetry.length = 3
+  ## form axsymmetry.form = "soft"
+  validate {
+    for a in axsymmetry: assert a.molecule <= len(partners)
+  }
+  
+  *ResourceData_CryoEM_SITUS mapfile
+  ## form mapfile.type = "file"    
+  *String mapfilename
+  validate {
+    assert not (mapfile is None and mapfilename is None)
+    assert mapfile is not None or mapfilename is not None
+  }
+  *Float mapmass
+  Float energy_threshold = 10000
+  Float mapmask_threshold = 2.0  
+  Float mapmask1_voxelsize = 10
+  Float mapmask1_dimension = 500
+  Float mapmask2_voxelsize = 5
+  Float mapmask2_dimension = 250    
+  FloatArray maskweight[5] = (8000, 100, 200, 500, 1000)
+  form {
+    g = "Cryo-EM data"
+    mapfile.group = g
+    mapfilename.group = g
+    mapmass.group = g
+    energy_threshold.group = g
+    mapmask_threshold.group = g
+    mapmask1_dimension.group = g
+    mapmask1_voxelsize.group = g
+    mapmask2_dimension.group = g
+    mapmask2_voxelsize.group = g
+    maskweight.group = g
+  }
+  
+  *ResourceData_ATTRACT_Restraints restraints_file
+  ## form restraints_file.type = "file"    
+  Enum score_method("gvm", "corr") = "gvm"
+  Float score_threshold = 1.0  
+  Integer nstruc = 1000
+  Integer ntop = 50
+  Integer iterations = 12
+  Integer mc_iterations = 4
+  Float global_scale_rot = 0.785
+  Float global_scale_trans = 20
+  FloatArray clone_rot[2] = (1, 0.1)
+  FloatArray clone_center[2] = (1, 0.1)
+  FloatArray mcscalerot[4] = (0.5,0.25,0.25,0.1)
+  FloatArray mcscalecenter[4] = (0.5,0.25,0.25,0.1)
+  FloatArray mcmax[4] = (250,250,250,250)
+  Bool gravity = False #only in first stage
+  Float rstk = 0.1 #only in first stage
+  form {
+    g = "Sampling"
+    restraints_file.group = g
+    score_method.group = g
+    score_threshold.group = g
+    nstruc.group = g
+    ntop.group = g
+    iterations.group = g
+    mc_iterations.group = g
+    global_scale_rot.group = g
+    global_scale_trans.group = g
+    clone_rot.group = g
+    clone_center.group = g
+    mcscalerot.group = g
+    mcscalecenter.group = g
+    mcmax.group = g
+    gravity.group = g
+    rstk.group = g
+  }
+
+  String runname = "attract-em"
+  form {
+    runname.add_header("Please supply a name for your docking run (one word)")
+    runname.name = "Name of the docking run"
+  }  
+  validate {
+    runname = runname.strip()
+    self.runname = runname
+    if not runname.replace("_","").replace("-","").isalnum():
+      raise ValueError("The name of your run may contain only letters, digits, _ and -")  
+  }  
+  Integer threads1 = 8
+  Integer threads2 = 4
+  form {
+    runname.group = "Computation"
+    threads1.group = "Computation"
+    threads2.group = "Computation"
+  }
+  
+  validate {
+    assert len(partners) > 0
+    assert nstruc > 0
+    assert ntop > 0
+    assert float(nstruc)/ntop == int(nstruc/ntop)
+    assert iterations >= 5
+    assert mc_iterations >= 4
+    assert iterations >= mc_iterations
+  }
+}
+
+Type CryoEasyInterface {
+  CryoPartnerInterfaceArray partners = []
+  ## form partners.length = 6
+  ## form partners.form = "soft"
+  AxSymmetryArray axsymmetry = []
+  ## form axsymmetry.length = 3
+  ## form axsymmetry.form = "soft"
+  validate {
+    for a in axsymmetry: assert a.molecule <= len(partners)
+  }
+  
+  *ResourceData_CryoEM_SITUS mapfile
+  ## form mapfile.type = "file"    
+  *String mapfilename
+  validate {
+    assert not (mapfile is None and mapfilename is None)
+    assert mapfile is not None or mapfilename is not None
+  }
+  
+  String runname = "attract-em"
+  form {
+    runname.add_header("Please supply a name for your docking run (one word)")
+    runname.name = "Name of the docking run"
+  }  
+  validate {
+    runname = runname.strip()
+    self.runname = runname
+    if not runname.replace("_","").replace("-","").isalnum():
+      raise ValueError("The name of your run may contain only letters, digits, _ and -")  
+  }
+      
+  Integer threads = 8
+  validate {
+    assert len(partners) > 0
+  }
+}
+
+Define CryoInterface(CryoEasyInterface m) {
+  ret = CryoInterface(m)
+  ret.threads1 = m.threads
+  ret.threads2 = m.threads / 2
+  if not len(m.axsymmetry):
+    ret.gravity = True
+  dof_factor = 2 ** (len(m.partners)-1)
+  ret.nstruc *= dof_factor
+  ret.ntop *= dof_factor
+  rotscalefactor = 1.0/len(m.partners)
+  ret.global_scale_rot *= rotscalefactor
+  ret.global_scale_trans *= rotscalefactor
+  maxfactor = len(m.partners)
+  ret.mcmax[0] *= maxfactor
+  ret.mcmax[1] *= maxfactor
+  mc0 = ret.mc_iterations
+  ret.mc_iterations = (ret.mc_iterations - 2) * maxfactor + 2
+  ret.iterations += ret.mc_iterations - mc0
+  ret.validate()
+  return ret
+}
+
+Method generate(CryoInterface) generate_cryo

@@ -3,7 +3,6 @@ Type Data_ATTRACT_Rotations:Data{}
 Type Data_ATTRACT_Translations:Data{}
 Type Data_ATTRACT_Modes:Data{}
 Type Data_ATTRACT_Restraints:Data{}
-
 Type Data_TXT_FileList_PDB:Data{}
 
 Type AttractSymmetry {
