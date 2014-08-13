@@ -179,7 +179,7 @@ Define CryoInterface(CryoEasyInterface m) {
   ret.threads2 = m.threads / 2
   if not len(m.axsymmetry):
     ret.gravity = True
-  dof_factor = 2 ** (len(m.partners)-1)
+  dof_factor = 3 ** (len(m.partners)-1)
   ret.nstruc *= dof_factor
   ret.ntop *= dof_factor
   rotscalefactor = 1.0/len(m.partners)
