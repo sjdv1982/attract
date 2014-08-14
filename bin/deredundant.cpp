@@ -274,10 +274,10 @@ int main(int argc, char *argv[]) {
     }
     if (!unique) continue;
       
-//    if (nonredundant == MAXSTRUC) {
-//      fprintf(stderr, "Too many non-redundant structures. Increase MAXSTRUC and recompile\n");
-//      exit(1);
-//    }  
+    if (nonredundant == MAXSTRUC) {
+      fprintf(stderr, "Too many non-redundant structures. Increase MAXSTRUC and recompile\n");
+      exit(1);
+    }  
     memcpy(rotmat[nonredundant], crotmat, sizeof(crotmat));
     ens[nonredundant][0] = cens[0];
     for (i = 1; i < nlig; i++) {    

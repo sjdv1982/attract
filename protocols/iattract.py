@@ -21,6 +21,7 @@ sys.path.append(tooldir)
 sys.path.append(attractdir)
 import imodes, get_restraints
 import collectlibpy as collectlib
+import neighbortree
 topology = allatomdir+'/topallhdg5.3.pro'
 def get_energy(f):
   if not os.path.exists(f): return 0
@@ -84,7 +85,7 @@ def prepare_input(start,ligands,current,name,coor,ligandrange,ligandatoms,ensemb
     for nr, filename in ensemblefiles:
       currensnr = int(data[int(nr)-1].split()[0])
       ensnames = open(filename).readlines()
-      currligands[int(nr)-1] = ensnames[currensnr-1]
+      currligands[int(nr)-1] = ensnames[currensnr-1].replace('\n','')
       
   if otf and os.path.exists(directorypath+'/flexm-'+current+name+'.dat'):
     check = True
@@ -355,10 +356,7 @@ if __name__ == "__main__":
     ligandatoms = []
     ensfiles = []
     modefile = None
-    imodefile = None
-    for u in ligands:
-      ligandatoms.append(read_pdb(u))
-   
+    imodefile = None   
     for i, item in enumerate(args):
       if item == '--ens':
 	ensfiles.append((args[i+1],args[i+2]))
@@ -368,7 +366,22 @@ if __name__ == "__main__":
 
       elif item == '--imodes':
 	imodefile = args[i+1]
-      
+    
+    for i,u in enumerate(ligands):
+      ligandatoms.append(read_pdb(u))
+      has_ens = None
+      for nr, ensfile in ensfiles:
+	if str(i+1) == nr:
+	  has_ens = ensfile
+	  
+      if has_ens is not None:
+	ensligand = open(has_ens).readlines()
+	for ligandname in ensligand:
+	  neighbortree.make(ligandname.replace('\n',''))
+	  
+      else:
+	neighbortree.make(u)
+	
     initargs = [strucfile]+ligands
     if modefile: initargs += ["--modes", modefile]
     if imodefile: initargs += ["--imodes", imodefile]
