@@ -1,5 +1,6 @@
 #include "max.h"
 #include "state.h"
+#include <cmath>
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
@@ -225,15 +226,12 @@ extern "C" void sym_(const int &cartstatehandle, const int &iab, double &energy)
           cx2[nn] = &x[start2+aminoindex2];
           cf2[nn] = &f[start2+aminoindex2];        
         }
-        double newenergy;
         if (symtype == -2) {
-          newenergy = symrest_paireq(cx1, cf1, cx2, cf2);
+         energy = symrest_paireq(cx1, cf1, cx2, cf2);
         }
         else {
-          newenergy = symrest(symtype, cx1, cf1, cx2, cf2);
+         energy = symrest(symtype, cx1, cf1, cx2, cf2);
         }
-        energy += newenergy;
-        //if (n == 1) break;
       }
     }
   }
