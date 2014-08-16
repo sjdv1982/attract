@@ -179,9 +179,13 @@ Define CryoInterface(CryoEasyInterface m) {
   ret.threads2 = m.threads / 2
   if not len(m.axsymmetry):
     ret.gravity = True
-  dof_factor = 3 ** (len(m.partners)-1)
+  
+  mp = len(m.partners)
+  if mp > 3: mp = 3
+  dof_factor = 3 ** (mp - 1)
   ret.nstruc *= dof_factor
   ret.ntop *= dof_factor
+  
   rotscalefactor = 1.0/len(m.partners)
   ret.global_scale_rot *= rotscalefactor
   ret.global_scale_trans *= rotscalefactor
@@ -190,7 +194,8 @@ Define CryoInterface(CryoEasyInterface m) {
   ret.mcmax[1] *= maxfactor
   mc0 = ret.mc_iterations
   ret.mc_iterations = (ret.mc_iterations - 2) * maxfactor + 2
-  ret.iterations += ret.mc_iterations - mc0
+  ret.iterations += ret.mc_iterations - mc0 + 12 * (maxfactor-1)
+  
   ret.validate()
   return ret
 }
