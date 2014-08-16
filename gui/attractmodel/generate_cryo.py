@@ -195,17 +195,17 @@ set -u -e
         dock = "$dock_stage5"
         clone = "$clone2"
     ret += itscript % {"dock": dock, "it": it}    
-    assert m.score_method == "gvm" #TODO: non-GVM
-    topstrucf = "$topstruc"
-    if len(m.partners) > 1 and it <= m.mc_iterations:
-      ret += "python $ATTRACTTOOLS/swapcombine.py $topstruc > $topstruc-combined\n"
-      ret += "python $ATTRACTDIR/gvm.py $mapfile $score_threshold $topstruc-combined $complex | awk '{print \"Energy:\", $1}' > $topstruc-gvm1\n"
-      ret += "python $ATTRACTTOOLS/fill-energies.py $topstruc-combined $topstruc-gvm1 > $topstruc-gvm2\n"
-      ret += "python $ATTRACTTOOLS/sort.py $topstruc-gvm2 --rev > $topstruc-sorted\n"
-      ret += "$ATTRACTTOOLS/top $topstruc-sorted $ntop > $topstruc-recombined\n"      
-      topstrucf = "$topstruc-recombined"
+    assert m.score_method == "gvm" #TODO: non-GVM    
     if it < m.iterations:
       ret += "newinp=dock-preit%s.dat\n" % (it+1)
-      ret += "python $ATTRACTTOOLS/monte.py %s %s > $newinp\n" % (topstrucf, clone)
+      if len(m.partners) > 1 and it <= m.mc_iterations:
+        ret += "python $ATTRACTTOOLS/swapcombine.py $topstruc > $topstruc-combined\n"
+        ret += "python $ATTRACTDIR/gvm.py $mapfile $score_threshold $topstruc-combined $complex | awk '{print \"Energy:\", $1}' > $topstruc-gvm1\n"
+        ret += "python $ATTRACTTOOLS/fill-energies.py $topstruc-combined $topstruc-gvm1 > $topstruc-gvm2\n"
+        ret += "python $ATTRACTTOOLS/topcombined.py $topstruc-gvm2 $nstruc --rev > $newinp\n"      
+      else:      
+        ret += "python $ATTRACTTOOLS/monte.py $topstruc %s > $newinp\n" %  clone
       ret += "inp=$newinp\n"
+    else:
+      ret += "\nln -s $topstruc result.dat\n"
   return ret
