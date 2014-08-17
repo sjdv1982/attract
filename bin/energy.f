@@ -1,5 +1,5 @@
       subroutine energy(cartstatehandle, ministatehandle,
-     1 iab,iori,itra,ieig,iindex,fixre,gridmode,
+     1 iab,iori,itra,ieig,iindex,fixre,
      2 ens,phi,ssi,rot,xa,ya,za,morph,dlig,
      3 locrests, has_locrests, seed,
      4 e,energies,delta,deltamorph)
@@ -9,7 +9,7 @@
 c     Parameters
       integer cartstatehandle,ministatehandle
       include "max.fin"
-      integer iori,itra,ieig,iindex,fixre,gridmode,seed
+      integer iori,itra,ieig,iindex,fixre,seed
       real*8 energies, delta, deltamorph
       dimension energies(6), delta(maxdof),deltamorph(maxlig)
       real*8 deltamorphr, deltamorphl      
@@ -33,6 +33,7 @@ c     Local variables
       integer i, k, n, idr, idl,ii
       integer gridptr_dmmy
       pointer(gridptr, gridptr_dmmy)      
+      integer torquegrid
       integer nlig, molpairs, molpairhandle,molpairhandles
       integer use_energy
       dimension molpairhandles(maxmolpair)
@@ -117,9 +118,10 @@ c  iterate over all pairs: call pairenergy...
       do 30 k=1,molpairs
       
       molpairhandle = molpairhandles(k)
-      call molpair_get_rl(molpairhandle,idr,idl,gridptr,use_energy)
+      call molpair_get_rl(molpairhandle,idr,idl,gridptr,
+     1 torquegrid,use_energy)
 
-      if (gridmode.eq.1.and.gridptr.ne.0) then
+      if (gridptr.ne.0.and.torquegrid.ne.0) then
       fixre2 = 1
       else
       fixre2 = 0

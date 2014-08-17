@@ -13,49 +13,47 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-void error(const char *filename) {
+#ifdef TORQUEGRID
+  #define EnerGradX EnerGradTorque
+  #define energradsX energrads_torque
+  #define IS_TORQUEGRID 1
+#else
+  #define EnerGradX EnerGradStd
+  #define energradsX energrads_std
+  #define IS_TORQUEGRID 0
+#endif  
+
+static void error(const char *filename) {
   fprintf(stderr, "Reading error in grid file %s\n", filename);
   exit(1);
 }
 
-void get_shm_name(int shm_id, char *shm_name) {
-  sprintf(shm_name, "/attract-grid%d", shm_id);
-}
-
-void Grid::init(double gridspacing0, int gridextension0, double plateaudis0,
-double neighbourdis0, bool (&alphabet0)[MAXATOMTYPES]) {
-  gridspacing = gridspacing0;
-  gridextension = gridextension0;
-  plateaudis = plateaudis0;
-  plateaudissq = plateaudis*plateaudis;
-  plateaudissqinv = 1.0/plateaudissq;
-  neighbourdis = neighbourdis0;
-  neighbourdissq = neighbourdis * neighbourdis;
-  architecture = ARCHITECTURE;
-  //Pre-compute the scale-down-distance ratios
-  int size_ratio  = int(10000*plateaudissq);
-  _ratio = new double[size_ratio];
-  for (int n = 0; n <= size_ratio; n++) {
-    double dissq = ((n+0.5)/10000);
-    _ratio[n] = sqrt(dissq/plateaudissq) / (1/dissq) * (1/plateaudissq);
-  }
-  memcpy(alphabet, alphabet0, sizeof(alphabet));
-  alphabetsize = 0;
-  for (int n = 0; n < MAXATOMTYPES; n++) {
-    if (alphabet[n]) {
-      alphabetsize++;
-    }
-  }
-}  
-
-void Grid::read(const char *filename) {
+extern void get_shm_name(int shm_id, char *shm_name);
+  
+#ifdef TORQUEGRID
+void Grid::read_torque(const char *filename) {
+#else
+void Grid::read_std(const char *filename) {
+#endif
   int n;  
 
   int read;
   
+  this->torquegrid = IS_TORQUEGRID;
+  
   FILE *f = fopen(filename, "rb");  
   if (f == NULL) error(filename);
 
+  bool torquegrid0;
+  read = fread(&torquegrid0, sizeof(bool),1,f);
+  if (IS_TORQUEGRID && (!torquegrid0)) {
+    fprintf(stderr, "Reading error in grid file %s, grid was computed as a normal grid, but it was specified as a torque grid\n", filename);
+    exit(1);    
+  }
+  if ((!IS_TORQUEGRID) && torquegrid0) {
+    fprintf(stderr, "Reading error in grid file %s, grid was computed as a torque grid, but it was specified as a normal grid\n", filename);
+    exit(1);    
+  }  
   read = fread(&architecture, sizeof(short),1,f);  
   if (architecture != ARCHITECTURE) {
     fprintf(stderr, "Reading error in grid file %s, grid was computed on %d bit, but we are on %d bit\n", filename, architecture, ARCHITECTURE);
@@ -96,8 +94,8 @@ void Grid::read(const char *filename) {
 
   if (nr_energrads) {
     if (shm_energrads == -1) {
-      energrads = new EnerGrad[nr_energrads];
-      read = fread(energrads, nr_energrads*sizeof(EnerGrad),1,f);  
+      energradsX = new EnerGradX[nr_energrads];
+      read = fread(energradsX, nr_energrads*sizeof(EnerGradX),1,f);  
       if (!read) error(filename);
     }
     else {
@@ -108,16 +106,16 @@ void Grid::read(const char *filename) {
 	fprintf(stderr, "Reading error in grid file %s: shared memory segment %d for potential list does not exist\n", filename, shm_energrads);
 	exit(1); 
       }   
-      ftruncate(fshm1, nr_energrads*sizeof(EnerGrad));
-      energrads = (EnerGrad *) mmap(0,nr_energrads*sizeof(EnerGrad),
+      ftruncate(fshm1, nr_energrads*sizeof(EnerGradX));
+      energradsX = (EnerGradX *) mmap(0,nr_energrads*sizeof(EnerGradX),
        PROT_READ, MAP_SHARED | MAP_NORESERVE, fshm1, 0);
-      if (energrads == NULL) {
+      if (energradsX == NULL) {
 	fprintf(stderr, "Reading error in grid file %s: Could not load shared memory segment %d\n", filename, shm_energrads);
 	exit(1);       
       }  
     }  
   }
-
+  
   read = fread(&nr_neighbours, sizeof(nr_neighbours),1,f);  
   if (!read) error(filename);
   read = fread(&shm_neighbours, sizeof(shm_neighbours),1,f);  
@@ -197,8 +195,11 @@ void Grid::read(const char *filename) {
 
   init(gridspacing, gridextension, plateaudis,neighbourdis,alphabet0);
 }
-
-void Grid::write(const char *filename) {
+#ifdef TORQUEGRID
+void Grid::write_torque(const char *filename) {
+#else
+void Grid::write_std(const char *filename) {
+#endif
   long n;
   long innergridsize = gridx*gridy*gridz;
   long biggridsize = gridx2*gridy2*gridz2;    
@@ -210,8 +211,7 @@ void Grid::write(const char *filename) {
     exit(1);
   }
 
-  
-  EnerGrad *shmptr1 = NULL; Neighbour *shmptr2 = NULL;
+  EnerGradX *shmptr1 = NULL; Neighbour *shmptr2 = NULL;
   if (nr_energrads && shm_energrads != -1) {
     char shm_name[100];
     get_shm_name(shm_energrads, shm_name);
@@ -220,14 +220,14 @@ void Grid::write(const char *filename) {
       fprintf(stderr, "Grid::write error for %s: Cannot open shared memory for writing\n", filename);
       exit(1);
     }     
-    ftruncate(fshm1, nr_energrads*sizeof(EnerGrad));
-    shmptr1 = (EnerGrad *) mmap(0,nr_energrads*sizeof(EnerGrad),(PROT_READ | PROT_WRITE),
+    ftruncate(fshm1, nr_energrads*sizeof(EnerGradX));
+    shmptr1 = (EnerGradX *) mmap(0,nr_energrads*sizeof(EnerGradX),(PROT_READ | PROT_WRITE),
      MAP_SHARED , fshm1, 0);
     if (shmptr1 == MAP_FAILED) {
       fprintf(stderr, "Grid::write error for %s: Cannot map shared memory for writing\n", filename);
       exit(1);
     } 
-    memset(shmptr1,0,nr_energrads*sizeof(EnerGrad));
+    memset(shmptr1,0,nr_energrads*sizeof(EnerGradX));
     close(fshm1);    
   }
   
@@ -249,7 +249,8 @@ void Grid::write(const char *filename) {
     memset(shmptr2,0,nr_neighbours*sizeof(Neighbour));
     close(fshm2);
   }  
-    
+  
+  fwrite(&torquegrid, sizeof(bool),1,f);      
   fwrite(&architecture, sizeof(unsigned short),1,f);      
   fwrite(&gridspacing, sizeof(double),1,f);  
   fwrite(&gridextension, sizeof(int),1,f);
@@ -264,26 +265,74 @@ void Grid::write(const char *filename) {
   fwrite(&pivot,sizeof(Coor),1,f);
 
   if (nr_energrads) {
-    int nr_energrads2 = 0;  
-    for (n = 0; n < innergridsize; n++) {
-      if (innergrid[n].potential[MAXATOMTYPES]) nr_energrads2+=alphabetsize+1;
-    }
-    for (n = 0; n < biggridsize; n++) {
-      if (biggrid[n][MAXATOMTYPES]) nr_energrads2+=alphabetsize+1;
-    }  
+    energradsX = (EnerGradX *) realloc(energradsX, nr_energrads*sizeof(EnerGradX));
+    EnerGradX *energrads_reordered = new EnerGradX[nr_energrads];
+    memset(energrads_reordered, 0, nr_energrads*sizeof(EnerGradX));
+    if (energrads_reordered) { //only re-order the energrads if we got the memory for it    
+      int nr_energrads2 = 0;  
+      for (n = 0; n < innergridsize; n++) {
+        if (innergrid[n].potential[MAXATOMTYPES]) {
+          for (int i = 0; i <= MAXATOMTYPES; i++) {
+            if (i < MAXATOMTYPES && alphabet[i] == 0) continue;
+            unsigned int &oldpos = innergrid[n].potential[i];
+            unsigned int newpos = nr_energrads2+1;
+            memcpy(&energrads_reordered[newpos-1], &energradsX[oldpos-1], sizeof(EnerGradX));
+            oldpos = newpos;
+            nr_energrads2++;           
+          }
+        }  
+      }
+      for (n = 0; n < biggridsize; n++) {
+        if (biggrid[n][MAXATOMTYPES]) {
+          for (int i = 0; i <= MAXATOMTYPES; i++) {
+            if (i < MAXATOMTYPES && alphabet[i] == 0) continue;
+            unsigned int &oldpos = biggrid[n][i];
+            unsigned int newpos = nr_energrads2+1;
+            memcpy(&energrads_reordered[newpos-1], &energradsX[oldpos-1], sizeof(EnerGradX));
+            oldpos = newpos;
+            nr_energrads2++;           
+          }
+        }  
+      }  
     if (nr_energrads != nr_energrads2) {
       fprintf(stderr, "ERR nr_energrads %d %d\n", nr_energrads, nr_energrads2);
     }
+      free(energradsX);
+      energradsX = energrads_reordered;      
+    }  
   }
+  
   fwrite(&nr_energrads, sizeof(nr_energrads),1,f);
   fwrite(&shm_energrads, sizeof(shm_energrads),1,f);
    
   if (nr_energrads) { 
     if (shm_energrads == -1) 
-      fwrite(energrads,nr_energrads*sizeof(EnerGrad),1,f);
+      fwrite(energradsX,nr_energrads*sizeof(EnerGradX),1,f);
     else 
-      memcpy(shmptr1, energrads,nr_energrads*sizeof(EnerGrad));
+      memcpy(shmptr1, energradsX,nr_energrads*sizeof(EnerGradX));
   }  
+  
+  if (nr_neighbours) {
+    Neighbour *neighbours_reordered = new Neighbour[nr_neighbours];
+    memset(neighbours_reordered, 0, nr_neighbours*sizeof(Neighbour));
+    if (neighbours_reordered) { //only re-order the neighbours if we got the memory for it    
+      int nr_neighbours2 = 0;  
+      for (n = 0; n < innergridsize; n++) {
+        Voxel &v = innergrid[n];
+        if (v.nr_neighbours) {
+          memcpy(&neighbours_reordered[nr_neighbours2], &neighbours[v.neighbourlist-1], v.nr_neighbours*sizeof(Neighbour));
+          v.neighbourlist = nr_neighbours2+1;
+          nr_neighbours2 += v.nr_neighbours;
+        }        
+      }
+      if (nr_neighbours2 != nr_neighbours) {
+        fprintf(stderr, "ERR nr_neighbours %d %d\n", nr_neighbours, nr_neighbours2);
+      }      
+      delete[] neighbours;
+      neighbours = neighbours_reordered;                
+    }
+  }
+  
   fwrite(&nr_neighbours, sizeof(nr_neighbours),1,f);
   fwrite(&shm_neighbours, sizeof(shm_neighbours),1,f);
   if (shm_neighbours == -1) 
@@ -301,15 +350,15 @@ void Grid::write(const char *filename) {
 }
 
 #ifdef TORQUEGRID
-inline void add_potential(EnerGrad *energrads, Potential &p, int iab, double charge, int atomtype, double w, int fixre, double &evdw, double &eelec, Coor &grad, double *deltar, double (&rtorques)[3][3]) {
+inline void add_potential(EnerGradX *energrads, Potential &p, int iab, double charge, int atomtype, double w, int fixre, double &evdw, double &eelec, Coor &grad, double *deltar, double (&rtorques)[3][3]) {
 #else
-inline void add_potential(EnerGrad *energrads, Potential &p, int iab, double charge, int atomtype, double w, int fixre, double &evdw, double &eelec, Coor &grad, double *deltar) {
+inline void add_potential(EnerGradX *energrads, Potential &p, int iab, double charge, int atomtype, double w, int fixre, double &evdw, double &eelec, Coor &grad, double *deltar) {
 #endif
   if (p[atomtype] == 0) {
     evdw  += w * 999999;
   }
   else {
-    EnerGrad &e = *(energrads+p[atomtype]-1);
+    EnerGradX &e = *(energrads+p[atomtype]-1);
     evdw  += w * e.energy;
     if (iab) {
       Coor dgrad = {
@@ -339,7 +388,7 @@ inline void add_potential(EnerGrad *energrads, Potential &p, int iab, double cha
     }
     if (fabs(charge) > 0.001) {
       double wcharge = w * charge;
-      EnerGrad &e = *(energrads+p[MAXATOMTYPES]-1);
+      EnerGradX &e = *(energrads+p[MAXATOMTYPES]-1);
       eelec  += wcharge * e.energy;
       if (iab) {
 	Coor dgrad = {
@@ -372,12 +421,12 @@ inline void add_potential(EnerGrad *energrads, Potential &p, int iab, double cha
 }
 
 #ifdef TORQUEGRID
-inline void add_potential2(EnerGrad *energrads, Potential p, int iab, double charge, int atomtype, double w, int fixre, double &evdw, double &eelec, Coor &grad, double *deltar, double (&rtorques)[3][3]) {
+inline void add_potential2(EnerGradX *energrads, Potential p, int iab, double charge, int atomtype, double w, int fixre, double &evdw, double &eelec, Coor &grad, double *deltar, double (&rtorques)[3][3]) {
 #else
-inline void add_potential2(EnerGrad *energrads, Potential p, int iab, double charge, int atomtype, double w, int fixre, double &evdw, double &eelec, Coor &grad, double *deltar) {
+inline void add_potential2(EnerGradX *energrads, Potential p, int iab, double charge, int atomtype, double w, int fixre, double &evdw, double &eelec, Coor &grad, double *deltar) {
 #endif
   if (p[atomtype]) {
-    EnerGrad &e = *(energrads + p[atomtype] - 1);
+    EnerGradX &e = *(energrads + p[atomtype] - 1);
     evdw  += w * e.energy;
     if (iab) {
       Coor dgrad = {
@@ -407,7 +456,7 @@ inline void add_potential2(EnerGrad *energrads, Potential p, int iab, double cha
     }
     if (fabs(charge) > 0.001) {
       double wcharge = w * charge;
-      EnerGrad &e = *(energrads + p[MAXATOMTYPES] - 1);
+      EnerGradX &e = *(energrads + p[MAXATOMTYPES] - 1);
       eelec  += wcharge * e.energy;
       if (iab) {
 	Coor dgrad = {
@@ -519,46 +568,46 @@ inline void trilin(
  //   std::cerr << "Add potential px0 etc " << px0 << " " << px1 << " " <<py0 << " " << py1 << " " << pz0 << " " << pz1 << "\n";
     if (inside) {
       p = &g.innergrid[px0+gx*py0+gx*gy*pz0].potential;
-      add_potential(g.energrads, *p,iab,charge,atomtype,wx0*wy0*wz0, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
+      add_potential(g.energradsX, *p,iab,charge,atomtype,wx0*wy0*wz0, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
    //   std::cerr << evdw << " " << px0+gx*py0+gx*gy*pz0 << "\t";
       p = &g.innergrid[px0+gx*py0+gx*gy*pz1].potential;
-      add_potential(g.energrads, *p,iab,charge,atomtype,wx0*wy0*wz1, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
+      add_potential(g.energradsX, *p,iab,charge,atomtype,wx0*wy0*wz1, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
   //    std::cerr << evdw << " " << px0+gx*py0+gx*gy*pz1<< "\t";
       p = &g.innergrid[px0+gx*py1+gx*gy*pz0].potential;
-      add_potential(g.energrads, *p,iab,charge,atomtype,wx0*wy1*wz0, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
+      add_potential(g.energradsX, *p,iab,charge,atomtype,wx0*wy1*wz0, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
   //    std::cerr << evdw << " " << px0+gx*py1+gx*gy*pz0<< "\t";
       p = &g.innergrid[px0+gx*py1+gx*gy*pz1].potential;
-      add_potential(g.energrads, *p,iab,charge,atomtype,wx0*wy1*wz1, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
+      add_potential(g.energradsX, *p,iab,charge,atomtype,wx0*wy1*wz1, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
  //     std::cerr << evdw << " " << px0+gx*py1+gx*gy*pz1<< "\t";
       p = &g.innergrid[px1+gx*py0+gx*gy*pz0].potential;
-      add_potential(g.energrads, *p,iab,charge,atomtype,wx1*wy0*wz0, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
+      add_potential(g.energradsX, *p,iab,charge,atomtype,wx1*wy0*wz0, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
   //    std::cerr << evdw << "\t";
       p = &g.innergrid[px1+gx*py0+gx*gy*pz1].potential;
-      add_potential(g.energrads, *p,iab,charge,atomtype,wx1*wy0*wz1, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
+      add_potential(g.energradsX, *p,iab,charge,atomtype,wx1*wy0*wz1, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
 //      std::cerr << evdw << "\t";
       p = &g.innergrid[px1+gx*py1+gx*gy*pz0].potential;
-      add_potential(g.energrads, *p,iab,charge,atomtype,wx1*wy1*wz0, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
+      add_potential(g.energradsX, *p,iab,charge,atomtype,wx1*wy1*wz0, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
   //    std::cerr << evdw << "\t";
       p = &g.innergrid[px1+gx*py1+gx*gy*pz1].potential;
-      add_potential(g.energrads, *p,iab,charge,atomtype,wx1*wy1*wz1, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
+      add_potential(g.energradsX, *p,iab,charge,atomtype,wx1*wy1*wz1, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
     }
     else {
       p = &g.biggrid[px0+gx*py0+gx*gy*pz0];
-      add_potential2(g.energrads, *p,iab,charge,atomtype,wx0*wy0*wz0, fixre, evdw, eelec, grad ,deltar TORQUEARGS);    
+      add_potential2(g.energradsX, *p,iab,charge,atomtype,wx0*wy0*wz0, fixre, evdw, eelec, grad ,deltar TORQUEARGS);    
       p = &g.biggrid[px0+gx*py0+gx*gy*pz1];
-      add_potential2(g.energrads, *p,iab,charge,atomtype,wx0*wy0*wz1, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
+      add_potential2(g.energradsX, *p,iab,charge,atomtype,wx0*wy0*wz1, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
       p = &g.biggrid[px0+gx*py1+gx*gy*pz0];
-      add_potential2(g.energrads, *p,iab,charge,atomtype,wx0*wy1*wz0, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
+      add_potential2(g.energradsX, *p,iab,charge,atomtype,wx0*wy1*wz0, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
       p = &g.biggrid[px0+gx*py1+gx*gy*pz1];
-      add_potential2(g.energrads, *p,iab,charge,atomtype,wx0*wy1*wz1, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
+      add_potential2(g.energradsX, *p,iab,charge,atomtype,wx0*wy1*wz1, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
       p = &g.biggrid[px1+gx*py0+gx*gy*pz0];
-      add_potential2(g.energrads, *p,iab,charge,atomtype,wx1*wy0*wz0, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
+      add_potential2(g.energradsX, *p,iab,charge,atomtype,wx1*wy0*wz0, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
       p = &g.biggrid[px1+gx*py0+gx*gy*pz1];
-      add_potential2(g.energrads, *p,iab,charge,atomtype,wx1*wy0*wz1, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
+      add_potential2(g.energradsX, *p,iab,charge,atomtype,wx1*wy0*wz1, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
       p = &g.biggrid[px1+gx*py1+gx*gy*pz0];
-      add_potential2(g.energrads, *p,iab,charge,atomtype,wx1*wy1*wz0, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
+      add_potential2(g.energradsX, *p,iab,charge,atomtype,wx1*wy1*wz0, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
       p = &g.biggrid[px1+gx*py1+gx*gy*pz1];
-      add_potential2(g.energrads, *p,iab,charge,atomtype,wx1*wy1*wz1, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
+      add_potential2(g.energradsX, *p,iab,charge,atomtype,wx1*wy1*wz1, fixre, evdw, eelec, grad ,deltar TORQUEARGS);
     }
   }
  // std::cerr << "After adding potential " << evdw << "\n";
@@ -697,7 +746,11 @@ inline void trilin(
   }//end inside
 }
 
-extern "C" void nonbon_grid_(
+#ifdef TORQUEGRID  
+extern "C" void nonbon_grid_torque(
+#else  
+extern "C" void nonbon_grid_std(
+#endif  
   const Grid *&g, const int &rigid, 
   const int &iab, const int &fixre,
   const Coor *xl, const Coor *xr,const Coor &pivotr,const Coor &tr,  

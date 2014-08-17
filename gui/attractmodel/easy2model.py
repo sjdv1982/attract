@@ -14,7 +14,7 @@ def easy2model(emodel):
     if p.generate_modes:
       partner_use_flex = True
       pp.nr_modes=p.nr_modes
-    pp.deflex=True
+    pp.deflex=True    
     pp.rmsd_pdb=p.rmsd_pdb
     pp.rmsd_bb=p.rmsd_bb
     if p.ensemble_size > 1:
@@ -74,5 +74,12 @@ def easy2model(emodel):
    np=emodel.np,
    deredundant_ignorens = False,
    annotation = easy2model_version,
-  )
+  )  
+  if emodel.use_iattract:
+    iattract = IAttractParameters(
+     nstruc = emodel.nr_collect
+    ) 
+    newmodel.iattract = iattract
+    newmodel.demode = True ##TODO: maybe we want this in all cases..???
+    newmode.validate()
   return newmodel

@@ -114,9 +114,9 @@ c      Handle variables: full coordinates and modes
        integer ieins,nhm,nihm
        dimension xb(3*totmaxatom),x(3*totmaxatom)
        dimension xori(3*totmaxatom),xori0(3*totmaxatom)
-       dimension eig(maxlig,maxmode,3*maxatom)
-       dimension index_eig(maxlig,maxindexmode,maxlenindexmode)
-       dimension index_val(maxlig,maxindexmode,maxlenindexmode)
+       dimension eig(maxmode,3*maxatom,maxlig)
+       dimension index_eig(maxlenindexmode,maxindexmode,maxlig)
+       dimension index_val(maxlenindexmode,maxindexmode,maxlig)
        dimension ieins(maxlig),nhm(maxlig), nihm(maxlig)
        pointer(ptr_xb,xb)
        pointer(ptr_x,x)
@@ -151,7 +151,7 @@ c dligr / dligl is an array of nhm[ligand]/nhm[receptor]
 c deltar/deltar is an array of 6 + nhm[ligand]/nhm[receptor]
 
 c     Local variables: other      
-      integer i, j,l,n, use_grid, rigid, true, false
+      integer i, j,l,n, use_grid, torquegrid, rigid, true, false
       integer dummy2
       real*8 enon,epote,zero,e
       real*8 flcopy,xl0
@@ -181,7 +181,8 @@ c Are we using a grid?
 
 c get molpair 
 
-       call molpair_get_rl(molpairhandle,idr,idl,ptr_dmmy,dummy2)
+       call molpair_get_rl(molpairhandle,idr,idl,ptr_dmmy,
+     1  torquegrid,dummy2)
 
 c get full coordinates and normal modes
 
@@ -286,11 +287,12 @@ c      therefore, we must rotate the pm2 matrix
        enddo
        endif
 
-       call nonbon_grid(gridptr,rigid,iab,fixre,xl,xr,pivotr,tr,
-     1  wel,wer,chail,chair,iacil,iacir,natoml,natomr,
-     2  rc,ac,emin,rmin2,ipon,potshape,cdie,epsilon,
-     3  swi_on, swi_off,
-     4  fl,enon,epote,fr,pm2,deltar0) 
+       call nonbon_grid(gridptr,torquegrid,rigid,iab,fixre,
+     1  xl,xr,pivotr,tr,
+     2  wel,wer,chail,chair,iacil,iacir,natoml,natomr,
+     3  rc,ac,emin,rmin2,ipon,potshape,cdie,epsilon,
+     4  swi_on, swi_off,
+     5  fl,enon,epote,fr,pm2,deltar0) 
 c      rotate delta-translate back into global frame
 
        call rotate1(3*maxatom,

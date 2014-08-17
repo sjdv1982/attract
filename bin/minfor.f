@@ -39,7 +39,7 @@ c     Parameters
 
 c     Local variables      
       integer i,ii,iii,n,j,jj,k,kk,ir,isfv,itr,nfun,np     
-      integer itra, ieig, iindex, iori, fixre, gridmode,iscore,ivmax
+      integer itra, ieig, iindex, iori, fixre, iscore,ivmax
       integer ju,ju0,jl,jb,nmodes, jn,jn0, nimodes
       integer iab
       real*8 c,acc,dff,dgb,enlig,f,fa,fmin,gl1,gl2,gmin,dga,xnull,w
@@ -64,7 +64,7 @@ c     Local variables
 
 
       call ministate_f_minfor(ministatehandle,
-     1 iscore,ivmax,iori,itra,ieig,iindex,fixre,gridmode)
+     1 iscore,ivmax,iori,itra,ieig,iindex,fixre)
      
 
 c     always calculate both forces and energies      
@@ -128,7 +128,7 @@ c     set the hessian to a diagonal matrix
 c     set some variables for the first iteration
       dff=xnull
       call energy(cartstatehandle,ministatehandle,
-     1 iab,iori,itra,ieig,iindex,fixre,gridmode,
+     1 iab,iori,itra,ieig,iindex,fixre,
      2 ens,phi,ssi,rot,xa,ya,za,morph,dlig,
      3 locrests, has_locrests,seed,
      4 gesa,energies,delta,deltamorph)
@@ -352,7 +352,7 @@ c      write (*,*),'lig',i,phi(i),ssi(i),rot(i),xa(i),ya(i),za(i)
       enddo
 c      write(ERROR_UNIT,*) "Call other energy"
       call energy(cartstatehandle,ministatehandle,
-     1 iab,iori,itra,ieig,iindex,fixre,gridmode,
+     1 iab,iori,itra,ieig,iindex,fixre,
      2 ens,phi,ssi,rot,xa,ya,za,morph,dlig,
      3 locrests, has_locrests, seed,
      4 fb,energies,delta,deltamorph)
@@ -497,7 +497,7 @@ c     at this stage the whole calculation is complete
       endif
       
       call energy(cartstatehandle,ministatehandle,
-     1 iab,iori,itra,ieig,iindex,fixre,gridmode,
+     1 iab,iori,itra,ieig,iindex,fixre,
      2 ens,phi,ssi,rot,xa,ya,za,morph,dlig,
      3 locrests, has_locrests, seed,
      4 gesa,energies,delta,deltamorph)

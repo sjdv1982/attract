@@ -3,8 +3,6 @@ Type Data_ATTRACT_Rotations:Data{}
 Type Data_ATTRACT_Translations:Data{}
 Type Data_ATTRACT_Modes:Data{}
 Type Data_ATTRACT_Restraints:Data{}
-Type Data_CryoEM_SITUS:Data{}
-
 Type Data_TXT_FileList_PDB:Data{}
 
 Type AttractSymmetry {
@@ -14,6 +12,7 @@ Type AttractSymmetry {
     symmetry_axis.add_header("You can use generative symmetry or distance-restrained symmetry")
     symmetry_axis.add_header("If you want to use generative symmetry:")
     symmetry_axis.add_header(" - Provide an explicit symmetry axis and origin")    
+    symmetry_axis.add_header(" - Provide an explicit symmetry fold")    
     symmetry_axis.add_header(" - Specify a single reference symmetry partner")
     symmetry_axis.add_header(" - In the Docking Partner section, only define the reference partner structure")    
     symmetry_axis.add_header("If you want to use distance-restrained symmetry:")
@@ -22,6 +21,13 @@ Type AttractSymmetry {
     symmetry_axis.add_header(" - In the Docking Partner section, specify all partner structures, which must be identical")
     symmetry_axis.name = "Generative symmetry axis"
     symmetry_origin.name = "Origin for generative symmetry axis"
+  }
+  *Integer symmetry_fold
+  form {
+    symmetry_fold.name = "Symmetry fold (2-fold, 3-fold, ...)"
+  }
+  validate {
+    if symmetry_fold is not None: assert symmetry_fold > 1
   }
   Enum symmetry("Cx","Dx") = "Cx"
   validate {
@@ -33,9 +39,13 @@ Type AttractSymmetry {
     partners.form = "soft"
   }  
   validate {
-    if symmetry_axis is not None: assert len(partners) == 1
+    if symmetry_axis is not None: 
+      assert len(partners) == 1
+      assert symmetry_fold is not None
+      assert symmetry == "Cx"
     else:
       assert len(partners) > 1
+      assert symmetry_fold is None or symmetry_fold == len(partners)
       if symmetry == "Dx": assert len(partners) == 4
   }
   error {
@@ -152,7 +162,7 @@ Type AttractPartnerInterface {
   ## form collect_ensemble_list.add_header("If you specified a PDB file above, you may provide an ensemble conformer list for it")
   ## form collect_ensemble_list.name = "Collect ensemble list file"
   ## form collect_ensemble_list.type = "file"
-
+  Bool iattract_noflex = False  
   form {
     """
     For now, disable advanced features
@@ -342,6 +352,28 @@ Type AttractIteration {
   }
 }
 
+Type AttractAtomDensityGrid {
+  Float voxelsize
+  Integer dimension = 50
+  Float forceconstant = 1000.0
+  form {
+    voxelsize.name = "Voxel size (A)"
+    dimension.name = "Grid dimension (voxels)"
+    forceconstant.name = "Force constant"
+  }
+  validate {
+    assert voxelsize > 0
+    assert dimension > 0
+    assert forceconstant > 0
+  }
+}
+
+Type IAttractParameters {
+  Integer nstruc
+  Float icut = 3.0
+  #TODO for Christina: validation rules, error messages, form attributes....
+}
+
 Type AttractModel {
   String runname = "attract"
   form {
@@ -395,41 +427,6 @@ Type AttractModel {
       assert nr_iterations > 0
       assert nr_iterations >= len(iterations)
   }
-  Bool zoom = False  
-  Integer zoom_select = 1000
-  Integer zoom_clone = 20
-  Float zoom_ori = 0.25
-  Float zoom_trans = 5
-  *AttractIteration zoom_it_initial
-  *AttractIteration zoom_it_subsequent  
-  form {
-    zoom.group = "Iteration parameters"
-    zoom.add_header("Do you want to use a zoom-in protocol?")
-    zoom.add_header("Note that a zoom-in protocol ignores the parameters for the individual iterations")
-    zoom.name = "Use zoom-in protocol"      
-    
-    zoom_select.group = "Iteration parameters"
-    zoom_select.name = "Zoom-in protocol: number of structures to select after each iteration"
-    zoom_clone.group = "Iteration parameters"
-    zoom_clone.name = "Zoom-in protocol: cloning factor"
-    zoom_ori.group = "Iteration parameters"
-    zoom_ori.name = "Zoom-in protocol: rotational displacement (radians)"
-    zoom_trans.group = "Iteration parameters"
-    zoom_trans.name = "Zoom-in protocol: translation displacement (angstroms)"
-    zoom_it_initial.group = "Iteration parameters"
-    zoom_it_initial.name = "Zoom-in protocol: First iteration"
-    zoom_it_subsequent.group = "Iteration parameters"
-    zoom_it_subsequent.name = "Zoom-in protocol: subsequent iterations"
-    
-
-  }
-  validate {
-    assert zoom_clone > 1
-    if zoom: assert zoom_it_initial is not None
-    if zoom_it_initial is not None: assert zoom_it_initial.traj == False
-    if zoom and nr_iterations > 1: assert zoom_it_subsequent is not None
-    if zoom_it_subsequent is not None: assert zoom_it_subsequent.traj == False
-  }
   #***Sampling parameters***
   Bool fix_receptor = False
   ## form fix_receptor.name = "Fix the receptor during docking"    
@@ -472,18 +469,13 @@ Type AttractModel {
       assert translations_file is None
     else:
       assert rotations_file is not None or translations_file is not None
-      assert len(partners) == 2
-      
-    if search == "random":
-      check = False
-      for g in grids:
-        if g.gridname is not None:
-          check = True
-          
-      if check:
-        for p in partners:
-          assert p.gridname is not None
-  }   
+      assert len(partners) == 2          
+  }
+  Bool demode = False
+  ## form demode.add_header("If you used flexibility in the form normal modes or iATTRACT, you may choose remove the deformations (de-mode) after the docking")
+  ## form demode.name = "De-mode" 
+  
+  *IAttractParameters iattract
   form {
     fix_receptor.group = "Sampling parameters"
     search.group = "Sampling parameters"
@@ -493,6 +485,8 @@ Type AttractModel {
     translations_file.group = "Sampling parameters"
     restraints_file.group = "Sampling parameters"
     restraints_score_file.group = "Sampling parameters"
+    iattract.group = "Sampling parameters"
+    demode.group = "Sampling parameters"
   }
   #*** 
 
@@ -517,8 +511,14 @@ Type AttractModel {
   ## form ghost.add_header("In ghost mode, the forcefield is turned off")
   ## form ghost.name = "Enable ghost mode"
 
+  AttractAtomDensityGridArray atomdensitygrids = []
+  ## form atomdensitygrids.length = 3
+  ## form atomdensitygrids.count_from_one = True
+  ## form atomdensitygrids.form = "soft"
+  ## form atomdensitygrids.add_header("Instead of a forcefield, you can define an atom density grid to prevent clashes")
+  ## form atomdensitygrids.name = "Atom density grid"
+  
   Float epsilon = 15
-  ## form #epsilon.group = "Sampling parameters"
   ## form epsilon.add_header("Epsilon constant for the electrostatic energy term")
   ## form epsilon.name = "Epsilon"
   
@@ -530,53 +530,12 @@ Type AttractModel {
     rstk.group = _g
     forcefield.group = _g
     ghost.group = _g
+    atomdensitygrids.group = _g
     epsilon.group = _g
     dielec.group = _g
   }
   #***
-  
-  *ResourceData_CryoEM_SITUS cryoem_data
-  form {
-    cryoem_data.group = "Cryo-EM data"
-    cryoem_data.type = "file"
-    cryoem_data.name = "Cryo-EM density map (SITUS format)"
-  }  
-  *Float cryoem_resolution
-  form {
-    cryoem_resolution.group = "Cryo-EM data"
-    cryoem_resolution.name = "Cryo-EM density map resolution (in angstroms)"
-  }  
-  validate {
-    if cryoem_data is not None: assert cryoem_resolution > 0
-    if cryoem_data is None: assert cryoem_resolution is None
-  }
-
-  Enum cryoem_scoring_mode("no","attract","gvm","cc") = "no"
-  form {
-    cryoem_scoring_mode.group = "Cryo-EM data"
-    cryoem_scoring_mode.name = "Cryo-EM scoring criterion"
-    cryoem_scoring_mode.optiontitles = ("No separate scoring step with a higher-resolution map", "ATTRACT energy", "GVM score", "cross-correlation")
-  }
-  *ResourceData_CryoEM_SITUS cryoem_scoring_data
-  form {
-    cryoem_scoring_data.group = "Cryo-EM data"
-    cryoem_scoring_data.type = "file"
-    cryoem_scoring_data.name = "Cryo-EM density map used in scoring (SITUS format)"
-  }  
-  *Float cryoem_scoring_resolution
-  form {
-    cryoem_scoring_resolution.group = "Cryo-EM data"
-    cryoem_scoring_resolution.name = "Cryo-EM scoring density map resolution (in angstroms)"
-  }  
-  validate {
-    if cryoem_scoring_mode == "no": assert cryoem_scoring_data is None
-    if cryoem_scoring_mode != "no": assert cryoem_scoring_data is not None
-    if cryoem_scoring_data is not None: assert cryoem_scoring_resolution is not None
-    if cryoem_scoring_data is None: assert cryoem_scoring_resolution is None
-    if cryoem_scoring_data is not None: assert cryoem_data is not None
-    if cryoem_scoring_resolution is not None: assert cryoem_scoring_resolution <= cryoem_resolution    
-  }
-  
+    
   AttractSymmetryArray symmetries = []
   form {
     symmetries.length = 5
@@ -664,22 +623,19 @@ Type AttractModel {
     assert len(partners) > 0
     if calc_lrmsd: assert len(partners) == 2
     if calc_irmsd: assert len(partners) == 2
+    
+    if atomdensitygrids is not None and len(atomdensitygrids): assert ghost == True
+    if iattract is not None and forcefield != "OPLSX":
+      for pnr, partner in enumerate(partners):
+        assert not partner.is_reduced #iATTRACT + ATTRACT-reduced files don't mix
   }
   
   error {
-    'if cryoem_scoring_mode is not None: assert cryoem_scoring_mode in ("no","attract","gvm","cc")'
-    =>
-    ''
-
     'assert nr_iterations > 0'
     =>
     'You must set the number of docking iterations to at least 1, not {nr_iterations}'
 
     'if dielec is not None: assert dielec in ("cdie", "rdie")'
-    =>
-    ''
-
-    'if zoom_it_initial is not None: assert zoom_it_initial.traj == False'
     =>
     ''
 
@@ -691,25 +647,9 @@ Type AttractModel {
     =>
     'You supplied a starting structures file, you can't upload a rotations file'
     
-    'if cryoem_data is None: assert cryoem_resolution is None'
-    =>
-    'You supply a resolution for a CryoEM map, but you didn't define the map itself'
-
-    'if cryoem_scoring_mode != "no": assert cryoem_scoring_data is not None'
-    =>
-    'You turned of CryoEM scoring mode, but you didn't supply a map'
-
     'if forcefield is not None: assert forcefield in ("ATTRACT", "OPLSX")'
     =>
     ''
-
-    'if cryoem_scoring_resolution is not None: assert cryoem_scoring_resolution <= cryoem_resolution'
-    =>
-    'You supplied a CryoEM map for scoring with worse resolution than for sampling'
-
-    'if cryoem_scoring_data is not None: assert cryoem_data is not None'
-    =>
-    'You supply a CryoEM map for scoring, but not for sampling'
 
     'assert start_structures_file is None'
     =>
@@ -727,18 +667,6 @@ Type AttractModel {
     =>
     'You defined a non-existing grid name {partner.gridname} for partner {pnr+1}'
 
-    'if cryoem_scoring_data is not None: assert cryoem_scoring_resolution is not None'
-    =>
-    'You specified a CryoEM map for scoring, but did not specify its resolutuon'
-
-    'assert zoom_clone > 1'
-    =>
-    ''
-
-    'if zoom: assert zoom_it_initial is not None'
-    =>
-    ''
-
     'assert len(partners) == 2'
     =>
     'You must define two docking partners, not {len(partners)}'
@@ -747,17 +675,9 @@ Type AttractModel {
     =>
     'Ligand RMSD can only be calculated for two partners'
 
-    'if zoom_it_subsequent is not None: assert zoom_it_subsequent.traj == False'
-    =>
-    ''
-
     'if p.ensemblize == "custom": assert search == "custom"'
     =>
     'Custom ensemble selection can only be done with a custom docking search'
-
-    'if cryoem_data is not None: assert cryoem_resolution > 0'
-    =>
-    'You specified a CryoEM map, but did not specify its resolutuon'
 
     'if search == "syst": assert len(partners) == 2'
     =>
@@ -767,17 +687,9 @@ Type AttractModel {
     =>
     ''
 
-    'if zoom and nr_iterations > 1: assert zoom_it_subsequent is not None'
-    =>
-    ''
-
     'assert rotations_file is not None or translations_file is not None'
     =>
     'You must define a rotations or translations file'
-
-    'if cryoem_scoring_mode == "no": assert cryoem_scoring_data is None'
-    =>
-    'You supplied a CryoEM map for scoring, but you turned off CryoEM scoring mode'
 
     'assert translations_file is None'
     =>
@@ -786,15 +698,7 @@ Type AttractModel {
     'raise ValueError("The name of your run may contain only letters, digits, _ and -")'
     =>
     ''
-
-    'if cryoem_scoring_data is None: assert cryoem_scoring_resolution is None'
-    =>
-    'You supply a resolution for a CryoEM map for scoring, but you didn't define the map itself'
     
-    'assert p.gridname is not None'
-    =>
-    'If you define grids, you must assign a grid to every docking partner'
-
     'assert len(partners) > 0'
     =>
     'Please define at least one docking partner'

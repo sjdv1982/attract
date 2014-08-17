@@ -92,7 +92,7 @@ def get_selection(boundatoms, use_allresidues, use_allatoms):
   if not use_allresidues:
     selatoms = get_interface(boundatoms)
   else:
-    selatoms = [(n+1,a[1]) for n,a in enumerate(allatoms)]
+    selatoms = [(n+1,a) for n,a in enumerate(allatoms)]
       
   if not use_allatoms:
     selatoms = [(n,a) for n,a in selatoms if a[13:15] in ("CA","C ","O ","N ")]
@@ -147,6 +147,7 @@ def irmsd(atoms1, atoms2):
   RMSD = numpy.sqrt(abs(RMSD / L))
   return RMSD
 
+
 def read_pdb(f):
   ret1 = []
   ret2 = []
@@ -158,10 +159,11 @@ def read_pdb(f):
   return ret1, ret2
   
 if __name__ == "__main__":  
-
+  import os
   ensfiles = []
   modefile = None
   imodefile = None
+  name = None
   opt_allatoms = False
   opt_allresidues = False
 
@@ -202,7 +204,21 @@ if __name__ == "__main__":
       sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
       anr -= 2
       continue
+
+# Suppport for direct IRMSD with iATTRACT files
+    if anr <= len(sys.argv)-2 and arg == "--name":
+      name = sys.argv[anr+1]
+      sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
+      anr -= 2
+      continue
     
+    if anr <= len(sys.argv)-2 and arg == "--thresh":
+      thresh = float(sys.argv[anr+1])
+      threshsq = thresh*thresh
+      sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
+      anr -= 2
+      continue 
+  
     if anr <= len(sys.argv)-2 and arg == "--output":
       output = sys.argv[anr+1]
       sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
@@ -260,9 +276,15 @@ if __name__ == "__main__":
     f1 = open(output,'w')
   while 1:
     sys.stdout.flush()
+    if name is not None: 
+      newargs = initargs + ['--imodes','flexm-'+str(nstruc+1)+name+'.dat']
+      if not os.path.exists('flexm-'+str(nstruc+1)+name+'.dat'):
+	break
+      collectlib.collect_iattract(newargs)
+     
     result = collectlib.collect_next()
     if result: break
-    nstruc += 1
+    nstruc += 1    
     coor = collectlib.collect_all_coor()
     coor = numpy.array(coor)
     fcoor = coor[sel]

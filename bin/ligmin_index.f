@@ -5,11 +5,11 @@ c     Parameters
       include "max.fin"
       integer natom,ijk
       integer eig
-      dimension eig(maxlig,maxindexmode,maxlenindexmode)
+      dimension eig(maxlenindexmode,maxindexmode,maxlig)
       real*8 f,eig_val,delta
       integer nhm, nihm
       dimension delta(maxdof),
-     1        f(3*maxatom),eig_val(maxlig,maxindexmode,maxlenindexmode)
+     1        f(3*maxatom),eig_val(maxlenindexmode,maxindexmode,maxlig)
 
 
 c     Local variables
@@ -23,11 +23,11 @@ c  dei(i): skalar product between difference(actual pos.-ori-pos.) and eig(i).
       force = 0
       do 30 j=1,maxlenindexmode
 c     Only use relevant mode entries
-      jj = eig(ijk,i,j)
+      jj = eig(j,i,ijk)
       if (jj.eq.-1) then
       exit
       else
-      force = f(jj+1)*eig_val(ijk,i,j)
+      force = f(jj+1)*eig_val(j,i,ijk)
       delta(6+nhm+i)=delta(6+nhm+i)-force
       endif
 

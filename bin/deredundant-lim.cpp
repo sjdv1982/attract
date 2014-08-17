@@ -1,6 +1,6 @@
 //Re-implementation of deredundant.py
 
-//usage: ./deredundant structures.dat <number of ligands> [--ens <ensemble size for each ligand>] [--ignorens]\n");
+//usage: ./deredundant structures.dat <number of ligands> [--ens <ensemble size for each ligand>] [--lim <RMSD cutoff in A>]  [--ignorens]\n");
 
 //if ignorens == False (default), then different ensemble structures are never redundant
 //if ignorens == True, then the ensemble index is simply ignored
@@ -11,7 +11,7 @@
 #include <cstdio>
 
 const double radgyr = 30.0;
-const double lim = 0.05;
+float lim = 0.05;	//changed from #const double lim = 0.05# by Isaure
 
 extern "C" void print_struc_(
  const int &seed,
@@ -134,6 +134,15 @@ int main(int argc, char *argv[]) {
       argc--;
       continue;
     }
+    if (!strcmp(argv[3],"--lim")) {	//added by Isaure
+      lim = atof(argv[4]);
+      memmove(argv+3, argv+4, sizeof(char*) * (argc-3));
+      memmove(argv+3, argv+4, sizeof(char*) * (argc-3));
+      argc--;
+      argc--;
+      continue;
+    }
+
     if (!strcmp(argv[4],"--ens")) {
       int count = 0;
       while (argc > 5) {
