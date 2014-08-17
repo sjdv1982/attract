@@ -202,7 +202,8 @@ set -u -e
         ret += "python $ATTRACTTOOLS/swapcombine.py $topstruc > $topstruc-combined\n"
         ret += "python $ATTRACTDIR/gvm.py $mapfile $score_threshold $topstruc-combined $complex | awk '{print \"Energy:\", $1}' > $topstruc-gvm1\n"
         ret += "python $ATTRACTTOOLS/fill-energies.py $topstruc-combined $topstruc-gvm1 > $topstruc-gvm2\n"
-        ret += "python $ATTRACTTOOLS/topcombined.py $topstruc-gvm2 $nstruc --rev > $newinp\n"      
+        ret += "python $ATTRACTTOOLS/topcombined.py $topstruc-gvm2 $nstruc --rev > $topstruc-topcombined\n"
+        ret += "python $ATTRACTTOOLS/monte.py $topstruc-topcombined $clone2 > $newinp\n"
       else:      
         ret += "python $ATTRACTTOOLS/monte.py $topstruc %s > $newinp\n" %  clone
       ret += "inp=$newinp\n"
