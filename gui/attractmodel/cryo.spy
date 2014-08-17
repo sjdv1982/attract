@@ -33,14 +33,16 @@ Type CryoInterface {
   CryoPartnerInterfaceArray partners = []
   ## form partners.length = 6
   ## form partners.form = "soft"
+  ## form partners.count_from_one = True
   AxSymmetryArray axsymmetry = []
   ## form axsymmetry.length = 3
   ## form axsymmetry.form = "soft"
   validate {
+    if len(axsymmetry): assert len(tabu) == 0
     for a in axsymmetry: assert a.molecule <= len(partners)
   }
   
-  *ResourceData_CryoEM_SITUS mapfile
+  *ResourceData_CryoEM_SITUS mapfile  
   ## form mapfile.type = "file"    
   *String mapfilename
   validate {
@@ -70,7 +72,15 @@ Type CryoInterface {
   }
   
   *ResourceData_ATTRACT_Restraints restraints_file
-  ## form restraints_file.type = "file"    
+  ## form restraints_file.type = "file"
+  FilenameArray tabu = []
+  ## form tabu.form = "soft"
+  ## form tabu.length = 10  
+  form {
+    tabu.count_from_one = True
+    for n in range(tabu.length):
+      tabu[n].type = "file"
+  }
   Enum score_method("gvm", "corr") = "gvm"
   Float score_threshold = 1.0  
   Integer nstruc = 1000
@@ -140,10 +150,12 @@ Type CryoEasyInterface {
   CryoPartnerInterfaceArray partners = []
   ## form partners.length = 6
   ## form partners.form = "soft"
+  ## form partners.count_from_one = True
   AxSymmetryArray axsymmetry = []
   ## form axsymmetry.length = 3
   ## form axsymmetry.form = "soft"
   validate {
+    if len(axsymmetry): assert len(tabu) == 0
     for a in axsymmetry: assert a.molecule <= len(partners)
   }
   
@@ -153,6 +165,15 @@ Type CryoEasyInterface {
   validate {
     assert not (mapfile is None and mapfilename is None)
     assert mapfile is not None or mapfilename is not None
+  }
+
+  FilenameArray tabu = []
+  ## form tabu.form = "soft"
+  ## form tabu.length = 10  
+  form {
+    tabu.count_from_one = True
+    for n in range(tabu.length):
+      tabu[n].type = "file"
   }
   
   String runname = "attract-em"
