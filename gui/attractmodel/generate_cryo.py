@@ -1,27 +1,23 @@
 from __future__ import print_function
 from math import *
 
-itscript_axsym = """
-outp=dock-it%(it)s.dat
+
+itscript1 = """outp=dock-it%(it)s.dat
 sorted=dock-it%(it)s-sorted.dat
 topstruc=dock-it%(it)s-topstruc.dat
 python $ATTRACTDIR/../protocols/attract.py $inp $dock0 %(dock)s --chunks $threads1  --np $threads1 --output $outp
 python $ATTRACTTOOLS/filter-energy.py $outp $energy_threshold > $outp-filtered
-./axsym.sh $outp-filtered > $outp-axsym
+"""
+
+itscript2_axsym = """./axsym.sh %s > $outp-axsym
 python $ATTRACTDIR/gvm.py $mapfile $score_threshold $outp-axsym $complex | awk '{print "Energy:", $1}' > $outp-gvm1
-python $ATTRACTTOOLS/fill-energies.py $outp-filtered $outp-gvm1 > $outp-gvm2
+python $ATTRACTTOOLS/fill-energies.py %s $outp-gvm1 > $outp-gvm2
 python $ATTRACTTOOLS/sort.py $outp-gvm2 --rev > $sorted
 $ATTRACTTOOLS/top $sorted $ntop > $topstruc
 """ 
 
-itscript_noaxsym = """
-outp=dock-it%(it)s.dat
-sorted=dock-it%(it)s-sorted.dat
-topstruc=dock-it%(it)s-topstruc.dat
-python $ATTRACTDIR/../protocols/attract.py $inp $dock0 %(dock)s --chunks $threads1  --np $threads1 --output $outp
-python $ATTRACTTOOLS/filter-energy.py $outp $energy_threshold > $outp-filtered
-python $ATTRACTDIR/gvm.py $mapfile $score_threshold $outp-filtered $complex | awk '{print "Energy:", $1}' > $outp-gvm1
-python $ATTRACTTOOLS/fill-energies.py $outp-filtered $outp-gvm1 > $outp-gvm2
+itscript2_noaxsym = """python $ATTRACTDIR/gvm.py $mapfile $score_threshold %s $complex | awk '{print "Energy:", $1}' > $outp-gvm1
+python $ATTRACTTOOLS/fill-energies.py %s $outp-gvm1 > $outp-gvm2
 python $ATTRACTTOOLS/sort.py $outp-gvm2 --rev > $sorted
 $ATTRACTTOOLS/top $sorted $ntop > $topstruc
 """ 
@@ -48,7 +44,7 @@ set -u -e
   filenames = []
   pdbnames = []
   pdbnames3 = set(("partners.pdb","partners-axsym.pdb"))
-  for pnr,p in enumerate(m.partners):
+  for p in m.partners:
     assert p.code is None #TODO: not implemented
     #TODO: select chain
     pdbname = p.pdbfile.name
@@ -126,7 +122,36 @@ set -u -e
     ret += "complex=partners-axsym.pdb\n\n"
   else:
     ret += "complex=partners.pdb\n"     
-  
+
+  tabunames = []
+  if len(m.tabu):
+    ret += "\n"
+    for tpdbname in m.tabu:    
+      pdbname2 = os.path.split(tpdbname)[1]
+      if pdbname2.count(".") > 1:
+        raise ValueError("The 'reduce' program does not support PDB files with double extension: '%s'" % pdbname2)
+      pdbname3 = "tabu"
+      pdbname3_0 = pdbname3
+      pcount = 1
+      while 1:
+        pdbname3c = [pdbname3] + [pdbname3+chr(ord('A')+n) for n in range(np)]        
+        if not any([pn in pdbnames3 for pn in pdbname3c]): break
+        pcount += 1
+        pdbname3 = pdbname3_0 + "-" + str(pcount)
+      for pn in pdbname3c: pdbnames3.add(pn)
+      pdbname4 = pdbname3 + ".pdb"
+      if pdbname4 != tpdbname:
+        ret += "cat %s > %s\n" % (tpdbname, pdbname4)          
+      tnames = []
+      for n in range(np):
+        ch = chr(ord('A')+n)
+        tname = pdbname3 + ch + ".pdb"
+        tnamer = pdbname3 + ch + "r.pdb"
+        ret += "awk '$1 == \"ATOM\" && substr($0,22,1) == \"%s\"' %s > %s\n" % (ch, pdbname4, tname)
+        ret += "$ATTRACTDIR/reduce %s > /dev/null\n" % tname
+        tnames.append(tnamer)
+      tabunames.append(tnames)  
+    ret += "\n"
   if m.mapmass is None:
     ret += "mapmass=`python $ATTRACTTOOLS/mass.py $complex`\n"
   else:
@@ -163,9 +188,13 @@ set -u -e
   ret += "dock_stage4=\'%s\'\n" % dock_stages[3]
   ret += "dock_stage5=\'%s\'\n" % dock_stages[4]
   clonefac = m.nstruc/m.ntop
-  clone1 = "\'--ori %s --trans %s --clone %d --keepfirst\'" % (m.clone_rot[0]*fr, m.clone_center[0]*fc, clonefac)
-  clone2 = "\'--ori %s --trans %s --clone %d --keepfirst\'" % (m.clone_rot[1]*fr, m.clone_center[1]*fc, clonefac)
-  ret += "clone1=%s\n" % clone1
+  if len(m.partners) == 1:
+    clone1 = "\'--ori %s --trans %s --clone %d --keepfirst\'" % (m.clone_rot[0]*fr, m.clone_center[0]*fc, clonefac)
+    ret += "clone1=%s\n" % clone1
+  else:
+    noclone = "\'--ori %s --trans %s\'" % (m.clone_rot[1]*fr, m.clone_center[1]*fc)
+    ret += "noclone=%s\n" % noclone
+  clone2 = "\'--ori %s --trans %s --clone %d --keepfirst\'" % (m.clone_rot[1]*fr, m.clone_center[1]*fc, clonefac)  
   ret += "clone2=%s\n" % clone2
   fast = ""
   if len(m.partners) > 1: fast = " --fast"
@@ -174,9 +203,9 @@ set -u -e
 
   ret += "#iterations\n"
   if len(m.axsymmetry):
-    itscript = itscript_axsym
+    itscript2 = itscript2_axsym
   else:
-    itscript = itscript_noaxsym
+    itscript2 = itscript2_noaxsym
   for it in range(1,m.iterations+1):
     dock = "$dock_stage1"
     clone = "$clone1"
@@ -194,7 +223,21 @@ set -u -e
       else:
         dock = "$dock_stage5"
         clone = "$clone2"
-    ret += itscript % {"dock": dock, "it": it}    
+    ret += itscript1 % {"dock": dock, "it": it}    
+    filtered = "$outp-filtered"    
+    if len(m.tabu):
+      rmsdfiles = []
+      for n in range(len(m.tabu)):
+        tfiles = tabunames[n]
+        rmsdpdbfiles = []
+        for a,b in zip(filenames, tfiles): rmsdpdbfiles += [a,b]
+        rmsdfile = filtered + "-rmsd-tabu%d" % (n+1)
+        rmsdfiles.append(rmsdfile)
+        ret += "$ATTRACTDIR/rmsd %s %s | grep RMSD > %s\n" % (filtered, " ".join(rmsdpdbfiles), rmsdfile)
+      newfiltered = filtered + "-tabu"
+      ret += "python $ATTRACTTOOLS/filter-tabu.py %s 10.0 %s > %s\n" % (filtered, " ".join(rmsdfiles), newfiltered)
+      filtered = newfiltered
+    ret += itscript2 % (filtered, filtered)
     assert m.score_method == "gvm" #TODO: non-GVM    
     if it < m.iterations:
       ret += "newinp=dock-preit%s.dat\n" % (it+1)
@@ -203,10 +246,10 @@ set -u -e
         ret += "python $ATTRACTDIR/gvm.py $mapfile $score_threshold $topstruc-combined $complex | awk '{print \"Energy:\", $1}' > $topstruc-gvm1\n"
         ret += "python $ATTRACTTOOLS/fill-energies.py $topstruc-combined $topstruc-gvm1 > $topstruc-gvm2\n"
         ret += "python $ATTRACTTOOLS/topcombined.py $topstruc-gvm2 $nstruc --rev > $topstruc-topcombined\n"
-        ret += "python $ATTRACTTOOLS/monte.py $topstruc-topcombined $clone2 > $newinp\n"
+        ret += "python $ATTRACTTOOLS/monte.py $topstruc-topcombined $noclone > $newinp\n"
       else:      
         ret += "python $ATTRACTTOOLS/monte.py $topstruc %s > $newinp\n" %  clone
-      ret += "inp=$newinp\n"
+      ret += "inp=$newinp\n\n"
     else:
       ret += "\nln -s $topstruc result.dat\n"
   return ret
