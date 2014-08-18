@@ -35,7 +35,11 @@ set -u -e
   mapfilename = m.mapfilename
   if mapfilename is None: 
     mapfilename = m.mapfile.name
-  ret += "mapfile=%s\n" % mapfilename
+  mapfilename2 = "map-scaled.sit"
+  if mapfilename == mapfilename2:
+    mapfilename2 = "map-scaled-scaled.sit"
+  ret += "mapfile0=%s\n" % mapfilename
+  ret += "mapfile=%s\n" % mapfilename2
   ret += "mapmask_threshold=%s\n" % m.mapmask_threshold
   ret += "nstruc=%d\n" % m.nstruc
   ret += "ntop=%d\n" % m.ntop
@@ -43,6 +47,7 @@ set -u -e
   
   filenames = []
   pdbnames = []
+  collectnames = []
   pdbnames3 = set(("partners.pdb","partners-axsym.pdb"))
   for p in m.partners:
     assert p.code is None #TODO: not implemented
@@ -62,6 +67,7 @@ set -u -e
       pdbname4 = pdbname3 + ".pdb"
       if pdbname4 != pdbname:
         ret += "cat %s > %s\n" % (pdbname, pdbname4)          
+      collectnames.append(pdbname4)
       pdbname_reduced = pdbname3 + "r.pdb"
       ret += "$ATTRACTDIR/reduce %s > /dev/null\n" % pdbname4            
       pdbnames.append(pdbname)
@@ -156,6 +162,7 @@ set -u -e
     ret += "mapmass=`python $ATTRACTTOOLS/mass.py $complex`\n"
   else:
     ret += "mapmass=%s" % m.mapmass
+  ret += "python $ATTRACTTOOLS/em/mapsumset-smart.py $mapfile0 $mapfile $mapmass\n" 
   ret += "mask1=map-scale-mask1.mask\n"
   ret += "mask2=map-scale-mask2.mask\n"
   ret += "python $ATTRACTTOOLS/em/situs2mask.py $mapfile $mapmask_threshold %s %s $mask1 ${mask1%%%%.*}.sit\n" % (m.mapmask1_voxelsize, m.mapmask1_dimension)
@@ -252,4 +259,9 @@ set -u -e
       ret += "inp=$newinp\n\n"
     else:
       ret += "\nln -s $topstruc result.dat\n"
+      ret += "$ATTRACTTOOLS/top result.dat 1 > best-result.dat\n"
+      ret += "$ATTRACTTOOLS/top result.dat 10 > top10-result.dat\n"
+      collectnamestr = " ".join(collectnames)
+      ret += "$ATTRACTDIR/collect best-result.dat %s > best-result.pdb\n" % collectnamestr
+      ret += "$ATTRACTDIR/collect top10-result.dat %s > top10-result.pdb\n" % collectnamestr
   return ret

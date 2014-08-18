@@ -51,7 +51,7 @@ Type CryoInterface {
   }
   *Float mapmass
   Float energy_threshold = 10000
-  Float mapmask_threshold = 2.0  
+  Float mapmask_threshold = 10.0  
   Float mapmask1_voxelsize = 10
   Float mapmask1_dimension = 500
   Float mapmask2_voxelsize = 5
@@ -82,7 +82,7 @@ Type CryoInterface {
       tabu[n].type = "file"
   }
   Enum score_method("gvm", "corr") = "gvm"
-  Float score_threshold = 1.0  
+  Float score_threshold = 10.0  
   Integer nstruc = 1000
   Integer ntop = 50
   Integer iterations = 12
@@ -203,9 +203,10 @@ Define CryoInterface(CryoEasyInterface m) {
   
   mp = len(m.partners)
   if mp > 3: mp = 3
-  dof_factor = 3 ** (mp - 1)
-  ret.nstruc *= dof_factor
-  ret.ntop *= dof_factor
+  dof_factor1 = 6 ** (mp - 1)
+  dof_factor2 = 3 ** (mp - 1)
+  ret.nstruc *= dof_factor1
+  ret.ntop *= dof_factor2
   
   rotscalefactor = 1.0/len(m.partners)
   ret.global_scale_rot *= rotscalefactor

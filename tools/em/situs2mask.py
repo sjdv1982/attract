@@ -18,7 +18,7 @@ except:
   print("Syntax: situs2mask <SITUS map file> <map threshold> <mask voxelsize> <box limit in A> <output mask file in .mask format> [output mask file in SITUS format]")
   sys.exit(1)
   
-extrusion = 3 #1 on each side
+#extrusion = 3 #1 on each side
     
 data, gridspacing, origin = read_situs(situsfile)
 data[data<threshold]=-1
@@ -36,9 +36,9 @@ masksize = [v/ceilratio for v in padzoomdata.shape]
 mask = padzoomdata.reshape([masksize[0], ceilratio, masksize[1], ceilratio, masksize[2], ceilratio]).mean(5).mean(3).mean(1)
 mask[mask>=0]=1
 mask[mask<0]=0
-extrusionkernel = numpy.array([1.0]*extrusion**3).reshape((extrusion,extrusion,extrusion))
-mask = scipy.signal.convolve(mask, extrusionkernel, "same")
-mask[mask>=0.02]=1
+#extrusionkernel = numpy.array([1.0]*extrusion**3).reshape((extrusion,extrusion,extrusion))
+#mask = scipy.signal.convolve(mask, extrusionkernel, "same")
+#mask[mask>=0.02]=1
 boolmask = numpy.greater(mask, 0)
 originshift = (ratio-1)*gridspacing
 maskorigin = origin + originshift
