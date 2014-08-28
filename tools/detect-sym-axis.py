@@ -39,7 +39,7 @@ for k1 in cA:
     vec += cross
     first = False
 vec /= numpy.linalg.norm(vec) 
-print "%.3f %.3f %.3f" % tuple(vec)
+print "%.6f %.6f %.6f" % tuple(vec)
     
     
   

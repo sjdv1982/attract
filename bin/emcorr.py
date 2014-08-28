@@ -1,6 +1,6 @@
 """
-Calculate Gradient Vector Matching (GVM) score
-usage: python gvm.py <SITUS map> <gradient threshold> <ATTRACT DAT file>  <ATTRACT-compatible PDB file()>\
+Calculate EM cross-correlation score
+usage: python emcorr.py <SITUS map> <resolution> <threshold> <ATTRACT DAT file>  <ATTRACT-compatible PDB file(s)>\
 """
 import sys, os, copy
 import multiprocessing
@@ -8,11 +8,6 @@ import multiprocessing
 import numpy, scipy.signal, scipy.ndimage
 import gridify
 from math import sqrt
-
-p = -1.0  #sign swaps, because we are *convoluting* with a kernel; an atom at X=10 means a negative X gradient at X=11!
-gvm_kernel_z = numpy.array( [ [[-p, 0, p]] * 3] * 3)
-gvm_kernel_x = gvm_kernel_z.swapaxes(2,0)
-gvm_kernel_y = gvm_kernel_z.swapaxes(2,1)
 
 def read_situs(situsfile):
   header = open(situsfile).readline()
@@ -31,18 +26,20 @@ def read_situs(situsfile):
   data = data.reshape(dimensions, order='F')
   return data, voxelsize, origin
 
-def calc_gvm(coor):
+def calc_emcorr(coor):
   pdbmap = numpy.zeros(emdata.shape, order='F') 
   gridify.gridify(coor, pdbmap, gridspacing, origin)
-  pdbgradx = scipy.ndimage.filters.prewitt(pdbmap, axis=0, mode="constant")[1:-1,1:-1,1:-1]
-  pdbgrady = scipy.ndimage.filters.prewitt(pdbmap, axis=1, mode="constant")[1:-1,1:-1,1:-1]
-  pdbgradz = scipy.ndimage.filters.prewitt(pdbmap, axis=2, mode="constant")[1:-1,1:-1,1:-1]
-  sumx, sumxy, sumxx = 0.0,0.0,0.0
-  for pdbgrad, emgradm,em_mask in zip((pdbgradx,pdbgrady,pdbgradz),(emgradxm,emgradym,emgradzm),(em_maskx,em_masky,em_maskz)):
-    pdbgradm = pdbgrad[em_mask]
-    sumx += numpy.sum(pdbgrad, axis=None)
-    sumxx += numpy.sum(numpy.dot(pdbgradm, pdbgradm), axis=None)
-    sumxy += numpy.sum(numpy.dot(pdbgradm, emgradm), axis=None)
+  pdbmap_gaussian = scipy.ndimage.filters.gaussian_filter(pdbmap, sigma, mode="constant")
+  pdb_mask = (pdbmap_gaussian > threshold)
+  corrcount = numpy.count_nonzero(pdb_mask)
+  if corrcount == 0: return 0.0
+  pdbmap_gaussianm = pdbmap_gaussian[pdb_mask]
+  emdata_gaussianm = emdata_gaussian[pdb_mask]
+  sumy = numpy.sum(emdata_gaussianm, axis=None)
+  sumyy = numpy.sum(emdata_gaussianm * emdata_gaussianm, axis=None)  
+  sumx = numpy.sum(pdbmap_gaussianm, axis=None)
+  sumxx = numpy.sum(numpy.dot(pdbmap_gaussianm, pdbmap_gaussianm), axis=None)
+  sumxy = numpy.sum(numpy.dot(pdbmap_gaussianm, emdata_gaussianm), axis=None)
   sxx = sumxx - sumx * sumx / corrcount;
   sxy = sumxy - sumx * sumy / corrcount;
   syy = sumyy - sumy * sumy / corrcount;
@@ -89,33 +86,20 @@ if __name__ == "__main__":
       
   emfile = sys.argv[1]
   assert os.path.exists(emfile), emfile
-  threshold = float(sys.argv[2])
-  datfile = sys.argv[3]
+  resolution = float(sys.argv[2])
+  threshold = float(sys.argv[3])
+  datfile = sys.argv[4]
   assert os.path.exists(datfile), datfile
-  pdbfiles = sys.argv[4:]
+  pdbfiles = sys.argv[5:]
   for pdbfile in pdbfiles:
     assert os.path.exists(pdbfile), pdbfile
   
   emdata, gridspacing, origin = read_situs(emfile)
-
-  emgradx = scipy.ndimage.filters.prewitt(emdata, axis=0, mode="constant")[1:-1,1:-1,1:-1]
-  emgrady = scipy.ndimage.filters.prewitt(emdata, axis=1, mode="constant")[1:-1,1:-1,1:-1]
-  emgradz = scipy.ndimage.filters.prewitt(emdata, axis=2, mode="constant")[1:-1,1:-1,1:-1]
-  em_maskx = ((emgradx >= threshold) | (emgradx <= -threshold))
-  em_masky = ((emgrady >= threshold) | (emgrady <= -threshold))
-  em_maskz = ((emgradz >= threshold) | (emgradz <= -threshold))
-  emgradxm = emgradx[em_maskx]
-  emgradym = emgrady[em_masky]
-  emgradzm = emgradz[em_maskz]
-  
-  sumy, sumyy = 0.0, 0.0
-  corrcount = 0
-  for emgradm, em_mask in zip((emgradxm,emgradym,emgradzm),(em_maskx,em_masky,em_maskz)):
-    sumy += numpy.sum(emgradm, axis=None)
-    sumyy += numpy.sum(emgradm * emgradm, axis=None)
-    corrcount += numpy.count_nonzero(em_mask)
-  assert corrcount > 0 #gradients are too weak
-  
+  sig1 = resolution/2.0;
+  varmap = sig1*sig1/(gridspacing*gridspacing); 
+  sigma = sqrt(varmap/3.0); 
+  emdata_gaussian = scipy.ndimage.filters.gaussian_filter(emdata, sigma, mode="constant")
+    
   initargs = [datfile] + pdbfiles
   if modefile: initargs += ["--modes", modefile]
   if imodefile: initargs += ["--imodes", imodefile]
@@ -136,8 +120,8 @@ if __name__ == "__main__":
       coor = collectlib.collect_coor(copy=True)          
       coors.append(coor)
     if eof and not nstruc: break
-    #corr = [calc_gvm(coor) for coor in coors]
-    corr = pool.map(calc_gvm, coors)
+    #corr = [calc_emcorr(coor) for coor in coors]
+    corr = pool.map(calc_emcorr, coors)
     for c in corr:
-      print "%.5f" % c
+      print "%.6f" % c
     if eof: break  

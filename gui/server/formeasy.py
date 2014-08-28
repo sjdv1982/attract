@@ -120,6 +120,7 @@ def webform(f, model=None):
     ff.tooltip_doc = "documentation.html#partners-structure_file"
     ff.span = True
     b.members.append("ensemble_size")
+    ff = fp.ensemble_size
     ff.tooltip_doc = "documentation.html#partners-ensemble_size"
     ff.span = True
     ### END b_struc block
