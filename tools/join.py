@@ -33,7 +33,10 @@ allstructures = {}
 maxstruc = 0
 for n in range(nrsplit):
   fnam = "%s-%d" % (sys.argv[1], n+1)
-  header0,structures = read_struc(fnam)
+  try:
+    header0,structures = read_struc(fnam)
+  except:
+    continue
   if n == 0: header = header0
   currstruc = None
   currstruc_false = False

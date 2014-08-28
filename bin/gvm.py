@@ -1,6 +1,6 @@
 """
 Calculate Gradient Vector Matching (GVM) score
-usage: python gvm.py <SITUS map> <gradient threshold> <ATTRACT DAT file>  <ATTRACT-compatible PDB file>\
+usage: python gvm.py <SITUS map> <gradient threshold> <ATTRACT DAT file>  <ATTRACT-compatible PDB file()>\
 """
 import sys, os, copy
 import multiprocessing
@@ -92,8 +92,9 @@ if __name__ == "__main__":
   threshold = float(sys.argv[2])
   datfile = sys.argv[3]
   assert os.path.exists(datfile), datfile
-  pdbfile = sys.argv[4]
-  assert os.path.exists(pdbfile), pdbfile
+  pdbfiles = sys.argv[4:]
+  for pdbfile in pdbfiles:
+    assert os.path.exists(pdbfile), pdbfile
   
   emdata, gridspacing, origin = read_situs(emfile)
 
@@ -115,7 +116,7 @@ if __name__ == "__main__":
     corrcount += numpy.count_nonzero(em_mask)
   assert corrcount > 0 #gradients are too weak
   
-  initargs = [datfile, pdbfile]
+  initargs = [datfile] + pdbfiles
   if modefile: initargs += ["--modes", modefile]
   if imodefile: initargs += ["--imodes", imodefile]
   for nr, ensfile in ensfiles:

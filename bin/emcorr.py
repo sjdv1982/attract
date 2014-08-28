@@ -1,6 +1,6 @@
 """
 Calculate EM cross-correlation score
-usage: python emcorr.py <SITUS map> <resolution> <threshold> <ATTRACT DAT file>  <ATTRACT-compatible PDB file>\
+usage: python emcorr.py <SITUS map> <resolution> <threshold> <ATTRACT DAT file>  <ATTRACT-compatible PDB file(s)>\
 """
 import sys, os, copy
 import multiprocessing
@@ -90,8 +90,9 @@ if __name__ == "__main__":
   threshold = float(sys.argv[3])
   datfile = sys.argv[4]
   assert os.path.exists(datfile), datfile
-  pdbfile = sys.argv[5]
-  assert os.path.exists(pdbfile), pdbfile
+  pdbfiles = sys.argv[5:]
+  for pdbfile in pdbfiles:
+    assert os.path.exists(pdbfile), pdbfile
   
   emdata, gridspacing, origin = read_situs(emfile)
   sig1 = resolution/2.0;
@@ -99,7 +100,7 @@ if __name__ == "__main__":
   sigma = sqrt(varmap/3.0); 
   emdata_gaussian = scipy.ndimage.filters.gaussian_filter(emdata, sigma, mode="constant")
     
-  initargs = [datfile, pdbfile]
+  initargs = [datfile] + pdbfiles
   if modefile: initargs += ["--modes", modefile]
   if imodefile: initargs += ["--imodes", imodefile]
   for nr, ensfile in ensfiles:
