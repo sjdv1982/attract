@@ -3,6 +3,7 @@ from _read_struc import read_struc
 header,structures = read_struc(sys.argv[1])
 structures = list(structures)
 selstruc = int(sys.argv[2])
+rev = False
 if len(sys.argv) > 3:
   assert len(sys.argv) == 4
   assert sys.argv[3].startswith("--rev")
@@ -27,21 +28,26 @@ for l1,l2 in structures:
 assert len(energies) == len(structures)
 
 origin = {}
+selected = set()
 for stnr, c in enumerate(combi):
-  for v in set(c):
+  cc = set(c)
+  if len(cc) == 1: #original structure
+    selected.add(stnr)
+    continue
+  for v in cc:
     if v not in origin: origin[v] = []
     origin[v].append(stnr)
 
-selected = set()
 if selstruc < len(structures):  
   allowed = {}
   sorigin = sum([len(v) for v in origin.values()])
   csorigin = 0
   callowed = 0
   oristrucs = list(reversed(sorted(origin.keys())))
+  selstruc_remaining = selstruc - len(selected)
   for o in oristrucs:
     csorigin += len(origin[o])
-    callowed_new = int(float(csorigin)/sorigin * selstruc+0.5)
+    callowed_new = int(float(csorigin)/sorigin * selstruc_remaining+0.5)
     allowed[o] = callowed_new - callowed
     callowed = callowed_new
     
