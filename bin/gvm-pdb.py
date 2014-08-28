@@ -13,6 +13,7 @@ gvm_kernel_z = numpy.array( [ [[-p, 0, p]] * 3] * 3)
 gvm_kernel_x = gvm_kernel_z.swapaxes(2,0)
 gvm_kernel_y = gvm_kernel_z.swapaxes(2,1)
 
+
 def read_situs(situsfile):
   header = open(situsfile).readline()
   h = header.split()
@@ -20,8 +21,13 @@ def read_situs(situsfile):
   voxelsize = float(h[0])
   origin = numpy.array([float(v) for v in h[1:4]])
   dimensions = tuple([int(v) for v in h[4:7]])
-  data = numpy.loadtxt(situsfile,skiprows=2)
+  data = numpy.genfromtxt(situsfile,skip_header=2,skip_footer=1)
+  nvox = dimensions[0]*dimensions[1]*dimensions[2]
+  for lastline in open(situsfile).xreadlines():
+    pass
+  lastdata = numpy.array([float(v) for v in lastline.split()])
   data = data.reshape(-1)
+  data = numpy.append(data, lastdata)
   data = data.reshape(dimensions, order='F')
   return data, voxelsize, origin
 
