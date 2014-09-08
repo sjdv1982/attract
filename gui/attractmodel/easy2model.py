@@ -81,4 +81,5 @@ def easy2model(emodel):
     ) 
     newmodel.iattract = iattract
     newmodel.demode = True ##TODO: maybe we want this in all cases..???
+    newmodel.validate()
   return newmodel

@@ -1,7 +1,9 @@
 import sys
 from _read_struc import read_struc
 header,structures = read_struc(sys.argv[1])
+structures = list(structures)
 header2,structures2 = read_struc(sys.argv[2])
+structures2 = list(structures2)
 
 assert len(structures) == len(structures2)
 

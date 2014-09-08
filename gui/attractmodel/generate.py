@@ -802,7 +802,7 @@ echo '**************************************************************'
     fnat_allfilenames = " ".join(fnat_allfilenames)
     fnatresult = os.path.splitext(result0)[0] + ".fnat"
     ret += "python $ATTRACTDIR/fnat.py %s 5 %s%s > %s\n" % (result, fnat_allfilenames, flexpar2, fnatresult)
-    ret += "ln -s %s result.fnat\n" % lrmsdresult
+    ret += "ln -s %s result.fnat\n" % fnatresult
     ret += "\n"
 
   if m.calc_lrmsd or m.calc_irmsd or m.calc_fnat:
