@@ -37,7 +37,7 @@
                 <li id="view-page3"><a id="nav-block-iterations" class="iteration-icon">Iteration</a></li>
                 <li id="view-page4"><a id="nav-block-sampling" class="sampling-icon">Sampling</a></li>
                 <li id="view-page5"><a id="nav-block-energy" class="energy-icon">Energy and Interaction</a></li>
-                <li id="view-page6"><a id="nav-block-cryoem" class="cryo-icon">Cryo-EM</a></li>
+                <li id="view-page6"><a id="nav-block-atomdensitygrid" class="cryo-icon">Atom density grids</a></li>
                 <li id="view-page7"><a id="nav-block-symmetry" class="symmetry-icon">Symmetry</a></li>
                 <li id="view-page8"><a id="nav-block-analysis" class="analysis-icon">Analysis</a></li>
                 <li id="view-page9"><a id="nav-block-computation" class="computation-icon">Computation</a></li>
@@ -341,6 +341,20 @@
                           </div>
                         </div> <!-- END: group-container -->
                       </div> <!-- END: level2 -->
+
+                      <div class="level2">
+
+                        <div class="group-container">
+
+
+                          <div class="field-container">
+                            <div class="title"><p>iattract_noflex</p></div>
+                            <div class="field-item checkbox align-right">
+                              <input type="checkbox" name="partners-0-iattract_noflex" id="partners-0-iattract_noflex" value="">
+                            </div>
+                          </div>
+                        </div> <!-- END: group-container -->
+                      </div> <!-- END: level2 -->
                     </div><!-- END: level1-container -->
                     <input type="hidden" name="partners-0-_clonearraymarker" value=0>
                   </div><!-- END: level1 -->
@@ -471,236 +485,10 @@
                 <!-- UI CONTAINER FOR FORM ELEMENTS OF A CATEGORY SELECTED IN CATEGORY NAVIGATION MENU -->
                 <div class="form-category">
 
-                  <div id="block-iterations-zoom-in-0" class="level1">
-
-                    <div class="controls">
-                      <div class="title"><h4>Zoom-in protocol</h4></div>
-                      <div class="button reload-icon reload-form-block"><div class="controls-tooltip"><p>Restore default values</p></div></div>
-                    </div>
-
-                    <div class="level1-container">
-
-                      <div class="level2">
-
-                        <div class="group-container">
-
-
-                          <div class="field-container">
-                            <div class="title"><p>Use zoom-in protocol: ignores the parameters for the individual iterations</p></div>
-                            <div class="field-item checkbox align-right">
-                              <input type="checkbox" name="zoom" id="zoom" value="">
-                            </div>
-                          </div>
-                          <div class="group-inline clearfix">
-
-                            <div class="field-container">
-                              <div class="title"><p>number of structures to select after each iteration</p></div>
-                              <div class="field-item number align-right">
-                                <input type="number" name="zoom_select" id="zoom_select" value = "1000">
-                              </div>
-                            </div>
-
-                            <div class="field-container">
-                              <div class="title"><p>Cloning factor</p></div>
-                              <div class="field-item number align-right">
-                                <input type="number" name="zoom_clone" id="zoom_clone" value = "20">
-                              </div>
-                            </div>
-
-                          </div> <!--END: group-inline -->
-                          <div class="group-inline clearfix">
-
-                            <div class="field-container">
-                              <div class="title"><p>Rotational displacement (radians)</p></div>
-                              <div class="field-item number align-right">
-                                <input type="number" name="zoom_ori" id="zoom_ori" value = "0.25">
-                              </div>
-                            </div>
-
-                            <div class="field-container">
-                              <div class="title"><p>Translation displacement (angstroms)</p></div>
-                              <div class="field-item number align-right">
-                                <input type="number" name="zoom_trans" id="zoom_trans" value = "5.0">
-                              </div>
-                            </div>
-
-                          </div> <!--END: group-inline -->
-                        </div> <!-- END: group-container -->
-                      </div> <!-- END: level2 -->
-
-                      <div class="level2">
-
-                        <div class="group-container">
-
-                          <div class="field-container">
-                            <div class="title"><h3>Zoom-in protocol: First iteration</h3></div>
-                          </div>
-
-                          <div class="field-container">
-                            <div class="title"><p>The nonbonded pairlist distance cutoff (rcut) (in A**2) during this iteration</p></div>
-                            <div class="field-item number align-right">
-                              <input type="number" name="zoom_it_initial-rcut" id="zoom_it_initial-rcut" value = "1500.0">
-                            </div>
-                          </div>
-
-                          <div class="field-container">
-                            <div class="title"><p>The maximum number of energy minimization or Monte Carlo steps (vmax)</p></div>
-                            <div class="field-item number align-right">
-                              <input type="number" name="zoom_it_initial-vmax" id="zoom_it_initial-vmax" value = "100">
-                            </div>
-                          </div>
-
-                          <div class="field-container">
-                            <div class="title"><p>Trajectory mode: only minimize the first structure, and output the structure after every minimization step</p></div>
-                            <div class="field-item checkbox align-right">
-                              <input type="checkbox" name="zoom_it_initial-traj" id="zoom_it_initial-traj" value="">
-                            </div>
-                          </div>
-                        </div> <!-- END: group-container -->
-                      </div> <!-- END: level2 -->
-
-                      <div class="level2">
-
-                        <div class="field-container">
-                          <div class="title"><h3>Enable Monte Carlo mode</h3></div>
-                          <div class="field-item switch align-left">
-                            <input type="checkbox" name="zoom_it_initial-mc" id="zoom_it_initial-mc" value="">
-                            <label for="zoom_it_initial-mc">Off</label>
-                            <label for="zoom_it_initial-mc">On</label>
-                            <span class="toggle"></span>
-                          </div>
-                        </div>
-
-                        <div class="group-container">
-
-
-                          <div class="field-container">
-                            <div class="title"><p>Temperature (in kT)</p></div>
-                            <div class="field-item number align-right">
-                              <input type="number" name="zoom_it_initial-mctemp" id="zoom_it_initial-mctemp" value = "3.5">
-                            </div>
-                          </div>
-
-                          <div class="field-container">
-                            <div class="title"><p>Rotation step size (in radians)</p></div>
-                            <div class="field-item number align-right">
-                              <input type="number" name="zoom_it_initial-mcscalerot" id="zoom_it_initial-mcscalerot" value = "0.05">
-                            </div>
-                          </div>
-
-                          <div class="field-container">
-                            <div class="title"><p>Translation step size (in angstroms)</p></div>
-                            <div class="field-item number align-right">
-                              <input type="number" name="zoom_it_initial-mcscalecenter" id="zoom_it_initial-mcscalecenter" value = "0.1">
-                            </div>
-                          </div>
-
-                          <div class="field-container">
-                            <div class="title"><p>Mode deformation step size (in angstroms)</p></div>
-                            <div class="field-item number align-right">
-                              <input type="number" name="zoom_it_initial-mcscalemode" id="zoom_it_initial-mcscalemode" value = "0.1">
-                            </div>
-                          </div>
-
-                          <div class="field-container">
-                            <div class="title"><p>Probability to switch between ensemble conformers</p></div>
-                            <div class="field-item number align-right">
-                              <input type="number" name="zoom_it_initial-mcensprob" id="zoom_it_initial-mcensprob" value = "0.1">
-                            </div>
-                          </div>
-                        </div> <!-- END: group-container -->
-                      </div> <!-- END: level2 -->
-
-                      <div class="level2">
-
-                        <div class="group-container">
-
-                          <div class="field-container">
-                            <div class="title"><h3>Zoom-in protocol: subsequent iterations</h3></div>
-                          </div>
-
-                          <div class="field-container">
-                            <div class="title"><p>The nonbonded pairlist distance cutoff (rcut) (in A**2) during this iteration</p></div>
-                            <div class="field-item number align-right">
-                              <input type="number" name="zoom_it_subsequent-rcut" id="zoom_it_subsequent-rcut" value = "1500.0">
-                            </div>
-                          </div>
-
-                          <div class="field-container">
-                            <div class="title"><p>The maximum number of energy minimization or Monte Carlo steps (vmax)</p></div>
-                            <div class="field-item number align-right">
-                              <input type="number" name="zoom_it_subsequent-vmax" id="zoom_it_subsequent-vmax" value = "100">
-                            </div>
-                          </div>
-
-                          <div class="field-container">
-                            <div class="title"><p>Trajectory mode: only minimize the first structure, and output the structure after every minimization step</p></div>
-                            <div class="field-item checkbox align-right">
-                              <input type="checkbox" name="zoom_it_subsequent-traj" id="zoom_it_subsequent-traj" value="">
-                            </div>
-                          </div>
-                        </div> <!-- END: group-container -->
-                      </div> <!-- END: level2 -->
-
-                      <div class="level2">
-
-                        <div class="field-container">
-                          <div class="title"><h3>Enable Monte Carlo mode</h3></div>
-                          <div class="field-item switch align-left">
-                            <input type="checkbox" name="zoom_it_subsequent-mc" id="zoom_it_subsequent-mc" value="">
-                            <label for="zoom_it_subsequent-mc">Off</label>
-                            <label for="zoom_it_subsequent-mc">On</label>
-                            <span class="toggle"></span>
-                          </div>
-                        </div>
-
-                        <div class="group-container">
-
-
-                          <div class="field-container">
-                            <div class="title"><p>Temperature (in kT)</p></div>
-                            <div class="field-item number align-right">
-                              <input type="number" name="zoom_it_subsequent-mctemp" id="zoom_it_subsequent-mctemp" value = "3.5">
-                            </div>
-                          </div>
-
-                          <div class="field-container">
-                            <div class="title"><p>Rotation step size (in radians)</p></div>
-                            <div class="field-item number align-right">
-                              <input type="number" name="zoom_it_subsequent-mcscalerot" id="zoom_it_subsequent-mcscalerot" value = "0.05">
-                            </div>
-                          </div>
-
-                          <div class="field-container">
-                            <div class="title"><p>Translation step size (in angstroms)</p></div>
-                            <div class="field-item number align-right">
-                              <input type="number" name="zoom_it_subsequent-mcscalecenter" id="zoom_it_subsequent-mcscalecenter" value = "0.1">
-                            </div>
-                          </div>
-
-                          <div class="field-container">
-                            <div class="title"><p>Mode deformation step size (in angstroms)</p></div>
-                            <div class="field-item number align-right">
-                              <input type="number" name="zoom_it_subsequent-mcscalemode" id="zoom_it_subsequent-mcscalemode" value = "0.1">
-                            </div>
-                          </div>
-
-                          <div class="field-container">
-                            <div class="title"><p>Probability to switch between ensemble conformers</p></div>
-                            <div class="field-item number align-right">
-                              <input type="number" name="zoom_it_subsequent-mcensprob" id="zoom_it_subsequent-mcensprob" value = "0.1">
-                            </div>
-                          </div>
-                        </div> <!-- END: group-container -->
-                      </div> <!-- END: level2 -->
-                    </div><!-- END: level1-container -->
-                  </div><!-- END: level1 -->
-
-
                   <div id="block-iterations-0" class="level1">
 
                     <div class="controls">
-                      <div class="title"><h4>First iteration</h4></div>
+                      <div class="title"><h4>Iteration 1</h4></div>
                       <div class="button reload-icon reload-form-block"><div class="controls-tooltip"><p>Restore default values</p></div></div>
                       <div id="remove-block-iterations-0" class="button close-icon"><div class="controls-tooltip"><p>Remove partner</p></div></div>
                     </div>
@@ -845,7 +633,7 @@
                             </div>
                           </div>
                           <div class="field-container">
-                            <div class="title"><h3>Custom search files: supply a starting structures file, OR: rotations and/or translations files</h3></div>
+                            <div class="title"><h3>Custom search files</h3></div>
                           </div>
 
                           <div class="field-container">
@@ -882,6 +670,33 @@
                               <input type="file" name="restraints_score_file" id="restraints_score_file">
                             </div>
                           </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>De-mode</p></div>
+                            <div class="field-item checkbox align-right">
+                              <input type="checkbox" name="demode" id="demode" value="">
+                            </div>
+                          </div>
+                          <div class="group-inline clearfix">
+                            <div class="field-container">
+                              <div class="title"><h3>iATTRACT parameters</h3></div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>nstruc</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="iattract-nstruc" id="iattract-nstruc">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>icut</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="iattract-icut" id="iattract-icut" value = "3.0">
+                              </div>
+                            </div>
+
+                          </div> <!--END: group-inline -->
                         </div> <!-- END: group-container -->
                       </div> <!-- END: level2 -->
                     </div><!-- END: level1-container -->
@@ -982,19 +797,29 @@
                 <div class="form-category-description">
                   <div class="large-icon cryo-icon"></div>
                   <div class="description">
-                    <h2>Cryo-EM</h2>
+                    <h2>Atom density grids</h2>
                     <p></p>
                   </div>
+
+                  <div class="category-controls">
+                    <div class="field-container">
+                      <div class="field-item button align-right">
+                        <input type="button" value="Add atom density grid" id="block-atomdensitygrid-add" onClick="cloneBlock('block-atomdensitygrid-',3);">
+                      </div>
+                    </div>
+                  </div>
+
                 </div>
 
                 <!-- UI CONTAINER FOR FORM ELEMENTS OF A CATEGORY SELECTED IN CATEGORY NAVIGATION MENU -->
                 <div class="form-category">
 
-                  <div id="block-cryoem-0" class="level1 active">
+                  <div id="block-atomdensitygrid-0" class="level1">
 
                     <div class="controls">
-                      <div class="title"><h4>Cryo-EM</h4></div>
+                      <div class="title"><h4>Atom density grid 1</h4></div>
                       <div class="button reload-icon reload-form-block"><div class="controls-tooltip"><p>Restore default values</p></div></div>
+                      <div id="remove-block-atomdensitygrid-0" class="button close-icon"><div class="controls-tooltip"><p>Remove partner</p></div></div>
                     </div>
 
                     <div class="level1-container">
@@ -1003,49 +828,34 @@
 
                         <div class="group-container">
 
+                          <div class="group-inline clearfix">
 
-                          <div class="field-container">
-                            <div class="title"><p>Cryo-EM density map (SITUS format)</p></div>
-                            <div class="field-item file align-right">
-                              <input type="file" name="cryoem_data" id="cryoem_data">
+                            <div class="field-container">
+                              <div class="title"><p>Voxel size (A)</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="atomdensitygrids-0-voxelsize" id="atomdensitygrids-0-voxelsize">
+                              </div>
                             </div>
-                          </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Grid dimension (voxels)</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="atomdensitygrids-0-dimension" id="atomdensitygrids-0-dimension" value = "50">
+                              </div>
+                            </div>
+
+                          </div> <!--END: group-inline -->
 
                           <div class="field-container">
-                            <div class="title"><p>Cryo-EM density map resolution (in angstroms)</p></div>
+                            <div class="title"><p>Force constant</p></div>
                             <div class="field-item number align-right">
-                              <input type="number" name="cryoem_resolution" id="cryoem_resolution">
-                            </div>
-                          </div>
-
-                          <div class="field-container">
-                            <div class="title"><p>Cryo-EM scoring criterion</p></div>
-                            <div class="field-item select align-right">
-                              <select name="cryoem_scoring_mode" id="cryoem_scoring_mode">
-                                <option value="no" selected>No separate scoring step with a higher-resolution map</option>
-                                <option value="attract">ATTRACT energy</option>
-                                <option value="gvm">GVM score</option>
-                                <option value="cc">cross-correlation</option>
-                              </select>
-                            </div>
-                          </div>
-
-                          <div class="field-container">
-                            <div class="title"><p>Cryo-EM density map used in scoring (SITUS format)</p></div>
-                            <div class="field-item file align-right">
-                              <input type="file" name="cryoem_scoring_data" id="cryoem_scoring_data">
-                            </div>
-                          </div>
-
-                          <div class="field-container">
-                            <div class="title"><p>Cryo-EM scoring density map resolution (in angstroms)</p></div>
-                            <div class="field-item number align-right">
-                              <input type="number" name="cryoem_scoring_resolution" id="cryoem_scoring_resolution">
+                              <input type="number" name="atomdensitygrids-0-forceconstant" id="atomdensitygrids-0-forceconstant" value = "1000.0">
                             </div>
                           </div>
                         </div> <!-- END: group-container -->
                       </div> <!-- END: level2 -->
                     </div><!-- END: level1-container -->
+                    <input type="hidden" name="atomdensitygrid-0-_clonearraymarker" value=0>
                   </div><!-- END: level1 -->
 
                 </div><!-- END: UI container -->
@@ -1177,6 +987,20 @@
 
                         <div class="group-container">
 
+
+                          <div class="field-container">
+                            <div class="title"><p>Symmetry fold (2-fold, 3-fold, ...)</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="symmetries-0-symmetry_fold" id="symmetries-0-symmetry_fold">
+                            </div>
+                          </div>
+                        </div> <!-- END: group-container -->
+                      </div> <!-- END: level2 -->
+
+                      <div class="level2">
+
+                        <div class="group-container">
+
                           <div class="field-container">
                             <div class="title"><h3>Symmetry partners</h3></div>
                           </div>
@@ -1291,7 +1115,7 @@
                 </div><!-- END: UI container -->
               </div>
 
-              <div id="page8" class="category-container">
+              <div id="page7" class="category-container">
                 <div class="form-category-description">
                   <div class="large-icon analysis-icon"></div>
                   <div class="description">

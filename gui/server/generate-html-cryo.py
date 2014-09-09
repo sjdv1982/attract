@@ -3,7 +3,7 @@ sys.path.insert(0, "..")
 import spyder
 spyder.silent = True
 import attractmodel
-from cryo import CryoInterface
+from attractmodel import CryoInterface
 import form_cryo
 
 cgi = sys.argv[1]
