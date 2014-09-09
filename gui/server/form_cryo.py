@@ -156,6 +156,7 @@ def webform(f, model=None):
   c.always_active = True
   c.categoryname = "sampling"  
   _assign_category(f, c, c.title, span = True)
+  f.iterations.type = None #TODO
   f.maskweight.type = None #TODO
   f.clone_rot.type = None #TODO
   f.clone_center.type = None #TODO
