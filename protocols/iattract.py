@@ -8,7 +8,7 @@ iATTRACT refinement with OPLS force field
 TODO make multi body and ensemble docking iattract refinement
 """
 
-import sys, random, os, time
+import sys, random, os, time, itertools
 from math import *
 from multiprocessing import Pool
 currdir = os.path.abspath(os.path.split(__file__)[0])
@@ -20,9 +20,9 @@ sys.path.append(allatomdir)
 sys.path.append(tooldir)
 sys.path.append(attractdir)
 import imodes, get_restraints
+import parse_cns_top
 import collectlibpy as collectlib
 import neighbortree
-topology = allatomdir+'/topallhdg5.3.pro'
 def get_energy(f):
   if not os.path.exists(f): return 0
   ret = 0
@@ -73,7 +73,7 @@ def read_pdb(f):
   return ret1
 
 #prepare input for on the fly flexible interface refinement
-def prepare_input(start,ligands,current,name,coor,ligandrange,ligandatoms,ensemblefiles=[],modefile=None,otf=True,noflex=[],icut=3.0):
+def prepare_input(topology,start,ligands,current,name,coor,ligandrange,ligandatoms,ensemblefiles=[],modefile=None,otf=True,noflex=[],icut=3.0):
   current = str(current)
   directorypath = os.path.split(ligands[0])[0]
   if len(directorypath) == 0: directorypath = '.'
@@ -131,16 +131,16 @@ def prepare_input(start,ligands,current,name,coor,ligandrange,ligandatoms,ensemb
   restraints = []
   for i,ligand in enumerate(currligands):
     if len(ilist):
-      get_restraints.make_restraints([topology,directorypath,ligand,ilist[i],current+name,str(offset)])
+      get_restraints.make_restraints(topology,directorypath,ligand,ilist[i],current+name,str(offset))
     else:
-      get_restraints.make_restraints([topology,directorypath,ligand,directorypath+'/'+current+name+'-ilist'+str(i+1)+'.txt',current+name,str(offset)])
+      get_restraints.make_restraints(topology,directorypath,ligand,directorypath+'/'+current+name+'-ilist'+str(i+1)+'.txt',current+name,str(offset))
     
     restraints.append(os.path.splitext(ligand)[0]+'_'+current+name+'.txt')
     offset += read_file(ligand)
 
   return (directorypath+'/flexm-'+current+name+'.dat',restraints)
 
-def prepare_input2(ilist, ligands, name, args):
+def prepare_input2(topology,ilist, ligands, name, args):
     directorypath = os.path.split(ligands[0])[0]
     if len(directorypath) == 0: directorypath = '.'
     ensemblefiles = []
@@ -156,10 +156,10 @@ def prepare_input2(ilist, ligands, name, args):
 	data = open(tmp[0]).readlines()
 	for line in data:
 	  filename = line.replace('\n','')
-	  get_restraints.make_restraints([topology,directorypath,filename,directorypath+'/'+name+'-ilist'+str(i+1)+'.txt',name,str(offset)])
+	  get_restraints.make_restraints(topology,directorypath,filename,directorypath+'/'+name+'-ilist'+str(i+1)+'.txt',name,str(offset))
 	  
       else:
-	get_restraints.make_restraints([topology,directorypath,ligands[i],directorypath+'/'+name+'-ilist'+str(i+1)+'.txt',name,str(offset)])
+	get_restraints.make_restraints(topology,directorypath,ligands[i],directorypath+'/'+name+'-ilist'+str(i+1)+'.txt',name,str(offset))
 	
       offset += read_file(ligands[i])
     
@@ -182,7 +182,7 @@ def run_docking(datain):
       elif item == '--modes':
 	modefile = args[i+1]
 	
-    imodefile, restfiles = prepare_input(start,ligands,current,name,coor,ligandrange,ligandatoms,ensemblefiles,modefile,otf,noflex,icut)
+    imodefile, restfiles = prepare_input(topology,start,ligands,current,name,coor,ligandrange,ligandatoms,ensemblefiles,modefile,otf,noflex,icut)
     
     if imodefile == '':
 	com = "cp %s %s" %(start,outp)
@@ -248,6 +248,7 @@ if __name__ == "__main__":
       continue
   
     if arg == "--top":
+      assert os.path.exists(nextarg), nextarg
       topfiles.append(nextarg)
       sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
       anr -= 1
@@ -314,13 +315,10 @@ if __name__ == "__main__":
     raise ValueError("You must specify --jobsize <value> OR --chunks <value>, not both!")
 
   if len(topfiles):
-    import subprocess
-    subprocess.call(['rm','/tmp/topology.top'])
-    for topo in topfiles:
-      subprocess.call('cat '+topo+' >> /tmp/topology.top',shell=True)
-    
-    topology = '/tmp/topology.top'
-    
+    topologystream = itertools.chain(*[open(f) for f in topfiles])
+  else:
+    topologystream = open(allatomdir+'/topallhdg5.3.pro')
+  topology = parse_cns_top.parse_stream(topologystream)
   totstruc = get_struc(strucfile)
   if jobsize is not None:
     chunks = ceil(totstruc/float(jobsize))
@@ -347,7 +345,7 @@ if __name__ == "__main__":
   
     ilist = args[k+1:k+len(ligands)]
     args = args[:k]+args[k+len(ligands):]
-    prepare_input2(ilist,ligands,name,args)
+    prepare_input2(topology,ilist,ligands,name,args)
   
   scoremode = "--score" in args
   ligandrange,coor,ligandatoms = [], [], []
