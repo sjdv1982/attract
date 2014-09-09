@@ -84,7 +84,7 @@ static char *label;
 #include <cstdlib>
 
 void usage() {
-  fprintf(stderr, "usage: $path/lrmsd structures.dat ligand-unbound.pdb ligand-bound.pdb [ligand2-unbound.pdb ligand2-bound.pdb] [...] [...] [--modes <modefile>] [--imodes <indexmodefile>] [--ens <ligand nr> <ensemble file>]\n");
+  fprintf(stderr, "usage: $path/rmsd structures.dat ligand-unbound.pdb ligand-bound.pdb [ligand2-unbound.pdb ligand2-bound.pdb] [...] [...] [--modes <modefile>] [--imodes <indexmodefile>] [--ens <ligand nr> <ensemble file>]\n");
   exit(1);
 }
 
