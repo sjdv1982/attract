@@ -96,7 +96,7 @@ static char *label;
 #include <cstdlib>
 
 void usage() {
-  fprintf(stderr, "usage: collect structures.dat receptor.pdb [...] [...] [--modes <modefile>] [--imodes <indexmodefile>] [--ens/--morph <ligand nr> <ensemble file>]");
+  fprintf(stderr, "usage: collect structures.dat receptor.pdb [...] [...] [--modes <modefile>] [--imodes <indexmodefile>] [--ens/--morph <ligand nr> <ensemble file>] [--name <iATTRACT naming scheme>]");
   exit(1);
 }
 
