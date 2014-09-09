@@ -1,0 +1,19 @@
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+NOTE: ATTRACT 2.0 is still UNDER DEVELOPMENT 
+This installation instruction is still in the DRAFT stage
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+ATTRACT is developed under Linux. It should work under Mac OSX, but this has not been tested. 
+It does not work under Microsoft Windows.
+
+Installation instructions for Linux:
+
+- Install g++ and gfortran (under Ubuntu: sudo apt-get install g++ gfortran)
+- For the analysis, also install numpy and scipy (under Ubuntu: sudo apt-get install python-numpy python-scipy)
+- For iATTRACT and the OPLSX forcefield, install pdb2pqr (under Ubuntu" sudo apt-get install pdb2pqr)
+- Go into "attract/bin", type "make clean" and then "make all" or "make all -j4" (if you have 4 cores)
+- Edit your .bashrc and add the following:
+export ATTRACTDIR=attract/bin (i.e. wherever you installed attract)
+export ATTRACTTOOLS=$ATTRACTDIR/../tools
+export ATTRACTGUI=$ATTRACTDIR/../gui
+- type "source ~/.bashrc"
