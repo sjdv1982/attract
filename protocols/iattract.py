@@ -11,6 +11,7 @@ TODO make multi body and ensemble docking iattract refinement
 import sys, random, os, time, itertools
 from math import *
 from multiprocessing import Pool
+from copy import deepcopy
 currdir = os.path.abspath(os.path.split(__file__)[0])
 if len(currdir) == 0: currdir = '.'
 attractdir = currdir + "/../bin"
@@ -394,14 +395,15 @@ if __name__ == "__main__":
       start0 = i
     
     nstruc = 0
-    coor = []
     while 1:
       if exists: break
       result = collectlib.collect_next()
       if result: break
       nstruc += 1
-      coor.append(collectlib.collect_all_coor())
+      tmpcoor = collectlib.collect_all_coor()
+      coor.append(deepcopy(tmpcoor))
 
+    
   if exists:
     for i in range(int(chunks)):
       coor.append([])
