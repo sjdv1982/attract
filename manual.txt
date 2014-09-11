@@ -120,7 +120,7 @@ The following list contains the command line options for sampling
 --only-trans
 --vmax <value> (default: 100)
   The maximum number of minimization steps, from attract.inp
-  Orthogonality issue: vmax is also used in pure MC mode to indicate the total number of MC steps.
+--mcmax: used in pure MC mode to indicate the total number of MC steps.
 --rcut <value> (default: 1500)
   The distance squared pairlist cutoff from attract.inp  
   Orthogonality issue: Grids do not use an rcut, it should give similar results to an infinite rcut

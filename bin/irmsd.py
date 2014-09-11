@@ -195,7 +195,7 @@ if __name__ == "__main__":
 
     if anr <= len(sys.argv)-2 and arg == "--cutoff":
       thresh = sys.argv[anr+1]
-			threshsq = thresh * thresh
+      threshsq = thresh * thresh
       sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
       anr -= 2
       continue

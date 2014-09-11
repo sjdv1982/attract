@@ -176,13 +176,13 @@ def write_output(nbonds, pdb, name, offset, atomid,strong=1.0):
         
     out.close()    
 
-def make_restraints(args):
-    residues, presidues = parse_stream(open(args[0]))
-    nbonds, pdb, name, offset, atomid = make_model(args[1:],residues,presidues)
+def make_restraints(topology, *args):
+    residues, presidues = topology
+    nbonds, pdb, name, offset, atomid = make_model(args,residues,presidues)
     cut = 31
     while len(nbonds) > 9000 and cut > 0:
       cut -= 5
-      nbonds, pdb, name, offset, atomid = make_model(args[1:],residues,presidues,cut)
+      nbonds, pdb, name, offset, atomid = make_model(args,residues,presidues,cut)
       
     if '--strong' in args:
       write_output(nbonds,pdb,name,offset,atomid,10.0)
@@ -209,4 +209,5 @@ if __name__ == "__main__":
         out.close()
         
     else: 
-        make_restraints(sys.argv[1:])
+        topology = parse_stream(open(sys.argv[1]))
+        make_restraints(topology,*sys.argv[2:])
