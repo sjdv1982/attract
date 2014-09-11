@@ -1,3 +1,9 @@
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+NOTE: ATTRACT 2.0 is still UNDER DEVELOPMENT 
+This manual is still in the DRAFT stage and 
+ will undergo a serious overhaul before the final release
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 TODO: --cdie has distances capped at 50 A!
   rr1 = 1.0d0/sqrt(r2)-1.0/50.0
   r2a = rr2 - (1.0/50.0)*(1.0/50.0)
