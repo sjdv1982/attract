@@ -138,7 +138,10 @@ echo '**************************************************************'
             transfile = transfiledict[p.moleculetype, "OPLSX"]            
             partnercode += "python $ATTRACTDIR/../allatom/pqreduce.py %s %s %s > /dev/null\n" % (mname1, transfile, topfile)
             partnercode += "grep -v XXXX %s > /tmp/pqtemp; mv -f /tmp/pqtemp %s\n" % (mname2a, mname2a) ###HACK
-            if m.forcefield == "OPLSX": mname2 = mname2a
+            if m.forcefield == "OPLSX": 
+              mname2 = mname2a
+            elif iattract_hybrid:
+              partnercode += "echo %s >> %s\n" % (mname2a, ensemble_list_iattract)              
           partnercode += "echo %s >> %s\n" % (mname2, listensr)  
           if mnr == 0: 
             filenames.append(mname2)
