@@ -1,17 +1,11 @@
 import os
 
-#TODO: add atom density grids to code generator
-#TODO: add iATTRACT to data model and code generator
-#TODO: test on 1ML0_hm
-#TODO: remove cryo, create separate ATTRACT-EM interface
-
-
+#TODO: fix ATTRACT-EM interface
 #TODO: fix pqreduce XXXX hack
 #TODO: add check between p.modes_file and p.nr_modes
 #TODO: add check that either all interactions are grid-accelerated, or none are
 #  (and an option to disable this check; for this, adapt --rcut iteration as well)
 #TODO: a script to add energies back to deredundant output
-#TODO: add --atomdensitygrid to data model
 #TODO: add grid alphabet to data model
 #TODO: non-protein molecules
 #TODO: decide upon PDB code, chain select
@@ -62,6 +56,7 @@ def generate(m):
     assert p.code is None #TODO: not implemented
     #TODO: select chain
     ensemble_list = None
+    ensemble_list_iattract = None
     if p.ensemble_list is not None: ensemble_list = p.ensemble_list.name
     collect_ensemble_list = None    
     if p.collect_ensemble_list is not None: collect_ensemble_list = p.collect_ensemble_list.name        
@@ -153,7 +148,7 @@ echo '**************************************************************'
       if p.collect_pdb is not None:        
         if collect_ensemble_list is None: collect_ensemble_list = listens      
     ensemble_lists.append(ensemble_list)
-    if p.ensemble and iattract_hybrid:
+    if iattract_hybrid:
       iattract_ensemble_lists.append(ensemble_list_iattract)
     collect_ensemble_lists.append(collect_ensemble_list)      
   if reduce_any: partnercode += "\n"
