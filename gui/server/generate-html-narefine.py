@@ -3,12 +3,12 @@ sys.path.insert(0, "..")
 import spyder
 spyder.silent = True
 import attractmodel
-from attractmodel import CryoInterface
-import form_cryo
+from attractmodel import NARefineInterface
+import form_narefine
 
 cgi = sys.argv[1]
 
-f = CryoInterface._form()
-f = form_cryo.webform(f)
-html = form_cryo.html(f, cgi, None, newtab=True)
+f = NARefineInterface._form()
+f = form_narefine.webform(f)
+html = form_narefine.html(f, cgi, None, newtab=True)
 print(html)
