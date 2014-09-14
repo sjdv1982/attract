@@ -20,7 +20,7 @@ cd ..
 
 rm -rf html-local
 mkdir html-local
-for i in `ls -ad html/* | grep -v 'full.html' | grep -v 'easy.html' | grep -v 'cryo.html' | grep -v 'index.html' | grep -v 'attract.html' | grep -v 'serverconfig' `; do
+for i in `ls -ad html/* | grep -v 'full.html' | grep -v 'easy.html' | grep -v 'cryo.html' | grep -v 'index.html' | grep -v 'attract.html' | grep -v 'narefine.html' | grep -v 'serverconfig' `; do
   cd html-local
   ln -s ../$i ${i##*/}
   cd ..
