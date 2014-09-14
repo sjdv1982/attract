@@ -5,7 +5,7 @@ header = """<!DOCTYPE html>
 <!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
     
     <head>
-        <title>ATTRACT Easy Online</title>
+        <title>ATTRACT NARefine Online</title>
         
         <meta charset="utf-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
