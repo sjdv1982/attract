@@ -54,7 +54,10 @@ def run(pdblines, topfile, transfile, outf, mapf, patches, termini=True):
           d = (x1-x2)**2 + (y1-y2)**2 + (z1-z2)**2
           if d < threshsq: patchc = False
 
-    r = residues[res.resname.lower()].copy()
+    try:
+      r = residues[res.resname.lower()].copy()
+    except KeyError:
+      raise KeyError("Residue type %s not supported, please convert to an accepted residue name. Supported residue types can be found in the topology file %s." %(res.resname,topfile))
     if patchn:
       r.patch(presidues["nter"])
     if patchc:

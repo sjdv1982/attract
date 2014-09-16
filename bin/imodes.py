@@ -118,7 +118,6 @@ def make(ligands,ligandatoms, name,ligandrange,coor,thresh=3.0,ensfiles=[],modef
 def make_defined(ifilelist,ligands,name):
   interface = []
   for fn in ifilelist:
-    #TODO check if this is correct
     interface.append(np.loadtxt(fn,dtype=int))
 
   ligandatoms = []
