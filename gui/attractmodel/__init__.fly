@@ -4,3 +4,5 @@ easy2model.py
 attracteasymodel.spy
 generate_cryo.py
 cryo.spy
+generate_narefine.py
+narefine.spy
