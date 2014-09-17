@@ -29,7 +29,7 @@ def generate(m):
   iattract_hybrid = False #are we doing the docking with ATTRACT forcefield, but iATTRACT refinement with iATTRACT ?
   if (m.iattract and m.forcefield != "OPLSX"): iattract_hybrid = True
    
-  ret = ""
+  ret = "#!/bin/bash -i\n"
   cleanupfiles = []
   if (m.header is not None):
     ret = m.header + "\n\n"
@@ -118,6 +118,8 @@ echo '**************************************************************'
       partnercode += "$ATTRACTTOOLS/splitmodel %s %s %d > %s\n" % (p.pdbfile.name, dd, p.ensemble_size, listens)
       if not p.is_reduced:
         partnercode += "cat /dev/null > %s\n" % listensr
+      if iattract_hybrid:
+	partnercode += "cat /dev/null > %s\n" % ensemble_list_iattract
       if not p.is_reduced:
         if reduce_any == False:
             partnercode += """
@@ -601,6 +603,7 @@ echo '**************************************************************'
     iattract_params += " --infinite" #for now, use attract-infinite with iATTRACT
     iattract_params += " " + iattract_input
     iattract_params += " " + parameterfiledict["OPLSX"]
+    iattract_params += " --cdie --epsilon 10 --fix-receptor"
     for f in iattract_filenames:
       iattract_params += " " + f
     noflex = [str(pnr+1) for pnr, p in enumerate(m.partners) if p.iattract_noflex]

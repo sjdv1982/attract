@@ -52,7 +52,7 @@ fi
 
 def generate_cryo(m):
   import os
-  ret = """#!/bin/bash
+  ret = """#!/bin/bash -i
 set -u -e
 """
   np = len(m.partners)

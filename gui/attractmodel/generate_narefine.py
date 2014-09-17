@@ -1,7 +1,7 @@
 def generate_narefine(m):
   import os
   pattern = os.path.splitext(m.pdbfile.name)[0]
-  ret = """#!/bin/bash
+  ret = """#!/bin/bash -i
 set -u -e
 
 d='.'
