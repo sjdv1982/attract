@@ -29,7 +29,7 @@ def generate(m):
   iattract_hybrid = False #are we doing the docking with ATTRACT forcefield, but iATTRACT refinement with iATTRACT ?
   if (m.iattract and m.forcefield != "OPLSX"): iattract_hybrid = True
    
-  ret = ""
+  ret = "#!/bin/bash -i\n"
   cleanupfiles = []
   if (m.header is not None):
     ret = m.header + "\n\n"
