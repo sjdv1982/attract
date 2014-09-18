@@ -18,7 +18,7 @@ Go into "attract/bin", type "make clean" and then "make all" or "make all -j4" (
 
 3. For the analysis, also install numpy and scipy (under Ubuntu: sudo apt-get install python-numpy python-scipy)
 
-4. For iATTRACT and the OPLSX forcefield, install pdb2pqr (under Ubuntu" sudo apt-get install pdb2pqr)
+4. For iATTRACT and the OPLSX forcefield, install pdb2pqr (under Ubuntu: sudo apt-get install pdb2pqr)
 In addition, the pdb2pqr directory must be made accessible to Python. (Under Ubuntu, this directory is
 /usr/share/pdb2pqr . It should contain the files "pdb2pqr.py" and "main.py".)
 To make it accessible, edit your .bashrc file (/home/user/.bashrc) by adding the following
