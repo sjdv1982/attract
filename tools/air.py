@@ -1,6 +1,6 @@
 import sys
 
-if len(sys.argv) not in (9,10):
+if len(sys.argv) not in (9,10,11,12):
   print >> sys.stderr, "Usage: air.py <protein 1 active residue list> <protein 1 passive residue list>"  
   print >> sys.stderr, "              <protein 1 reduced PDB> <protein 1 residue mapping file>"  
   print >> sys.stderr, "              <protein 2 active residue list> <protein 2 passive residue list>"  
@@ -71,8 +71,12 @@ for r in act2:
 print
 
 noecv = 0.5
-if len(sys.argv) == 10: noecv = float(sys.argv[9])
-params = 2, 2.0, 1.0, 2.0, noecv
+dist = 2.0
+k = 1.0 
+if len(sys.argv) >= 10: noecv = float(sys.argv[9])
+if len(sys.argv) >= 11: dist = float(sys.argv[10])
+if len(sys.argv) >= 12: k = float(sys.argv[11])
+params = 2, dist, k, dist, noecv
 
 
 for r in act1:

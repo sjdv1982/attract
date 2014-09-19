@@ -175,7 +175,7 @@ reduce: reduce.o
 	$(FF) $(FLAG) $< -o $@
 redatom: redatom.o
 	$(FF) $(FLAG) $< -o $@
-reduce_rna: reduce_rna.o
+reduce_na: reduce_na.o
 	$(FF) $(FLAG) $< -o $@
 translate: translate.o
 	$(FF) $(FLAG) $< -o $@
@@ -188,7 +188,7 @@ viewe: viewe.o
 rmsca: rmsca.o
 	$(FF) $(FLAG) $< -o $@
 
-rest: reduce redatom reduce_rna translate rotam compare viewe rmsca center trans cluster_struc
+rest: reduce redatom reduce_rna reduce_na translate rotam compare viewe rmsca center trans cluster_struc
 	
 
 all: max.fin attract attract-infinite collect collectlib.so lrmsd rmsd make-grid \

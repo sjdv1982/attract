@@ -58,7 +58,7 @@ This performs the docking and analysis using ATTRACT
 <b><i>Download the docking directory: <a href='%s'>%s</a></i></b>
 
 The directory also contains a deployed parameter file (%s) that can be edited locally. 
-Its resources (PDB files etc.) are deployed, i.e. referring to the PDB file names in the docking directory.
+Its resources (PDB files etc.) are deployed: they refer to the file names in the docking directory.
 
 <u>Deployed parameter files in the local ATTRACT GUI</u>
 You can edit the deployed parameter file directly with the local ATTRACT GUI, and generate a shell script
@@ -79,7 +79,7 @@ Download the embedded parameter file: <a href='%s'>%s</a>
 
 <u>Advanced usage: embedded parameter files in the local ATTRACT GUI</u>
 You can edit the embedded parameter file directly with the local ATTRACT GUI
-However, this file contains embedded resources (PDB files etc.) . If you want to generate a new docking script, you have to deploy it first into a directory using gui-deploy, or use the deployed parameter file instead
+However, this file contains embedded resources (PDB files etc.). If you want to generate a new docking script, you have to deploy it first into a directory using gui-deploy, or use the deployed parameter file instead
 
 """
 

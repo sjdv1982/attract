@@ -1,17 +1,11 @@
 import os
 
-#TODO: add atom density grids to code generator
-#TODO: add iATTRACT to data model and code generator
-#TODO: test on 1ML0_hm
-#TODO: remove cryo, create separate ATTRACT-EM interface
-
-
+#TODO: fix ATTRACT-EM interface
 #TODO: fix pqreduce XXXX hack
 #TODO: add check between p.modes_file and p.nr_modes
 #TODO: add check that either all interactions are grid-accelerated, or none are
 #  (and an option to disable this check; for this, adapt --rcut iteration as well)
 #TODO: a script to add energies back to deredundant output
-#TODO: add --atomdensitygrid to data model
 #TODO: add grid alphabet to data model
 #TODO: non-protein molecules
 #TODO: decide upon PDB code, chain select
@@ -35,10 +29,10 @@ def generate(m):
   iattract_hybrid = False #are we doing the docking with ATTRACT forcefield, but iATTRACT refinement with iATTRACT ?
   if (m.iattract and m.forcefield != "OPLSX"): iattract_hybrid = True
    
-  ret = ""
+  ret = "#!/bin/bash -i\n"
   cleanupfiles = []
   if (m.header is not None):
-    ret = m.header + "\n\n"
+    ret += m.header + "\n\n"
   if m.annotation is not None:
     for l in m.annotation.split("\n"):
       ret += "###" + l + "\n"
@@ -62,6 +56,7 @@ def generate(m):
     assert p.code is None #TODO: not implemented
     #TODO: select chain
     ensemble_list = None
+    ensemble_list_iattract = None
     if p.ensemble_list is not None: ensemble_list = p.ensemble_list.name
     collect_ensemble_list = None    
     if p.collect_ensemble_list is not None: collect_ensemble_list = p.collect_ensemble_list.name        
@@ -123,6 +118,8 @@ echo '**************************************************************'
       partnercode += "$ATTRACTTOOLS/splitmodel %s %s %d > %s\n" % (p.pdbfile.name, dd, p.ensemble_size, listens)
       if not p.is_reduced:
         partnercode += "cat /dev/null > %s\n" % listensr
+      if iattract_hybrid:
+	partnercode += "cat /dev/null > %s\n" % ensemble_list_iattract
       if not p.is_reduced:
         if reduce_any == False:
             partnercode += """
@@ -143,7 +140,10 @@ echo '**************************************************************'
             transfile = transfiledict[p.moleculetype, "OPLSX"]            
             partnercode += "python $ATTRACTDIR/../allatom/pqreduce.py %s %s %s > /dev/null\n" % (mname1, transfile, topfile)
             partnercode += "grep -v XXXX %s > /tmp/pqtemp; mv -f /tmp/pqtemp %s\n" % (mname2a, mname2a) ###HACK
-            if m.forcefield == "OPLSX": mname2 = mname2a
+            if m.forcefield == "OPLSX": 
+              mname2 = mname2a
+            elif iattract_hybrid:
+              partnercode += "echo %s >> %s\n" % (mname2a, ensemble_list_iattract)              
           partnercode += "echo %s >> %s\n" % (mname2, listensr)  
           if mnr == 0: 
             filenames.append(mname2)
@@ -153,7 +153,7 @@ echo '**************************************************************'
       if p.collect_pdb is not None:        
         if collect_ensemble_list is None: collect_ensemble_list = listens      
     ensemble_lists.append(ensemble_list)
-    if p.ensemble and iattract_hybrid:
+    if iattract_hybrid:
       iattract_ensemble_lists.append(ensemble_list_iattract)
     collect_ensemble_lists.append(collect_ensemble_list)      
   if reduce_any: partnercode += "\n"
@@ -603,6 +603,7 @@ echo '**************************************************************'
     iattract_params += " --infinite" #for now, use attract-infinite with iATTRACT
     iattract_params += " " + iattract_input
     iattract_params += " " + parameterfiledict["OPLSX"]
+    iattract_params += " --cdie --epsilon 10 --fix-receptor"
     for f in iattract_filenames:
       iattract_params += " " + f
     noflex = [str(pnr+1) for pnr, p in enumerate(m.partners) if p.iattract_noflex]

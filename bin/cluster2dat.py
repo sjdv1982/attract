@@ -53,8 +53,10 @@ for h in header: print h
 clusterlist = []
 for line in open(cluster).readlines():
   tmp = line.split()
-  if sys.argv[3] == 'best':  clusterlist.append(min([int(truc) for truc in tmp[4:]])) #select best scored in cluster
-  if sys.argv[3] == 'center': clusterlist.append(min([int(truc) for truc in tmp[3:]])) #select best scored in cluster
+  if not 'Cluster' in line: continue
+  data = [int(truc) for truc in tmp[3:]]
+  clusterlist.append(min(data)) #select best scored in cluster
+ # if sys.argv[3] == 'center': clusterlist.append(min([int(truc) for truc in tmp[3:]])) #select cluster center
 
 stnr = 0
 st2nr = 0

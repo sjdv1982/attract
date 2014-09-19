@@ -119,10 +119,11 @@ def get_contacts(structure,rcut=3.0):
 	dist = Y[i][j]
 	if dist < rcut:
 	  if not (res1,res2) in contacts:
+	    print res1, res2
 	    contacts.append((res1,res2))
 	    ncontact += 1
 	    
-    print ncontact
+    return contacts
 	  
 def get_interface2(a1, a2, output,ouput2,rcut):
     ilist = []
