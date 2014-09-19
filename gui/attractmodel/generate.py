@@ -32,7 +32,7 @@ def generate(m):
   ret = "#!/bin/bash -i\n"
   cleanupfiles = []
   if (m.header is not None):
-    ret = m.header + "\n\n"
+    ret += m.header + "\n\n"
   if m.annotation is not None:
     for l in m.annotation.split("\n"):
       ret += "###" + l + "\n"
