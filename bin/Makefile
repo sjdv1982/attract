@@ -188,7 +188,7 @@ viewe: viewe.o
 rmsca: rmsca.o
 	$(FF) $(FLAG) $< -o $@
 
-rest: reduce redatom reduce_rna reduce_na translate rotam compare viewe rmsca center trans cluster_struc
+rest: reduce redatom reduce_na translate rotam compare viewe rmsca center trans cluster_struc
 	
 
 all: max.fin attract attract-infinite collect collectlib.so lrmsd rmsd make-grid \
