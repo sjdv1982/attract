@@ -11,6 +11,7 @@ TODO make multi body and ensemble docking iattract refinement
 import sys, random, os, time, itertools
 from math import *
 from multiprocessing import Pool
+from copy import deepcopy
 currdir = os.path.abspath(os.path.split(__file__)[0])
 if len(currdir) == 0: currdir = '.'
 attractdir = currdir + "/../bin"
@@ -87,7 +88,7 @@ def prepare_input(topology,start,ligands,current,name,coor,ligandrange,ligandato
       ensnames = open(filename).readlines()
       currligands[int(nr)-1] = ensnames[currensnr-1].replace('\n','')
       
-  if otf and os.path.exists(directorypath+'/flexm-'+current+name+'.dat'):
+  if otf and os.path.exists('flexm-'+current+name+'.dat'):
     check = True
     restraints = []
     for ligand in currligands:
@@ -97,7 +98,7 @@ def prepare_input(topology,start,ligands,current,name,coor,ligandrange,ligandato
 	restraints.append(os.path.splitext(ligand)[0]+'_'+current+name+'.txt')
     
     if check:
-      return (directorypath+'/flexm-'+current+name+'.dat',restraints)
+      return ('flexm-'+current+name+'.dat',restraints)
     
   if otf:
     imodes.make(ligands,ligandatoms,current+name,ligandrange,coor,icut,ensemblefiles,modefile,imodefile)
@@ -107,18 +108,18 @@ def prepare_input(topology,start,ligands,current,name,coor,ligandrange,ligandato
     for i, ligand in enumerate(currligands):
       restraints.append(os.path.splitext(ligand)[0]+'_'+name+'.txt')
       
-    return (directorypath+'/flexm-'+name+'.dat',restraints)
+    return ('flexm-'+name+'.dat',restraints)
   
   count = 0
   if len(noflex):
     for ligand in noflex:
-      out = open(directorypath+'/'+current+name+'-ilist'+str(ligand)+'.txt','w')
+      out = open(current+name+'-ilist'+str(ligand)+'.txt','w')
       out.write('#no flexible residues')
       out.close()	
 	
   for i,ligand in enumerate(ligands):
-    if not os.path.exists(directorypath+'/'+current+name+'-ilist'+str(i+1)+'.txt'):
-      out = open(directorypath+'/'+current+name+'-ilist'+str(i+1)+'.txt','w')
+    if not os.path.exists(current+name+'-ilist'+str(i+1)+'.txt'):
+      out = open(current+name+'-ilist'+str(i+1)+'.txt','w')
       out.write('#no flexible residues')
       out.close()
       count += 1
@@ -133,12 +134,12 @@ def prepare_input(topology,start,ligands,current,name,coor,ligandrange,ligandato
     if len(ilist):
       get_restraints.make_restraints(topology,directorypath,ligand,ilist[i],current+name,str(offset))
     else:
-      get_restraints.make_restraints(topology,directorypath,ligand,directorypath+'/'+current+name+'-ilist'+str(i+1)+'.txt',current+name,str(offset))
+      get_restraints.make_restraints(topology,directorypath,ligand,current+name+'-ilist'+str(i+1)+'.txt',current+name,str(offset))
     
     restraints.append(os.path.splitext(ligand)[0]+'_'+current+name+'.txt')
     offset += read_file(ligand)
 
-  return (directorypath+'/flexm-'+current+name+'.dat',restraints)
+  return ('flexm-'+current+name+'.dat',restraints)
 
 def prepare_input2(topology,ilist, ligands, name, args):
     directorypath = os.path.split(ligands[0])[0]
@@ -156,10 +157,10 @@ def prepare_input2(topology,ilist, ligands, name, args):
 	data = open(tmp[0]).readlines()
 	for line in data:
 	  filename = line.replace('\n','')
-	  get_restraints.make_restraints(topology,directorypath,filename,directorypath+'/'+name+'-ilist'+str(i+1)+'.txt',name,str(offset))
+	  get_restraints.make_restraints(topology,directorypath,filename,name+'-ilist'+str(i+1)+'.txt',name,str(offset))
 	  
       else:
-	get_restraints.make_restraints(topology,directorypath,ligands[i],directorypath+'/'+name+'-ilist'+str(i+1)+'.txt',name,str(offset))
+	get_restraints.make_restraints(topology,directorypath,ligands[i],name+'-ilist'+str(i+1)+'.txt',name,str(offset))
 	
       offset += read_file(ligands[i])
     
@@ -349,6 +350,9 @@ if __name__ == "__main__":
   
   scoremode = "--score" in args
   ligandrange,coor,ligandatoms = [], [], []
+  if not '--vmax' in args:
+    args = args + ['--vmax','2500']
+    
   if otf:
     ligands = [item for item in args if '.pdb' in item]
     ligandatoms = []
@@ -394,14 +398,15 @@ if __name__ == "__main__":
       start0 = i
     
     nstruc = 0
-    coor = []
     while 1:
       if exists: break
       result = collectlib.collect_next()
       if result: break
       nstruc += 1
-      coor.append(collectlib.collect_all_coor())
+      tmpcoor = collectlib.collect_all_coor()
+      coor.append(deepcopy(tmpcoor))
 
+    
   if exists:
     for i in range(int(chunks)):
       coor.append([])
