@@ -8,9 +8,10 @@ iATTRACT refinement with OPLS force field
 TODO make multi body and ensemble docking iattract refinement
 """
 
-import sys, random, os, time
+import sys, random, os, time, itertools
 from math import *
 from multiprocessing import Pool
+from copy import deepcopy
 currdir = os.path.abspath(os.path.split(__file__)[0])
 if len(currdir) == 0: currdir = '.'
 attractdir = currdir + "/../bin"
@@ -20,8 +21,9 @@ sys.path.append(allatomdir)
 sys.path.append(tooldir)
 sys.path.append(attractdir)
 import imodes, get_restraints
+import parse_cns_top
 import collectlibpy as collectlib
-topology = allatomdir+'/topallhdg5.3.pro'
+import neighbortree
 def get_energy(f):
   if not os.path.exists(f): return 0
   ret = 0
@@ -72,7 +74,7 @@ def read_pdb(f):
   return ret1
 
 #prepare input for on the fly flexible interface refinement
-def prepare_input(start,ligands,current,name,coor,ligandrange,ligandatoms,ensemblefiles=[],modefile=None,otf=True,noflex=[],icut=3.0):
+def prepare_input(topology,start,ligands,current,name,coor,ligandrange,ligandatoms,ensemblefiles=[],modefile=None,otf=True,noflex=[],icut=3.0):
   current = str(current)
   directorypath = os.path.split(ligands[0])[0]
   if len(directorypath) == 0: directorypath = '.'
@@ -84,9 +86,9 @@ def prepare_input(start,ligands,current,name,coor,ligandrange,ligandatoms,ensemb
     for nr, filename in ensemblefiles:
       currensnr = int(data[int(nr)-1].split()[0])
       ensnames = open(filename).readlines()
-      currligands[int(nr)-1] = ensnames[currensnr-1]
+      currligands[int(nr)-1] = ensnames[currensnr-1].replace('\n','')
       
-  if otf and os.path.exists(directorypath+'/flexm-'+current+name+'.dat'):
+  if otf and os.path.exists('flexm-'+current+name+'.dat'):
     check = True
     restraints = []
     for ligand in currligands:
@@ -96,7 +98,7 @@ def prepare_input(start,ligands,current,name,coor,ligandrange,ligandatoms,ensemb
 	restraints.append(os.path.splitext(ligand)[0]+'_'+current+name+'.txt')
     
     if check:
-      return (directorypath+'/flexm-'+current+name+'.dat',restraints)
+      return ('flexm-'+current+name+'.dat',restraints)
     
   if otf:
     imodes.make(ligands,ligandatoms,current+name,ligandrange,coor,icut,ensemblefiles,modefile,imodefile)
@@ -106,18 +108,18 @@ def prepare_input(start,ligands,current,name,coor,ligandrange,ligandatoms,ensemb
     for i, ligand in enumerate(currligands):
       restraints.append(os.path.splitext(ligand)[0]+'_'+name+'.txt')
       
-    return (directorypath+'/flexm-'+name+'.dat',restraints)
+    return ('flexm-'+name+'.dat',restraints)
   
   count = 0
   if len(noflex):
     for ligand in noflex:
-      out = open(directorypath+'/'+current+name+'-ilist'+str(ligand)+'.txt','w')
+      out = open(current+name+'-ilist'+str(ligand)+'.txt','w')
       out.write('#no flexible residues')
       out.close()	
 	
   for i,ligand in enumerate(ligands):
-    if not os.path.exists(directorypath+'/'+current+name+'-ilist'+str(i+1)+'.txt'):
-      out = open(directorypath+'/'+current+name+'-ilist'+str(i+1)+'.txt','w')
+    if not os.path.exists(current+name+'-ilist'+str(i+1)+'.txt'):
+      out = open(current+name+'-ilist'+str(i+1)+'.txt','w')
       out.write('#no flexible residues')
       out.close()
       count += 1
@@ -130,16 +132,16 @@ def prepare_input(start,ligands,current,name,coor,ligandrange,ligandatoms,ensemb
   restraints = []
   for i,ligand in enumerate(currligands):
     if len(ilist):
-      get_restraints.make_restraints([topology,directorypath,ligand,ilist[i],current+name,str(offset)])
+      get_restraints.make_restraints(topology,directorypath,ligand,ilist[i],current+name,str(offset))
     else:
-      get_restraints.make_restraints([topology,directorypath,ligand,directorypath+'/'+current+name+'-ilist'+str(i+1)+'.txt',current+name,str(offset)])
+      get_restraints.make_restraints(topology,directorypath,ligand,current+name+'-ilist'+str(i+1)+'.txt',current+name,str(offset))
     
     restraints.append(os.path.splitext(ligand)[0]+'_'+current+name+'.txt')
     offset += read_file(ligand)
 
-  return (directorypath+'/flexm-'+current+name+'.dat',restraints)
+  return ('flexm-'+current+name+'.dat',restraints)
 
-def prepare_input2(ilist, ligands, name, args):
+def prepare_input2(topology,ilist, ligands, name, args):
     directorypath = os.path.split(ligands[0])[0]
     if len(directorypath) == 0: directorypath = '.'
     ensemblefiles = []
@@ -155,10 +157,10 @@ def prepare_input2(ilist, ligands, name, args):
 	data = open(tmp[0]).readlines()
 	for line in data:
 	  filename = line.replace('\n','')
-	  get_restraints.make_restraints([topology,directorypath,filename,directorypath+'/'+name+'-ilist'+str(i+1)+'.txt',name,str(offset)])
+	  get_restraints.make_restraints(topology,directorypath,filename,name+'-ilist'+str(i+1)+'.txt',name,str(offset))
 	  
       else:
-	get_restraints.make_restraints([topology,directorypath,ligands[i],directorypath+'/'+name+'-ilist'+str(i+1)+'.txt',name,str(offset)])
+	get_restraints.make_restraints(topology,directorypath,ligands[i],name+'-ilist'+str(i+1)+'.txt',name,str(offset))
 	
       offset += read_file(ligands[i])
     
@@ -181,7 +183,7 @@ def run_docking(datain):
       elif item == '--modes':
 	modefile = args[i+1]
 	
-    imodefile, restfiles = prepare_input(start,ligands,current,name,coor,ligandrange,ligandatoms,ensemblefiles,modefile,otf,noflex,icut)
+    imodefile, restfiles = prepare_input(topology,start,ligands,current,name,coor,ligandrange,ligandatoms,ensemblefiles,modefile,otf,noflex,icut)
     
     if imodefile == '':
 	com = "cp %s %s" %(start,outp)
@@ -247,6 +249,7 @@ if __name__ == "__main__":
       continue
   
     if arg == "--top":
+      assert os.path.exists(nextarg), nextarg
       topfiles.append(nextarg)
       sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
       anr -= 1
@@ -313,13 +316,10 @@ if __name__ == "__main__":
     raise ValueError("You must specify --jobsize <value> OR --chunks <value>, not both!")
 
   if len(topfiles):
-    import subprocess
-    subprocess.call(['rm','/tmp/topology.top'])
-    for topo in topfiles:
-      subprocess.call('cat '+topo+' >> /tmp/topology.top',shell=True)
-    
-    topology = '/tmp/topology.top'
-    
+    topologystream = itertools.chain(*[open(f) for f in topfiles])
+  else:
+    topologystream = open(allatomdir+'/topallhdg5.3.pro')
+  topology = parse_cns_top.parse_stream(topologystream)
   totstruc = get_struc(strucfile)
   if jobsize is not None:
     chunks = ceil(totstruc/float(jobsize))
@@ -346,19 +346,19 @@ if __name__ == "__main__":
   
     ilist = args[k+1:k+len(ligands)]
     args = args[:k]+args[k+len(ligands):]
-    prepare_input2(ilist,ligands,name,args)
+    prepare_input2(topology,ilist,ligands,name,args)
   
   scoremode = "--score" in args
   ligandrange,coor,ligandatoms = [], [], []
+  if not '--vmax' in args:
+    args = args + ['--vmax','2500']
+    
   if otf:
     ligands = [item for item in args if '.pdb' in item]
     ligandatoms = []
     ensfiles = []
     modefile = None
-    imodefile = None
-    for u in ligands:
-      ligandatoms.append(read_pdb(u))
-   
+    imodefile = None   
     for i, item in enumerate(args):
       if item == '--ens':
 	ensfiles.append((args[i+1],args[i+2]))
@@ -368,7 +368,22 @@ if __name__ == "__main__":
 
       elif item == '--imodes':
 	imodefile = args[i+1]
-      
+    
+    for i,u in enumerate(ligands):
+      ligandatoms.append(read_pdb(u))
+      has_ens = None
+      for nr, ensfile in ensfiles:
+	if str(i+1) == nr:
+	  has_ens = ensfile
+	  
+      if has_ens is not None:
+	ensligand = open(has_ens).readlines()
+	for ligandname in ensligand:
+	  neighbortree.make(ligandname.replace('\n',''))
+	  
+      else:
+	neighbortree.make(u)
+	
     initargs = [strucfile]+ligands
     if modefile: initargs += ["--modes", modefile]
     if imodefile: initargs += ["--imodes", imodefile]
@@ -383,14 +398,15 @@ if __name__ == "__main__":
       start0 = i
     
     nstruc = 0
-    coor = []
     while 1:
       if exists: break
       result = collectlib.collect_next()
       if result: break
       nstruc += 1
-      coor.append(collectlib.collect_all_coor())
+      tmpcoor = collectlib.collect_all_coor()
+      coor.append(deepcopy(tmpcoor))
 
+    
   if exists:
     for i in range(int(chunks)):
       coor.append([])

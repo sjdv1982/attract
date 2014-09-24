@@ -52,7 +52,7 @@ fi
 
 def generate_cryo(m):
   import os
-  ret = """#!/bin/bash
+  ret = """#!/bin/bash -i
 set -u -e
 """
   np = len(m.partners)
@@ -305,14 +305,13 @@ set -u -e
         ret += "$ATTRACTTOOLS/top result-run%d.dat 10 > top10-result-run%d.dat\n" % (run, run)
         collectnamestr = " ".join(collectnames)
         ret += "$ATTRACTDIR/collect best-result-run%d.dat %s > best-result-run%d.pdb\n" % (run, collectnamestr, run)
-        if run < runs:
-          t = []
-          for n in range(len(m.partners)):
-            ch = chr(ord('A')+n)
-            f = "tabu-run%d-%s.pdb" % (run, ch)
-            ret += "awk '$1 == \"ATOM\" && substr($0,22,1) == \"%s\"' best-result-run%d.pdb > %s\n" % (ch, run, f)
-            t.append(f)
-          tabunames.append(t)  
+        t = []
+        for n in range(len(m.partners)):
+          ch = chr(ord('A')+n)
+          f = "tabu-run%d-%s.pdb" % (run, ch)
+          ret += "awk '$1 == \"ATOM\" && substr($0,22,1) == \"%s\"' best-result-run%d.pdb > %s\n" % (ch, run, f)
+          t.append(f)
+        tabunames.append(t)  
         ret += "$ATTRACTDIR/collect top10-result-run%d.dat %s > top10-result-run%d.pdb\n" % (run, collectnamestr, run)
         ret += "\n"
   return ret

@@ -10,7 +10,7 @@ Step 2. Setting up Apache
 - Install Apache (e.g. "sudo apt-get install apache2")
 - Create a directory for your web server(s), e.g. /home/user/server
 - Add the following lines to your Apache configuration file 
-(e.g. /etc/apache2/sites-enabled/000-default )
+(e.g. /etc/apache2/sites-enabled/000-default.conf )
 
 <Directory /home/user/server>
         Options Indexes FollowSymLinks
@@ -22,6 +22,12 @@ AliasMatch ^/server/([^/]*)/(.*) /home/user/server/$1/html/$2
 AliasMatch ^/results/server/([^/]*)/(.*) /home/user/server/$1/results/$2
 ScriptAliasMatch ^/cgi/server/([^/]*)/(.*) /home/user/server/$1/cgi/$2
 
+!!! NOTE: if your Apache server is 2.4 or newer, replace:
+        Order allow,deny
+        Allow from all
+with:
+        Require all granted
+!!!        
 
 - Restart Apache, e.g. "sudo /etc/init.d/apache2 restart"
 
@@ -32,7 +38,7 @@ Step 3. Installing the ATTRACT server
 generate-html-tum.sh sets up a TUM web server (www.attract.ph.tum.de)
 generate-html-local.sh sets up a web server for local use (localhost). 
 - Edit serverconfig-tum.py or serverconfig-local.py 
-- Run your chosen generate-html scripts
+- Run your chosen generate-html script
 - Edit upload.html by hand, this is not currently auto-generated
 - Create a directory <servicename> inside your web server directory, e.g /home/user/server/ATTRACT
 - Go to this directory
@@ -49,7 +55,7 @@ generate-html-local.sh sets up a web server for local use (localhost).
 
 Done! 
 If you set it up for local use, the web interfaces will be now available under http://localhost/server/ATTRACT/XXX
-  XXX can be easy.html, full.html, upload.html or cryo.html
+  XXX can be easy.html, full.html, upload.html or cryo.html; index.html and attract.html point to easy.html
   
 Step 4. Maintaining the ATTRACT server
 

@@ -78,7 +78,7 @@ Type CryoInterface {
   Float score_threshold = 10.0  
   Integer nstruc = 1000
   Integer ntop = 50
-  IntegerArray iterations = (1,1,1,1,8)
+  IntegerArray iterations[5] = (1,1,1,1,8)
   Float global_scale_rot = 0.785
   Float global_scale_trans = 20
   FloatArray clone_rot[2] = (1, 0.1)

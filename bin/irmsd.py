@@ -2,7 +2,7 @@
 Calculate interface RMSD
 usage: python irmsd.py <DAT file> \
  <unbound PDB 1> <bound PDB 1> [<unbound PDB 2> <bound PDB 2>] [...]
- [--allatoms] [--allresidues]
+ [--allatoms] [--allresidues] [--cutoff <dist cutoff for interface, in A> ]
 
 --allatoms: use all atoms rather than backbone atoms
 --allresidues: use also the residues outside the 10 A interface region 
@@ -186,11 +186,18 @@ if __name__ == "__main__":
       opt_allresidues = True
       anr -= 1
       continue  
-    
+      
     if anr <= len(sys.argv)-3 and arg == "--ens":
       ensfiles.append((sys.argv[anr+1],sys.argv[anr+2]))
       sys.argv = sys.argv[:anr] + sys.argv[anr+3:]
       anr -= 3
+      continue
+
+    if anr <= len(sys.argv)-2 and arg == "--cutoff":
+      thresh = sys.argv[anr+1]
+      threshsq = thresh * thresh
+      sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
+      anr -= 2
       continue
 
     if anr <= len(sys.argv)-2 and arg == "--modes":

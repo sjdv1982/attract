@@ -1,0 +1,33 @@
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+NOTE: ATTRACT 2.0 is still UNDER DEVELOPMENT 
+This installation instruction is still in the DRAFT stage
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+ATTRACT is developed under Linux. It should work under Mac OSX, but this has not been tested. 
+It does not work under Microsoft Windows.
+
+Installation instructions for Linux:
+
+1. Install g++ and gfortran (under Ubuntu: sudo apt-get install g++ gfortran).
+Go into "attract/bin", type "make clean" and then "make all" or "make all -j4" (if you have 4 cores)
+
+2. Export the ATTRACT environment variables. In your .bashrc file, add the following:
+  export ATTRACTDIR=/home/user/attract/bin (i.e. wherever you installed attract)
+  export ATTRACTTOOLS=$ATTRACTDIR/../tools
+  export ATTRACTGUI=$ATTRACTDIR/../gui
+
+3. For the analysis, also install numpy and scipy (under Ubuntu: sudo apt-get install python-numpy python-scipy)
+
+4. For iATTRACT and the OPLSX forcefield, install pdb2pqr (under Ubuntu: sudo apt-get install pdb2pqr)
+In addition, the pdb2pqr directory must be made accessible to Python. (Under Ubuntu, this directory is
+/usr/share/pdb2pqr . It should contain the files "pdb2pqr.py" and "main.py".)
+To make it accessible, edit your .bashrc file (/home/user/.bashrc) by adding the following
+  export PYTHONPATH=$PYTHONPATH:/usr/share/pdb2pqr  
+
+5. Test your installation.
+Type "source ~/.bashrc" (or start a new command line shell).
+After step 1 and 2, typing "$ATTRACTDIR/attract" should result in:
+  Too few arguments
+  usage: $path/attract structures.dat parameterfile receptor.pdb [ligand.pdb] [options]
+After step 3, typing "python -c 'import numpy, scipy' " should give no error.
+After step 4, typing "python -c 'import pdb2pqr' " should give no error.
