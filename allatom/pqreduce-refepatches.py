@@ -1,6 +1,7 @@
 import pdb2pqr
 import sys, os, tempfile
 import StringIO
+import check
 
 oldsyspath = sys.path
 currdir = os.path.split(__file__)[0]
@@ -30,7 +31,10 @@ args = [pdb2pqr.__file__, "--ff=charmm", tmpfile, pqrfile]
   #sys.path.extend(pdb2pqr.PACKAGE_PATH.split(":"))
 oldstdout = sys.stdout
 sys.stdout = sys.stderr
+oldargv = list(sys.argv)
+sys.argv[:] = args
 pdb2pqr.mainCommand(args)
+sys.argv[:] = oldargv
 sys.stdout = oldstdout
 pqr = os.fdopen(pqrhandle)
 pqrlines = pqr.readlines()
@@ -54,7 +58,10 @@ args = [pdb2pqr.__file__, "--ff=charmm", tmpfile, pqrreffile]
   #sys.path.extend(pdb2pqr.PACKAGE_PATH.split(":"))
 oldstdout = sys.stdout
 sys.stdout = sys.stderr
+oldargv = list(sys.argv)
+sys.argv[:] = args
 pdb2pqr.mainCommand(args)
+sys.argv[:] = oldargv
 sys.stdout = oldstdout
 pqrref = os.fdopen(pqrrefhandle)
 pqrreflines = pqrref.readlines()
@@ -154,5 +161,6 @@ for l in outlines:
   if len(l): print >> out, l
 
 out.close()
+check.check(os.path.splitext(pdb)[0] + "-aa.pdb",os.path.splitext(pdbref)[0] + "-aa.pdb")
 print mapf.getvalue()
 

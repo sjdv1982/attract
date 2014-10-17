@@ -20,7 +20,7 @@ cd ..
 
 rm -rf html-local
 mkdir html-local
-for i in `ls -ad html/* | grep -v 'full.html' | grep -v 'easy.html' | grep -v 'cryo.html' | grep -v 'index.html' | grep -v 'attract.html' | grep -v 'serverconfig' `; do
+for i in `ls -ad html/* | grep -v 'full.html' | grep -v 'easy.html' | grep -v 'cryo.html' | grep -v 'index.html' | grep -v 'attract.html' | grep -v 'narefine.html' | grep -v 'serverconfig' `; do
   cd html-local
   ln -s ../$i ${i##*/}
   cd ..
@@ -29,4 +29,5 @@ done
 \cp -d html/index.html html/attract.html html-local/
 python generate-html-full.py $website/attractserver.py > html-local/full.html
 python generate-html-easy.py $website/attractserver-easy.py > html-local/easy.html 
-python generate-html-cryo.py $website/attractserve-cryo.py > html-local/cryo.html 
+python generate-html-cryo.py $website/attractserver-cryo.py > html-local/cryo.html 
+python generate-html-narefine.py $website/attractserver-narefine.py > html-local/narefine.html 

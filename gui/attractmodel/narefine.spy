@@ -1,0 +1,25 @@
+Type NARefineMD {
+  Integer nsteps
+  Float temperature
+  Float restraints_value
+  Enum restraints_atoms("ca", "protein")
+  form {
+    nsteps.name = "Number of MD steps"
+  }
+}
+Type NARefineInterface {
+  String runname = "narefine"
+  ## form pdbfile.type = "file"
+  ## form pdbfile.name = "Structure file"
+  ResourceData_PDB pdbfile  
+  Float offset = 0.1
+  Integer use_simulation = True
+  NARefineMD md1 = (10000, 400, 0.5, "ca")
+  NARefineMD md2 = (1000,  350, 0.1, "ca")
+  Integer min2_cycles = 1000
+  Integer minc_cycles = 5000
+  Integer nparallel = 8
+  Bool use_cuda = True
+  Bool use_5PO = False
+}
+Method generate(NARefineInterface) generate_narefine
