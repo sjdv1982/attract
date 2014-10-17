@@ -1,7 +1,7 @@
 import pdb2pqr
 import sys, os, tempfile
 import StringIO
-
+import check
 oldsyspath = sys.path
 currdir = os.path.split(__file__)[0]
 if not len(currdir): currdir = "."
@@ -158,5 +158,6 @@ for l in outlines:
   if len(l): print >> out, l
 
 out.close()
+check.check(os.path.splitext(pdb)[0] + "-aa.pdb",os.path.splitext(pdbref)[0] + "-aa.pdb")
 print mapf.getvalue()
 
