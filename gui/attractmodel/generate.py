@@ -25,7 +25,14 @@ transfiledict = {
   ("Protein", "OPLSX"): "$ATTRACTDIR/../allatom/oplsx.trans",
 }
 
+supported_moleculetype_interactions = (
+  ("Protein", "Protein"),
+  ("Protein", "DNA"),
+  ("Protein", "RNA"),
+)  
+
 def generate(m):    
+  assert m.auto_his #TODO
   iattract_hybrid = False #are we doing the docking with ATTRACT forcefield, but iATTRACT refinement with iATTRACT ?
   if (m.iattract and m.forcefield != "OPLSX"): iattract_hybrid = True
    
@@ -52,7 +59,25 @@ def generate(m):
   reduce_any = False
   pdbnames = []
   pdbnames3 = set()
+  
+  #determine moleculetype interactions (Protein-protein, protein-RNA, protein-DNA, etc.)  
+  moleculetype_interactions = set()
   for pnr,p in enumerate(m.partners):
+    for pnr2,p2 in enumerate(m.partners):
+      if pnr2 <= pnr: continue
+      moleculetype_interaction = tuple(sorted((p.moleculetype, p2.moleculetype)))
+      moleculetype_interactions.add(moleculetype_interaction)
+  
+  for moleculetype_interaction in moleculetype_interactions:
+    if moleculetype_interaction in supported_moleculetype_interactions: continue
+    if tuple(reversed(moleculetype_interaction)) in supported_moleculetype_interactions: continue
+    raise ValueError("Unsupported molecule type interaction: %s - %s" % moleculetype_interaction)
+  
+  for pnr,p in enumerate(m.partners):
+    if p.moleculetype != "Protein":
+      assert not generate_modes #TODO for non-protein
+      assert m.iattract is None: #TODO for non-protein
+      assert m.forcefield == "ATTRACT": #TODO for non-protein (untested)
     assert p.code is None #TODO: not implemented
     #TODO: select chain
     ensemble_list = None
@@ -191,8 +216,7 @@ cat /dev/null > hm-all.dat
           partnercode += "python $ATTRACTTOOLS/modes.py %s %d >> hm-all-iattract.dat\n" % (iattract_filenames[pnr], p.nr_modes)
         if p.collect_pdb is not None:
           unreduced_modes_file_name = "partner%d-hm-unreduced.dat" % (pnr+1)
-          partnercode += "python $ATTRACTTOOLS/modes.py %s > %s\n" % (p.collect_pdb.name, unreduced_modes_file_name)
-      if p.moleculetype != "Protein": raise Exception #TODO: not yet implemented
+          partnercode += "python $ATTRACTTOOLS/modes.py %s > %s\n" % (p.collect_pdb.name, unreduced_modes_file_name)      
       if p.nr_modes == 0 or modes_file_name is None:
         partnercode += "echo 0 >> hm-all.dat\n"        
         if iattract_hybrid:
@@ -285,6 +309,8 @@ name=%s
       ens_any = True
   if m.ghost:
     params += " --ghost"
+  if m.ghost_ligands:
+    params += " --ghost-ligands"    
   if m.gravity:
     params += " --gravity %d" % m.gravity
   if m.rstk != 0.01:
