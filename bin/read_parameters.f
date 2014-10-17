@@ -39,7 +39,9 @@ c     write(*,*)(abc(i,j),j=1,maxpar)
       close(11)
       do 450 j=1,maxpar
       do 448 i=1,maxpar
+      if (rbc(i,j).ne.0) then
       haspar(i,j) = 1
+      endif
       rc(i,j)=abc(i,j)*rbc(i,j)**potshape
       ac(i,j)=abc(i,j)*rbc(i,j)**6
       emin(i,j)= 0.0d0

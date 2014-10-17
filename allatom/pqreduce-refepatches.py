@@ -30,7 +30,10 @@ args = [pdb2pqr.__file__, "--ff=charmm", tmpfile, pqrfile]
   #sys.path.extend(pdb2pqr.PACKAGE_PATH.split(":"))
 oldstdout = sys.stdout
 sys.stdout = sys.stderr
+oldargv = list(sys.argv)
+sys.argv[:] = args
 pdb2pqr.mainCommand(args)
+sys.argv[:] = oldargv
 sys.stdout = oldstdout
 pqr = os.fdopen(pqrhandle)
 pqrlines = pqr.readlines()
@@ -54,7 +57,10 @@ args = [pdb2pqr.__file__, "--ff=charmm", tmpfile, pqrreffile]
   #sys.path.extend(pdb2pqr.PACKAGE_PATH.split(":"))
 oldstdout = sys.stdout
 sys.stdout = sys.stderr
+oldargv = list(sys.argv)
+sys.argv[:] = args
 pdb2pqr.mainCommand(args)
+sys.argv[:] = oldargv
 sys.stdout = oldstdout
 pqrref = os.fdopen(pqrrefhandle)
 pqrreflines = pqrref.readlines()
