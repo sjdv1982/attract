@@ -1,4 +1,27 @@
-import sys, os
+import sys, os, argparse
+
+mapnuc = {
+  "A": ["DA", "RA"],
+  "ADE": ["DA", "RA"],
+  "C": ["DC", "RC"],
+  "CYT": ["DC", "RC"],
+  "G": ["DG", "RG"],
+  "GUA": ["DG", "RG"],
+  "T": ["DT", "DT"],
+  "THY": ["DT", "DT"],
+  "U": ["RU", "RU"],
+  "URA": ["RU", "RU"],  
+} 
+
+parser = argparse.ArgumentParser()
+parser.add_argument("pdb",help="PDB file to reduce")
+parser.add_argument("output",help="reduced output PDB file", nargs="?")
+parser.add_argument("--dna",help="Automatically interpret nucleic acids as DNA", action="store_true")
+parser.add_argument("--rna",help="Automatically interpret nucleic acids as RNA", action="store_true")
+args = parser.parse_args()
+if args.dna and args.rna:
+  raise ValueError("Options --dna and --rna are mutually exclusive")
+
 reducedat = os.path.split(os.path.abspath(__file__))[0] + os.sep + "reduce.dat"
 
 def read_forcefield(forcefieldfile):
@@ -32,7 +55,12 @@ def read_forcefield(forcefieldfile):
       
   
 ff = read_forcefield(reducedat)
-prot = sys.argv[1]
+pdb = args.pdb
+assert os.path.exists(pdb)
+if args.output is None:
+  args.output = os.path.splitext(pdb)[0] + "r.pdb"
+outp = open(args.output, "w")  
+
 
 res = None
 resname = None
@@ -44,30 +72,30 @@ def print_res():
   global rescounter, atomcounter, rescoor
   if not len(rescoor): return  
   rescounter += 1
+  print res[1:].strip(), rescounter
   for l in ff[resname]:
     if (l[0], l[1]) not in rescoor: continue
     c = rescoor[(l[0], l[1])]
     x, y, z = c[1]/c[0], c[2]/c[0], c[3]/c[0]
-    """
-    KLUDGES to reproduce old reduce behavior:    
-    """
-    if resname in ("GLU", "GLN") and l[1] in ("CN1", "CO1"):
-      x, y, z = c[1]*0.333, c[2]*0.333, c[3]*0.333
-    """
-    /KLUDGES
-    """
     atomcounter += 1
     line = (atomcounter, l[1], resname, rescounter, x, y, z, l[0], l[3], 1.0)
-    print "ATOM%7d  %-3s %-3s  %4d    %8.3f%8.3f%8.3f%5d%8.3f 0%5.2f" % line
+    print >> outp, "ATOM%7d  %-3s %-3s  %4d    %8.3f%8.3f%8.3f%5d%8.3f 0%5.2f" % line
   rescoor = {}
   
-for l in open(prot):
+for l in open(pdb):
   if not l.startswith("ATOM"): continue
   cres = l[21:26]
   if cres != res:
     print_res()
     res = cres
     resname = l[17:20].strip()
+    if resname in mapnuc:
+      if args.dna: 
+        resname = mapnuc[resname][0]
+      elif args.rna:
+        resname = mapnuc[resname][1]
+      else:
+        raise ValueError("PDB contains a nucleic acid named \"%s\", but it could be either RNA or DNA. Please specify the --dna or --rna option" % resname)
     assert resname in ff, l
     ffres = ff[resname] 
   try:  
