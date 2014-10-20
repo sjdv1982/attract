@@ -1,0 +1,120 @@
+import sys, os, argparse
+
+mapnuc = {
+  "A": ["DA", "RA"],
+  "ADE": ["DA", "RA"],
+  "C": ["DC", "RC"],
+  "CYT": ["DC", "RC"],
+  "G": ["DG", "RG"],
+  "GUA": ["DG", "RG"],
+  "T": ["DT", "DT"],
+  "THY": ["DT", "DT"],
+  "U": ["RU", "RU"],
+  "URA": ["RU", "RU"],  
+} 
+
+parser = argparse.ArgumentParser()
+parser.add_argument("pdb",help="PDB file to reduce")
+parser.add_argument("output",help="reduced output PDB file", nargs="?")
+parser.add_argument("--dna",help="Automatically interpret nucleic acids as DNA", action="store_true")
+parser.add_argument("--rna",help="Automatically interpret nucleic acids as RNA", action="store_true")
+args = parser.parse_args()
+if args.dna and args.rna:
+  raise ValueError("Options --dna and --rna are mutually exclusive")
+
+reducedat = os.path.split(os.path.abspath(__file__))[0] + os.sep + "reduce.dat"
+
+def read_forcefield(forcefieldfile):
+  ff = {}
+  aa = None
+  for l in open(forcefieldfile):
+    pound = l.find("#")
+    if pound > -1: l = l[:pound]
+    l = l.strip()
+    if not len(l): continue
+    ll = l.split()
+    if len(ll) == 1:
+      aa = ll[0]
+      assert len(aa) <= 3, l
+      ff[aa] = []
+    else:
+      assert aa is not None
+      try:
+        atomtype = int(ll[0])
+      except ValueError:
+        raise ValueError(l)
+      atoms = ll[2:]
+      charge = 0.0
+      try:
+        charge = float(atoms[-1])
+        atoms = atoms[:-1]
+      except ValueError:
+        pass
+      ff[aa].append( (int(ll[0]), ll[1], set(atoms), charge) )
+  return ff  
+      
+  
+ff = read_forcefield(reducedat)
+pdb = args.pdb
+assert os.path.exists(pdb)
+if args.output is None:
+  args.output = os.path.splitext(pdb)[0] + "r.pdb"
+outp = open(args.output, "w")  
+
+
+res = None
+resname = None
+rescounter = 0
+atomcounter = 0
+rescoor = {}
+
+def print_res():
+  global rescounter, atomcounter, rescoor
+  if not len(rescoor): return  
+  rescounter += 1
+  print res[1:].strip(), rescounter
+  for l in ff[resname]:
+    if (l[0], l[1]) not in rescoor: continue
+    c = rescoor[(l[0], l[1])]
+    x, y, z = c[1]/c[0], c[2]/c[0], c[3]/c[0]
+    atomcounter += 1
+    line = (atomcounter, l[1], resname, rescounter, x, y, z, l[0], l[3], 1.0)
+    print >> outp, "ATOM%7d  %-3s %-3s  %4d    %8.3f%8.3f%8.3f%5d%8.3f 0%5.2f" % line
+  rescoor = {}
+  
+for l in open(pdb):
+  if not l.startswith("ATOM"): continue
+  cres = l[21:26]
+  if cres != res:
+    print_res()
+    res = cres
+    resname = l[17:20].strip()
+    if resname in mapnuc:
+      if args.dna: 
+        resname = mapnuc[resname][0]
+      elif args.rna:
+        resname = mapnuc[resname][1]
+      else:
+        raise ValueError("PDB contains a nucleic acid named \"%s\", but it could be either RNA or DNA. Please specify the --dna or --rna option" % resname)
+    assert resname in ff, l
+    ffres = ff[resname] 
+  try:  
+    atom = l[12:16].strip()
+    x = float(l[30:38])
+    y = float(l[38:46])
+    z = float(l[46:54])
+  except ValueError:
+    continue
+  for bead in ffres:
+    for at in bead[2]:
+      if atom != at: continue
+      beadname = bead[0], bead[1]
+      if beadname not in rescoor: 
+        rescoor[beadname] = [0, 0.0, 0.0, 0.0]
+      c = rescoor[beadname]
+      c[0] += 1
+      c[1] += x
+      c[2] += y
+      c[3] += z
+      break
+print_res()    
