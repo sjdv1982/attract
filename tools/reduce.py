@@ -10,7 +10,8 @@ mapnuc = {
   "T": ["DT", "DT"],
   "THY": ["DT", "DT"],
   "U": ["RU", "RU"],
-  "URA": ["RU", "RU"],  
+  "URA": ["RU", "RU"],
+  "URI": ["RU", "RU"],  
 } 
 
 parser = argparse.ArgumentParser()
@@ -18,6 +19,7 @@ parser.add_argument("pdb",help="PDB file to reduce")
 parser.add_argument("output",help="reduced output PDB file", nargs="?")
 parser.add_argument("--dna",help="Automatically interpret nucleic acids as DNA", action="store_true")
 parser.add_argument("--rna",help="Automatically interpret nucleic acids as RNA", action="store_true")
+parser.add_argument("--compat",help="Maximize compatibility with reduce.f", action="store_true")
 args = parser.parse_args()
 if args.dna and args.rna:
   raise ValueError("Options --dna and --rna are mutually exclusive")
@@ -77,6 +79,8 @@ def print_res():
     if (l[0], l[1]) not in rescoor: continue
     c = rescoor[(l[0], l[1])]
     x, y, z = c[1]/c[0], c[2]/c[0], c[3]/c[0]
+    if args.compat and resname in ("GLN", "GLU") and l[1] in ("CN1", "CO1"):
+      x, y, z = c[1] * 0.333, c[2] * 0.333, c[3] * 0.333
     atomcounter += 1
     line = (atomcounter, l[1], resname, rescounter, x, y, z, l[0], l[3], 1.0)
     print >> outp, "ATOM%7d  %-3s %-3s  %4d    %8.3f%8.3f%8.3f%5d%8.3f 0%5.2f" % line
