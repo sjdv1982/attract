@@ -1,3 +1,11 @@
+#The format of reduce.dat is as follows:
+#
+# <One-,two- or three-letter residue code>
+# <atom type> <bead name> <names of the atom(s) that comprise the bead> [charge of the bead] 
+# <atom type> <bead name> <names of the atom(s) that comprise the bead> [charge of the bead]
+# ...
+
+
 #amino acids
 
 ALA

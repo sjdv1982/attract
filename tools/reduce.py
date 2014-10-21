@@ -1,5 +1,18 @@
+"""
+Reduce converts a PDB into a modified PDB format, where the atom type for each atom is indicated
+This reduced PDB is what is understood by ATTRACT.
+These atoms are actually pseudo-atoms (beads), representing the average position of one or more real atoms.
+The pseudo-atoms definitions are in reduce.dat, see that file for more details.
+
+DNA bases are DA, DC, DG, DT; and RNA bases are RA, RC, RG, RU. One-letter and three-letter nucleic acid\
+codes can be  automatically interpreted as DNA or RNA with the --dna and --rna options.
+
+Author: Sjoerd de Vries, Technische Universitaet Muenchen
+"""
+
 import sys, os, argparse
 
+#Mapping of nucleic-acid codes to DNA/RNA
 mapnuc = {
   "A": ["DA", "RA"],
   "ADE": ["DA", "RA"],
@@ -7,14 +20,15 @@ mapnuc = {
   "CYT": ["DC", "RC"],
   "G": ["DG", "RG"],
   "GUA": ["DG", "RG"],
-  "T": ["DT", "DT"],
-  "THY": ["DT", "DT"],
-  "U": ["RU", "RU"],
-  "URA": ["RU", "RU"],
-  "URI": ["RU", "RU"],  
+  "T": ["DT", None],
+  "THY": ["DT", None],
+  "U": [None, "RU"],
+  "URA": [None, "RU"],
+  "URI": [None, "RU"],  
 } 
 
-parser = argparse.ArgumentParser()
+parser =argparse.ArgumentParser(description=__doc__,
+                            formatter_class=argparse.RawDescriptionHelpFormatter)
 parser.add_argument("pdb",help="PDB file to reduce")
 parser.add_argument("output",help="reduced output PDB file", nargs="?")
 parser.add_argument("--dna",help="Automatically interpret nucleic acids as DNA", action="store_true")
