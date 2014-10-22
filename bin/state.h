@@ -168,6 +168,7 @@ struct MiniState {
   int has_globalenergy; //1 = the energy has a global component, globalenergy must be called
   int gravity; //gravity modes: 0 = off, 1 = to global origin, 2 = to receptor origin, 3 = to all other centers;
   double rstk; //gravity force constant
+  double restweight; //restraint weight
   bool ghost;
   bool ghost_ligands; //if enabled, ligands don't see each other, only the receptor
 };
