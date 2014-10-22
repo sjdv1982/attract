@@ -167,8 +167,6 @@ Type AttractPartnerInterface {
     """
     For now, disable advanced features
     """
-    #r.type = None
-    moleculetype.type = None
     auto_his.type = None
     #his.type = None
     #his.length = 10
@@ -510,7 +508,13 @@ Type AttractModel {
   Bool ghost = False
   ## form ghost.add_header("In ghost mode, the forcefield is turned off")
   ## form ghost.name = "Enable ghost mode"
-
+  Bool ghost_ligands = False
+  ## form ghost_ligands.add_header("In ghost-ligands mode, the forcefield is turned off between ligands (all partners beyond the first)")
+  ## form ghost_ligands.name = "Enable ghost-ligands mode"
+  validate {
+    if ghost: assert not ghost_ligands
+  }
+  
   AttractAtomDensityGridArray atomdensitygrids = []
   ## form atomdensitygrids.length = 3
   ## form atomdensitygrids.count_from_one = True
@@ -614,7 +618,6 @@ Type AttractModel {
   ## form annotation.type = None
   
   validate {
-    #TODO: grid alphabet
     gridnames = set([g.gridname for g in grids])
     for pnr, partner in enumerate(partners):
       if partner.gridname is not None:
@@ -703,6 +706,19 @@ Type AttractModel {
     =>
     'Please define at least one docking partner'
   
+    
+    "assert not partner.is_reduced #iATTRACT + ATTRACT-reduced files don't mix"
+    =>
+    'iATTRACT is incompatible with files that are reduced by the ATTRACT forcefield'
+
+    'if ghost: assert not ghost_ligands'
+    =>
+    'ghost mode and ghost-ligands mode are mutually exclusive'
+
+    'if atomdensitygrids is not None and len(atomdensitygrids): assert ghost == True'
+    =>
+    'Atom density grids are only meaningful in ghost mode'
+
   }
   
 }
