@@ -2,10 +2,10 @@
 Tool to generate random initial DOF files
 syntax: python randsearch.py <bodies> <structures> [seed] [--fast] [--fix-receptor]
 In case of two bodies:
-  The bodies are placed 150 A from each other, at opposite ends of the origin
+  The bodies are placed 70 A from each other, at opposite ends of the origin
   If --fix-receptor, the receptor is placed at the origin
 In case of 1 or >2 bodies:
-  The bodies are placed on the surface of a sphere of 75 A radius
+  The bodies are placed on the surface of a sphere of 35 A radius
   If --fix-receptor, the first body (receptor) is placed at the origin
   The (remaining) positions are regularized, enforcing constant relative distances towards each other 
    (unless the --fast option was specified)  
@@ -53,7 +53,7 @@ try:
   seed = 1
   if len(sys.argv) > 3: seed = int(sys.argv[3])
 except:
-  print("syntax: python randsearch.py <bodies> <structures> [seed] [--fast] [--fix-receptor]" , file=sys.stderr)
+  print("syntax: python randsearch.py <bodies> <structures> [seed] [--fast] [--fix-receptor] [--radius <radius>]" , file=sys.stderr)
   raise
 
 import random

@@ -6,11 +6,17 @@ import os
 #TODO: add check that either all interactions are grid-accelerated, or none are
 #  (and an option to disable this check; for this, adapt --rcut iteration as well)
 #TODO: a script to add energies back to deredundant output
-#TODO: add grid alphabet to data model
+#TODO: add grid alphabet to data model (or auto-generate from partners)
 #TODO: non-protein molecules
 #TODO: decide upon PDB code, chain select
+#TODO: add "data-driven docking" option: 
+#   - search mode must be randsearch
+#   - restraint file must be present for sampling
+#   - restraint file may be present for scoring; if they are not present, the sampling restraints file is used with restweight 0.01
+#   - prior to docking, a ghost mode rotational minimization is performed; if fix-receptor, the complex is then rotated back into the receptor frame
+#   - during code generation, check that grids have been defined
 
-generator_version = "0.1"
+generator_version = "0.2"
 
 parameterfiledict = {
   "ATTRACT" :  "$ATTRACTDIR/../parmw.par",
@@ -32,7 +38,7 @@ supported_moleculetype_interactions = (
 )  
 
 def generate(m):    
-  assert m.auto_his #TODO
+  #assert m.<partners>.auto_his #TODO
   iattract_hybrid = False #are we doing the docking with ATTRACT forcefield, but iATTRACT refinement with iATTRACT ?
   if (m.iattract and m.forcefield != "OPLSX"): iattract_hybrid = True
    
@@ -76,8 +82,8 @@ def generate(m):
   for pnr,p in enumerate(m.partners):
     if p.moleculetype != "Protein":
       assert not generate_modes #TODO for non-protein
-      assert m.iattract is None: #TODO for non-protein
-      assert m.forcefield == "ATTRACT": #TODO for non-protein (untested)
+      assert m.iattract is None #TODO for non-protein
+      assert m.forcefield == "ATTRACT" #TODO for non-protein (untested)
     assert p.code is None #TODO: not implemented
     #TODO: select chain
     ensemble_list = None

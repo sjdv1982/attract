@@ -104,6 +104,10 @@ void locrest_usage() {
   exit(1);
 }
 
+void restweight_usage() {
+ fprintf(stderr, "--restweight option usage: --restweight <restraints weight>\n");
+  exit(1);
+}
 
 void rstk_usage() {
  fprintf(stderr, "--rstk option usage: --rstk <gravity constant>\n");
@@ -405,6 +409,12 @@ void parse_options(int ministatehandle, int cartstatehandle, int nlig, int argc,
       ms.rstk = rstk;
       n += 1;
     }    
+    else if (!strcmp(arg,"--restweight")) {
+      if (argc-n < 2) restweight_usage();    
+      double restweight = atof(argv[n+1]);
+      ms.restweight = restweight;
+      n += 1;
+    }        
     else if (!strcmp(arg,"--vmax")) {
       if (argc-n < 2) vmax_usage();    
       int vmax = atoi(argv[n+1]);
