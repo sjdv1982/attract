@@ -50,7 +50,7 @@ void read_pdb2(
       
       pdblayout0[linecounter] = 1;
     }
-    else {
+    else if ((strncmp(code,"END", 4)) && (strncmp(code,"MODEL", 5))) {
       char *&s1 = pdbstrings0[stringcounter];
       s1 = new char[strlen(buf)+1];
       strcpy(s1, buf);
@@ -58,6 +58,9 @@ void read_pdb2(
       stringcounter += 1;
     
       pdblayout0[linecounter] = 0;
+    }
+    else {
+      continue;
     }
     linecounter++;
   }

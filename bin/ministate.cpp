@@ -39,6 +39,7 @@ extern "C" int ministate_new_() {
   ms.has_globalenergy = 0;
   ms.gravity = 0;
   ms.rstk = 0.2; //for harmonic restraints...
+  ms.restweight = 1;
   ms.ghost = 0;
   ms.ghost_ligands = 0;
   return ministatesize-1; 
