@@ -140,9 +140,9 @@ void parse_restraintfile(MiniState &ms, const char *restfile) {
       restraints[nr_restraints] = r;
       nr_restraints++;
     }
-    ms.restraints = new Restraint[nr_restraints+1];
-    ms.nr_restraints = nr_restraints;
-    memcpy(ms.restraints, restraints, nr_restraints*sizeof(Restraint));
   }  
+  ms.restraints = new Restraint[nr_restraints+1];
+  ms.nr_restraints = nr_restraints;
+  memcpy(ms.restraints, restraints, nr_restraints*sizeof(Restraint));
 
 }
