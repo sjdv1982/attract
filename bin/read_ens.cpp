@@ -166,7 +166,11 @@ void read_ens(int cartstatehandle, int ligand, char *ensfile, bool strict, bool 
     double *ens = new double[3*MAXATOM];
     for (int n = 0; n < 3*natom; n++) {
       ens[n] = x2[n] - x[n];
-    }          
+    } 
+    if (nrens >= MAXENS) {
+     fprintf(stderr, "Ensemble file %s, line %d: maximum ensemble size (MAXENS) exceeded\n", ensfile, line);
+     exit(0);            
+    }
     s.ensd[ligand][nrens] = ens;
     if (nrens > 0 && morphing) {
       double *morphd = new double[3*MAXATOM];
