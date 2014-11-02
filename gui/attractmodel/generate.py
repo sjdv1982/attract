@@ -9,11 +9,13 @@ import os
 #TODO: add grid alphabet to data model (or auto-generate from partners)
 #TODO: non-protein molecules
 #TODO: decide upon PDB code, chain select
-#TODO: add "data-driven docking" option: 
+#TODO: add "data-driven docking" option (in the easy interface, adding a restraint file): 
+#   - => add restraint file per-iteration, not global!
 #   - search mode must be randsearch
 #   - restraint file must be present for sampling
 #   - restraint file may be present for scoring; if they are not present, the sampling restraints file is used with restweight 0.01
-#   - prior to docking, a ghost mode rotational minimization is performed; if fix-receptor, the complex is then rotated back into the receptor frame
+#   - prior to docking, a ghost mode rotational minimization is performed (vmax 50); if fix-receptor, the complex is then rotated back into the receptor frame
+#   - after docking, a minimization without restraints is performed
 #   - during code generation, check that grids have been defined
 
 generator_version = "0.2"
