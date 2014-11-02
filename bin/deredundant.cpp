@@ -147,6 +147,7 @@ int main(int argc, char *argv[]) {
         nrens[count] = atoi(argv[3]);
         count++;
       }
+      argc--;
       continue;
     }
     if (argc > 4 && (!strcmp(argv[3],"--locrest"))) {
