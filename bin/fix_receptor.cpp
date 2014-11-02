@@ -116,7 +116,6 @@ int main(int argc, char *argv[]) {
         argc--;      
         if (!strncmp(argv[3],"--",2)) break;      
         nrens[count] = atoi(argv[3]);
-	fprintf(stderr,"%d\n",nrens[count]);
         count++;
       }
       argc--;
