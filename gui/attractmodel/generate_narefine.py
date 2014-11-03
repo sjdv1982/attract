@@ -7,18 +7,21 @@ set -u -e
 fixprotein=$1
 d='.'
 pattern=%s
-pdb=$pattern.pdb
 nparallel=%s
 use_cuda=%s
 use_5PO=%s
 """ % (pattern, m.nparallel, int(m.use_cuda), int(m.use_5PO))
   ret += """
-nmodels=`awk '$1 == "MODEL"' $d/$pdb | wc -l`
+nmodels=`awk '$1 == "MODEL"' $d/$pattern.pdb | wc -l`
 
 echo '**************************************************************'
 echo 'Prepare files...'
 echo '**************************************************************'
-$NAREFINE/prep.sh $d $d/$pdb $use_5PO $d/$pattern.top $d/$pattern $nparallel $fixprotein
+if use_5PO=0; then
+  gawk -f $NAREFINE/scripts/withdraw5PO.awk $d/$pattern.pdb > $d/$pattern-no5PO.pdb
+  pattern=$pattern-no5PO  
+fi  
+$NAREFINE/prep.sh $d $d/$pattern.pdb $use_5PO $d/$pattern.top $d/$pattern $nparallel $fixprotein
 python $NAREFINE/scripts/generate_infiles.py $d/mini1.in $d/mini2.in %.1f %d %d $d/md1-X.in $d/md2-X.in %.1f %.1f %s %s %d %d %.1f %.1f %d $d/minc.in $d/mingb.in  
 """ % (m.offset, m.min2_cycles, int(m.use_simulation),
        m.md1.restraints_value, m.md2.restraints_value, 
