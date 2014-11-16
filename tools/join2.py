@@ -35,7 +35,9 @@ stnr = 0
 for n in range(nrsplit):
   fnam = "%s-%d" % (sys.argv[1], n+1)
   header0,structures = read_struc(fnam)
-  if n == 0: header = header0
+  if n == 0: 
+    for h in header0:
+      print h
   currstruc = None
   currstruc_false = False
   for s in structures:
