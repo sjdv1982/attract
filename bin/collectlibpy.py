@@ -35,6 +35,12 @@ def collect_coor(copy=False):
   if copy: coor = coor.copy()
   return coor
 
+def collect_coor_raw(copy=False):
+  x = (POINTER(c_double)).in_dll(lib, "x")  
+  coor = numpy.ctypeslib.as_array(x, shape=(ieins[nlig-1]*3,))
+  if copy: coor = coor.copy()
+  return coor
+
 collect_all_coor = collect_coor
 
   

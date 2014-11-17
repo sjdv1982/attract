@@ -47,18 +47,19 @@ extern "C" void enstrans_(const int &cartstatehandle, const int &lig, const int 
   int nrens = cs.nrens[lig];
   double enswsum = 0;  
   for (int n = 0; n < nrens; n++) {
-    enswsum += ensw[curr][n];
+    enswsum += ensw[curr-1][n];
   }
   
   double accum = 0;
   for (int n = 0; n < nrens; n++) {
-    accum += ensw[curr][n]/enswsum;
-    //printf("ENSTRANS! %.3f %.3f %d\n", accum, rand, accum > rand);
+    accum += ensw[curr-1][n]/enswsum;    
     if (accum > rand) {
+      //printf("ENSTRANS! %d %d %.3f %.3f\n", curr, n+1, accum, rand);
       ret = n+1;
       return;
     }
   }
+  //printf("ENSTRANS! %d %d %.3f %.3f\n", curr, nrens, 1.0, rand);
   ret = nrens;
   return;
   

@@ -141,6 +141,7 @@ struct Restraint {
   double par3;
   double par4;
   double par5;
+  int maxindex;
 };
 
 struct MiniState {
