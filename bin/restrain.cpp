@@ -353,6 +353,10 @@ extern "C" void restrain_(const int &ministatehandle, const int &cartstatehandle
   srand(seed);
   for (int n = 0; n < ms.nr_restraints; n++) {
     Restraint &r = ms.restraints[n];
+    if (r.maxindex > cs.nall) {
+      fprintf(stderr, "Restraint %d selects atoms up to index %d, but there are only %d atoms\n", n+1, r.maxindex, cs.nall);
+      exit(1);
+    }
     if (r.type == 1) restrain_type_1(weight, r,iab,x,f,energy);
     if (r.type == 2) restrain_type_2(weight,r,iab,x,f,energy);    
     if (r.type == 3) restrain_type_3(weight,r,iab,x,f,energy);    
