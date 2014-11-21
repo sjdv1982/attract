@@ -21,7 +21,7 @@ double neighbourdis0, bool (&alphabet0)[MAXATOMTYPES]) {
   _ratio = new double[size_ratio+1];
   for (int n = 0; n <= size_ratio; n++) {
     double dissq = ((n+0.5)/10000);
-    _ratio[n] = sqrt(dissq/plateaudissq) / (1/dissq) * (1/plateaudissq);
+    _ratio[n] = sqrt(dissq/plateaudissq);
   }
   memset(alphabet, 0, MAXATOMTYPES*sizeof(bool));
   memcpy(alphabet, alphabet0, sizeof(alphabet));
