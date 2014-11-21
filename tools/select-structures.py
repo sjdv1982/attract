@@ -2,8 +2,11 @@ import sys
 from _read_struc import read_struc
 header,structures = read_struc(sys.argv[1])
 structures = list(structures)
-selected = [int(v) for v in sys.argv[2:]]
-
+if sys.argv[2] == "-f":
+  selected = [int(l.split()[0]) for l in open(sys.argv[3]).readlines()]
+else:  
+  selected = [int(v) for v in sys.argv[2:]]
+selected = set(selected)
 
 for h in header: print h
 stnr = 0
