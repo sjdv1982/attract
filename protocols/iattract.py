@@ -101,7 +101,7 @@ def prepare_input(topology,start,ligands,current,name,coor,ligandrange,ligandato
       return ('flexm-'+current+name+'.dat',restraints)
     
   if otf:
-    imodes.make(ligands,ligandatoms,current+name,ligandrange,coor,icut,ensemblefiles,modefile,imodefile)
+    imodes.make(ligands,ligandatoms,current+name,ligandrange,coor,icut,ensemblefiles,modefile,imodefile,noflex)
     
   else:
     restraints = []
@@ -110,22 +110,9 @@ def prepare_input(topology,start,ligands,current,name,coor,ligandrange,ligandato
       
     return ('flexm-'+name+'.dat',restraints)
   
-  count = 0
-  if len(noflex):
-    for ligand in noflex:
-      out = open(current+name+'-ilist'+str(ligand)+'.txt','w')
-      out.write('#no flexible residues')
-      out.close()	
-	
-  for i,ligand in enumerate(ligands):
-    if not os.path.exists(current+name+'-ilist'+str(i+1)+'.txt'):
-      out = open(current+name+'-ilist'+str(i+1)+'.txt','w')
-      out.write('#no flexible residues')
-      out.close()
-      count += 1
   
     
-  if count == len(ligands):
+  if len(noflex) == len(ligands):
     return ("",[])
   
   offset = 0
