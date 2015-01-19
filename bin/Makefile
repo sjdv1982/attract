@@ -171,11 +171,7 @@ trans: read_pdb2.o transl.o
 cluster_struc: cluster_struc.o
 	$(CXX) $(CFLAGS) $< -o $@
 
-reduce: reduce.o
-	$(FF) $(FLAG) $< -o $@
 redatom: redatom.o
-	$(FF) $(FLAG) $< -o $@
-reduce_na: reduce_na.o
 	$(FF) $(FLAG) $< -o $@
 translate: translate.o
 	$(FF) $(FLAG) $< -o $@
@@ -188,7 +184,7 @@ viewe: viewe.o
 rmsca: rmsca.o
 	$(FF) $(FLAG) $< -o $@
 
-rest: reduce redatom reduce_na translate rotam compare viewe rmsca center trans cluster_struc
+rest: redatom translate rotam compare viewe rmsca center trans cluster_struc
 	
 
 all: max.fin attract attract-infinite collect collectlib.so lrmsd rmsd make-grid \

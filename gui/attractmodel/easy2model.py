@@ -10,6 +10,7 @@ def easy2model(emodel):
     pp.is_reduced=False
     pp.collect_pdb=p.pdbfile 
     pp.chain="All"
+    pp.moleculetype=p.moleculetype
     pp.generate_modes=p.generate_modes
     if p.generate_modes:
       partner_use_flex = True
