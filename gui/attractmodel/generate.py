@@ -6,8 +6,6 @@ import os
 #TODO: add check that either all interactions are grid-accelerated, or none are
 #  (and an option to disable this check; for this, adapt --rcut iteration as well)
 #TODO: a script to add energies back to deredundant output
-#TODO: add grid alphabet to data model (or auto-generate from partners)
-#TODO: non-protein molecules
 #TODO: decide upon PDB code, chain select
 #TODO: add "data-driven docking" option (in the easy interface, adding a restraint file): 
 #   - => add restraint file per-iteration, not global!
