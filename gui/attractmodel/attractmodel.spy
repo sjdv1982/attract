@@ -162,7 +162,8 @@ Type AttractPartnerInterface {
   ## form collect_ensemble_list.add_header("If you specified a PDB file above, you may provide an ensemble conformer list for it")
   ## form collect_ensemble_list.name = "Collect ensemble list file"
   ## form collect_ensemble_list.type = "file"
-  Bool iattract_noflex = False  
+  Bool iattract_noflex = False
+  Bool is_peptide = False
   form {
     """
     For now, disable advanced features

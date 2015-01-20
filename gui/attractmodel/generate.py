@@ -125,8 +125,13 @@ echo '**************************************************************'
             pdbname_aa = pdbname3 + "-aa.pdb"            
             topfile = topologyfiledict[p.moleculetype, "OPLSX"]
             transfile = transfiledict[p.moleculetype, "OPLSX"]
-            partnercode += "python $ATTRACTDIR/../allatom/pqreduce.py %s %s %s > /dev/null\n" % (pdbname4, transfile, topfile)
-            partnercode += "grep -v XXXX %s > /tmp/pqtemp; mv -f /tmp/pqtemp %s\n" % (pdbname_aa, pdbname_aa) ###HACK
+            if p.moleculetype == "Protein" and not p.is_peptide:
+	      partnercode += "python $ATTRACTDIR/../allatom/pqreduce-notermini.py %s %s %s > /dev/null\n" % (pdbname4, transfile, topfile)
+              partnercode += "grep -v XXXX %s > /tmp/pqtemp; mv -f /tmp/pqtemp %s\n" % (pdbname_aa, pdbname_aa) ###HACK
+	    else:
+              partnercode += "python $ATTRACTDIR/../allatom/pqreduce.py %s %s %s > /dev/null\n" % (pdbname4, transfile, topfile)
+              partnercode += "grep -v XXXX %s > /tmp/pqtemp; mv -f /tmp/pqtemp %s\n" % (pdbname_aa, pdbname_aa) ###HACK
+            
             if iattract_hybrid: 
               iattract_filenames.append(pdbname_aa)
             else:
@@ -170,9 +175,14 @@ echo '**************************************************************'
           if m.forcefield == "OPLSX" or iattract_hybrid:
             mname2a = dd + "-" + str(mnr+1) + "-aa.pdb"
             topfile = topologyfiledict[p.moleculetype, "OPLSX"]
-            transfile = transfiledict[p.moleculetype, "OPLSX"]            
-            partnercode += "python $ATTRACTDIR/../allatom/pqreduce.py %s %s %s > /dev/null\n" % (mname1, transfile, topfile)
-            partnercode += "grep -v XXXX %s > /tmp/pqtemp; mv -f /tmp/pqtemp %s\n" % (mname2a, mname2a) ###HACK
+            transfile = transfiledict[p.moleculetype, "OPLSX"]    
+            if p.moleculetype == "Protein" and not p.is_peptide:
+	      partnercode += "python $ATTRACTDIR/../allatom/pqreduce-notermini.py %s %s %s > /dev/null\n" % (pdbname4, transfile, topfile)
+              partnercode += "grep -v XXXX %s > /tmp/pqtemp; mv -f /tmp/pqtemp %s\n" % (pdbname_aa, pdbname_aa) ###HACK
+	    else:
+              partnercode += "python $ATTRACTDIR/../allatom/pqreduce.py %s %s %s > /dev/null\n" % (mname1, transfile, topfile)
+              partnercode += "grep -v XXXX %s > /tmp/pqtemp; mv -f /tmp/pqtemp %s\n" % (mname2a, mname2a) ###HACK
+            
             if m.forcefield == "OPLSX": 
               mname2 = mname2a
             elif iattract_hybrid:
