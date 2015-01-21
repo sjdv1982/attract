@@ -93,23 +93,25 @@ def read_pdb(f):
     ret1.append(l)
   return ret1
 
-def make(ligands,ligandatoms, name,ligandrange,coor,thresh=3.0,ensfiles=[],modefile=None,imodefile=None):
+def make(ligands,ligandatoms, name,ligandrange,coor,thresh=3.0,ensfiles=[],modefile=None,imodefile=None,noflex=[]):
   interface = get_interface(coor, ligandatoms,ligandrange,thresh)
   imodestring = ''
   for i in range(len(interface)):
+    out = open(name+'-ilist'+str(i+1)+'.txt','w')
+    if len(interface[i]) == 0 or i+1 in noflex:
+      out.write('#no flexible residues')
+      interface[i] = []
+    else:
+      for item in interface[i]:
+        out.write(str(item)+'\n')
+
+    out.close()
+    
     imodestring += '-1\n'
     data = [j+1 for j, line in enumerate(ligandatoms[i]) if int(line.split()[4]) in interface[i]]
     for item in data:
       imodestring += str(item)+'\n'
       
-    out = open(name+'-ilist'+str(i+1)+'.txt','w')
-    if len(interface[i]) == 0:
-      out.write('#no flexible residues')
-    for item in interface[i]:
-      out.write(str(item)+'\n')
-
-    out.close()
-    
   imodestring = imodestring[:-1]
   newimode = open('flexm-'+name+'.dat','w')  
   newimode.write(imodestring)

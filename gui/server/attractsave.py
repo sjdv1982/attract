@@ -70,3 +70,8 @@ def deploy_narefine(model, dir):
   elif dir.endswith("/"): d = dir
   _deploy(model.pdbfile,d+"input.pdb")
    
+def deploy_peptide(model, dir):
+  d = dir + "/"
+  if dir in (None, "", ".", "./"): d = ""
+  elif dir.endswith("/"): d = dir
+  _deploy(model.partners[1].pdbfile,d+"peptide.pdb")
