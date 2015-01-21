@@ -5,7 +5,7 @@ Created on Fri Aug  2 12:05:30 2013
 @author: christina
 
 iATTRACT refinement with OPLS force field
-TODO make multi body and ensemble docking iattract refinement
+Supports ensemble docking (tested) and multi-body docking (untested)
 """
 
 import sys, random, os, time, itertools
@@ -81,7 +81,6 @@ def prepare_input(topology,start,ligands,current,name,coor,ligandrange,ligandato
   currligands = ligands
   if len(ensemblefiles):
     data = open(start).readlines()
-    # TODO check if this is the right format for dat files
     data = [line for line in data if not '#' in line]
     for nr, filename in ensemblefiles:
       currensnr = int(data[int(nr)-1].split()[0])

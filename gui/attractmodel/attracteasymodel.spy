@@ -7,9 +7,8 @@ Type AttractEasyPartnerInterface {
   ## form ensemble_size.name = "If the PDB is a multi-model ensemble, specify the number of conformers"
   ## validate if ensemble_size != 0: assert ensemble_size >= 1
    
-  Enum moleculetype("Protein", "DNA", "RNA") = "Protein"
-  ## form moleculetype.name = "What kind of molecule are you docking?"
-   
+  Enum moleculetype("Protein", "Peptide","DNA", "RNA") = "Protein"
+  ## form moleculetype.name = "What kind of molecule are you docking?" 
   Bool generate_modes = False
   Integer nr_modes = 5
   form {
@@ -123,6 +122,7 @@ Type AttractEasyModel {
     assert np > 0
     
     p1, p2 = partners
+    if p1.moleculetype == "Peptide": assert not p2.moleculetype == "Peptide"
     assert p1.use_rmsd == p2.use_rmsd
     if p1.use_rmsd:
       assert calc_lrmsd or calc_irmsd or calc_fnat
@@ -163,6 +163,10 @@ Type AttractEasyModel {
     'assert np > 0'
     =>
     'Please use at least one core (np=1)for running the docking.'
+    
+    'if p1.moleculetype == "Peptide": assert not p2.moleculetype == "Peptide"'
+    =>
+    'Peptide-peptide docking in the Easy interface is not supported'
 
   }
   

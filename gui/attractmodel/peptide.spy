@@ -1,20 +1,16 @@
-
-Type AttractPeptidePartnerInterface {
+Type AttractPeptideProteinPartner {
   ## form pdbfile.type = "file"
   ## form pdbfile.name = "Structure file"
-  *ResourceData_PDB pdbfile
+  ResourceData_PDB pdbfile
   Integer ensemble_size = 0
   ## form ensemble_size.name = "If the PDB is a multi-model ensemble, specify the number of conformers"
   ## validate if ensemble_size != 0: assert ensemble_size >= 1
         
-  *String sequence
-  Bool generate_modes = False
-  Integer nr_modes = 0
   form {
     use_rmsd.name = "Perform RMSD analysis"
   }
 
-  ## validate if generate_modes: assert nr_modes >= 1 and nr_modes <= 10
+
     
   Bool use_rmsd = False
   *ResourceData_PDB rmsd_pdb
@@ -24,8 +20,6 @@ Type AttractPeptidePartnerInterface {
   Bool rmsd_bb = True
   ## form rmsd_bb.name = "Select only backbone atoms for RMSD calculation"
   validate {  
-    if pdbfile is None and sequence is None: raise spyder.core.ValidationError("Please upload a PDB file or provide a sequence in single letter code")
-    if ensemble_size > 1: assert generate_modes == False
     if not use_rmsd:
       assert rmsd_pdb is None
     else:
@@ -40,20 +34,45 @@ Type AttractPeptidePartnerInterface {
     =>
     'You defined a PDB for RMSD calculation, which you disabled'
 
-    'if generate_modes: assert nr_modes >= 1 and nr_modes <= 10'
+    'assert rmsd_pdb is not None'
     =>
-    'Number of harmonic modes must be between 1 and 10'
+    'You need to define a PDB for RMSD calculation, or disable it'
+
+  } 
+}
+
+
+Type AttractPeptidePartner:Degenerate {
+  String sequence
+  
+  Bool use_rmsd = False
+  *ResourceData_PDB rmsd_pdb
+  ## form rmsd_pdb.add_header("You can specify a PDB file to use as reference in RMSD calculations")
+  ## form rmsd_pdb.name = "RMSD PDB file"
+  ## form rmsd_pdb.type = "file"
+  Bool rmsd_bb = True
+  ## form rmsd_bb.name = "Select only backbone atoms for RMSD calculation"
+  validate {  
+    for c in sequence:
+      if c not in "ACDEFGHIKLMNPQRSTVWY":
+        raise spyder.core.ValidationError("Please provide a peptide sequence in single letter code")
+    if not use_rmsd:
+      assert rmsd_pdb is None
+    else:
+      assert rmsd_pdb is not None
+  }
+  error {
+
+    'assert rmsd_pdb is None'
+    =>
+    'You defined a PDB for RMSD calculation, which you disabled'
 
     'assert rmsd_pdb is not None'
     =>
     'You need to define a PDB for RMSD calculation, or disable it'
 
-    'if ensemble_size > 1: assert generate_modes == False'
-    =>
-    'You can upload an ensemble of conformations, or generate harmonic modes, but not both'
   } 
-}
-
+  }
 
 Type AttractPeptideModel {
   String runname = "attract-pep"
@@ -61,13 +80,14 @@ Type AttractPeptideModel {
     runname.add_header("Please supply a name for your docking run (one word)")
     runname.name = "Name of the docking run"
   }    
-  AttractPeptidePartnerInterfaceArray partners[2]
+  AttractPeptideProteinPartner p1
   form {
-    partners.name = "Docking partners"
-    partners[0].name = "Protein"
-    partners[1].name = "Peptide"
+    p1.name = "Protein"
   }
-  
+  AttractPeptidePartner p2
+  form{
+    p2.name = "Peptide"
+  }
 
   #***Energy and interaction parameters***
   Bool use_grids = True
@@ -116,8 +136,6 @@ Type AttractPeptideModel {
     assert nr_collect > 0
     assert np > 0
     
-    p1,p2 = partners
-    assert p1.sequence == None
     assert p1.use_rmsd == p2.use_rmsd
     if p1.use_rmsd :
       assert calc_lrmsd or calc_irmsd or calc_fnat
@@ -163,4 +181,4 @@ Type AttractPeptideModel {
   
 }
   
-Define AttractModel(AttractPeptideModel) peptide2model
+Define AttractEasyModel(AttractPeptideModel) peptide2model

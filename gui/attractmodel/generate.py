@@ -125,7 +125,7 @@ echo '**************************************************************'
             pdbname_aa = pdbname3 + "-aa.pdb"            
             topfile = topologyfiledict[p.moleculetype, "OPLSX"]
             transfile = transfiledict[p.moleculetype, "OPLSX"]
-            if p.moleculetype == "Protein" and not p.is_peptide:
+            if p.moleculetype == "Protein" and not p.use_termini:
 	      partnercode += "python $ATTRACTDIR/../allatom/pqreduce-notermini.py %s %s %s > /dev/null\n" % (pdbname4, transfile, topfile)
               partnercode += "grep -v XXXX %s > /tmp/pqtemp; mv -f /tmp/pqtemp %s\n" % (pdbname_aa, pdbname_aa) ###HACK
 	    else:
@@ -176,7 +176,7 @@ echo '**************************************************************'
             mname2a = dd + "-" + str(mnr+1) + "-aa.pdb"
             topfile = topologyfiledict[p.moleculetype, "OPLSX"]
             transfile = transfiledict[p.moleculetype, "OPLSX"]    
-            if p.moleculetype == "Protein" and not p.is_peptide:
+            if p.moleculetype == "Protein" and not p.use_termini:
 	      partnercode += "python $ATTRACTDIR/../allatom/pqreduce-notermini.py %s %s %s > /dev/null\n" % (pdbname4, transfile, topfile)
               partnercode += "grep -v XXXX %s > /tmp/pqtemp; mv -f /tmp/pqtemp %s\n" % (pdbname_aa, pdbname_aa) ###HACK
 	    else:

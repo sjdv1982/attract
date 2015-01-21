@@ -100,56 +100,90 @@ def webform(f, model=None):
   c.icon = "puzzle-icon"
   c.title = "Docking partners"
   c.categoryname = "partners"
-  c.description = """Define 2 docking partners by uploading a PDB structure file and a sequence.""" 
-  c.members.append("partners")   
-  f.partners.clonelength = 2
-  f.partners.controltitle = "Docking partners"  
-  for fpnr in range(f.partners.length):
-    fp = f.partners[fpnr]
-    fp.group = None
-    fp.multi_active = True
+  c.description = """Define protein and peptide by uploading a PDB structure file and a sequence.""" 
+  
+  bp1 = f.new_group("bp1","block")
+  c.members.append("bp1")
+  bp1.title = "Protein"
+  bp2 = f.new_group("bp2","block")
+  c.members.append("bp2")
+  bp2.title = "Peptide"
+  
+  
+  bp1.members.append("p1")   
+  f.p1.controltitle = ""
+  f.p1.name = ""
+  fp = f.p1
+  fp.group = None
+  b = fp.new_group("b_struc","block")
+  b.title = "Structure Sources"
+  b.has_switch = False
+  b.members.append("pdbfile")
+  ff = fp.pdbfile
+  ff.name = "Structure file"
+  ff.tooltip = "Upload PDB structure file"
+  ff.tooltip_doc = "documentation.html#partners-structure_file"
+  ff.span = True
+  b.members.append("ensemble_size")
+  ff = fp.ensemble_size
+  ff.tooltip_doc = "documentation.html#partners-ensemble_size"
+  ff.span = True
+  ### END b_struc block
 
-    ### START b_struc block
-    b = fp.new_group("b_struc", "block")
-    b.title = "Structure Sources"
-    b.has_switch = False
-    b.members.append("pdbfile") 
-    ff = fp.pdbfile
-    ff.name = "Structure file"
-    ff.tooltip = "Upload PDB structure file"
-    ff.tooltip_doc = "documentation.html#partners-structure_file"
-    ff.span = True
-    if fpnr == 1:
-      b.members.append("sequence")
-      ff = fp.sequence
-      ff.name = "Peptide sequence"
-      ff.tooltip = "Insert peptide sequence in single letter code"
-      ff.span = True
-      
 
-    b.members.append("ensemble_size")
-    ff = fp.ensemble_size
-    ff.tooltip_doc = "documentation.html#partners-ensemble_size"
-    ff.span = True
-    ### END b_struc block
+  ### START b_rmsd block
+  b = fp.new_group("b_rmsd", "block")
+  b.title = "RMSD calculation"
+  b.members.append("use_rmsd")
+  b.has_switch = True
+  b.members.append("rmsd_pdb")
+  b.members.append("rmsd_bb")
+  ff = fp.use_rmsd
+  ff.default = False
+  ff.type = "switch" 
+  ff.name = "RMSD calculation"
+  ff = fp.rmsd_pdb
+  ff.name = "Reference RMSD PDB file"
+  ff = fp.rmsd_bb
+  ff.span = True
+  ### END b_rmsd block
 
-    ### START b_rmsd block
-    b = fp.new_group("b_rmsd", "block")
-    b.title = "RMSD calculation"
-    b.members.append("use_rmsd")
-    b.has_switch = True
-    b.members.append("rmsd_pdb")
-    b.members.append("rmsd_bb")
-    ff = fp.use_rmsd
-    ff.default = False
-    ff.type = "switch" 
-    ff.name = "RMSD calculation"
-    ff = fp.rmsd_pdb
-    ff.name = "Reference RMSD PDB file"
-    ff = fp.rmsd_bb
-    ff.span = True
-    ### END b_rmsd block
-  ### END partners category 
+  
+
+  bp2.members.append("p2")
+  f.p2.controltitle = ""
+  f.p2.name = ""
+  fp = f.p2
+  fp.group = None
+  fp.multi_active = True
+  b = fp.new_group("b_struc","block")
+  b.title = "Structure Sources"
+  b.has_switch = False
+  b.members.append("sequence")
+  ff = fp.sequence
+  ff.name = "Peptide sequence"
+  ff.tooltip = "Give peptide sequence in single letter code"
+  ff.span = True
+  ### END b_struc block
+
+  ### START b_rmsd block
+  b = fp.new_group("b_rmsd", "block")
+  b.title = "RMSD calculation"
+  b.members.append("use_rmsd")
+  b.has_switch = True
+  b.members.append("rmsd_pdb")
+  b.members.append("rmsd_bb")
+  ff = fp.use_rmsd
+  ff.default = False
+  ff.type = "switch" 
+  ff.name = "RMSD calculation"
+  ff = fp.rmsd_pdb
+  ff.name = "Reference RMSD PDB file"
+  ff = fp.rmsd_bb
+  ff.span = True
+  ### END b_rmsd block
+
+ 
 
   ### START energy category
   c = f.new_group("c_energy", "category")
