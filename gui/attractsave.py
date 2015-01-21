@@ -70,6 +70,12 @@ def deploy_easy(model, dir):
   _deploy(model.partners[1].pdbfile,d+"ligand.pdb")
   _deploy(model.partners[1].rmsd_pdb,d+"ligand-rmsd.pdb")
 
+def deploy_narefine(model, dir):
+  d = dir + "/"
+  if dir in (None, "", ".", "./"): d = ""
+  elif dir.endswith("/"): d = dir
+  _deploy(model.pdbfile,d+"input.pdb")
+   
 def deploy_peptide(model,dir):
   d = dir + "/"
   if dir in (None, "",".","./"): d = ""
