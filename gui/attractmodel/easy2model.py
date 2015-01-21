@@ -30,7 +30,7 @@ def easy2model(emodel):
       partner_use_flex = True
       pp.ensemble = True      
       pp.ensemble_size = p.ensemble_size
-      if p.moleculetype == "Peptide" and p.ensemble_size <= 5:
+      if p.moleculetype == "Peptide":
 	pp.ensemblize = "all"
       else:
         pp.ensemblize = "random"
