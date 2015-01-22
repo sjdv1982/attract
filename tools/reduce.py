@@ -10,7 +10,15 @@ codes can be  automatically interpreted as DNA or RNA with the --dna and --rna o
 Author: Sjoerd de Vries, Technische Universitaet Muenchen
 """
 
-import sys, os, argparse
+import sys, os
+
+has_argparse = False
+try:
+  import argparse  
+  has_argparse = True  
+except ImportError:
+  import optparse  #Python 2.6
+
 
 #Mapping of nucleic-acid codes to DNA/RNA
 mapnuc = {
@@ -27,14 +35,28 @@ mapnuc = {
   "URI": [None, "RU"],  
 } 
 
-parser =argparse.ArgumentParser(description=__doc__,
+if has_argparse:
+  parser =argparse.ArgumentParser(description=__doc__,
                             formatter_class=argparse.RawDescriptionHelpFormatter)
-parser.add_argument("pdb",help="PDB file to reduce")
-parser.add_argument("output",help="reduced output PDB file", nargs="?")
+  parser.add_argument("pdb",help="PDB file to reduce")
+  parser.add_argument("output",help="reduced output PDB file", nargs="?")
+else:
+  parser = optparse.OptionParser()
+  parser.add_argument = parser.add_option
 parser.add_argument("--dna",help="Automatically interpret nucleic acids as DNA", action="store_true")
 parser.add_argument("--rna",help="Automatically interpret nucleic acids as RNA", action="store_true")
 parser.add_argument("--compat",help="Maximize compatibility with reduce.f", action="store_true")
-args = parser.parse_args()
+
+if has_argparse:
+  args = parser.parse_args()
+else:
+  args, positional_args = parser.parse_args()
+  args.pdb = None
+  args.output = None
+  if positional_args:
+    if len(positional_args) > 0: args.pdb = positional_args[0]
+    if len(positional_args) > 1: args.output = positional_args[1]
+
 if args.dna and args.rna:
   raise ValueError("Options --dna and --rna are mutually exclusive")
 

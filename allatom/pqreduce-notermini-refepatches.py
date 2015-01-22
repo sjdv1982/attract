@@ -158,6 +158,6 @@ for l in outlines:
   if len(l): print >> out, l
 
 out.close()
-check.check(os.path.splitext(pdb)[0] + "-aa.pdb",os.path.splitext(pdbref)[0] + "-aa.pdb")
+check.check(os.path.splitext(pdb)[0] + "-aa.pdb",os.path.splitext(pdbref)[0] + "-aa.pdb",sort=True)
 print mapf.getvalue()
 

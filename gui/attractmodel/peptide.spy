@@ -1,26 +1,16 @@
-
-Type AttractEasyPartnerInterface {
+Type AttractPeptideProteinPartner {
   ## form pdbfile.type = "file"
   ## form pdbfile.name = "Structure file"
   ResourceData_PDB pdbfile
   Integer ensemble_size = 0
   ## form ensemble_size.name = "If the PDB is a multi-model ensemble, specify the number of conformers"
   ## validate if ensemble_size != 0: assert ensemble_size >= 1
-   
-  Enum moleculetype("Protein", "Peptide","DNA", "RNA") = "Protein"
-  ## form moleculetype.name = "What kind of molecule are you docking?" 
-  Bool generate_modes = False
-  Integer nr_modes = 5
+        
   form {
     use_rmsd.name = "Perform RMSD analysis"
-    generate_modes.name = "Generate harmonic modes"
-    nr_modes.name = "Number of harmonic modes to select"
-    nr_modes.type = "option"
-    nr_modes.options = list(range(0,10+1))
-    nr_modes.optiontitles = ["No modes"] + [str(v) for v in nr_modes.options[1:]]
   }
 
-  ## validate if generate_modes: assert nr_modes >= 1 and nr_modes <= 10
+
     
   Bool use_rmsd = False
   *ResourceData_PDB rmsd_pdb
@@ -29,8 +19,7 @@ Type AttractEasyPartnerInterface {
   ## form rmsd_pdb.type = "file"
   Bool rmsd_bb = True
   ## form rmsd_bb.name = "Select only backbone atoms for RMSD calculation"
-  validate {    
-    if ensemble_size > 1: assert generate_modes == False
+  validate {  
     if not use_rmsd:
       assert rmsd_pdb is None
     else:
@@ -45,34 +34,60 @@ Type AttractEasyPartnerInterface {
     =>
     'You defined a PDB for RMSD calculation, which you disabled'
 
-    'if generate_modes: assert nr_modes >= 1 and nr_modes <= 10'
+    'assert rmsd_pdb is not None'
     =>
-    'Number of harmonic modes must be between 1 and 10'
+    'You need to define a PDB for RMSD calculation, or disable it'
+
+  } 
+}
+
+
+Type AttractPeptidePartner:Degenerate {
+  String sequence
+  
+  Bool use_rmsd = False
+  *ResourceData_PDB rmsd_pdb
+  ## form rmsd_pdb.add_header("You can specify a PDB file to use as reference in RMSD calculations")
+  ## form rmsd_pdb.name = "RMSD PDB file"
+  ## form rmsd_pdb.type = "file"
+  Bool rmsd_bb = True
+  ## form rmsd_bb.name = "Select only backbone atoms for RMSD calculation"
+  validate {  
+    for c in sequence:
+      if c not in "ACDEFGHIKLMNPQRSTVWY":
+        raise spyder.core.ValidationError("Please provide a peptide sequence in single letter code")
+    if not use_rmsd:
+      assert rmsd_pdb is None
+    else:
+      assert rmsd_pdb is not None
+  }
+  error {
+
+    'assert rmsd_pdb is None'
+    =>
+    'You defined a PDB for RMSD calculation, which you disabled'
 
     'assert rmsd_pdb is not None'
     =>
     'You need to define a PDB for RMSD calculation, or disable it'
 
-    'if ensemble_size > 1: assert generate_modes == False'
-    =>
-    'You can upload an ensemble of conformations, or generate harmonic modes, but not both'
   } 
-}
+  }
 
-
-Type AttractEasyModel {
-  String runname = "attract"
+Type AttractPeptideModel {
+  String runname = "attract-pep"
   form {
     runname.add_header("Please supply a name for your docking run (one word)")
     runname.name = "Name of the docking run"
   }    
-  AttractEasyPartnerInterfaceArray partners[2]
+  AttractPeptideProteinPartner p1
   form {
-    partners.name = "Docking partners"
-    partners[0].name = "Receptor"
-    partners[1].name = "Ligand"
+    p1.name = "Protein"
   }
-  
+  AttractPeptidePartner p2
+  form{
+    p2.name = "Peptide"
+  }
 
   #***Energy and interaction parameters***
   Bool use_grids = True
@@ -121,10 +136,8 @@ Type AttractEasyModel {
     assert nr_collect > 0
     assert np > 0
     
-    p1, p2 = partners
-    if p1.moleculetype == "Peptide": assert not p2.moleculetype == "Peptide"
     assert p1.use_rmsd == p2.use_rmsd
-    if p1.use_rmsd:
+    if p1.use_rmsd :
       assert calc_lrmsd or calc_irmsd or calc_fnat
     else:
       assert not calc_lrmsd
@@ -163,13 +176,9 @@ Type AttractEasyModel {
     'assert np > 0'
     =>
     'Please use at least one core (np=1)for running the docking.'
-    
-    'if p1.moleculetype == "Peptide": assert not p2.moleculetype == "Peptide"'
-    =>
-    'Peptide-peptide docking in the Easy interface is not supported'
 
   }
   
 }
   
-Define AttractModel(AttractEasyModel) easy2model
+Define AttractEasyModel(AttractPeptideModel) peptide2model

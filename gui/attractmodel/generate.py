@@ -6,8 +6,6 @@ import os
 #TODO: add check that either all interactions are grid-accelerated, or none are
 #  (and an option to disable this check; for this, adapt --rcut iteration as well)
 #TODO: a script to add energies back to deredundant output
-#TODO: add grid alphabet to data model (or auto-generate from partners)
-#TODO: non-protein molecules
 #TODO: decide upon PDB code, chain select
 #TODO: add "data-driven docking" option (in the easy interface, adding a restraint file): 
 #   - => add restraint file per-iteration, not global!
@@ -21,7 +19,7 @@ import os
 generator_version = "0.2"
 
 parameterfiledict = {
-  "ATTRACT" :  "$ATTRACTDIR/../parmw.par",
+  "ATTRACT" :  "$ATTRACTDIR/../attract.par",
   "OPLSX" : "$ATTRACTDIR/../allatom/allatom.par",
 }
 
@@ -80,10 +78,14 @@ def generate(m):
     if moleculetype_interaction in supported_moleculetype_interactions: continue
     if tuple(reversed(moleculetype_interaction)) in supported_moleculetype_interactions: continue
     raise ValueError("Unsupported molecule type interaction: %s - %s" % moleculetype_interaction)
-  
+
+  molcode = ""
+  if m.forcefield == "ATTRACT":    
+    if p.moleculetype == "RNA": molcode = "--rna"
+    elif p.moleculetype == "DNA": molcode = "--dna"        
   for pnr,p in enumerate(m.partners):
     if p.moleculetype != "Protein":
-      assert not generate_modes #TODO for non-protein
+      assert not p.generate_modes #TODO for non-protein
       assert m.iattract is None #TODO for non-protein
       assert m.forcefield == "ATTRACT" #TODO for non-protein (untested)
     assert p.code is None #TODO: not implemented
@@ -106,8 +108,6 @@ echo '**************************************************************'
         pdbname = p.pdbfile.name
         pdbname2 = os.path.split(pdbname)[1]
         if pdbname not in pdbnames: 
-          if pdbname2.count(".") > 1:
-            raise ValueError("The 'reduce' program does not support PDB files with double extension: '%s'" % pdbname2)
           pdbname3 = os.path.splitext(pdbname2)[0]
           pdbname3_0 = pdbname3
           pcount = 0
@@ -120,13 +120,18 @@ echo '**************************************************************'
             partnercode += "cat %s > %s\n" % (pdbname, pdbname4)          
           if m.forcefield == "ATTRACT":
             pdbname_reduced = pdbname3 + "r.pdb"
-            partnercode += "$ATTRACTDIR/reduce %s > /dev/null\n" % pdbname4            
+            partnercode += "python $ATTRACTTOOLS/reduce.py %s %s %s > /dev/null\n" % (pdbname4, pdbname_reduced, molcode)
           if m.forcefield == "OPLSX" or iattract_hybrid:
             pdbname_aa = pdbname3 + "-aa.pdb"            
             topfile = topologyfiledict[p.moleculetype, "OPLSX"]
             transfile = transfiledict[p.moleculetype, "OPLSX"]
-            partnercode += "python $ATTRACTDIR/../allatom/pqreduce.py %s %s %s > /dev/null\n" % (pdbname4, transfile, topfile)
-            partnercode += "grep -v XXXX %s > /tmp/pqtemp; mv -f /tmp/pqtemp %s\n" % (pdbname_aa, pdbname_aa) ###HACK
+            if p.moleculetype == "Protein" and not p.use_termini:
+	      partnercode += "python $ATTRACTDIR/../allatom/pqreduce-notermini.py %s %s %s > /dev/null\n" % (pdbname4, transfile, topfile)
+              partnercode += "grep -v XXXX %s > /tmp/pqtemp; mv -f /tmp/pqtemp %s\n" % (pdbname_aa, pdbname_aa) ###HACK
+	    else:
+              partnercode += "python $ATTRACTDIR/../allatom/pqreduce.py %s %s %s > /dev/null\n" % (pdbname4, transfile, topfile)
+              partnercode += "grep -v XXXX %s > /tmp/pqtemp; mv -f /tmp/pqtemp %s\n" % (pdbname_aa, pdbname_aa) ###HACK
+            
             if iattract_hybrid: 
               iattract_filenames.append(pdbname_aa)
             else:
@@ -166,13 +171,18 @@ echo '**************************************************************'
         if not p.is_reduced:
           if m.forcefield == "ATTRACT":
             mname2 = dd + "-" + str(mnr+1) + "r.pdb"
-            partnercode += "$ATTRACTDIR/reduce %s > /dev/null\n" % mname1
+            partnercode += "python $ATTRACTTOOLS/reduce.py %s %s %s > /dev/null\n" % (mname1, mname2, molcode)
           if m.forcefield == "OPLSX" or iattract_hybrid:
             mname2a = dd + "-" + str(mnr+1) + "-aa.pdb"
             topfile = topologyfiledict[p.moleculetype, "OPLSX"]
-            transfile = transfiledict[p.moleculetype, "OPLSX"]            
-            partnercode += "python $ATTRACTDIR/../allatom/pqreduce.py %s %s %s > /dev/null\n" % (mname1, transfile, topfile)
-            partnercode += "grep -v XXXX %s > /tmp/pqtemp; mv -f /tmp/pqtemp %s\n" % (mname2a, mname2a) ###HACK
+            transfile = transfiledict[p.moleculetype, "OPLSX"]    
+            if p.moleculetype == "Protein" and not p.use_termini:
+	      partnercode += "python $ATTRACTDIR/../allatom/pqreduce-notermini.py %s %s %s > /dev/null\n" % (pdbname4, transfile, topfile)
+              partnercode += "grep -v XXXX %s > /tmp/pqtemp; mv -f /tmp/pqtemp %s\n" % (pdbname_aa, pdbname_aa) ###HACK
+	    else:
+              partnercode += "python $ATTRACTDIR/../allatom/pqreduce.py %s %s %s > /dev/null\n" % (mname1, transfile, topfile)
+              partnercode += "grep -v XXXX %s > /tmp/pqtemp; mv -f /tmp/pqtemp %s\n" % (mname2a, mname2a) ###HACK
+            
             if m.forcefield == "OPLSX": 
               mname2 = mname2a
             elif iattract_hybrid:
@@ -471,10 +481,15 @@ echo '**************************************************************'
     if m.np > 1: 
       tail += " --shm"
     moleculetype = m.partners[partner].moleculetype
-    #TODO: support non-protein grids
     if (moleculetype, m.forcefield) in transfiledict: 
-      #TODO: alphabet might be overridden...      
       tail += " --alphabet %s" % transfiledict[moleculetype, m.forcefield]
+    else:
+      direc = ">"
+      for fnr in range(len(filenames)):
+        if fnr == partner: continue
+        ret += "awk '{print substr($0,58,2)}' %s | sort -nu %s %s.alphabet\n" % (filenames[fnr], direc, g.gridname.strip())
+        direc = ">>"
+      tail += " --alphabet %s.alphabet" % g.gridname.strip()  
     if m.dielec == "cdie": tail += " --cdie"
     if m.epsilon != 15: tail += " --epsilon %s" % (str(m.epsilon))    
     if g.calc_potentials == False: tail += " -calc-potentials=0"

@@ -5,7 +5,7 @@ Created on Fri Aug  2 12:05:30 2013
 @author: christina
 
 iATTRACT refinement with OPLS force field
-TODO make multi body and ensemble docking iattract refinement
+Supports ensemble docking (tested) and multi-body docking (untested)
 """
 
 import sys, random, os, time, itertools
@@ -81,7 +81,6 @@ def prepare_input(topology,start,ligands,current,name,coor,ligandrange,ligandato
   currligands = ligands
   if len(ensemblefiles):
     data = open(start).readlines()
-    # TODO check if this is the right format for dat files
     data = [line for line in data if not '#' in line]
     for nr, filename in ensemblefiles:
       currensnr = int(data[int(nr)-1].split()[0])
@@ -101,7 +100,7 @@ def prepare_input(topology,start,ligands,current,name,coor,ligandrange,ligandato
       return ('flexm-'+current+name+'.dat',restraints)
     
   if otf:
-    imodes.make(ligands,ligandatoms,current+name,ligandrange,coor,icut,ensemblefiles,modefile,imodefile)
+    imodes.make(ligands,ligandatoms,current+name,ligandrange,coor,icut,ensemblefiles,modefile,imodefile,noflex)
     
   else:
     restraints = []
@@ -110,22 +109,9 @@ def prepare_input(topology,start,ligands,current,name,coor,ligandrange,ligandato
       
     return ('flexm-'+name+'.dat',restraints)
   
-  count = 0
-  if len(noflex):
-    for ligand in noflex:
-      out = open(current+name+'-ilist'+str(ligand)+'.txt','w')
-      out.write('#no flexible residues')
-      out.close()	
-	
-  for i,ligand in enumerate(ligands):
-    if not os.path.exists(current+name+'-ilist'+str(i+1)+'.txt'):
-      out = open(current+name+'-ilist'+str(i+1)+'.txt','w')
-      out.write('#no flexible residues')
-      out.close()
-      count += 1
   
     
-  if count == len(ligands):
+  if len(noflex) == len(ligands):
     return ("",[])
   
   offset = 0
