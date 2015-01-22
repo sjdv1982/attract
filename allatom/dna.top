@@ -1,10 +1,11 @@
-!RNA TOPOLOGY FILE 'FRAMEWORK' FROM TOPALLHDG.DNA AND ATOM NAMES
+!DNA TOPOLOGY FILE 'FRAMEWORK' FROM TOPALLHDG.DNA AND ATOM NAMES
 !  FROM DNA-RNA.PARAM
 !INCLUDES ALL NONEXCHANGEABLE HYDROGENS AND TERMS FOR BOND, ANGLE, AND
 !IMPROPERS. NONEXCHANGEABLE HYDROGEN CHARGES WERE ASSIGNED 0.035. 
 !CARBON CHARGES WERE REDUCED 0.035 FOR EACH ATTACHED HYDROGEN.
 !CREATED 2/24/96-- JASON P. RIFE AND PETER B. MOORE
 ! DNA-RNA-ALLATOM.TOP
+! Adapted to DNA by Isaure Chauvot de Beauchene 22/01/2015
 
 set echo=false end
 
@@ -101,20 +102,10 @@ MASS   C6T    12.011! (prev CF)
 MASS   CC3E   12.01100! (prev CF)
 
 ! END
-
 MASS   H      1.00800! non-exchangeable Hydrogens
 MASS   HN     1.00800! corresp. to H
 MASS   H2     1.00800! hydrogen in -NH2
 MASS   HO     1.00800! hydroxy hydrogen
-
-!  URI
-MASS   N1U    14.00670! nitrogen in ring >N-
-MASS   C2U    12.01100! (prev CN)
-MASS   C4U    12.01100! (prev CA)
-MASS   C5U    12.011! (prev CF)
-MASS   C6U    12.011! (prev CF)
-MASS   N3U    14.00670! 
-
 
 RESIdue GUA
   GROUp
@@ -157,12 +148,10 @@ RESIdue GUA
   ATOM H8   TYPE=H     CHARGE=0.035   END 
 
 !
-
  GROUP
   ATOM C2'  TYPE=C2D   CHARGE=-0.07   END
-  ATOM H2'  TYPE=H     CHARGE=0.035   END  
-  ATOM O2'  TYPE=O2R   CHARGE=-0.40   END    
-  ATOM HO2' TYPE=HO    CHARGE=0.25    END 
+  ATOM H2'  TYPE=H     CHARGE=0.035   END
+  ATOM H2'' TYPE=H     CHARGE=0.035   END
  GROUP
   ATOM C3'  TYPE=C3R    CHARGE=-0.035 END
   ATOM H3'  TYPE=H      CHARGE=0.035  END 
@@ -180,9 +169,9 @@ RESIdue GUA
  BOND N2   H22         BOND N1   H1            BOND N1   C6
  BOND C6   O6          BOND C6   C5            BOND C5   N7
  BOND N7   C8          BOND C2'  C3'           BOND C3'  O3'
- BOND C2'  O2'         BOND C8   H8
+ BOND C2'  H2''        BOND C8   H8
  
- BOND O2'  HO2' 
+
  BOND C5'  H5'         BOND C5'  H5''          BOND C4'  H4'
  BOND C3'  H3'         BOND C2'  H2'           BOND C1'  H1'
 {
@@ -193,9 +182,8 @@ RESIdue GUA
  DIHEdral  C4'  O4'  C1'  C2'        DIHEdral  O4'  C1'  C2'  C3' 
 
  DIHEdral  C1'  C2'  C3'  C4'        DIHEdral  O4'  C4'  C3'  O3'
- DIHEdral  C5'  C4'  C3'  C2'        DIHEdral  O3'  C3'  C2'  O2'
+ DIHEdral  C5'  C4'  C3'  C2'        DIHEdral  O3'  C3'  C2'  H''
  DIHEdral  O4'  C1'  N9   C4         
- DIHEdral  C3'  C2'  O2'  H2'
 }
  
  ! 
@@ -218,7 +206,7 @@ RESIdue GUA
 
 !RIBOSE IMPROPERS
 IMPRoper     H1'  C2'  O4'  N9  !C1'
-IMPRoper     H2'  C3'  C1'  O2' !C2'
+IMPRoper     H2'  C3'  C1'  H2'' !C2'
 IMPRoper     H3'  C4'  C2'  O3' !C3'
 IMPRoper     H4'  C5'  C3'  O4' !C4'
 IMPRoper     H5'  O5'  H5'' C4' !C5'
@@ -272,9 +260,8 @@ GROUp
 
  GROUP
   ATOM C2'  TYPE=C2D   CHARGE=-0.07   END
-  ATOM H2'  TYPE=H     CHARGE=0.035   END 
-  ATOM O2'  TYPE=O2R   CHARGE=-0.40   END    
-  ATOM HO2' TYPE=HO    CHARGE=0.25    END 
+  ATOM H2'  TYPE=H     CHARGE=0.035   END
+  ATOM H2'' TYPE=H     CHARGE=0.035   END
  GROUP
   ATOM C3'  TYPE=C3R   CHARGE=-0.035  END
   ATOM H3'  TYPE=H     CHARGE=0.035   END 
@@ -291,9 +278,8 @@ GROUp
  BOND N6   H61              BOND N6   H62              BOND C6   C5   
 
  BOND C5   N7               BOND N7   C8               BOND C2'  C3'
- BOND C2'  O2'              BOND C3'  O3'
+ BOND C2'  H2''             BOND C3'  O3'
  BOND C8   H8               BOND C2   H2 
- BOND O2'  HO2'
  BOND C5'  H5'         BOND C5'  H5''          BOND C4'  H4'
  BOND C3'  H3'         BOND C2'  H2'           BOND C1'  H1'
 {
@@ -304,9 +290,8 @@ GROUp
  DIHEdral C4'  O4'  C1'  C2'             DIHEdral O4'  C1'  C2'  C3' 
 
  DIHEdral C1'  C2'  C3'  C4'             DIHEdral O4'  C4'  C3'  O3'
- DIHEdral C5'  C4'  C3'  C2'             DIHEdral O2'  C2'  C3'  O3'
+ DIHEdral C5'  C4'  C3'  C2'             DIHEdral H2''  C2'  C3'  O3'
  DIHEdral O4'  C1'  N9   C4              
- DIHEdral C3'  C2'  O2'  H2'
  }
  
  !
@@ -326,7 +311,7 @@ GROUp
 
 !RIBOSE IMPROPERS
 IMPRoper     H1'  C2'  O4'  N9  !C1'
-IMPRoper     H2'  C3'  C1'  O2' !C2'
+IMPRoper     H2'  C3'  C1'  H2'' !C2'
 IMPRoper     H3'  C4'  C2'  O3' !C3'
 IMPRoper     H4'  C5'  C3'  O4' !C4'
 IMPRoper     H5'  O5'  H5'' C4' !C5'
@@ -378,9 +363,8 @@ GROUp
  GROUP
   ATOM C2'  TYPE=C2D   CHARGE=-0.07   END
   ATOM H2'  TYPE=H     CHARGE=0.035   END 
-  ATOM O2'  TYPE=O2R   CHARGE=-0.40   END    
-  ATOM HO2' TYPE=HO    CHARGE=0.25    END 
- GROUP
+  ATOM H2'' TYPE=H     CHARGE=0.035   END 
+  GROUP
   ATOM C3'  TYPE=C3R   CHARGE=-0.035  END
   ATOM H3'  TYPE=H     CHARGE=0.035   END 
  GROUP
@@ -396,9 +380,8 @@ GROUp
  BOND C6   C5   
 
  BOND C5   N7               BOND N7   C8               BOND C2'  C3'
- BOND C2'  O2'              BOND C3'  O3'
+ BOND C2'  H2''             BOND C3'  O3'
  BOND C8   H8               BOND C2   H2 
- BOND O2'  HO2'
  BOND C5'  H5'         BOND C5'  H5''          BOND C4'  H4'
  BOND C3'  H3'         BOND C2'  H2'           BOND C1'  H1'
 {
@@ -409,9 +392,8 @@ GROUp
  DIHEdral C4'  O4'  C1'  C2'             DIHEdral O4'  C1'  C2'  C3' 
 
  DIHEdral C1'  C2'  C3'  C4'             DIHEdral O4'  C4'  C3'  O3'
- DIHEdral C5'  C4'  C3'  C2'             DIHEdral O2'  C2'  C3'  O3'
+ DIHEdral C5'  C4'  C3'  C2'             DIHEdral H2'' C2'  C3'  O3'
  DIHEdral O4'  C1'  N9   C4              
- DIHEdral C3'  C2'  O2'  H2'
  }
  
  !
@@ -430,9 +412,9 @@ GROUp
  
 
 !RIBOSE IMPROPERS
-IMPRoper     C2'  C3'  C1'  O2'
+IMPRoper     C2'  C3'  C1'  H2''
 IMPRoper     H1'  C2'  O4'  N9  !C1'
-IMPRoper     H2'  C3'  C1'  O2' !C2'
+IMPRoper     H2'  C3'  C1'  H2'' !C2'
 IMPRoper     H3'  C4'  C2'  O3' !C3'
 IMPRoper     H4'  C5'  C3'  O4' !C4'
 IMPRoper     H5'  O5'  H5'' C4' !C5'
@@ -489,8 +471,7 @@ RESIdue CYT
 GROUP
   ATOM C2'  TYPE=C2D   CHARGE=-0.07   END
   ATOM H2'  TYPE=H     CHARGE=0.035   END 
-  ATOM O2'  TYPE=O2R   CHARGE=-0.40   END    
-  ATOM HO2' TYPE=HO    CHARGE=0.25    END 
+  ATOM H2'' TYPE=H     CHARGE=0.035   END 
  GROUP
   ATOM C3'  TYPE=C3R   CHARGE=-0.035  END
   ATOM H3'  TYPE=H     CHARGE=0.035   END
@@ -505,9 +486,8 @@ GROUP
  BOND C4   N4              BOND N4   H41             BOND N4   H42 
  BOND C2   O2
  BOND C4   C5              BOND C5   C6              BOND C2'  C3'
- BOND C3'  O3'             BOND C2'  O2'             
+ BOND C3'  O3'             BOND C2'  H2''             
  BOND C6   H6              BOND C5   H5
- BOND O2'  HO2' 
  BOND C5'  H5'         BOND C5'  H5''          BOND C4'  H4'
  BOND C3'  H3'         BOND C2'  H2'           BOND C1'  H1'
 
@@ -519,9 +499,8 @@ GROUP
  DIHEdral C4'  O4'  C1'  C2'             DIHEdral O4'  C1'  C2'  C3' 
 
  DIHEdral C1'  C2'  C3'  C4'             DIHEdral O4'  C4'  C3'  O3'
- DIHEdral C5'  C4'  C3'  C2'             DIHEdral O2'  C2'  C3'  O3'
+ DIHEdral C5'  C4'  C3'  C2'             DIHEdral H2'' C2'  C3'  O3'
  DIHEdral O4'  C1'  N1   C2              
- DIHEdral C3'  C2'  O2'  H2'
  
  ! New dihedrals
  DIHEdral  C5'  C4'  C3'  O3'            DIHEdral  C4'  O4'  C1'  N1
@@ -537,7 +516,7 @@ GROUP
  
 !RIBOSE IMPROPERS
 IMPRoper     H1'  C2'  O4'  N1  !C1'
-IMPRoper     H2'  C3'  C1'  O2' !C2'
+IMPRoper     H2'  C3'  C1'  H2'' !C2'
 IMPRoper     H3'  C4'  C2'  O3' !C3'
 IMPRoper     H4'  C5'  C3'  O4' !C4'
 IMPRoper     H5'  O5'  H5'' C4' !C5'
@@ -598,8 +577,7 @@ RESIdue THY
  GROUP
   ATOM C2'  TYPE=C2D   CHARGE=-0.07    END
   ATOM H2'  TYPE=H     CHARGE=0.035    END    
-  ATOM O2'  TYPE=O2R   CHARGE=-0.40    END    
-  ATOM HO2' TYPE=HO    CHARGE=0.25     END    
+  ATOM H2'' TYPE=H     CHARGE=0.035    END    
  GROUP
   ATOM C3'  TYPE=C3R   CHARGE=-0.035   END
   ATOM H3'  TYPE=H     CHARGE=0.035    END
@@ -615,8 +593,7 @@ RESIdue THY
  BOND C2   O2                BOND C2   N3                BOND N3   H3
  BOND N3   C4                BOND C4   O4                BOND C4   C5
  BOND C5   C7                BOND C5   C6                BOND C2'  C3'
- BOND C3'  O3'               BOND C2'  O2'
- BOND O2'  HO2'		     
+ BOND C3'  O3'               BOND C2'  H2''
  BOND C5'  H5'               BOND C5'  H5'' 
  BOND C3'  H3'		     BOND C2'  H2'               BOND C1'  H1' 
  BOND C4'  H4'               BOND C7   H71               BOND C7   H72
@@ -629,10 +606,8 @@ RESIdue THY
  DIHEdral C4'  O4'  C1'  C2'             DIHEdral O4'  C1'  C2'  C3' 
 
  DIHEdral C1'  C2'  C3'  C4'             DIHEdral O4'  C4'  C3'  O3'
- DIHEdral C5'  C4'  C3'  C2'             DIHEdral O2'  C2'  C3'  O3'
+ DIHEdral C5'  C4'  C3'  C2'             DIHEdral H2'' C2'  C3'  O3'
  DIHEdral O4'  C1'  N1   C2              
- DIHEdral C3'  C2'  O2'  H2'
- 
 
  ! New dihedrals
  DIHEdral  C5'  C4'  C3'  O3'            DIHEdral  C4'  O4'  C1'  N1
@@ -647,120 +622,16 @@ RESIdue THY
  IMPRoper C7   C4   C6   C5                IMPRoper  H6   N1   C5   C6
  
 !RIBOSE IMPROPERS
-IMPRoper     H1'  C2'  O4'  N1 ! C1'
-IMPRoper     H2'  C3'  C1'  O2' !C2'
+IMPRoper     H1'  C2'  O4'  N1  !C1'
+IMPRoper     H2'  C3'  C1'  H2'' !C2'
 IMPRoper     H3'  C4'  C2'  O3' !C3'
 IMPRoper     H4'  C5'  C3'  O4' !C4'
 IMPRoper     H5'  O5'  H5'' C4' !C5'
-
 
 
  END {THY}
 
-
 !------------------------------------------------------------------
-
-RESIdue URI
-GROUp
-  ATOM P    TYPE=P     CHARGE=1.20    END
-  ATOM O1P  TYPE=O1P   CHARGE=-0.40   END
-  ATOM O2P  TYPE=O2P   CHARGE=-0.40   END
-  ATOM O5'  TYPE=O5R   CHARGE=-0.36   END
- GROUp
-  ATOM C5'  TYPE=C5R   CHARGE=-0.070  END
-  ATOM H5'  TYPE=H     CHARGE=0.035   END 
-  ATOM H5'' TYPE=H     CHARGE=0.035   END 
- GROUp
-  ATOM C4'  TYPE=C4R   CHARGE=0.065   END
-  ATOM H4'  TYPE=H     CHARGE=0.035   END 
-  ATOM O4'  TYPE=O4R   CHARGE=-0.30   END
-  ATOM C1'  TYPE=C1R   CHARGE=0.165   END 
-  ATOM H1'  TYPE=H     CHARGE=0.035   END 
-
-
- GROUp
-  ATOM N1    TYPE=N1U   CHARGE=-0.19  EXCLUSION=( C4 )  END
-  ATOM C6    TYPE=C6U   CHARGE=0.155  EXCLUSION=( N3 )  END 
-  ATOM H6    TYPE=H     CHARGE=0.035  END 
- GROUp
-  ATOM C2    TYPE=C2U   CHARGE=0.30   EXCLUSION=( C5 )  END     
-  ATOM O2    TYPE=ON    CHARGE=-0.30  END                      
- GROUp
-  ATOM N3    TYPE=N3U   CHARGE=-0.28  END     
-  ATOM H3    TYPE=HN    CHARGE=0.26   END      
- GROUp
-  ATOM C4    TYPE=C4U   CHARGE=0.28   END     
-  ATOM O4    TYPE=ON    CHARGE=-0.30  END       
- GROUp
-  ATOM C5    TYPE=C5U   CHARGE=-0.035 END !JPR
-  ATOM H5    TYPE=H     CHARGE=0.035  END !JPR
-
- GROUP
-  ATOM C2'  TYPE=C2D   CHARGE=-0.07   END
-  ATOM H2'  TYPE=H     CHARGE=0.035   END ! 
-  ATOM O2'  TYPE=O2R   CHARGE=-0.40   END    
-  ATOM HO2'   TYPE=HO    CHARGE=0.25  END 
- GROUP
-  ATOM C3'  TYPE=C3R    CHARGE=-0.035 END
-  ATOM H3'  TYPE=H     CHARGE=0.035   END 
- GROUP
-  ATOM O3'  TYPE=O3R   CHARGE=-0.36   END
-
- BOND P    O1P                BOND P    O2P              BOND P    O5'
- BOND O5'  C5'                BOND C5'  C4'              BOND C4'  O4'
- BOND C4'  C3'                BOND O4'  C1'              BOND C1'  N1
- BOND C1'  C2'                BOND N1   C2               BOND N1   C6
- BOND C2   O2                 BOND C2   N3               BOND N3   H3
- BOND N3   C4                 BOND C4   O4               BOND C4   C5  
-
- BOND C5   C6                 BOND C2'  C3'              BOND C3'  O3'
- BOND C2'  O2'                
- BOND C5  H5                  BOND C6   H6
- 
- BOND O2'  HO2' 
- BOND C5'  H5'         BOND C5'  H5''          BOND C4'  H4'
- BOND C3'  H3'         BOND C2'  H2'           BOND C1'  H1'
-{
- DIHEdral P   O5'  C5'  C4'              DIHEdral O5'  C5'  C4'  O4'
- DIHEdral O5'  C5'  C4'  C3'  
-}{
- DIHEdral C3'  C4'  O4'  C1'
- DIHEdral C4'  O4'  C1'  C2'             DIHEdral O4'  C1'  C2'  C3' 
-
- DIHEdral C1'  C2'  C3'  C4'             DIHEdral O4'  C4'  C3'  O3'
- DIHEdral C5'  C4'  C3'  C2'             DIHEdral O2'  C2'  C3'  O3'
- DIHEdral O4'  C1'  N1   C2              
- DIHEdral C3'  C2'  O2'  H2'
-
- DIHEdral P    O3'  C3'  C2'             DIHEdral P    O3'  C3'  C4'           
- ! New dihedrals
- DIHEdral  C5'  C4'  C3'  O3'            DIHEdral  C4'  O4'  C1'  N1
-}
-                                            IMPRoper C1'  C2   C6   N1
- IMPRoper O2   N1   N3   C2                 IMPRoper H3   C2   C4   N3
- IMPRoper O4   N3   C5   C4                 IMPRoper N1   C2   N3   C4
- IMPRoper C2   N3   C4   C5                 IMPRoper N3   C4   C5   C6
- IMPRoper C4   C5   C6   N1                 IMPRoper C5   C6   N1   C2
- IMPRoper C6   N1   C2   N3                 
- IMPRoper H5   C4   C6   C5                 IMPRoper H6   N1   C5   C6
-
- !GENERAL RIBOSE IMPROPERS
-IMPRoper     H1'  C2'  O4'  N1  !C1'
-IMPRoper     H2'  C3'  C1'  O2' !C2'
-IMPRoper     H3'  C4'  C2'  O3' !C3'
-IMPRoper     H4'  C5'  C3'  O4' !C4'
-IMPRoper     H5'  O5'  H5'' C4' !C5'
-
-
-
- 
-
-END {URI}
-
-!------------------------------------------------------------------
-!------------------------------------------------------------------
-!note: O3' and O5' will remain O3R and O5R for DNA molecules
-!this is consistent with values in parameter files
 
 PRESidue DEOX    ! Patch to make DEOXYribose of the ribose
  DELETE ATOM O2'   END
