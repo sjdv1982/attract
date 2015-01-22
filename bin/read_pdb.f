@@ -37,7 +37,7 @@ c
       read(42,*) nlig
       do 60 ijk=0,nlig-1            
       call read_pdb(42, maxlig, totmaxatom, totmaxres, maxatom, 
-     1 ijk,nlig,
+     1 0,ijk,nlig,
      2 kai,tyi,rgi,iei,x,iaci,xlai,
      3 icop,we,we0,chai,ncop,nmaxco,natco,
      4 nres, natom, n3atom, i, irs, ieins, ieins3)
@@ -70,7 +70,7 @@ c     write(*,*)'all ligand atoms',nall,(natom(j),j=0,nlig-1)
 
       open(42,file=pdbfile)
       call read_pdb(42, maxlig, totmaxatom, totmaxres, maxatom,
-     1 0,nlig,
+     1 1,0,nlig,
      2 kai,tyi,rgi,iei,x,iaci,xlai,
      3 icop,we,we0,chai,ncop,nmaxco,natco,
      4 nres, natom, n3atom, i, irs, ieins, ieins3)
@@ -106,13 +106,13 @@ c     write(*,*)'all ligand atoms',nall,(natom(j),j=0,nlig-1)
       irs=0
 
       open(42,file=pdbfile1)
-      call read_pdb(42, maxlig, totmaxatom, totmaxres, maxatom, 0,2,
+      call read_pdb(42, maxlig, totmaxatom, totmaxres, maxatom,1,0,2,
      1 kai,tyi,rgi,iei,x,iaci,xlai,
      2 icop,we,we0,chai,ncop,nmaxco,natco,
      3 nres, natom, n3atom, i, irs, ieins, ieins3)
       close(42)
       open(42,file=pdbfile2)
-      call read_pdb(42, maxlig, totmaxatom, totmaxres, maxatom, 1,2,
+      call read_pdb(42, maxlig, totmaxatom, totmaxres, maxatom,1,1,2,
      1 kai,tyi,rgi,iei,x,iaci,xlai,
      2 icop,we,we0,chai,ncop,nmaxco,natco,
      3 nres, natom, n3atom, i, irs, ieins, ieins3)
@@ -123,7 +123,7 @@ c      write(*,*)'all ligand atoms',nall,(natom(j),j=0,2-1)
       end
             
       subroutine read_pdb(filehandle,maxlig,totmaxatom,totmaxres,      
-     1 maxatom, ijk,nlig,kai,tyi,rgi, iei,x,iaci,xlai,
+     1 maxatom,nterlast,ijk,nlig,kai,tyi,rgi, iei,x,iaci,xlai,
      2 icop,we,we0,chai,ncop,nmaxco,natco,
      3 nres, natom, n3atom, i, irs, ieins, ieins3)
 
@@ -148,7 +148,7 @@ c      write(*,*)'all ligand atoms',nall,(natom(j),j=0,2-1)
       izz=1
 
 c open and read ligand protein file
-  200 read(filehandle,20,end=226) b
+  200 read(filehandle,20,end=228) b
       if(b(:3).eq.'TER') goto 226
       if(b(:4).eq.'ATOM') then
        ii=3*i
@@ -197,7 +197,15 @@ c max number of copies on residue irs
       endif
       goto 200
 
-  226 nres(ijk)=iei(i)
+  226 if (nterlast.eq.0) goto 228
+  227 read(filehandle,20,end=228) b
+      if(b(:4).eq.'ATOM') then
+        write (*,*), "ERROR: ATOM after TER"
+        stop            
+      endif
+      goto 227
+
+  228 nres(ijk)=iei(i)
       ieins(ijk)=i
       ieins3(ijk)=3*i
       natom(ijk)=i

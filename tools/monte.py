@@ -88,8 +88,11 @@ for s in structures:
         if cmorph < 0: cmorph = 0
         values = [cmorph] + values
       elif is_ens:
-        values = [cens] + values
-      l2[lnr] = "  " + " ".join([("%.6f" % v) for v in values]) 
+        values = [int(cens)] + values
+      if is_ens:
+	l2[lnr] = "  " +str(values[0])+" "+" ".join([("%.6f" % v) for v in values[1:]])
+      else:
+        l2[lnr] = "  " + " ".join([("%.6f" % v) for v in values]) 
     if clonenr == 0 and keepfirst: 
       l1,l2 = s
     print "#"+str(stnr)

@@ -88,7 +88,7 @@ def print_res():
   global rescounter, atomcounter, rescoor
   if not len(rescoor): return  
   rescounter += 1
-  print res[1:].strip(), rescounter
+  #print res[1:].strip(), rescounter
   for l in ff[resname]:
     if (l[0], l[1]) not in rescoor: continue
     c = rescoor[(l[0], l[1])]

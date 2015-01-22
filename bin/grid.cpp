@@ -355,7 +355,8 @@ inline void add_potential(EnerGradX *energrads, Potential &p, int iab, double ch
 inline void add_potential(EnerGradX *energrads, Potential &p, int iab, double charge, int atomtype, double w, int fixre, double &evdw, double &eelec, Coor &grad, double *deltar) {
 #endif
   if (p[atomtype] == 0) {
-    evdw  += w * 999999;
+    fprintf(stderr, "Atom type %d does not have parameters in this grid\n", atomtype+1 );
+    exit(1);
   }
   else {
     EnerGradX &e = *(energrads+p[atomtype]-1);
@@ -547,7 +548,7 @@ inline void trilin(
     gx = g.gridx; gy = g.gridy; 
   }
  // std::cerr << "Grid points " << ax << " " << ay << " " << az << "\n";
-  if (g.nr_energrads) {
+  if (has_pot) {
     int px0 = floor(ax);  
     int px1 = ceil(ax);
     double wx1 = ax - px0;

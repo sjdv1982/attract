@@ -64,6 +64,7 @@ from irmsd import read_pdb, get_interface, get_selection
 
 if __name__ == "__main__":  
   ensfiles = []
+  ensembles = []
   modefile = None
   imodefile = None
   opt_allatoms = False
@@ -89,7 +90,7 @@ if __name__ == "__main__":
       anr -= 1
       continue  
     
-    ensembles = []
+    
     if anr <= len(sys.argv)-3 and arg == "--ens":
       ens = sys.argv[anr+1]
       ensfiles.append((ens,sys.argv[anr+2]))
@@ -120,7 +121,7 @@ if __name__ == "__main__":
 
   if len(sys.argv) < 4 or len(sys.argv) % 2:
     raise Exception("Please supply an even number of PDB files (unbound, bound)")
-
+  
   unbounds = []
   bounds = []
   
@@ -170,7 +171,7 @@ if __name__ == "__main__":
   fboundatoms = numpy.array(allboundatoms[sel])
   icom = numpy.sum(fboundatoms,axis=0) / float(len(fboundatoms))
   fboundatoms = fboundatoms - icom
-
+  
   nstruc = 0
   f1 = sys.stdout
   if output is not None:
@@ -192,7 +193,7 @@ if __name__ == "__main__":
     print >> f1, "\n".join(structure[0])
     for lignr, lig in enumerate(ligands):
       ll = lig.split()      
-      if lignr+1 in ensembles:
+      if str(lignr+1) in ensembles:
         ens = ll[0] + " "
         dofs = ll[1:]
       else:
