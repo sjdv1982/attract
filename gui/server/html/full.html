@@ -178,14 +178,28 @@
                             </div>
 
                           </div> <!--END: group-inline -->
+                          <div class="group-inline clearfix">
 
-                          <div class="field-container">
-                            <div class="title"><p>The molecule is in reduced form</p></div>
-                            <div class="tooltip"><div class="tooltip-body"><a href="documentation.html#partners-mol_reduced" target="_blank">Reduced or not</a></div></div>
-                            <div class="field-item checkbox align-right">
-                              <input type="checkbox" name="partners-0-is_reduced" id="partners-0-is_reduced" value="">
+                            <div class="field-container">
+                              <div class="title"><p>The molecule is in reduced form</p></div>
+                              <div class="tooltip"><div class="tooltip-body"><a href="documentation.html#partners-mol_reduced" target="_blank">Reduced or not</a></div></div>
+                              <div class="field-item checkbox align-right">
+                                <input type="checkbox" name="partners-0-is_reduced" id="partners-0-is_reduced" value="">
+                              </div>
                             </div>
-                          </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>What kind of molecule are you docking?</p></div>
+                              <div class="field-item select align-right">
+                                <select name="partners-0-moleculetype" id="partners-0-moleculetype">
+                                  <option value="Protein" selected>Protein/peptide</option>
+                                  <option value="DNA">DNA</option>
+                                  <option value="RNA">RNA</option>
+                                </select>
+                              </div>
+                            </div>
+
+                          </div> <!--END: group-inline -->
                         </div> <!-- END: group-container -->
                       </div> <!-- END: level2 -->
 
@@ -346,13 +360,23 @@
 
                         <div class="group-container">
 
+                          <div class="group-inline clearfix">
 
-                          <div class="field-container">
-                            <div class="title"><p>iattract_noflex</p></div>
-                            <div class="field-item checkbox align-right">
-                              <input type="checkbox" name="partners-0-iattract_noflex" id="partners-0-iattract_noflex" value="">
+                            <div class="field-container">
+                              <div class="title"><p>use_termini</p></div>
+                              <div class="field-item checkbox align-right">
+                                <input type="checkbox" name="partners-0-use_termini" id="partners-0-use_termini" value="">
+                              </div>
                             </div>
-                          </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>iattract_noflex</p></div>
+                              <div class="field-item checkbox align-right">
+                                <input type="checkbox" name="partners-0-iattract_noflex" id="partners-0-iattract_noflex" value="">
+                              </div>
+                            </div>
+
+                          </div> <!--END: group-inline -->
                         </div> <!-- END: group-container -->
                       </div> <!-- END: level2 -->
                     </div><!-- END: level1-container -->
@@ -1296,6 +1320,13 @@
                   </div><!-- END: level1 -->
 
                 </div><!-- END: UI container -->
+              </div>
+
+              <div class="field-container">
+                <div class="title"><p>Enable ghost-ligands mode</p></div>
+                <div class="field-item checkbox align-right">
+                  <input type="checkbox" name="ghost_ligands" id="ghost_ligands" value="">
+                </div>
               </div>
             </form><!-- END: form -->           
             

@@ -19,7 +19,9 @@ def generate(m, outp, *args):
   if v is not None: 
     if isinstance(v, Spyder.AttractPeptideModel):
       v = v.convert(Spyder.AttractEasyModel) 
-      deploy_peptide(v,'.')
+      r = v.partners[1].pdbfile
+      r.link("./peptide.pdb")
+      r.save()
     
     embedded = check_embedded(v)
     if embedded is not None:
@@ -80,4 +82,6 @@ def deploy_peptide(model,dir):
   d = dir + "/"
   if dir in (None, "",".","./"): d = ""
   elif dir.endswith("/"): d = dir
-  _deploy(model.partners[1].pdbfile,d+"peptide.pdb")
+  _deploy(model.p1.pdbfile,d+"receptor.pdb")
+  _deploy(model.p1.rmsd_pdb,d+"receptor-rmsd.pdb")
+  _deploy(model.p2.rmsd_pdb,d+"peptide-rmsd.pdb")

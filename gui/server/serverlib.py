@@ -1,6 +1,6 @@
 from serverconfig import *
 import os, sys, cgi, datetime, string, re, random
-import spyder
+import spyder, Spyder
 import spyder.formtools
 from spyder.formtools import embed
 import pprint, json
@@ -184,6 +184,11 @@ def serve_attract(spydertype, formlib, deploy):
   
   try:
     #Run the generator, write the script and create the archive
+    if isinstance(newmodel, Spyder.AttractPeptideModel):
+      newmodel = newmodel.convert(Spyder.AttractEasyModel) 
+      r = newmodel.partners[1].pdbfile
+      r.link("peptide.pdb")
+      r.save()
     script = newmodel.generate()
     shname = "%s.sh" % runname
     f = open(shname, "w")

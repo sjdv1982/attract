@@ -5,7 +5,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
     
     <head>
-        <title>ATTRACT Easy Online</title>
+        <title>ATTRACT Peptide Online</title>
         
         <meta charset="utf-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
@@ -66,28 +66,24 @@
               <div id="close-app" class="button close-icon-active float-right"></div>
               
             </header>
-            <form encType="multipart/form-data" action="http://www.attract.ph.tum.de/cgi/services/ATTRACT/attractserver-easy.py" method="post" target="_blank">
+            <form encType="multipart/form-data" action="http://www.attract.ph.tum.de/cgi/services/ATTRACT/attractserver-peptide.py" method="post" target="_blank">
 
               <div id="page1" class="category-container">
                 <div class="form-category-description">
                   <div class="large-icon puzzle-icon"></div>
                   <div class="description">
                     <h2>Docking partners</h2>
-                    <p>Define 2 docking partners by uploading a PDB structure file.</p>
+                    <p>Define protein and peptide by uploading a PDB structure file and a sequence.</p>
                   </div>
-
-                  <div class="category-controls">
-                  </div>
-
                 </div>
 
                 <!-- UI CONTAINER FOR FORM ELEMENTS OF A CATEGORY SELECTED IN CATEGORY NAVIGATION MENU -->
                 <div class="form-category">
 
-                  <div id="block-partners-0" class="level1 multi-active">
+                  <div id="block-bp1-0" class="level1">
 
                     <div class="controls">
-                      <div class="title"><h4>Receptor</h4></div>
+                      <div class="title"><h4>Protein</h4></div>
                       <div class="button reload-icon reload-form-block"><div class="controls-tooltip"><p>Restore default values</p></div></div>
                     </div>
 
@@ -98,6 +94,9 @@
                         <div class="group-container">
 
                           <div class="field-container">
+                            <div class="title"><h3></h3></div>
+                          </div>
+                          <div class="field-container">
                             <div class="title"><h3>Structure Sources</h3></div>
                           </div>
 
@@ -105,38 +104,14 @@
                             <div class="title"><p>Structure file</p></div>
                             <div class="tooltip"><div class="tooltip-body"><a href="documentation.html#partners-structure_file" target="_blank">Upload PDB structure file</a></div></div>
                             <div class="field-item file align-right">
-                              <input type="file" name="partners-0-pdbfile" id="partners-0-pdbfile">
+                              <input type="file" name="p1-pdbfile" id="p1-pdbfile">
                             </div>
                           </div>
 
                           <div class="field-container">
                             <div class="title"><p>If the PDB is a multi-model ensemble, specify the number of conformers</p></div>
                             <div class="field-item number align-right">
-                              <input type="number" name="partners-0-ensemble_size" id="partners-0-ensemble_size" value = "0">
-                            </div>
-                          </div>
-                        </div> <!-- END: group-container -->
-                      </div> <!-- END: level2 -->
-
-                      <div class="level2">
-
-                        <div class="field-container">
-                          <div class="title"><h3>Generate harmonic modes</h3></div>
-                          <div class="field-item switch align-left">
-                            <input type="checkbox" name="partners-0-generate_modes" id="partners-0-generate_modes" value="">
-                            <label for="partners-0-generate_modes">Off</label>
-                            <label for="partners-0-generate_modes">On</label>
-                            <span class="toggle"></span>
-                          </div>
-                        </div>
-
-                        <div class="group-container">
-
-
-                          <div class="field-container">
-                            <div class="title"><p>Number of modes to select</p></div>
-                            <div class="field-item number align-right">
-                              <input type="number" name="partners-0-nr_modes" id="partners-0-nr_modes" value = "5" min="1" max="10">
+                              <input type="number" name="p1-ensemble_size" id="p1-ensemble_size" value = "0">
                             </div>
                           </div>
                         </div> <!-- END: group-container -->
@@ -147,9 +122,9 @@
                         <div class="field-container">
                           <div class="title"><h3>RMSD calculation</h3></div>
                           <div class="field-item switch align-left">
-                            <input type="checkbox" name="partners-0-use_rmsd" id="partners-0-use_rmsd" value="">
-                            <label for="partners-0-use_rmsd">Off</label>
-                            <label for="partners-0-use_rmsd">On</label>
+                            <input type="checkbox" name="p1-use_rmsd" id="p1-use_rmsd" value="">
+                            <label for="p1-use_rmsd">Off</label>
+                            <label for="p1-use_rmsd">On</label>
                             <span class="toggle"></span>
                           </div>
                         </div>
@@ -160,46 +135,26 @@
                           <div class="field-container">
                             <div class="title"><p>Reference RMSD PDB file</p></div>
                             <div class="field-item file align-right">
-                              <input type="file" name="partners-0-rmsd_pdb" id="partners-0-rmsd_pdb">
+                              <input type="file" name="p1-rmsd_pdb" id="p1-rmsd_pdb">
                             </div>
                           </div>
 
                           <div class="field-container">
                             <div class="title"><p>Select only backbone atoms for RMSD calculation</p></div>
                             <div class="field-item checkbox align-right">
-                              <input type="checkbox" name="partners-0-rmsd_bb" id="partners-0-rmsd_bb" value="" checked="checked">
-                            </div>
-                          </div>
-                        </div> <!-- END: group-container -->
-                      </div> <!-- END: level2 -->
-
-                      <div class="level2">
-
-                        <div class="group-container">
-
-
-                          <div class="field-container">
-                            <div class="title"><p>What kind of molecule are you docking?</p></div>
-                            <div class="field-item select align-right">
-                              <select name="partners-0-moleculetype" id="partners-0-moleculetype">
-                                <option value="Protein" selected>Protein</option>
-                                <option value="Peptide">Peptide</option>
-                                <option value="DNA">DNA</option>
-                                <option value="RNA">RNA</option>
-                              </select>
+                              <input type="checkbox" name="p1-rmsd_bb" id="p1-rmsd_bb" value="" checked="checked">
                             </div>
                           </div>
                         </div> <!-- END: group-container -->
                       </div> <!-- END: level2 -->
                     </div><!-- END: level1-container -->
-                    <input type="hidden" name="partners-0-_clonearraymarker" value=0>
                   </div><!-- END: level1 -->
 
 
-                  <div id="block-partners-1" class="level1 multi-active">
+                  <div id="block-bp2-0" class="level1">
 
                     <div class="controls">
-                      <div class="title"><h4>Ligand</h4></div>
+                      <div class="title"><h4>Peptide</h4></div>
                       <div class="button reload-icon reload-form-block"><div class="controls-tooltip"><p>Restore default values</p></div></div>
                     </div>
 
@@ -210,45 +165,17 @@
                         <div class="group-container">
 
                           <div class="field-container">
+                            <div class="title"><h3></h3></div>
+                          </div>
+                          <div class="field-container">
                             <div class="title"><h3>Structure Sources</h3></div>
                           </div>
 
                           <div class="field-container">
-                            <div class="title"><p>Structure file</p></div>
-                            <div class="tooltip"><div class="tooltip-body"><a href="documentation.html#partners-structure_file" target="_blank">Upload PDB structure file</a></div></div>
-                            <div class="field-item file align-right">
-                              <input type="file" name="partners-1-pdbfile" id="partners-1-pdbfile">
-                            </div>
-                          </div>
-
-                          <div class="field-container">
-                            <div class="title"><p>If the PDB is a multi-model ensemble, specify the number of conformers</p></div>
-                            <div class="field-item number align-right">
-                              <input type="number" name="partners-1-ensemble_size" id="partners-1-ensemble_size" value = "0">
-                            </div>
-                          </div>
-                        </div> <!-- END: group-container -->
-                      </div> <!-- END: level2 -->
-
-                      <div class="level2">
-
-                        <div class="field-container">
-                          <div class="title"><h3>Generate harmonic modes</h3></div>
-                          <div class="field-item switch align-left">
-                            <input type="checkbox" name="partners-1-generate_modes" id="partners-1-generate_modes" value="">
-                            <label for="partners-1-generate_modes">Off</label>
-                            <label for="partners-1-generate_modes">On</label>
-                            <span class="toggle"></span>
-                          </div>
-                        </div>
-
-                        <div class="group-container">
-
-
-                          <div class="field-container">
-                            <div class="title"><p>Number of modes to select</p></div>
-                            <div class="field-item number align-right">
-                              <input type="number" name="partners-1-nr_modes" id="partners-1-nr_modes" value = "5" min="1" max="10">
+                            <div class="title"><p>Peptide sequence</p></div>
+                            <div class="tooltip"><div class="tooltip-body">Give peptide sequence in single letter code</div></div>
+                            <div class="field-item text align-right">
+                              <input type="text" name="p2-sequence" id="p2-sequence" value="">
                             </div>
                           </div>
                         </div> <!-- END: group-container -->
@@ -259,9 +186,9 @@
                         <div class="field-container">
                           <div class="title"><h3>RMSD calculation</h3></div>
                           <div class="field-item switch align-left">
-                            <input type="checkbox" name="partners-1-use_rmsd" id="partners-1-use_rmsd" value="">
-                            <label for="partners-1-use_rmsd">Off</label>
-                            <label for="partners-1-use_rmsd">On</label>
+                            <input type="checkbox" name="p2-use_rmsd" id="p2-use_rmsd" value="">
+                            <label for="p2-use_rmsd">Off</label>
+                            <label for="p2-use_rmsd">On</label>
                             <span class="toggle"></span>
                           </div>
                         </div>
@@ -272,39 +199,19 @@
                           <div class="field-container">
                             <div class="title"><p>Reference RMSD PDB file</p></div>
                             <div class="field-item file align-right">
-                              <input type="file" name="partners-1-rmsd_pdb" id="partners-1-rmsd_pdb">
+                              <input type="file" name="p2-rmsd_pdb" id="p2-rmsd_pdb">
                             </div>
                           </div>
 
                           <div class="field-container">
                             <div class="title"><p>Select only backbone atoms for RMSD calculation</p></div>
                             <div class="field-item checkbox align-right">
-                              <input type="checkbox" name="partners-1-rmsd_bb" id="partners-1-rmsd_bb" value="" checked="checked">
-                            </div>
-                          </div>
-                        </div> <!-- END: group-container -->
-                      </div> <!-- END: level2 -->
-
-                      <div class="level2">
-
-                        <div class="group-container">
-
-
-                          <div class="field-container">
-                            <div class="title"><p>What kind of molecule are you docking?</p></div>
-                            <div class="field-item select align-right">
-                              <select name="partners-1-moleculetype" id="partners-1-moleculetype">
-                                <option value="Protein" selected>Protein</option>
-                                <option value="Peptide">Peptide</option>
-                                <option value="DNA">DNA</option>
-                                <option value="RNA">RNA</option>
-                              </select>
+                              <input type="checkbox" name="p2-rmsd_bb" id="p2-rmsd_bb" value="" checked="checked">
                             </div>
                           </div>
                         </div> <!-- END: group-container -->
                       </div> <!-- END: level2 -->
                     </div><!-- END: level1-container -->
-                    <input type="hidden" name="partners-1-_clonearraymarker" value=1>
                   </div><!-- END: level1 -->
 
                 </div><!-- END: UI container -->
@@ -457,7 +364,7 @@
                           <div class="field-container">
                             <div class="title"><p>Name of the docking run</p></div>
                             <div class="field-item text align-right">
-                              <input type="text" name="runname" id="runname" value="attract">
+                              <input type="text" name="runname" id="runname" value="attract-pep">
                             </div>
                           </div>
 

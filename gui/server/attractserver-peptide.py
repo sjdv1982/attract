@@ -9,7 +9,7 @@ try:
   import spyder, Spyder
   import spyder.formtools
   import attractmodel
-  import formeasy
+  import form_peptide
   import attractsave
   from serverlib import serve_attract, AttractServerError
   os.system("chmod a+r+w /tmp/*spy.*")
