@@ -61,63 +61,98 @@
           <h1>ATTRACT Online documentation</h1>
 
           <div class="doc-chapter">
-            <a name="avant-propos"><h2>Avant-propos</h2></a>
+            <a name="Usage"><h2>Chapter 1: How to use the ATTRACT Easy web interface</h2></a>
+
+            <a name="ATTRACT Easy"><h3>ATTRACT Easy web interface</h3></a>
              <p>
-             The ATTRACT Easy web interface provides a convenient way to set up an ab-initio two-body protein-protein docking protocol. It requires to upload PDB files for both protein partners and allows to choose between a number of docking settings and analysis tools. It returns an archive containing the processed PDB files, a parameter file and a shell script. With this shell script the docking protocol can be executed on a local machine with an ATTRACT installation.
+             The ATTRACT Easy web interface provides a convenient way to set up an ab-initio two-body protein-protein docking protocol. The web interface requires to upload PDB files for both protein partners and allows to choose between a number of docking settings and analysis tools. For benchmarking purposes, ligand RMSD, interface RMSD and fraction of native contacts can be calculated if reference structures are supplied for each protein partner. The web interface returns an archive containing the processed PDB files, a parameter file and a shell script. With this shell script, the docking protocol can be executed on a local machine where ATTRACT has previously been installed.
              </p>
              <p>
-            The ATTRACT Easy web interface DOES NOT provide a web service for computations. Docking runs have to be executed on a local machine with an ATTRACT installation.
-             </p> 
-             <p> 
- The protocols provided by the ATTRACT Easy web interface do not cover the full functionality of the ATTRACT program but only offer an easy way to set up protocols for a range of basic protein-protein docking applications. Instead of writing such a shell script for the docking run themselves, users can generate them by the web interface which greatly facilitates the usage of ATTRACT by a wider community.
+             The protocols provided by the ATTRACT Easy web interface do not cover the full functionality of the ATTRACT program but only offer an easy way to set up protocols for a range of basic protein-protein docking applications. Instead of writing such a shell script for the docking run themselves, users can generate them by the web interface which greatly facilitates the usage of ATTRACT by a wider community.
              </p>
-             <p> 
-            The default settings of the web interface represent good choices for a variety of docking cases and have been tested extensively. However, they may not be optimal to a specific biomolecular complex. We advise the users to select the options which best correspond to their biological problem.
-            </p>
+             <p>
+             The default settings of the web interface represent good choices for a variety of docking cases and have been tested extensively. However, they may not be optimal to a specific biomolecular complex. We advise the users to select the options which best correspond to their biological problem.
+             </p>
+
+            <a name="Protocol"><h3>Protocol generation and docking</h3></a>
+             <p>
+             The ATTRACT Easy web interface generates a shell script for execution on a local machine with ATTRACT. See the next paragraph for instructions on how to install ATTRACT on your machine. The ATTRACT Easy web interface DOES NOT provide a web service for computations. Docking computations have to be executed on a local machine.
+             </p>
+             <p>
+             As a minimum requirement for generating an ATTRACT Easy protocol, you need structures for the two proteins you want to dock in PDB format.
+             </p>
+             <p>
+             Perform your docking by the following steps:
+             </p>
+             <p>
+1. Upload the PDB files for the two proteins. Important: preferably upload the <b>larger protein as the receptor</b> protein and the smaller as ligand protein.<br/>
+2. Choose docking options (optional). For details on the docking options available in the ATTRACT Easy web interface, please refer to the next sections. <br/>
+3. Click on the "Get configuration" button to generate the docking script.<br/>
+4. Download the provided archive and unpack it.<br/>
+5. Run the shell script in a terminal (type <font color="#1E90FF" >./RUNNAME.sh</font>), or by double-click.
+             </p>
+
+            <a name="Installation"><h3>Installation of ATTRACT</h3></a>
+             <p>
+             ATTRACT can only be installed on Unix-based systems (Linux/Mac). Example commands are given for Ubuntu. Alternatively, for non-linux users, an ATTRACT VirtualBox can be downloaded at <font color="#9400D3" >http://www.attract.ph.tum.de/services/ATTRACT/ATTRACT.vdi.gz</font>.
+             </p>
+             <p>
+             To install ATTRACT:
+             </p>
+1. Download the ATTRACT source code under <font color="#9400D3" >http://www.attract.ph.tum.de/services/ATTRACT/attract.tgz</font>.<br/>
+2. Open a terminal and unpack the source code (<font color="#1E90FF" > tar xzf attract.tgz</font > )<br/>
+3. Install g++ and gfortran (<font color="#1E90FF" > sudo apt-get install g++ gfortran</font > )<br/>
+4. Install numpy and scipy (<font color="#1E90FF" > sudo apt-get install python-numpy python-scipy</font > )<br/>
+5. Install pdb2pqr(<font color="#1E90FF" > sudo apt-get install pdb2pqr</font > )<br/>
+6. Go into attract/bin, type <font color="#1E90FF" > make clean</font >  and then <font color="#1E90FF" > make all</font > , or <font color="#1E90FF" > make all -j 4</font >  if you have 4 cores.<br/>
+7. Edit your .bashrc (ex: <font color="#1E90FF" > gedit ~/.bashrc </font > ) and add the following:<br/>
+<div style="text-indent: 20px;"><font color="#1E90FF" > export ATTRACTDIR=/home/yourname/attract/bin</font >  (i.e. wherever you installed attract)<br/>
+<div style="text-indent: 20px;"><font color="#1E90FF" > export ATTRACTTOOLS=\$ATTRACTDIR/../tools</font > <br/>
+<div style="text-indent: 20px;"><font color="#1E90FF" > PYTHONPATH=\$PYTHONPATH:/usr/share/pdb2pqr</font > <br/>
+8. Type <font color="#1E90FF" > source ~/.bashrc</font > 
+          </div>
 
           <div class="doc-chapter">
-            <a name="partners"><h2>Chapter 1: Partners</h2></a>
+            <a name="partners"><h2>Chapter 2: Partners</h2></a>
             
             <a name="partners-structure_file"><h3>Structure files</h3></a>
             <p>
-            For each docking partner a separate PDB file specifying its residues, atoms and atomic coordinates has to be provided. The Protein Data Bank (PDB) format describes the three-dimensional structures of macromolecules derived from X-ray diffraction and NMR studies. You can find more information on the file format <a href="http://www.wwpdb.org/docs.html" target="_blank">here</a> and <a href="http://en.wikipedia.org/wiki/Protein_Data_Bank_(file_format)" target="_blank">here</a>. A typical PDB file contains lines like the following:<br/>
-	    ATOM      1  N   PRO A   1       8.316  21.206  21.530  1.00 17.44           N<br/>
-	    ATOM      2  CA  PRO A   1       7.608  20.729  20.336  1.00 17.44           C<br/>
-	    ATOM      3  C   PRO A   1       8.487  20.707  19.092  1.00 17.44           C<br/>
-	    ATOM      4  O   PRO A   1       9.466  21.457  19.005  1.00 17.44           O<br/>
-	    ATOM      5  CB  PRO A   1       6.460  21.723  20.211  1.00 22.26           C
-	     </p>
-            
-            <a name="partners-grid_name"><h3>Molecular grids</h3></a>
-            <p>
-            To accelerate the docking search, interaction energies are precalculated and stored on points located on a grid (see Chap. 3) for each protein partner\cite{deVries2014grids}. This is the default setting for the ATTRACT Easy web interface. For a docking protocol with grids, 1,000 minimization steps are performed on each starting structure (ie. each relative positioning of the two partner).
+            For each docking partner a separate PDB file specifying its residues, atoms and atomic coordinates has to be provided. The Protein Data Bank (PDB) format describes the three-dimensional structures of macromolecules derived from X-ray diffraction and NMR studies. You can find more information on the file format on <a href="http://www.wwpdb.org/docs.html" target="_blank"> PDB webserver </a> and on <a href="http://en.wikipedia.org/wiki/Protein_Data_Bank_(file_format)" target="_blank"> Wikipedia </a>
             </p>
 
+            <a name="partners-grid_name"><h3>Molecular grids</h3></a>
+            <p>
+            To accelerate the docking search, interaction energies are precalculated and stored on points located on a grid (see Chap. 4) for each protein partner [de Vries 2014]. This is the default setting for the ATTRACT Easy web interface. For a docking protocol with grids, 1,000 minimization steps are performed on each starting structure (ie. each relative positioning of the two partner).
+            </p>
+          </div>
+
           <div class="doc-chapter">
-            <a name="flexibility"><h2>Chapter 2: Flexibility</h2></a>
+            <a name="flexibility"><h2>Chapter 3: Flexibility</h2></a>
           
             <a name="mode"><h3>Mode deformations</h3></a>
             <p>
-            To model conformational change upon binding the ATTRACT docking protocol includes the possibility for each protein partner structure to relax (deform) along precalculated soft collective degrees of freedom. This flexibility option can be selected for each protein partner in the 'Partners' section (option: 'Generate harmonic modes').
+            To model conformational change upon binding the ATTRACT docking protocol includes the possibility for each protein partner structure to relax (deform) along precalculated soft collective degrees of freedom. This flexibility option can be selected for each protein partner in the "Partners" section (option: "Generate harmonic modes").
             </p>
             <a name="ens"><h3>Ensemble docking</h3></a>
             <p>
-            ATTRACT allows to use multiple copies for each protein partner during the docking. This allows to include several conformations derived from NMR ensembles, crystal structures or simulations e.g. molecular dynamics. To use this upload a multi-model PDB file for the respective protein partner in the 'Partners' section of the web interface and specify the number of models in this PDB file.
+            ATTRACT allows to use multiple copies for each protein partner during the docking. This allows to include several conformations derived from NMR ensembles, crystal structures or simulations e.g. molecular dynamics. To use this upload a multi-model PDB file for the respective protein partner in the "Partners" section of the web interface and specify the number of models in this PDB file.
             </p>
           </div>
           
           <div class="doc-chapter">
-            <a name="energy"><h2>Chapter 3: Energy calculation</h2></a>
+            <a name="energy"><h2>Chapter 4: Energy calculation</h2></a>
 
             <a name="gravity"><h3>Gravity</h3></a>
             <p>
-            To enhance the sampling an additional harmonic potential can be applied between the proteins' center of geometry. The gravity option is switched off as a default and can be selected in the 'Energy and Interactions' settings of the ATTRACT Easy web interface.
+            To enhance the sampling an additional harmonic potential can be applied between the proteins" center of geometry. The gravity option is switched off as a default and can be selected in the "Energy and Interactions" settings of the ATTRACT Easy web interface.
             </p>
 
             <a name="grids"><h3>Grids</h3></a>
             <p>
-            Please note: using grids increases computational speed, but is VERY demanding in terms of memory. Do NOT use this option when your machine has little memory![<???] <br/>
-            Calculating electrostatic and van der Waals interactions between the docking partners is computationally expensive. To significantly speed-up the docking process it is possible to use precalculated interaction grids in ATTRACT. The potential energy is calculated before the docking run and stored for each voxel. The actual potential energy for each atom is interpolated between eight voxels. Additionally, for each grid point a neighborlist is determined listing all the atoms which are within a certain range of this grid point. For all the atoms in the neighborlist the interactions will be calculated during the docking to calculate the correct short-range interactions. Typically the interactions in a range up to 10 A will be calculated directly and the potential energy value at the grid point will be corrected by this value.
+            Please note: using grids increases computational speed, but is VERY demanding in terms of memory. Do NOT use this option when your machine has little memory!
+            </p>
+            <p>
+            Calculating electrostatic and van der Waals interactions between the docking partners is computationally expensive. To significantly speed-up the docking process it is possible to use precalculated interaction grids in ATTRACT. The potential energy is calculated before the docking run and stored for each voxel. The actual potential energy for each atom is interpolated between eight voxels. Additionally, for each grid point a neighborlist is determined listing all the atoms which are within a certain range of this grid point. For all the atoms in the neighborlist the interactions will be calculated during the docking to calculate the correct short-range interactions. Typically the interactions in a range up to 10 &Aring; will be calculated directly and the potential energy value at the grid point will be corrected by this value.
             </p>
             <p>
             In principle for each molecule a grid has to be calculated or provided. However, for two body docking only a receptor grid has to be calculated when fixing the receptor's center of mass (which is what you normally want!).
@@ -125,25 +160,25 @@
           </div>
 
           <div class="doc-chapter"> 
-            <a name="analysis"><h2>Chapter 4: Analysis</h2></a>
+            <a name="analysis"><h2>Chapter 5: Analysis</h2></a>
 
             <a name="ranking"><h3>Selection of best models</h3></a>
              <p>
-            The ATTRACT models are ranked by their ATTRACT energy using a squared cutoff of $50.0\AA{}^2$. Similar models are removed based on a comparison of the rigid body coordinates ('deredundant' tool).          
+            The ATTRACT models are ranked by their ATTRACT energy using a squared cutoff of 50.0 &Aring;&sup2;. Similar models are removed based on a comparison of the rigid body coordinates ("deredundant" tool).          
              </p>
              <p>
-            As a default the ATTRACT program converts the top 50 ATTRACT models into PDB format for visual inspection by the user. This number can be changed in the 'Analysis' section.
+            As a default the ATTRACT program converts the top 50 ATTRACT models into PDB format for visual inspection by the user. This number can be changed in the "Analysis" section.
              </p>
 
             <a name="benchmarking"><h3>Benchmarking</h3></a>
              <p>
-            Optionally, analysis tools for benchmarking purposes are provided. Note that you have to supply reference structures from the experimental structure of the protein complex for each docking partner in the 'Partners' section (option: 'RMSD calculation') in order to use the benchmarking tools. The ATTRACT models can be evaluated by ligand root mean square deviation (l-RMSD), interface root mean square deviation (i-RMSD) and fraction of native contacts (fnat)\cite{mendez2005assessment}. Deformations in soft global modes are removed for analysis by superimposing the unbound protein structure on the ATTRACT model.         
+            Optionally, analysis tools for benchmarking purposes are provided. Note that you have to supply reference structures from the experimental structure of the protein complex for each docking partner in the "Partners" section (option: "RMSD calculation") in order to use the benchmarking tools. The ATTRACT models can be evaluated by ligand root mean square deviation (l-RMSD), interface root mean square deviation (i-RMSD) and fraction of native contacts (fnat)[Mendez 2005]. Deformations in soft global modes are removed for analysis by superimposing the unbound protein structure on the ATTRACT model.         
              </p>
 
           </div>
 
           <div class="doc-chapter">
-            <a name="computation"><h2>Chapter 5: Computation</h2></a>
+            <a name="computation"><h2>Chapter 6: Computation</h2></a>
              <p>
             Here you can specify a run name for your docking and the number of cores to be used. ATTRACT can be run in parallel and scales well up to 8 cores.
             </p>
@@ -152,6 +187,12 @@ A typical systematic docking run without flexibility will be completed within le
             </p>
 
           </div>
+          <div class="doc-chapter">
+            <a name="contact"><h2>Contact</h2></a>
+            <p>
+            Please send questions and feedback to sjoerd@tum.de
+            </p>
+          </div>                    
           </div>
       </section>
     </main> 
