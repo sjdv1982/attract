@@ -22,6 +22,10 @@ def serve_upload():
     spydertype = Spyder.AttractEasyModel    
     formlib = formeasy
     cgiscript = "attractserver-easy.py"
+  elif interface == "AttractPeptideModel": 
+    spydertype = Spyder.AttractPeptideModel    
+    formlib = form_peptide
+    cgiscript = "attractserver-peptide.py"    
   else:    
     raise ValueError(interface) ### TODO, nice error message
   
@@ -64,7 +68,7 @@ try:
   import spyder.formtools
   import attractmodel
   import attracthtmlform
-  import form_model, formeasy
+  import form_model, formeasy, form_peptide
 
   r = serve_upload()
   print r
