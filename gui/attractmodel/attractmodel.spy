@@ -102,6 +102,7 @@ Type AttractPartnerInterface {
   ## form moleculetype.name = "What kind of molecule are you docking?"
   ## form moleculetype.optiontitles = "Protein/peptide", "DNA", "RNA"
   
+  Bool use_termini = False
   Bool generate_modes = False
   ## form generate_modes.name = "Generate harmonic modes"
   
@@ -162,7 +163,8 @@ Type AttractPartnerInterface {
   ## form collect_ensemble_list.add_header("If you specified a PDB file above, you may provide an ensemble conformer list for it")
   ## form collect_ensemble_list.name = "Collect ensemble list file"
   ## form collect_ensemble_list.type = "file"
-  Bool iattract_noflex = False  
+  Bool iattract_noflex = False
+
   form {
     """
     For now, disable advanced features
