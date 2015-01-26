@@ -5,13 +5,19 @@ if len(sys.argv) < 3:
   print >> sys.stderr, "Usage: split.py <DOF file> <file pattern> <nr of splits>"
   sys.exit()
 
+datfile = sys.argv[1]
 nrsplit = int(sys.argv[3])
 
 pattern = sys.argv[2]
-header,structures_gen = read_struc(sys.argv[1])
-structures = list(structures_gen)
-splitsize = int(float(len(structures))/nrsplit+0.99999)
 
+#determine number of structures
+for l in reversed(open(datfile).readlines()):  
+  if not l.startswith("#"): continue
+  if l.startswith("##"): continue
+  nrstruc = int(l[1:])
+  break
+header,structures = read_struc(datfile)
+splitsize = int(float(nrstruc)/nrsplit+0.99999)
 
 stnr = 0
 totnr = 0
