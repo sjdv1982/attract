@@ -53,7 +53,7 @@ def run_whatif(pdblines):
   """
   Runs the WHATIF server on the input
   """  
-  from whatif import run  
+  from whatif import run
   whatifresult0 = run("corall", "\n".join(list(pdblines)))
   whatifresult = run("htopo", whatifresult0)
   whatiflines = whatifresult.split("\n")  
@@ -176,8 +176,8 @@ def pdb_lastresort(pdb):
       if "H3'" not in res.coords and "C3'" in res.coords:
         res.coords["H3'"] = res.coords["C3'"]
     if res.resname == "DA":
-      #WHATIF refuses to add H2, H2', H2''
-      pairs = (("H2","C2"),("H2'","C2'"),("H2''","C2'"))
+      #WHATIF refuses to add H2, H2', H2'', H1'
+      pairs = (("H2","C2"),("H2'","C2'"),("H2''","C2'"),("H1'","C1'"))
       for p1, p2 in pairs:
         if p1 not in res.coords and p2 in res.coords:
           res.coords[p1] = res.coords[p2]
