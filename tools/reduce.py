@@ -136,6 +136,11 @@ for l in open(pdb):
         resname = mapnuc[resname][1]
       else:
         raise ValueError("PDB contains a nucleic acid named \"%s\", but it could be either RNA or DNA. Please specify the --dna or --rna option" % resname)
+      if resname is None:
+        if args.dna: na = "DNA"
+        if args.rna: na = "RNA"
+        raise ValueError("'%s' can't be %s" % (l[17:20].strip(), na))      
+      
     assert resname in ff, l
     ffres = ff[resname] 
   try:  

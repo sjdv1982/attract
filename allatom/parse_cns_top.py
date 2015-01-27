@@ -61,11 +61,14 @@ class Atom(object):
     return "atom %s type=%s charge=%.6f" % (self.name, self.type, self.charge)
         
 class Residue(object):
+  topname = None #name of topology where this residue has been defined, e.g. "oplsx" or "dna-rna"
   def __init__(self, name):
     self.name = name
     self.atomorder = []
     self.atoms = {}
     self.bonds = []
+    self.patches = []
+    self._patches = {}
   
   def _identify(self, species):
     assert species in allspecies, species
@@ -123,13 +126,19 @@ class Residue(object):
     
   def copy(self):
     ret = type(self)(self.name)
+    ret.topname = self.topname
     ret.atomorder = list(self.atomorder)
     for aname in self.atoms:
       ret.atoms[aname] = self.atoms[aname].copy()    
     ret.bonds[:] = self.bonds
+    for p in self.patches:
+      ret.patch(self._patches[p])
     return ret
   
   def patch(self, pres):
+    if pres.name in self.patches: return
+    self.patches.append(pres.name)
+    self._patches[pres.name] = pres
     for mode, species, obj in pres.commands:
       if mode == "add":
         self.add(species, obj)
@@ -164,6 +173,7 @@ class Residue(object):
     
 
 class PResidue(object):
+  topname = None #name of topology where this residue has been defined, e.g. "oplsx" or "dna-rna"
   def __init__(self, name):
     self.name = name
     self.commands = []
@@ -179,18 +189,27 @@ class PResidue(object):
       assert tokens[-1] == "end"
       if len(tokens) == 3:
         return
-      self.commands.append((mode, species, tokens[1:]))
+      name = tokens[1].lstrip("-").lstrip("+")
+      #kludge to deal with 2-residue patches (e.g. DISU)
+      #modifications for group 1 are taken, for group 2 are ignored
+      if name.startswith("1"): name = name[1:]
+      if name.startswith("2"): return      
+      self.commands.append((mode, species, [name] + tokens[2:]))
     elif mode == "delete":
       assert tokens[-1] == "end", tokens
       assert len(tokens) == 3
       name = tokens[1].lstrip("-").lstrip("+")
+      #kludge to deal with 2-residue patches (e.g. DISU)
+      #modifications for group 1 are taken, for group 2 are ignored
+      if name.startswith("1"): name = name[1:]
+      if name.startswith("2"): return
       self.commands.append((mode, species, name))
     else:
       raise ValueError("unknown mode: %s", mode)
 
-def parse_stream(stream): 
-  residues = {}
-  presidues = {}
+residues = {}
+presidues = {}
+def parse_stream(stream,topname=None): 
   mode = 0
   linenr = 0
   for line in stream:
@@ -203,11 +222,13 @@ def parse_stream(stream):
       if tokens[0] in ("residue", "resi", "resid"): 
         name = tokens[1]
         res = Residue(name)
+        res.topname = topname
         residues[name] = res
 	mode = 1; continue
       elif tokens[0] in ("presidue", "pres", "presi","presid"):
         name = tokens[1]
         res = PResidue(name)
+        res.topname = topname
 	presidues[name] = res
         mode = 2; continue      
       else: continue
@@ -228,15 +249,13 @@ def parse_stream(stream):
         print "Line %d: %s" % (linenr, line)
         raise
       
-    #print res.__class__.__name__, name, tokens
-  return residues, presidues
-    
+    #print res.__class__.__name__, name, tokens    
     
 if __name__ == "__main__":
   import sys
   resid = "ala"
   if len(sys.argv) == 3: resid = sys.argv[2]
-  residues, presidues = parse_stream(open(sys.argv[1]))      
+  parse_stream(open(sys.argv[1]))      
   print residues.keys()    
   a = residues[resid].copy()
   for atom in a.atoms: print a.atoms[atom]
