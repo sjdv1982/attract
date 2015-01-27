@@ -3,7 +3,7 @@ easy2model_version = "Converted from AttractEasyModel by easy2model 1.0"
 def easy2model(emodel):
   partners = []
   use_flex = []
-  is_peptide = [False, False]
+  has_peptide = False
   for i,p in enumerate(emodel.partners):
     partner_use_flex = False
     pp = AttractPartnerInterface.empty()
@@ -14,8 +14,7 @@ def easy2model(emodel):
     if p.moleculetype == "Peptide":
       pp.moleculetype = "Protein"
       pp.use_termini = True
-      is_peptide[i] = True
-      
+      has_peptide = True
     else:
       pp.moleculetype=p.moleculetype
       
@@ -30,7 +29,7 @@ def easy2model(emodel):
       partner_use_flex = True
       pp.ensemble = True      
       pp.ensemble_size = p.ensemble_size
-      if p.moleculetype == "Peptide" and p.ensemble_size <= 5:
+      if p.moleculetype == "Peptide":
 	pp.ensemblize = "all"
       else:
         pp.ensemblize = "random"
@@ -38,11 +37,6 @@ def easy2model(emodel):
     partners.append(pp)
     use_flex.append(partner_use_flex)
   
-  if is_peptide[0] == True:
-    assert is_peptide[1] == False
-    partners = reversed(partners)
-    use_flex = reversed(use_flex)
-    
   if use_flex[0]:
     receptorgrid = AttractGrid(gridname="receptorgrid", plateau_distance = 10.0, neighbour_distance=12.0)
   else:  
@@ -92,7 +86,7 @@ def easy2model(emodel):
    deredundant_ignorens = False,
    annotation = easy2model_version,
   )  
-  if True in is_peptide:
+  if has_peptide:
     newmodel.search = "random"
     newmodel.structures= 100000
     
@@ -100,7 +94,7 @@ def easy2model(emodel):
     iattract = IAttractParameters(
      nstruc = emodel.nr_collect
     )
-    if True in is_peptide:
+    if has_peptide:
       iattract.icut= 5.0
       
     newmodel.iattract = iattract

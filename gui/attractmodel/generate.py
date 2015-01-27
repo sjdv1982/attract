@@ -79,15 +79,15 @@ def generate(m):
     if tuple(reversed(moleculetype_interaction)) in supported_moleculetype_interactions: continue
     raise ValueError("Unsupported molecule type interaction: %s - %s" % moleculetype_interaction)
 
-  molcode = ""
-  if m.forcefield == "ATTRACT":    
-    if p.moleculetype == "RNA": molcode = "--rna"
-    elif p.moleculetype == "DNA": molcode = "--dna"        
   for pnr,p in enumerate(m.partners):
     if p.moleculetype != "Protein":
       assert not p.generate_modes #TODO for non-protein
-      assert m.iattract is None #TODO for non-protein
+      assert m.iattract is None #TODO for non-protein (topology file merging not yet implemented)
       assert m.forcefield == "ATTRACT" #TODO for non-protein (untested)
+    molcode = ""
+    if m.forcefield == "ATTRACT":    
+      if p.moleculetype == "RNA": molcode = "--rna"
+      elif p.moleculetype == "DNA": molcode = "--dna"              
     assert p.code is None #TODO: not implemented
     #TODO: select chain
     ensemble_list = None
@@ -638,7 +638,8 @@ echo '**************************************************************'
 echo 'iATTRACT refinement'
 echo '**************************************************************'
 """           
-    assert p.moleculetype == "Protein" #for now, if you use iATTRACT, it must be a protein
+    for pnr, p in enumerate(m.partners):
+      assert p.moleculetype == "Protein" #for now, if you use iATTRACT, it must be a protein
     if m.calc_lrmsd or m.calc_irmsd or m.calc_fnat:
       for pnr, p in enumerate(m.partners):
         if p.modes_file or p.generate_modes:
@@ -667,7 +668,7 @@ echo '**************************************************************'
           iattract_params += " --ens %d %s" % (pnr+1, f)
     if modes_any:
       iattract_params += " --modes %s" % iattract_modesfile    
-    topfile = topologyfiledict["Protein", "OPLSX"] #TODO
+    topfile = topologyfiledict["Protein", "OPLSX"] #TODO: unified topologyfile??
     if m.runname == "attract":
       iname = "i$name"
     else:
