@@ -36,23 +36,23 @@ def run(pdblines, topfile, transfile, outf, mapf, patches, termini=True):
 
     patchn, patchc = False, False
     if termini:
-      patchn = True
-      if resprev is not None and resprev.resid[0] == res.resid[0] \
-       and resprev.ter == False: 
-        if "C" in resprev.coords and "N" in res.coords:
-          x1,y1,z1 = resprev.coords["C"]
-          x2,y2,z2 = res.coords["N"]
-          d = (x1-x2)**2 + (y1-y2)**2 + (z1-z2)**2
-          if d < threshsq: patchn = False
+      if resprev.resid[0] != res.resid[0]:
+        patchn = True
+        if resprev is not None and resprev.ter == False: 
+          if "C" in resprev.coords and "N" in res.coords:
+            x1,y1,z1 = resprev.coords["C"]
+            x2,y2,z2 = res.coords["N"]
+            d = (x1-x2)**2 + (y1-y2)**2 + (z1-z2)**2
+            if d < threshsq: patchn = False
 
-      patchc = True
-      if resnext is not None and resnext.resid[0] == res.resid[0] \
-       and res.ter == False: 
-        if "C" in res.coords and "N" in resnext.coords:
-          x1,y1,z1 = res.coords["C"]
-          x2,y2,z2 = resnext.coords["N"]
-          d = (x1-x2)**2 + (y1-y2)**2 + (z1-z2)**2
-          if d < threshsq: patchc = False
+      if resnext.resid[0] != res.resid[0]:
+        patchc = True
+        if resnext is not None and res.ter == False: 
+          if "C" in res.coords and "N" in resnext.coords:
+            x1,y1,z1 = res.coords["C"]
+            x2,y2,z2 = resnext.coords["N"]
+            d = (x1-x2)**2 + (y1-y2)**2 + (z1-z2)**2
+            if d < threshsq: patchc = False
 
     try:
       r = residues[res.resname.lower()].copy()
