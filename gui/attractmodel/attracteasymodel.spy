@@ -3,12 +3,14 @@ Type AttractEasyPartnerInterface {
   ## form pdbfile.type = "file"
   ## form pdbfile.name = "Structure file"
   ResourceData_PDB pdbfile
+  Enum moleculetype("Protein", "Peptide","DNA", "RNA") = "Protein"
+  ## form moleculetype.name = "What kind of molecule are you docking?"   
+  Bool has_hydrogens = False
+  ## form has_hydrogens.name = "The PDB file contains all necessary atoms, including polar hydrogens"  
   Integer ensemble_size = 0
   ## form ensemble_size.name = "If the PDB is a multi-model ensemble, specify the number of conformers"
   ## validate if ensemble_size != 0: assert ensemble_size >= 1
    
-  Enum moleculetype("Protein", "Peptide","DNA", "RNA") = "Protein"
-  ## form moleculetype.name = "What kind of molecule are you docking?" 
   Bool generate_modes = False
   Integer nr_modes = 5
   form {
@@ -76,17 +78,30 @@ Type AttractEasyModel {
 
   #***Energy and interaction parameters***
   Bool use_grids = True
-  ## form use_grids.name = "Grids"
-  ## form use_grids.add_header("Perform grid-accelerated docking")
+  ## form use_grids.name = "Perform grid-accelerated docking"
   Bool gravity = False
   ## form gravity.name = "Gravity"  
   Bool use_iattract = True
   ## form use_iattract.name = "Perform iATTRACT refinement after the docking"
+  Enum completion_tool("whatif", "pdb2pqr_whatif", "amber", "cns") = "pdb2pqr_whatif"
+  form {
+    completion_tool.add_header("External tool for PDB completion and hydrogens")
+    completion_tool.add_header("NOTE: PDB2PQR, AMBER and CNS require a local installation")
+    completion_tool.add_header("NOTE: PDB2PQR only completes proteins; WHATIF is used for nucleic acids")  
+    completion_tool.name = "PDB completion method"
+    completion_tool.optiontitles = (
+      "WHATIF web server",
+      "PDB2PQR",
+      "AMBER",
+      "CNS",
+    )
+  }
   form {
     _g = "Energy and interaction parameters"
     gravity.group = _g
     use_grids.group = _g
     use_iattract.group = _g
+    completion_tool.group = _g
   }
 
   
