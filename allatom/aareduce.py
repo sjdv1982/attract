@@ -155,16 +155,19 @@ def patch_pdb(pdbres, patches):
       if res.cter:
         res.topology.patch(toppatch["3ter"])
 
-def check_pdb(pdbres):
+def check_pdb(pdbres, heavy=False):
   for res in pdbres:
     top = res.topology
     for a in top.atomorder: 
-      if a.lower().startswith("h") and atom.charge == 0: continue
+      atom = top.atoms[a]
+      if a.lower().startswith("h"):
+        if heavy: continue
+        if atom.charge == 0: continue            
       aa = a.upper()
       if aa.strip() not in res.coords:
         raise ValueError('Missing coordinates for atom "%s" in residue %s %s%s' % (aa.strip(), res.resname, res.chain, res.resid))
 
-def write_pdb(pdbres, one_letter_na = False):
+def write_pdb(pdbres, heavy = False, one_letter_na = False):
   pdblines = []
   mapping = []
   atomcounter = 1
@@ -173,7 +176,9 @@ def write_pdb(pdbres, one_letter_na = False):
     top = res.topology
     for a in top.atomorder: 
       atom = top.atoms[a]
-      if a.lower().startswith("h") and atom.charge == 0: continue      
+      if a.lower().startswith("h"):
+        if heavy: continue
+        if atom.charge == 0: continue            
       aa = a.upper()
       x = " XXXXXXX"
       y = x; z = x
@@ -224,12 +229,13 @@ else:
   parser = optparse.OptionParser()
   parser.add_argument = parser.add_option
 
+parser.add_argument("--heavy",help="Ignore all hydrogens", action="store_true")
 parser.add_argument("--refe",help="Analyze the hydrogens of a reference file to determine histidine/cysteine states")
 parser.add_argument("--autorefe",help="Analyze the hydrogens of the input PDB to determine histidine/cysteine states", action="store_true")
 parser.add_argument("--dna",help="Automatically interpret nucleic acids as DNA", action="store_true")
 parser.add_argument("--rna",help="Automatically interpret nucleic acids as RNA", action="store_true")
-parser.add_argument("--pdb2pqr",help="Use PDB2PQR to complete missing heavy atoms. If no reference has been specified, analyze the hydrogens to determine histidine/cysteine states", action="store_true")
-parser.add_argument("--whatif",help="Use the WHATIF server to complete missing heavy atoms. If no reference has been specified, analyze the hydrogens to determine histidine/cysteine states", action="store_true")
+parser.add_argument("--pdb2pqr",help="Use PDB2PQR to complete missing atoms. If no reference has been specified, analyze the hydrogens to determine histidine/cysteine states", action="store_true")
+parser.add_argument("--whatif",help="Use the WHATIF server to complete missing atoms. If no reference has been specified, analyze the hydrogens to determine histidine/cysteine states", action="store_true")
 parser.add_argument("--termini",help="An N-terminus and a C-terminus (5-terminus and 3-terminus for nucleic acids) will be added for each chain", action="store_true")
 parser.add_argument("--nter", "--nterm" , dest="nter",
                     help="Add an N-terminus (5-terminus for nucleic acids) for the specified residue number", action="append", 
@@ -244,8 +250,8 @@ an exception is raised.
 In manual mode, last-resort fixes are disabled, and missing atoms are simply printed as XXXXXXX in their coordinates. These coordinates
 cannot be read by ATTRACT, they need to be edited manually by the user.
 """, action="store_true")
-parser.add_argument("--transfile",help="Additional trans file that contains atom types", action="append",default=[])
-parser.add_argument("--topfile",help="Additional topology file in CNS format", action="append",default=[])
+parser.add_argument("--transfile",help="Additional trans file that contains additional user-defined atom types (e.g. modified amino acids)", action="append",default=[])
+parser.add_argument("--topfile",help="Additional topology file in CNS format that contains additional user-defined atom types (e.g. modified amino acids)", action="append",default=[])
 parser.add_argument("--patch",dest="patches",
                     help="Provide residue number and patch name to apply", nargs=2, action="append",default=[])
 
@@ -258,6 +264,9 @@ else:
   if positional_args:
     args.pdb = positional_args[0]
     if len(positional_args) > 1: args.output = positional_args[1]
+
+if args.heavy and (args.autorefe or args.refe):
+  raise ValueError("--(auto)refe and --heavy are mutually incompatible")
 
 if args.autorefe and args.refe:
   raise ValueError("--autorefe and --refe are mutually incompatible")
@@ -293,21 +302,22 @@ patch_pdb(pdb, patches)
 if args.refe:
   refe = read_pdb(open(args.refe), add_termini=args.termini)
   patch_pdb(refe, patches)
-  update_patches(refe)
+  if not args.heavy:
+    update_patches(refe)
   set_reference(pdb, refe)
 if args.pdb2pqr:
   pdblines = write_pdb(pdb, one_letter_na = True)[0]
   pqrlines = run_pdb2pqr(pdblines)
   pqr = read_pdb(pqrlines)
   pdbcomplete(pdb, pqr)
-  if not args.refe: 
+  if not args.heavy and not args.refe: 
     update_patches(pdb)
 if args.whatif:
   pdblines = write_pdb(pdb, one_letter_na = True)[0]
   whatiflines = run_whatif(pdblines)
   whatif = read_pdb(whatiflines)
   pdbcomplete(pdb, whatif)
-  if not args.refe and not args.pdb2pqr: 
+  if not args.heavy and not args.refe and not args.pdb2pqr: 
     update_patches(pdb)
 
 if args.refe:  
@@ -315,8 +325,8 @@ if args.refe:
 
 if not args.manual: 
   pdb_lastresort(pdb)
-  check_pdb(pdb)
-pdblines, mapping = write_pdb(pdb)
+  check_pdb(pdb, heavy=args.heavy)
+pdblines, mapping = write_pdb(pdb, heavy=args.heavy)
 
 outf = open(outfile, "w")
 for l in pdblines: 
