@@ -76,3 +76,10 @@ for i in range(nrmodes):
     print
     
   print
+"""
+DNA/RNA modes:
+ To compute the spring constant, not the CA-CA distance is used, but the sum of $ampl*exp(-$r/$power)  
+  (where r is the distance-squared, ampl = 1 and power = 6),
+  iterating over all atom-atom distances (in the all-atom PDB!)
+ Therefore, the all-atom PDB must be given as an additional reference 
+"""
