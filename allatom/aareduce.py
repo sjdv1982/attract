@@ -58,16 +58,20 @@ def parse_transfile(transfile, topname):
       assert (code, topname) not in code_to_type, code
       code_to_type[code, topname] = type
 
+
 def read_pdb(pdblines, add_termini=False):
+  repl = (
+    ("H","HN"),
+    ("HT1","HN"),
+    ("OP1","O1P"),
+    ("OP2","O2P"),
+  )
   topres, toppatch = parse_cns_top.residues, parse_cns_top.presidues
   pdbres = []
   curr_res = None
   for l in pdblines:
     if l.startswith("ATOM"):
       atomcode = l[12:16].strip()
-      if atomcode=='H': atomcode='HN'
-      if atomcode=='OP1': atomcode='O1P'
-      if atomcode=='OP2': atomcode='O2P'
       assert l[16] == " ", l
       resname = l[17:20].strip()
       if resname in mapnuc:
@@ -109,6 +113,9 @@ def read_pdb(pdblines, add_termini=False):
         if nter: curr_res.nter = True
         pdbres.append(curr_res)
       curr_res.coords[atomcode] = (x,y,z)
+      for pin, pout in repl:
+        if atomcode != pin: continue
+        curr_res.coords[pout] = (x,y,z)
   if add_termini: 
     curr_res.cter = True    
   return pdbres
@@ -152,6 +159,7 @@ def check_pdb(pdbres):
   for res in pdbres:
     top = res.topology
     for a in top.atomorder: 
+      if a.lower().startswith("h") and atom.charge == 0: continue
       aa = a.upper()
       if aa.strip() not in res.coords:
         raise ValueError('Missing coordinates for atom "%s" in residue %s %s%s' % (aa.strip(), res.resname, res.chain, res.resid))
@@ -216,15 +224,12 @@ else:
   parser = optparse.OptionParser()
   parser.add_argument = parser.add_option
 
-parser.add_argument("--refe",help="Reference file to determine histidine/cysteine states")
+parser.add_argument("--refe",help="Analyze the hydrogens of a reference file to determine histidine/cysteine states")
+parser.add_argument("--autorefe",help="Analyze the hydrogens of the input PDB to determine histidine/cysteine states", action="store_true")
 parser.add_argument("--dna",help="Automatically interpret nucleic acids as DNA", action="store_true")
 parser.add_argument("--rna",help="Automatically interpret nucleic acids as RNA", action="store_true")
-parser.add_argument("--pdb2pqr",help="Uses PDB2PQR as a PDB completion backend", action="store_true")
-parser.add_argument("--whatif",help="Uses the WHATIF server as a PDB completion backend", action="store_true")
-parser.add_argument("--transfile",help="Additional trans file that contains the atom types", action="append",default=[])
-parser.add_argument("--topfile",help="Additional topology file in CNS format", action="append",default=[])
-parser.add_argument("--strict",help="Missing atoms result in an error", action="store_true")
-parser.add_argument("--last-resort",help="Do a number of last-resort fixes to avoid errors", action="store_true")
+parser.add_argument("--pdb2pqr",help="Use PDB2PQR to complete missing heavy atoms. If no reference has been specified, analyze the hydrogens to determine histidine/cysteine states", action="store_true")
+parser.add_argument("--whatif",help="Use the WHATIF server to complete missing heavy atoms. If no reference has been specified, analyze the hydrogens to determine histidine/cysteine states", action="store_true")
 parser.add_argument("--termini",help="An N-terminus and a C-terminus (5-terminus and 3-terminus for nucleic acids) will be added for each chain", action="store_true")
 parser.add_argument("--nter", "--nterm" , dest="nter",
                     help="Add an N-terminus (5-terminus for nucleic acids) for the specified residue number", action="append", 
@@ -232,6 +237,15 @@ parser.add_argument("--nter", "--nterm" , dest="nter",
 parser.add_argument("--cter","--cterm", dest="cter",
                     help="Add a C-terminus (3-terminus for nucleic acids) for the specified residue number", action="append", 
                     type=int, default=[])
+parser.add_argument("--manual",help="""Enables manual mode. 
+In automatic mode (default), aareduce tries to produce a PDB file that can be used directly by ATTRACT. In case of missing atoms, a number of 
+last-resort fixes are attempted that add pseudo-hydrogens at the position of its connected heavy atom. If there are other missing atoms,
+an exception is raised.
+In manual mode, last-resort fixes are disabled, and missing atoms are simply printed as XXXXXXX in their coordinates. These coordinates
+cannot be read by ATTRACT, they need to be edited manually by the user.
+""", action="store_true")
+parser.add_argument("--transfile",help="Additional trans file that contains atom types", action="append",default=[])
+parser.add_argument("--topfile",help="Additional topology file in CNS format", action="append",default=[])
 parser.add_argument("--patch",dest="patches",
                     help="Provide residue number and patch name to apply", nargs=2, action="append",default=[])
 
@@ -244,6 +258,11 @@ else:
   if positional_args:
     args.pdb = positional_args[0]
     if len(positional_args) > 1: args.output = positional_args[1]
+
+if args.autorefe and args.refe:
+  raise ValueError("--autorefe and --refe are mutually incompatible")
+if args.autorefe: 
+  args.refe = args.pdb
 
 outfile = os.path.splitext(args.pdb)[0] + "-aa.pdb"
 if args.output is not None: 
@@ -294,10 +313,9 @@ if args.whatif:
 if args.refe:  
   pdbfix(pdb, refe)
 
-if args.last_resort: 
+if not args.manual: 
   pdb_lastresort(pdb)
-  
-if args.strict: check_pdb(pdb)
+  check_pdb(pdb)
 pdblines, mapping = write_pdb(pdb)
 
 outf = open(outfile, "w")
