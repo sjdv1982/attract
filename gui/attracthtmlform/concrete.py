@@ -1,3 +1,16 @@
+def _add_headers(node, tag, begin=False):
+  space = node.space
+  if space.othertokens is None: return
+  headers = [h[1][0] for h in space.othertokens if h[0] == "header"]  
+  h = "<br>".join(headers)
+  
+  divtag = SimpleTag ("div",[("class","field-container")])
+  divtag2 = SimpleTag ("div",[("class","title")], inline = True)
+  h3 = TextWrapTag("p", h, inline = True)
+  divtag2.attachChild(h3, "child")
+  divtag.attachChild(divtag2, "child")
+  tag.attachChild(divtag, "tag-header")
+
 def _extract_fields(space, form, variables):
   ret = Space.Space(top=False)
   for v in variables:
@@ -83,7 +96,7 @@ def _add_title(node, tag):
   
 def _wrap_fieldcontainer(node, parent):
   nulltag = NullTag()
-  #_add_headers(node, nulltag) #headers are ignored in ATTRACT web GUI
+  _add_headers(node, nulltag) #headers are ignored in ATTRACT web GUI
   _add_title(node, nulltag)  
   divtag = SimpleTag("div", [("class","field-container")], lines_before = 1 )
   _add_head(node, divtag)
@@ -103,7 +116,7 @@ def _container_tag(node, tag):
       tip = child.space.htmltip
       if tip is None: tip = child.space.htmlnode      
       assert tip is not None, (child.space.formpath, child.parent.space.formpath, child.name, child.parent.name )
-      #_add_headers(child, tip, begin=True) #headers are ignored in ATTRACT web GUI
+      _add_headers(child, tip, begin=True) #headers are ignored in ATTRACT web GUI
       continue
     _wrap_fieldcontainer(child, node)
   
