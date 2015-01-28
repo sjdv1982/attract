@@ -96,7 +96,7 @@ def _add_title(node, tag):
   
 def _wrap_fieldcontainer(node, parent):
   nulltag = NullTag()
-  _add_headers(node, nulltag) #headers are ignored in ATTRACT web GUI
+  _add_headers(node, nulltag)
   _add_title(node, nulltag)  
   divtag = SimpleTag("div", [("class","field-container")], lines_before = 1 )
   _add_head(node, divtag)
@@ -116,7 +116,7 @@ def _container_tag(node, tag):
       tip = child.space.htmltip
       if tip is None: tip = child.space.htmlnode      
       assert tip is not None, (child.space.formpath, child.parent.space.formpath, child.name, child.parent.name )
-      _add_headers(child, tip, begin=True) #headers are ignored in ATTRACT web GUI
+      #_add_headers(child, tip, begin=True) #outer headers are ignored in ATTRACT web GUI
       continue
     _wrap_fieldcontainer(child, node)
   
