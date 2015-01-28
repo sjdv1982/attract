@@ -43,6 +43,10 @@ extern double *weight_atoms(int nratoms,  const int *atomtypes) {
   double *atomweights = new double[nratoms];
   for (int n = 0; n < nratoms; n++) {
     int typ = atomtypes[n];
+    if (typ == 99) {
+      atomweights[n] = 0;
+      continue;
+    }
     if (typ < 0 || typ > 32) {
       fprintf(stderr, "Atom weighting is incompatible with non-ATTRACT atom type %d\n", typ);
       exit(1);

@@ -39,6 +39,7 @@ extern "C" int ministate_new_() {
   ms.has_globalenergy = 0;
   ms.gravity = 0;
   ms.rstk = 0.2; //for harmonic restraints...
+  ms.restweight = 1;
   ms.ghost = 0;
   ms.ghost_ligands = 0;
   return ministatesize-1; 
@@ -383,6 +384,22 @@ extern "C" void ministate_check_parameters_(const int &ministatehandle, const in
         }
       }
     }
+    
+    if (p.grid != NULL) {
+      Grid &g = *p.grid;
+      for (int i = 0; i < MAXATOMTYPES; i++) {
+        if (!used1[i]) continue; 
+        for (int ii = 0; ii < MAXATOMTYPES; ii++) {
+          if (!used2[ii]) continue;        
+          if (g.alphabet[ii] == 0) {
+            fprintf(stderr, 
+              "Atom type %d in molecule %d can interact with atom type %d in molecule %d, but the grid alphabet does not include it\n", i+1,p.receptor+1,ii+1,p.ligand+1);
+            exit(1);            
+          }
+        }  
+      }
+    }
+    
   }
 }
 

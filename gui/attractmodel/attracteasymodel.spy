@@ -3,10 +3,14 @@ Type AttractEasyPartnerInterface {
   ## form pdbfile.type = "file"
   ## form pdbfile.name = "Structure file"
   ResourceData_PDB pdbfile
+  Enum moleculetype("Protein", "Peptide","DNA", "RNA") = "Protein"
+  ## form moleculetype.name = "What kind of molecule are you docking?"   
+  Bool has_hydrogens = False
+  ## form has_hydrogens.name = "The PDB file contains all necessary atoms, including polar hydrogens"  
   Integer ensemble_size = 0
   ## form ensemble_size.name = "If the PDB is a multi-model ensemble, specify the number of conformers"
   ## validate if ensemble_size != 0: assert ensemble_size >= 1
-        
+   
   Bool generate_modes = False
   Integer nr_modes = 5
   form {
@@ -74,17 +78,30 @@ Type AttractEasyModel {
 
   #***Energy and interaction parameters***
   Bool use_grids = True
-  ## form use_grids.name = "Grids"
-  ## form use_grids.add_header("Perform grid-accelerated docking")
+  ## form use_grids.name = "Perform grid-accelerated docking"
   Bool gravity = False
   ## form gravity.name = "Gravity"  
   Bool use_iattract = True
   ## form use_iattract.name = "Perform iATTRACT refinement after the docking"
+  Enum completion_tool("whatif", "pdb2pqr_whatif", "amber", "cns") = "pdb2pqr_whatif"
+  form {
+    completion_tool.add_header("External tool for PDB completion and hydrogens")
+    completion_tool.add_header("NOTE: PDB2PQR, AMBER and CNS require a local installation")
+    completion_tool.add_header("NOTE: PDB2PQR only completes proteins; WHATIF is used for nucleic acids")  
+    completion_tool.name = "PDB completion method"
+    completion_tool.optiontitles = (
+      "WHATIF web server",
+      "PDB2PQR",
+      "AMBER",
+      "CNS",
+    )
+  }
   form {
     _g = "Energy and interaction parameters"
     gravity.group = _g
     use_grids.group = _g
     use_iattract.group = _g
+    completion_tool.group = _g
   }
 
   
@@ -120,6 +137,8 @@ Type AttractEasyModel {
     assert np > 0
     
     p1, p2 = partners
+    if p1.moleculetype == "Peptide": assert not p2.moleculetype == "Peptide"
+    assert not p1.moleculetype == "Peptide"
     assert p1.use_rmsd == p2.use_rmsd
     if p1.use_rmsd:
       assert calc_lrmsd or calc_irmsd or calc_fnat
@@ -127,6 +146,7 @@ Type AttractEasyModel {
       assert not calc_lrmsd
       assert not calc_irmsd
       assert not calc_fnat
+    if use_iattract: assert p1.moleculetype in ("Protein", "Peptide") and p2.moleculetype in ("Protein", "Peptide")
   }
   error {
     'assert not calc_irmsd'
@@ -160,7 +180,18 @@ Type AttractEasyModel {
     'assert np > 0'
     =>
     'Please use at least one core (np=1)for running the docking.'
+    
+    'if p1.moleculetype == "Peptide": assert not p2.moleculetype == "Peptide"'
+    =>
+    'Peptide-peptide docking in the Easy interface is not supported'
 
+    'assert not p1.moleculetype == "Peptide"'
+    =>
+    'For protein-peptide docking (or DNA/RNA-peptide docking), please specify the peptide as the ligand'
+    
+    'if use_iattract: assert p1.moleculetype in ("Protein", "Peptide") and p2.moleculetype in ("Protein", "Peptide")'
+    =>
+    'iATTRACT refinement of nucleic acids is not currently supported'
   }
   
 }

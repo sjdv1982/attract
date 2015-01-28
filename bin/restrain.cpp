@@ -88,7 +88,7 @@ inline void grad_deff(double gradfac, const int *selection1, int s1, const int *
 
 }
 
-inline void restrain_type_1(const Restraint &r, int iab, const Coor *x, Coor *f, double &energy) {
+inline void restrain_type_1(double weight, const Restraint &r, int iab, const Coor *x, Coor *f, double &energy) {
   //maximum-distance harmonic restraints
   if (r.s1 == 1 && r.s2 == 1) {
     int atomnr1 = r.selection1[0]-1;
@@ -109,10 +109,12 @@ inline void restrain_type_1(const Restraint &r, int iab, const Coor *x, Coor *f,
     double dis = sqrt(dsq);
     double violation = dis - r.par1;
     double violationsq = violation*violation;
-    energy += 0.5 * cforce * violationsq;
+    energy += weight * 0.5 * cforce * violationsq;
     if (iab) {
       double factor = violation/dis;
-      Coor force = {disx * cforce*factor,disy * cforce*factor,disz * cforce*factor};
+      Coor force = {weight * disx * cforce*factor, 
+                    weight * disy * cforce*factor,
+                    weight * disz * cforce*factor};      
       Coor &f1 = f[atomnr1];
       f1[0] -= force[0];
       f1[1] -= force[1];
@@ -133,17 +135,17 @@ inline void restrain_type_1(const Restraint &r, int iab, const Coor *x, Coor *f,
     double violation = deff - r.par1;
     double violationsq = violation*violation;
     double cforce = r.par2;
-    energy += 0.5 * cforce * violationsq;
+    energy += weight * 0.5 * cforce * violationsq;
     //printf("ENERGY2: %.3f\n", 0.5 * cforce * violation);
     if (iab) {
-      double force = cforce * violation/deff;    
+      double force = weight * cforce * violation/deff;    
       double gradfac = -1.0/6 * pow(deffsum, -7.0/6) * deff * force;
       grad_deff(gradfac, r.selection1, r.s1, r.selection2, r.s2, f);
     }
   }
 }
 
-inline void restrain_type_2(const Restraint &r, int iab, const Coor *x, Coor *f, double &energy) {
+inline void restrain_type_2(double weight, const Restraint &r, int iab, const Coor *x, Coor *f, double &energy) {
   //HADDOCK-type AIR restraints
   if (double(rand())/RAND_MAX <= r.par4) return;
   if (r.s1 == 1 && r.s2 == 1) {
@@ -168,7 +170,7 @@ inline void restrain_type_2(const Restraint &r, int iab, const Coor *x, Coor *f,
     double factor;
     if (violation < r.par3) {
       factor = violation/dis;
-      energy += 0.5 * cforce * violationsq;
+      energy += weight * 0.5 * cforce * violationsq;
     }
     else {
       double maxviol = r.par3;
@@ -176,11 +178,13 @@ inline void restrain_type_2(const Restraint &r, int iab, const Coor *x, Coor *f,
       double extraviol = dis - r.par3;
       double violation2sq = maxviolsq+2*maxviol*extraviol;
       factor = maxviol/dis;
-      energy += 0.5 * cforce * violation2sq;
+      energy += weight * 0.5 * cforce * violation2sq;
     }
     //printf("ENERGY: %.3f\n", 0.5 * cforce * violationsq);        
     if (iab) {
-      Coor force = {disx * cforce*factor,disy * cforce*factor,disz * cforce*factor};
+      Coor force = {weight * disx * cforce*factor, 
+                    weight * disy * cforce*factor,
+                    weight * disz * cforce*factor};      
       Coor &f1 = f[atomnr1];
       f1[0] -= force[0];
       f1[1] -= force[1];
@@ -205,7 +209,7 @@ inline void restrain_type_2(const Restraint &r, int iab, const Coor *x, Coor *f,
     double factor;
     if (violation < r.par3) {
       factor = violation/deff;
-      energy += 0.5 * cforce * violationsq;
+      energy += weight * 0.5 * cforce * violationsq;
     }
     else {
       double maxviol = r.par3;
@@ -213,18 +217,18 @@ inline void restrain_type_2(const Restraint &r, int iab, const Coor *x, Coor *f,
       double extraviol = deff - r.par3;
       double violation2sq = maxviolsq+2*maxviol*extraviol;
       factor = maxviol/deff;
-      energy += 0.5 * cforce * violation2sq;
+      energy += weight * 0.5 * cforce * violation2sq;
     }
     
     if (iab) {
-      double force = cforce * factor;    
+      double force = weight * cforce * factor;    
       double gradfac = -1.0/6 * pow(deffsum, -7.0/6) * deff * force;
       grad_deff(gradfac, r.selection1, r.s1, r.selection2, r.s2, f);
     }
   }
 }
 
-inline void restrain_type_3(const Restraint &r, int iab, const Coor *x, Coor *f, double &energy) {
+inline void restrain_type_3(double weight, const Restraint &r, int iab, const Coor *x, Coor *f, double &energy) {
   //minimum-distance harmonic restraints
   if (r.s1 == 1 && r.s2 == 1) {
     int atomnr1 = r.selection1[0]-1;
@@ -245,12 +249,14 @@ inline void restrain_type_3(const Restraint &r, int iab, const Coor *x, Coor *f,
     double dis = sqrt(dsq);
     double violation = r.par1 - dis;
     double violationsq = violation*violation;
-    energy += 0.5 * cforce * violationsq;
+    energy += 0.5 * weight * cforce * violationsq;
     if (iab) {
       double factor = violation/dis;
-      Coor force = {disx * cforce*factor,disy * cforce*factor,disz * cforce*factor};
+      Coor force = {weight * disx * cforce*factor, 
+                    weight * disy * cforce*factor,
+                    weight * disz * cforce*factor};
       Coor &f1 = f[atomnr1];
-      f1[0] += force[0];
+      f1[0] += weight * force[0];
       f1[1] += force[1];
       f1[2] += force[2];      
       Coor &f2 = f[atomnr2];
@@ -343,12 +349,17 @@ extern "C" void restrain_(const int &ministatehandle, const int &cartstatehandle
   CartState &cs = cartstate_get(cartstatehandle);
   Coor *x = (Coor *) &cs.x[0];
   Coor *f = (Coor *) &cs.f[0];
+  double weight = ms.restweight;
   srand(seed);
   for (int n = 0; n < ms.nr_restraints; n++) {
     Restraint &r = ms.restraints[n];
-    if (r.type == 1) restrain_type_1(r,iab,x,f,energy);
-    if (r.type == 2) restrain_type_2(r,iab,x,f,energy);    
-    if (r.type == 3) restrain_type_3(r,iab,x,f,energy);    
+    if (r.maxindex > cs.nall) {
+      fprintf(stderr, "Restraint %d selects atoms up to index %d, but there are only %d atoms\n", n+1, r.maxindex, cs.nall);
+      exit(1);
+    }
+    if (r.type == 1) restrain_type_1(weight, r,iab,x,f,energy);
+    if (r.type == 2) restrain_type_2(weight,r,iab,x,f,energy);    
+    if (r.type == 3) restrain_type_3(weight,r,iab,x,f,energy);    
     if (r.type == 4) restrain_type_4(r,iab,x,f,energy);
     if (r.type == 5) restrain_type_5(r,iab,x,f,energy);
   }

@@ -2,9 +2,12 @@ import sys
 from _read_struc import read_struc
 header,structures = read_struc(sys.argv[1])
 structures = list(structures)
-selected = [int(v) for v in sys.argv[2:]]
-
 selstruc = {}
+if sys.argv[2] == "-f":
+  selected = [int(l.split()[0]) for l in open(sys.argv[3]).readlines()]
+else:  
+  selected = [int(v) for v in sys.argv[2:]]
+selected = set(selected)
 
 for snr,s in enumerate(structures):
   if snr+1 not in selected: continue

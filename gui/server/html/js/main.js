@@ -53,7 +53,7 @@ $(document).ready(function() {
         var currentID = $current.attr('id');
         var rootID = (currentID.split('-').slice(0, 2)).join('-');
         $('div[id^=' + rootID + ']').each(function() {
-            if ($(this)[0] !== $current[0] && $(this).hasClass('active')) {
+            if ($(this)[0] !== $current[0] && $(this).hasClass('active') &&  (!$(this).hasClass('multi-active'))){
                 $(this).find('.level1-container').slideToggle();
                 $(this).removeClass('active');
             }
@@ -291,11 +291,14 @@ $(document).ready(function() {
 
         $(this).toggleClass('button-active');
         var content = $('#content');
+        var tooltip = $(this).find('.header-tooltip p')
         if (content.position().left == 0) {
             content.animate({ left: 185 });
+            tooltip.text('Hide sidepanel');
         }
         else {
           content.animate({ left: 0 });
+          tooltip.text('Show sidepanel');
         }
 
     });
@@ -325,14 +328,16 @@ $(document).ready(function() {
     $('.controls > .title').click(function() {
         var parent = $(this).closest('div[id^=block-]');
         var container = $(parent).find('.level1-container');
-        $(container).slideToggle();
-        if ($(parent).hasClass('active')) {
-            $(parent).removeClass('active');
-        }
-        else {
-            $(parent).addClass('active');
-        }
-        foldAllOthers(parent);
+        if (!($(parent).hasClass('always-active'))) {
+          $(container).slideToggle();
+          if ($(parent).hasClass('active')) {
+              $(parent).removeClass('active');
+          }
+          else {
+              $(parent).addClass('active');
+          }
+          foldAllOthers(parent);
+        };
     });
 
     // Show hide level2 blocks on change of the switch

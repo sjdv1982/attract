@@ -1,0 +1,228 @@
+#The format of reduce.dat is as follows:
+#
+# <One-,two- or three-letter residue code>
+# <atom type> <bead name> <names of the atom(s) that comprise the bead> [charge of the bead] 
+# <atom type> <bead name> <names of the atom(s) that comprise the bead> [charge of the bead]
+# ...
+
+
+#amino acids
+
+ALA
+30 N N
+99 CA CA
+99 C C
+31 O O
+2 CSE CA CB 
+
+CYS
+30 N N
+99 CA CA
+99 C C
+31 O O
+7 CSE CA CB SG
+
+ASP
+30 N N
+99 CA CA
+99 C C
+31 O O
+6 CSE CA CB CG OD1 OD2 -1.0
+
+GLU
+30 N N
+99 CA CA
+99 C C
+31 O O
+10 CB CG
+11 CO1 CD OE1 OE2 -1.0
+
+PHE
+30 N N
+99 CA CA
+99 C C
+31 O O
+20 CSE CB CG
+21 CSE CD1 CD2 CE1 CE2 CZ
+
+GLY
+30 N N
+1 CA CA
+99 C C
+31 O O
+
+HIS
+30 N N
+99 CA CA
+99 C C
+31 O O
+12 CSE CB CG
+13 CSE ND1 CD2 NE2 CE1
+
+ILE
+30 N N
+99 CA CA
+99 C C
+31 O O
+14 CSE CA CB CG1 CG2 CD1
+
+LYS
+30 N N
+99 CA CA
+99 C C
+31 O O
+16 CB CG
+17 CE CE 1.0
+
+LEU
+30 N N
+99 CA CA
+99 C C
+31 O O
+15 CSE CA CB CG CD1 CD2
+
+MET
+30 N N
+99 CA CA
+99 C C
+31 O O
+18 CSE CB CG
+19 CSE SD CE
+
+ASN
+30 N N
+99 CA CA
+99 C C
+31 O O
+5 CSE CA CB CG OD1 ND2
+
+PRO
+30 N N
+99 CA CA
+99 C C
+31 O O
+22 CSE CA CB CG CD
+
+GLN
+30 N N
+99 CA CA
+99 C C
+31 O O
+8 CB CG
+9 CN1 CD OE1 NE2
+
+ARG
+30 N N
+99 CA CA
+99 C C
+31 O O
+3 CG CG
+4 NEC NE CZ 1.0
+
+SER
+30 N N
+99 CA CA
+99 C C
+31 O O
+23 CSE CA CB OG
+
+THR
+30 N N
+99 CA CA
+99 C C
+31 O O
+24 CSE CA CB OG1 CG2
+
+VAL
+30 N N
+99 CA CA
+99 C C
+31 O O
+29 CSE CA CB CG1 CG2
+
+TRP
+30 N N
+99 CA CA
+99 C C
+31 O O
+25 CG CG
+26 CSE CD2 CE2 CE3 CH2 CZ3 CZ2
+
+TYR
+30 N N
+99 CA CA
+99 C C
+31 O O
+27 CSE CB CG
+28 CSE CD1 CD2 CE1 CE2 CZ OH
+
+#RNA nucleic acids
+RA
+32 GP1 P
+33 GS1 C3' C4' C5'
+34 GS2 C1' C2' O4' O2'
+35 GA1 N7
+36 GA2 N3
+37 GA3 N1
+38 GA4 N6
+
+RG
+32 GP1 P
+33 GS1 C3 C4 C5
+34 GS2 C1' C2' O4' O2'
+39 GG1 N7
+40 GG2 N3
+41 GG3 N1 N2
+42 GG4 O6
+
+RC
+32 GP1 P
+33 GS1 C3' C4' C5'
+34 GS2 C1' C2' O4' O2'
+43 GC1 C6 C5
+44 GC2 N3 O2
+45 GC3 N4
+
+RU
+32 GP1 P
+33 GS1 C3' C4' C5'
+34 GS2 C1' C2' O4' O2'
+46 GU1 C6 C5
+47 GU2 N3 O2
+48 GU3 N3 O4
+
+#DNA nucleic acids
+
+DA
+32 GP1 P
+33 GS1 C3' C4' C5'
+52 GS2 C1' C2' O4'
+35 GA1 N7
+36 GA2 N3
+37 GA3 N1
+38 GA4 N6
+
+DG
+32 GP1 P
+33 GS1 C3 C4 C5
+52 GS2 C1' C2' O4'
+39 GG1 N7
+40 GG2 N3
+41 GG3 N1 N2
+42 GG4 O6
+
+DC
+32 GP1 P
+33 GS1 C3' C4' C5'
+52 GS2 C1' C2' O4'
+43 GC1 C6 C5
+44 GC2 N3 O2
+45 GC3 N4
+
+DT
+32 GP1 P
+33 GS1 C3' C4' C5'
+52 GS2 C1' C2' O4'
+49 GT1 C6 C5 C7
+50 GT2 N3 O2
+51 GT3 N3 O4

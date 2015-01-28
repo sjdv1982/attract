@@ -16,7 +16,13 @@ def save(m, outp, *args):
 def generate(m, outp, *args):
   v = m._get() 
   outpdir = os.path.split(outp)[0]
-  if v is not None:
+  if v is not None: 
+    if isinstance(v, Spyder.AttractPeptideModel):
+      v = v.convert(Spyder.AttractEasyModel) 
+      r = v.partners[1].pdbfile
+      r.link("./peptide.pdb")
+      r.save()
+    
     embedded = check_embedded(v)
     if embedded is not None:
       print("Cannot generate shell script: %s is an embedded resource, not a file name" % embedded)
@@ -63,4 +69,17 @@ def deploy_easy(model, dir):
   _deploy(model.partners[0].rmsd_pdb,d+"receptor-rmsd.pdb")
   _deploy(model.partners[1].pdbfile,d+"ligand.pdb")
   _deploy(model.partners[1].rmsd_pdb,d+"ligand-rmsd.pdb")
-  
+
+def deploy_narefine(model, dir):
+  d = dir + "/"
+  if dir in (None, "", ".", "./"): d = ""
+  elif dir.endswith("/"): d = dir
+  _deploy(model.pdbfile,d+"input.pdb")
+   
+def deploy_peptide(model,dir):
+  d = dir + "/"
+  if dir in (None, "",".","./"): d = ""
+  elif dir.endswith("/"): d = dir
+  _deploy(model.p1.pdbfile,d+"receptor.pdb")
+  _deploy(model.p1.rmsd_pdb,d+"receptor-rmsd.pdb")
+  _deploy(model.p2.rmsd_pdb,d+"peptide-rmsd.pdb")

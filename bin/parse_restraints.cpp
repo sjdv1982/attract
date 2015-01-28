@@ -99,6 +99,14 @@ void parse_restraintfile(MiniState &ms, const char *restfile) {
       r.selection2 = selections[id2];
       r.s2 = sel_natoms[id2];
       r.type = atoi(fields[2]);
+      int maxindex = 0;
+      for (int n = 0; n < r.s1; n++) {
+        if (r.selection1[n] > maxindex) maxindex = r.selection1[n];
+      }
+      for (int n = 0; n < r.s2; n++) {
+        if (r.selection2[n] > maxindex) maxindex = r.selection2[n];
+      }
+      r.maxindex = maxindex;
 
       if (r.type > 5) {
         fprintf(stderr, "Reading error in %s, line %d: Restraint type %s not supported\n", restfile, line, fields[2]);
@@ -140,9 +148,9 @@ void parse_restraintfile(MiniState &ms, const char *restfile) {
       restraints[nr_restraints] = r;
       nr_restraints++;
     }
-    ms.restraints = new Restraint[nr_restraints+1];
-    ms.nr_restraints = nr_restraints;
-    memcpy(ms.restraints, restraints, nr_restraints*sizeof(Restraint));
   }  
+  ms.restraints = new Restraint[nr_restraints+1];
+  ms.nr_restraints = nr_restraints;
+  memcpy(ms.restraints, restraints, nr_restraints*sizeof(Restraint));
 
 }

@@ -57,10 +57,9 @@ header = """<!DOCTYPE html>
                 <p>Menu</p>
                 <nav class="header-tooltip">
                   <ul>
-                    <li><a href="#" class="message-icon">Messages<span id="message-counter">2</span></a></li>
                     <li><a href="#" class="download-icon" onClick="submitForm();">Save</a></li>
-                    <li><a href="#" class="contact-icon">Contact</a></li>
-                    <li><a href="documentation.html" target="_blank" class="help-icon">Help</a></li>
+                    <li><a href="documentation.html#contact" target="_blank" class="contact-icon">Contact</a></li>
+                    <li><a href="documentation.html" target="_blank" class="help-icon">Help and documentation</a></li>
                   </ul>
                 </nav> 
               </div>

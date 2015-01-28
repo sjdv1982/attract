@@ -3,13 +3,22 @@ easy2model_version = "Converted from AttractEasyModel by easy2model 1.0"
 def easy2model(emodel):
   partners = []
   use_flex = []
-  for p in emodel.partners:
+  has_peptide = False
+  for i,p in enumerate(emodel.partners):
     partner_use_flex = False
     pp = AttractPartnerInterface.empty()
     pp.pdbfile=p.pdbfile
+    pp.has_hydrogens=p.has_hydrogens
     pp.is_reduced=False
     pp.collect_pdb=p.pdbfile 
     pp.chain="All"
+    if p.moleculetype == "Peptide":
+      pp.moleculetype = "Protein"
+      pp.charged_termini = True
+      has_peptide = True
+    else:
+      pp.moleculetype=p.moleculetype
+      
     pp.generate_modes=p.generate_modes
     if p.generate_modes:
       partner_use_flex = True
@@ -21,7 +30,10 @@ def easy2model(emodel):
       partner_use_flex = True
       pp.ensemble = True      
       pp.ensemble_size = p.ensemble_size
-      pp.ensemblize = "random"
+      if p.moleculetype == "Peptide":
+	pp.ensemblize = "all"
+      else:
+        pp.ensemblize = "random"
     pp = AttractPartnerInterface(pp)
     partners.append(pp)
     use_flex.append(partner_use_flex)
@@ -57,7 +69,7 @@ def easy2model(emodel):
      AttractIteration(rcut=50),
     ]
    
-  gravity = 2 if emodel.gravity else 0
+  gravity = 2 if emodel.gravity else 0  
   newmodel = AttractModel (
    runname=emodel.runname,
    partners=partners,
@@ -74,11 +86,19 @@ def easy2model(emodel):
    np=emodel.np,
    deredundant_ignorens = False,
    annotation = easy2model_version,
+   completion_tool=emodel.completion_tool
   )  
+  if has_peptide:
+    newmodel.search = "random"
+    newmodel.structures= 100000
+    
   if emodel.use_iattract:
     iattract = IAttractParameters(
      nstruc = emodel.nr_collect
-    ) 
+    )
+    if has_peptide:
+      iattract.icut= 5.0
+      
     newmodel.iattract = iattract
     newmodel.demode = True ##TODO: maybe we want this in all cases..???
     newmodel.validate()

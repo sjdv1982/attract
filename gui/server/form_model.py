@@ -61,10 +61,9 @@ header = """<!DOCTYPE html>
                 <p>Menu</p>
                 <nav class="header-tooltip">
                   <ul>
-                    <li><a href="#" class="message-icon">Messages<span id="message-counter">2</span></a></li>
                     <li><a href="#" class="download-icon" onClick="submitForm();">Save</a></li>
-                    <li><a href="#" class="contact-icon">Contact</a></li>
-                    <li><a href="documentation.html" target="_blank" class="help-icon">Help</a></li>
+                    <li><a href="documentation.html#contact" target="_blank" class="contact-icon">Contact</a></li>
+                    <li><a href="documentation.html" target="_blank" class="help-icon">Help and documentation</a></li>
                   </ul>
                 </nav> 
               </div>
@@ -138,7 +137,6 @@ def webform(f, model=None,
     b.title = "Structure Sources"
     b.has_switch = False
     b.members.append("pdbfile")
-    b.members.append("code")
     b.members.append("gridname")
     b.members.append("chain")
     b.members.append("is_reduced")
@@ -147,10 +145,6 @@ def webform(f, model=None,
     ff.name = "Structure file"
     ff.tooltip = "Upload PDB structure file"
     ff.tooltip_doc = "documentation.html#partners-structure_file"
-    ff = fp.code
-    ff.tooltip = "RCSB PDB ID"
-    ff.tooltip_doc = "documentation.html#partners-rcsb_pdbid"
-    ff.placeholder = "RCSB PDB id"
     ff = fp.gridname
     ff.name = "Name of the grid for this molecule"
     ff.tooltip = "Grid name"
@@ -274,8 +268,7 @@ def webform(f, model=None,
   ff.name = "Path to grid file if previously generated"
   ff = fg.omp
   ff.name = "Calculate grid using OpenMP?"
-  ff = fg.torque
-  ff.name = ff.get_header()[0]
+  ff = fg.torque  
   ff = fg.plateau_distance
   ff = fg.neighbour_distance
   ### END grids category
@@ -300,13 +293,10 @@ def webform(f, model=None,
     fi.name = None
     fi.group = None
     ff = fi.rcut
-    ff.name = ff.get_header()[0]
     ff.span = True
     ff = fi.vmax
-    ff.name = ff.get_header()[0]
     ff.span = True
     ff = fi.traj
-    ff.name = ff.get_header()[0]
     ff.span = True 
     fi.memberorder = ["rcut", "vmax", "traj", "mc"]
     b = fi.new_group("b_mc", "block")
@@ -345,10 +335,8 @@ def webform(f, model=None,
   _assign_category(f, c, "Energy and interaction parameters", span = True)
   f.gravity.default = 0
   ff = f.rstk
-  f.forcefield.name = f.forcefield.get_header()[0]
   f.ghost.name = "Enable ghost mode, forcefield is turned off"
   ff = f.epsilon
-  ff.name = ff.get_header()[0]  
   ### END energy category  
   
   ### START atomdensitygrid category
@@ -423,7 +411,6 @@ def webform(f, model=None,
   c.members.insert(c.members.index("nr_collect"), "rcut_rescoring")
   ff = f.rcut_rescoring
   ff.span = True
-  ff.name = ff.get_header()[0]
   ff = f.nr_collect
   ff.span = True  
   ### END analysis category

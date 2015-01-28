@@ -5,6 +5,16 @@ if not len(currdir): currdir = "."
 so = currdir+ os.sep+"collectlib.so"
 from ctypes import *
 import numpy
+lib = None
+
+def reload():
+  global lib
+  if lib is not None:
+    handle = lib._handle # obtain the SO handle 
+    cdll.LoadLibrary("libdl.so").dlclose(handle)    
+  lib = CDLL(so)
+  lib.collect_init.argtypes = [c_int, POINTER(c_char_p)]
+
 lib = CDLL(so)
 lib.collect_init.argtypes = [c_int, POINTER(c_char_p)]
 
@@ -32,6 +42,12 @@ def collect_next():
 def collect_coor(copy=False):
   x = (POINTER(c_double)).in_dll(lib, "x")  
   coor = numpy.ctypeslib.as_array(x, shape=(ieins[nlig-1],3))
+  if copy: coor = coor.copy()
+  return coor
+
+def collect_coor_raw(copy=False):
+  x = (POINTER(c_double)).in_dll(lib, "x")  
+  coor = numpy.ctypeslib.as_array(x, shape=(ieins[nlig-1]*3,))
   if copy: coor = coor.copy()
   return coor
 
