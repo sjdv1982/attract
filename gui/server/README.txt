@@ -31,7 +31,14 @@ with:
 
 - Restart Apache, e.g. "sudo /etc/init.d/apache2 restart"
 
-Step 3. Installing the ATTRACT server
+Step 3. Installing dependencies
+Peptide conformations are built on-line by the web server, when converting from AttractPeptideModel to AttractEasyModel.
+To do so, two dependencies must be met
+- BioPython; this can be installed in the usual way (sudo apt-get install python-biopython, or sudo pip install biopython)
+- PeptideBuilder; this must be installed somewhere where the web server can reach it (i.e. appending PYTHONPATH in .bashrc will NOT work).
+What DOES work is soft-linking PeptideBuilder/PeptideBuilder.py and PeptideBuilder/Geometry.py in /usr/lib/python2.7/dist-packages
+
+Step 4. Installing the ATTRACT server
 
 - Go to $ATTRACTGUI/server,
 - Choose one of the generate-html*.sh scripts.  
@@ -57,7 +64,7 @@ Done!
 If you set it up for local use, the web interfaces will be now available under http://localhost/server/ATTRACT/XXX
   XXX can be easy.html, full.html, upload.html or cryo.html; index.html and attract.html point to easy.html
   
-Step 4. Maintaining the ATTRACT server
+Step 5. Maintaining the ATTRACT server
 
 - Result directories will accumulate in the results directory (by default in /home/user/server/ATTRACT/results)
 These originate from the generation of parameter files and shell scripts.

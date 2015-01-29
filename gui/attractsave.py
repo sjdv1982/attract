@@ -19,7 +19,9 @@ def generate(m, outp, *args):
   if v is not None: 
     if isinstance(v, Spyder.AttractPeptideModel):
       v = v.convert(Spyder.AttractEasyModel) 
-      deploy_peptide(v,'.')
+      r = v.partners[1].pdbfile
+      r.link("./peptide.pdb")
+      r.save()
     
     embedded = check_embedded(v)
     if embedded is not None:
@@ -53,8 +55,6 @@ def deploy(model, dir):
     _deploy(p.rmsd_pdb,d+"partner-rmsd-%d.pdb" % (n+1))
     _deploy(p.collect_pdb,d+"partner-collect-%d.pdb" % (n+1))
     _deploy(p.collect_ensemble_list,d+"partner-collect-ensemble-%d.list" % (n+1))
-  _deploy(model.cryoem_data,d+"cryo.map")
-  _deploy(model.cryoem_scoring_data,d+"cryo-scoring.map")
   _deploy(model.start_structures_file,d+"startstruc.dat")
   _deploy(model.rotations_file,d+"rotations.dat")
   _deploy(model.translations_file,d+"translations.dat")
@@ -80,4 +80,6 @@ def deploy_peptide(model,dir):
   d = dir + "/"
   if dir in (None, "",".","./"): d = ""
   elif dir.endswith("/"): d = dir
-  _deploy(model.partners[1].pdbfile,d+"peptide.pdb")
+  _deploy(model.p1.pdbfile,d+"receptor.pdb")
+  _deploy(model.p1.rmsd_pdb,d+"receptor-rmsd.pdb")
+  _deploy(model.p2.rmsd_pdb,d+"peptide-rmsd.pdb")
