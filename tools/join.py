@@ -31,27 +31,30 @@ if score:
 
 allstructures = {}
 maxstruc = 0
+stnr = 0  
 for n in range(nrsplit):
   fnam = "%s-%d" % (sys.argv[1], n+1)
-  try:
-    header0,structures = read_struc(fnam)
-  except:
-    continue
-  if n == 0: header = header0
+  header0,structures = read_struc(fnam)
+  if n == 0: 
+    for h in header0:
+      print h
   currstruc = None
   currstruc_false = False
-  stnr = 0  
   for s in structures:
-    l1,l2 = s
     stnr += 1
-    for l in l1:
-      if l.startswith("### SPLIT"):
+    l1,l2 = s
+    print "#"+str(stnr)
+    skipline = -1
+    for lnr, l in enumerate(l1): 
+      if l.startswith("### SPLIT "): 
         try:
           currstruc = int(l[len("### SPLIT"):])
-	except:
-	  currstruc = l[len("### SPLIT"):]
-	  currstruc_false = True
+        except:
+          currstruc = l[len("### SPLIT"):]
+          currstruc_false = True
+        skipline = lnr
         break
+
     if currstruc is None:
       print >> sys.stderr, "Structure has no SPLIT number"
       print >> sys.stderr, fnam
@@ -59,44 +62,16 @@ for n in range(nrsplit):
       for l in l1: print >>sys.stderr, l  
       for l in l2: print >>sys.stderr, l
       sys.exit()
-    if currstruc_false or currstruc <= 0:
+    if currstruc_false or currstruc != stnr:
       print >> sys.stderr, "Invalid SPLIT number:", currstruc
       print >> sys.stderr, fnam
       print >> sys.stderr, "#"+str(stnr)
       for l in l1: print >>sys.stderr, l  
       for l in l2: print >>sys.stderr, l
       sys.exit()
-    if currstruc in allstructures:
-      print >> sys.stderr, "Duplicate SPLIT number:", currstruc
-      print >> sys.stderr, fnam
-      print >> sys.stderr, "#"+str(stnr)
-      for l in l1: print >>sys.stderr, l  
-      for l in l2: print >>sys.stderr, l
-      sys.exit()
+        
+    for lnr, l in enumerate(l1): 
+      if lnr == skipline: continue
+      print l
+    for l in l2: print l
     
-    if currstruc > maxstruc: maxstruc = currstruc
-    allstructures[currstruc] = s
-
-
-for snr in range(1,maxstruc+1):
-  if snr not in allstructures:
-    print >> sys.stderr, "Missing SPLIT number:", snr
-    sys.exit()
-
-for h in header: print h
-stnr = 0
-for snr in range(1,maxstruc+1):
-  s = allstructures[snr]
-  stnr += 1
-  l1,l2 = s
-  print "#"+str(stnr)
-  skipline = -1
-  for lnr, l in enumerate(l1): 
-    if l.startswith("### SPLIT "): 
-      skipline = lnr
-      break
-  for lnr, l in enumerate(l1): 
-    if lnr == skipline: continue
-    print l
-  for l in l2: print l
-
