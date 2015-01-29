@@ -55,8 +55,6 @@ def deploy(model, dir):
     _deploy(p.rmsd_pdb,d+"partner-rmsd-%d.pdb" % (n+1))
     _deploy(p.collect_pdb,d+"partner-collect-%d.pdb" % (n+1))
     _deploy(p.collect_ensemble_list,d+"partner-collect-ensemble-%d.list" % (n+1))
-  _deploy(model.cryoem_data,d+"cryo.map")
-  _deploy(model.cryoem_scoring_data,d+"cryo-scoring.map")
   _deploy(model.start_structures_file,d+"startstruc.dat")
   _deploy(model.rotations_file,d+"rotations.dat")
   _deploy(model.translations_file,d+"translations.dat")
