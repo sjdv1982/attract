@@ -123,6 +123,7 @@ Type AttractEasyModel {
     
     p1, p2 = partners
     if p1.moleculetype == "Peptide": assert not p2.moleculetype == "Peptide"
+    assert not p1.moleculetype == "Peptide"
     assert p1.use_rmsd == p2.use_rmsd
     if p1.use_rmsd:
       assert calc_lrmsd or calc_irmsd or calc_fnat
@@ -130,6 +131,7 @@ Type AttractEasyModel {
       assert not calc_lrmsd
       assert not calc_irmsd
       assert not calc_fnat
+    if use_iattract: assert p1.moleculetype in ("Protein", "Peptide") and p2.moleculetype in ("Protein", "Peptide")
   }
   error {
     'assert not calc_irmsd'
@@ -168,6 +170,13 @@ Type AttractEasyModel {
     =>
     'Peptide-peptide docking in the Easy interface is not supported'
 
+    'assert not p1.moleculetype == "Peptide"'
+    =>
+    'For protein-peptide docking (or DNA/RNA-peptide docking), please specify the peptide as the ligand'
+    
+    'if use_iattract: assert p1.moleculetype in ("Protein", "Peptide") and p2.moleculetype in ("Protein", "Peptide")'
+    =>
+    'iATTRACT refinement of nucleic acids is not currently supported'
   }
   
 }
