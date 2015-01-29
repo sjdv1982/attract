@@ -1,34 +1,30 @@
 import os
 
+#TODO  modes_rna
+#TODO: aareduce + unified topologyfile
+#TODO: global restraint file => 
+#        global RestraintInterfaceArray with restraintname, restfile + format (CNS or ATTRACT) + active+passive residues
+#        + per-iteration restraintname + restraintweight
+#        + scoring restraintname + restraintweight
+#TODO: add active and passive residues to the easy interface
+#TODO: add pre-orientation option, + restraintname to use:
+#       prior to docking, a ghost mode rotational minimization is performed (vmax 50); if fix-receptor, the complex is then rotated back into the receptor frame
+# If they are present, easy2model defines a data-driven protocol:
+#   - search mode = randsearch
+#   - pre-orientation is enabled
+#   - restraints are used in sampling
+#   - after docking, a minimization with restweight 0.01 restraints is performed
+#   - restraints are used in scoring with restweight 0.01
+#   grids must have been enabled in the easy interface as well
+#
 #TODO: fix ATTRACT-EM interface
-#TODO: fix pqreduce XXXX hack
-#TODO: add check between p.modes_file and p.nr_modes
-#TODO: add check that either all interactions are grid-accelerated, or none are
-#  (and an option to disable this check; for this, adapt --rcut iteration as well)
 #TODO: a script to add energies back to deredundant output
-#TODO: decide upon PDB code, chain select
-#TODO: add "data-driven docking" option (in the easy interface, adding a restraint file): 
-#   - => add restraint file per-iteration, not global!
-#   - search mode must be randsearch
-#   - restraint file must be present for sampling
-#   - restraint file may be present for scoring; if they are not present, the sampling restraints file is used with restweight 0.01
-#   - prior to docking, a ghost mode rotational minimization is performed (vmax 50); if fix-receptor, the complex is then rotated back into the receptor frame
-#   - after docking, a minimization without restraints is performed
-#   - during code generation, check that grids have been defined
 
 generator_version = "0.2"
 
 parameterfiledict = {
   "ATTRACT" :  "$ATTRACTDIR/../attract.par",
   "OPLSX" : "$ATTRACTDIR/../allatom/allatom.par",
-}
-
-topologyfiledict = {
-  ("Protein", "OPLSX"): "$ATTRACTDIR/../allatom/topallhdg5.3.pro",
-}
-
-transfiledict = {
-  ("Protein", "OPLSX"): "$ATTRACTDIR/../allatom/oplsx.trans",
 }
 
 supported_moleculetype_interactions = (
@@ -38,7 +34,6 @@ supported_moleculetype_interactions = (
 )  
 
 def generate(m):    
-  #assert m.<partners>.auto_his #TODO
   iattract_hybrid = False #are we doing the docking with ATTRACT forcefield, but iATTRACT refinement with iATTRACT ?
   if (m.iattract and m.forcefield != "OPLSX"): iattract_hybrid = True
    
@@ -88,8 +83,6 @@ def generate(m):
     if m.forcefield == "ATTRACT":    
       if p.moleculetype == "RNA": molcode = "--rna"
       elif p.moleculetype == "DNA": molcode = "--dna"              
-    assert p.code is None #TODO: not implemented
-    #TODO: select chain
     ensemble_list = None
     ensemble_list_iattract = None
     if p.ensemble_list is not None: ensemble_list = p.ensemble_list.name
@@ -123,9 +116,7 @@ echo '**************************************************************'
             partnercode += "python $ATTRACTTOOLS/reduce.py %s %s %s > /dev/null\n" % (pdbname4, pdbname_reduced, molcode)
           if m.forcefield == "OPLSX" or iattract_hybrid:
             pdbname_aa = pdbname3 + "-aa.pdb"            
-            topfile = topologyfiledict[p.moleculetype, "OPLSX"]
-            transfile = transfiledict[p.moleculetype, "OPLSX"]
-            if p.moleculetype == "Protein" and not p.use_termini:
+            if p.moleculetype == "Protein" and not p.charged_termini:
 	      partnercode += "python $ATTRACTDIR/../allatom/pqreduce-notermini.py %s %s %s > /dev/null\n" % (pdbname4, transfile, topfile)
               partnercode += "grep -v XXXX %s > /tmp/pqtemp; mv -f /tmp/pqtemp %s\n" % (pdbname_aa, pdbname_aa) ###HACK
 	    else:
@@ -174,9 +165,7 @@ echo '**************************************************************'
             partnercode += "python $ATTRACTTOOLS/reduce.py %s %s %s > /dev/null\n" % (mname1, mname2, molcode)
           if m.forcefield == "OPLSX" or iattract_hybrid:
             mname2a = dd + "-" + str(mnr+1) + "-aa.pdb"
-            topfile = topologyfiledict[p.moleculetype, "OPLSX"]
-            transfile = transfiledict[p.moleculetype, "OPLSX"]    
-            if p.moleculetype == "Protein" and not p.use_termini:
+            if p.moleculetype == "Protein" and not p.charged_termini:
 	      partnercode += "python $ATTRACTDIR/../allatom/pqreduce-notermini.py %s %s %s > /dev/null\n" % (pdbname4, transfile, topfile)
               partnercode += "grep -v XXXX %s > /tmp/pqtemp; mv -f /tmp/pqtemp %s\n" % (pdbname_aa, pdbname_aa) ###HACK
 	    else:
@@ -656,9 +645,6 @@ echo '**************************************************************'
     iattract_params += " --cdie --epsilon 10 --fix-receptor"
     for f in iattract_filenames:
       iattract_params += " " + f
-    noflex = [str(pnr+1) for pnr, p in enumerate(m.partners) if p.iattract_noflex]
-    if len(noflex):
-      iattract_params += " --noflex " + " ".join(noflex)
     iattract_params += " --icut %s" % m.iattract.icut
     iattract_params += " --np %s" % m.np
     if ens_any:
@@ -668,7 +654,6 @@ echo '**************************************************************'
           iattract_params += " --ens %d %s" % (pnr+1, f)
     if modes_any:
       iattract_params += " --modes %s" % iattract_modesfile    
-    topfile = topologyfiledict["Protein", "OPLSX"] #TODO: unified topologyfile??
     if m.runname == "attract":
       iname = "i$name"
     else:

@@ -8,12 +8,13 @@ def easy2model(emodel):
     partner_use_flex = False
     pp = AttractPartnerInterface.empty()
     pp.pdbfile=p.pdbfile
+    pp.has_hydrogens=p.has_hydrogens
     pp.is_reduced=False
     pp.collect_pdb=p.pdbfile 
     pp.chain="All"
     if p.moleculetype == "Peptide":
       pp.moleculetype = "Protein"
-      pp.use_termini = True
+      pp.charged_termini = True
       has_peptide = True
     else:
       pp.moleculetype=p.moleculetype
@@ -85,6 +86,7 @@ def easy2model(emodel):
    np=emodel.np,
    deredundant_ignorens = False,
    annotation = easy2model_version,
+   completion_tool=emodel.completion_tool
   )  
   if has_peptide:
     newmodel.search = "random"

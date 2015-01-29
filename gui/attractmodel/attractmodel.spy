@@ -101,8 +101,7 @@ Type AttractPartnerInterface {
   Enum moleculetype("Protein", "DNA", "RNA") = "Protein"
   ## form moleculetype.name = "What kind of molecule are you docking?"
   ## form moleculetype.optiontitles = "Protein/peptide", "DNA", "RNA"
-  
-  Bool use_termini = False
+    
   Bool generate_modes = False
   ## form generate_modes.name = "Generate harmonic modes"
   
@@ -128,7 +127,7 @@ Type AttractPartnerInterface {
   Bool ensemble = False
   ## form ensemble.name = "The PDB is a multi-model ensemble"
   *ResourceData_TXT_FileList_PDB ensemble_list
-  ## form ensemble_list.name = "Or: You can supply an ensemble list file"
+  ## form ensemble_list.name = "Ensemble list file"
   ## form ensemble_list.type = "file"
   Integer ensemble_size = 0
   ## form ensemble_size.name = "Number of conformers in the ensemble"
@@ -137,10 +136,10 @@ Type AttractPartnerInterface {
   ## form ensemblize.name = "Ensemble search"
   ## form ensemblize.optiontitles = "Random", "All", "Custom (none)"
   
-  Bool auto_his = True  
-  #HistidineStateArray his = []
-  Bool charged_nter = True
-  Bool charged_cter = True
+  Bool has_hydrogens = False
+  ## form has_hydrogens.name = "The PDB file contains all necessary atoms, including polar hydrogens"  
+  Bool charged_termini = False 
+  ## form charged_termini.name = "Add charged termini to each chain"  
   
   Bool deflex = False
   ## form deflex.add_header("If you perform RMSD analysis, you may remove all flexibility (ensemble and modes) beforehand")
@@ -162,24 +161,9 @@ Type AttractPartnerInterface {
   *ResourceData_TXT_FileList_PDB collect_ensemble_list
   ## form collect_ensemble_list.add_header("If you specified a PDB file above, you may provide an ensemble conformer list for it")
   ## form collect_ensemble_list.name = "Collect ensemble list file"
-  ## form collect_ensemble_list.type = "file"
-  Bool iattract_noflex = False
+  ## form collect_ensemble_list.type = "file"  
 
-  form {
-    """
-    For now, disable advanced features
-    """
-    auto_his.type = None
-    #his.type = None
-    #his.length = 10
-    charged_nter.type = None
-    charged_cter.type = None
-  }  
   validate {
-    if (pdbfile is None and code is None):
-       raise spyder.core.ValidationError("Please upload a PDB file or provide a PDB code")
-    if (pdbfile is not None and code is not None):
-       raise spyder.core.ValidationError("Please upload a PDB file or provide a PDB code, not both")
     if chain not in ("All", "A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"):
        raise spyder.core.ValidationError("Please provide a chain")  
     if ensemble:
@@ -188,7 +172,6 @@ Type AttractPartnerInterface {
       assert ensemblize is not None
     else:
       assert (ensemble_size in (0,1)) == (ensemble_list is None) == (ensemblize is None)
-    assert is_reduced == False or code is None
   }
     error {
     'assert ensemblize is not None'
@@ -215,15 +198,8 @@ Type AttractPartnerInterface {
     =>
     'The number of modes must be between 1 and 10, not {nr_modes}'
 
-    'raise spyder.core.ValidationError("Please upload a PDB file or provide a PDB code, not both")'
-    =>
-    ''
 
     'if moleculetype is not None: assert moleculetype in ("Protein", "DNA", "RNA")'
-    =>
-    ''
-
-    'raise spyder.core.ValidationError("Please upload a PDB file or provide a PDB code")'
     =>
     ''
 
@@ -234,10 +210,6 @@ Type AttractPartnerInterface {
     'assert ensemble_size > 1'
     =>
     'You must define an ensemble size larger than 1, not {ensemble_size}'
-
-    'assert is_reduced == False or code is None'
-    =>
-    'If you supply a PDB code, it can't be reduced'
 
     'if ensemble_size != 0: assert ensemble_size >= 1'
     =>
@@ -370,8 +342,24 @@ Type AttractAtomDensityGrid {
 
 Type IAttractParameters {
   Integer nstruc
-  Float icut = 3.0
-  #TODO for Christina: validation rules, error messages, form attributes....
+  Float icut = 3.0  
+  form {
+    nstruc.name = "Number of structures to refine"
+    icut.name = "Distance cutoff for flexible residues"
+  }
+  validate {
+    assert nstruc > 0
+    assert icut > 0
+  }
+  error {
+    'assert icut > 0'
+    =>
+    'Number of structures to refine must be positive'
+
+    'assert nstruc > 0'
+    =>
+    'Distance cutoff for flexible residues must be positive'
+  }
 }
 
 Type AttractModel {
@@ -477,6 +465,9 @@ Type AttractModel {
   
   *IAttractParameters iattract
   form {
+    iattract.nstruc.default = 50
+  }
+  form {
     fix_receptor.group = "Sampling parameters"
     search.group = "Sampling parameters"
     structures.group = "Sampling parameters"
@@ -498,6 +489,21 @@ Type AttractModel {
     gravity.options = (0,1,2,3,4,5)
     gravity.optiontitles = ("No gravity", "To global origin", "To receptor", "Between all ligands", "Cryo-EM pre-assembly stage gravity", "Cryo-EM assembly stage gravity")
   }  
+  
+  Enum completion_tool("whatif", "pdb2pqr_whatif", "amber", "cns") = "pdb2pqr_whatif"
+  form {
+    completion_tool.add_header("External tool for PDB completion and hydrogens")
+    completion_tool.add_header("NOTE: PDB2PQR, AMBER and CNS require a local installation")
+    completion_tool.add_header("NOTE: PDB2PQR only completes proteins; WHATIF is used for nucleic acids")  
+    completion_tool.name = "PDB completion method"
+    completion_tool.optiontitles = (
+      "WHATIF web server",
+      "PDB2PQR",
+      "AMBER",
+      "CNS",
+    )
+  }
+  
   Float rstk = 0.01
   form {
     rstk.name = "Restraining force constant"
@@ -533,9 +539,11 @@ Type AttractModel {
   form {
     _g = "Energy and interaction parameters"
     gravity.group = _g
+    completion_tool.group = _g
     rstk.group = _g
     forcefield.group = _g
     ghost.group = _g
+    ghost_ligands.group = _g
     atomdensitygrids.group = _g
     epsilon.group = _g
     dielec.group = _g

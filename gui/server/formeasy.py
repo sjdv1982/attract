@@ -168,7 +168,6 @@ def webform(f, model=None):
   c.description = ""
   _assign_category(f, c, "Energy and interaction parameters", span = True)
   f.gravity.default = 0
-  f.use_grids.name = "Perform grid-accelerated docking"
   ### END energy category  
 
   ### START analysis category
