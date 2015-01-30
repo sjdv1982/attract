@@ -23,6 +23,8 @@ def easy2model(emodel):
     if p.generate_modes:
       partner_use_flex = True
       pp.nr_modes=p.nr_modes
+    if p.moleculetype in ("DNA", "RNA"):  
+      pp.aacontact_modes = True
     pp.deflex=True    
     pp.rmsd_pdb=p.rmsd_pdb
     pp.rmsd_bb=p.rmsd_bb

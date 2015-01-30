@@ -95,16 +95,14 @@ Type AttractPartnerInterface {
   #RestraintsInterface r = RestraintsInterface()
   ## #form r.name = "Restraint definition"
       
-  Bool is_reduced = False
-  ## form is_reduced.name = "The molecule is already in reduced form"
-
   Enum moleculetype("Protein", "DNA", "RNA") = "Protein"
   ## form moleculetype.name = "What kind of molecule are you docking?"
   ## form moleculetype.optiontitles = "Protein/peptide", "DNA", "RNA"
     
   Bool generate_modes = False
   ## form generate_modes.name = "Generate harmonic modes"
-  
+  Bool aacontact_modes = False
+  ## form aacontact_modes.name = "Use all-atom contact spring constants in mode generation"
   *ResourceData_ATTRACT_Modes modes_file 
   ## form modes_file.name = "Harmonic modes file"
   ## form modes_file.type = "file"
@@ -241,13 +239,6 @@ Type AttractGrid:Degenerate {
       raise ValueError("The name of the grid may contain only letters, digits, _ and -")  
   }
 
-  *Filename gridfile
-  form {
-    gridfile.type = "file"
-    gridfile.file = "Data"
-    gridfile.add_header("If a grid file has been previously generated, you can specify it here")
-    gridfile.name = "Grid file"
-  }
   ## form omp.add_header("Do you want to calculate the grid on multiple cores using OpenMP?")
   Bool omp = True
   ## form torque.add_header("Is the grid a torque grid?")
@@ -638,9 +629,6 @@ Type AttractModel {
     if calc_irmsd: assert len(partners) == 2
     
     if atomdensitygrids is not None and len(atomdensitygrids): assert ghost == True
-    if iattract is not None and forcefield != "OPLSX":
-      for pnr, partner in enumerate(partners):
-        assert not partner.is_reduced #iATTRACT + ATTRACT-reduced files don't mix
   }
   
   error {
@@ -715,12 +703,7 @@ Type AttractModel {
     'assert len(partners) > 0'
     =>
     'Please define at least one docking partner'
-  
-    
-    "assert not partner.is_reduced #iATTRACT + ATTRACT-reduced files don't mix"
-    =>
-    'iATTRACT is incompatible with files that are reduced by the ATTRACT forcefield'
-
+      
     'if ghost: assert not ghost_ligands'
     =>
     'ghost mode and ghost-ligands mode are mutually exclusive'

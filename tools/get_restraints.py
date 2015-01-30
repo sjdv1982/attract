@@ -209,5 +209,6 @@ if __name__ == "__main__":
         out.close()
         
     else: 
-        topology = parse_stream(open(sys.argv[1]))
+        parse_stream(open(sys.argv[1]))
+        topology = residues, presidues #importted from parse_cns_top
         make_restraints(topology,*sys.argv[2:])
