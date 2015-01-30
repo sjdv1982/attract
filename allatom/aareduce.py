@@ -230,7 +230,7 @@ else:
   parser.add_argument = parser.add_option
 
 parser.add_argument("--heavy",help="Ignore all hydrogens", action="store_true")
-parser.add_argument("--refe",help="Analyze the hydrogens of a reference file to determine histidine/cysteine states")
+parser.add_argument("--refe", "--reference",help="Analyze the hydrogens of a reference file to determine histidine/cysteine states")
 parser.add_argument("--autorefe",help="Analyze the hydrogens of the input PDB to determine histidine/cysteine states", action="store_true")
 parser.add_argument("--dna",help="Automatically interpret nucleic acids as DNA", action="store_true")
 parser.add_argument("--rna",help="Automatically interpret nucleic acids as RNA", action="store_true")
@@ -250,8 +250,8 @@ an exception is raised.
 In manual mode, last-resort fixes are disabled, and missing atoms are simply printed as XXXXXXX in their coordinates. These coordinates
 cannot be read by ATTRACT, they need to be edited manually by the user.
 """, action="store_true")
-parser.add_argument("--transfile",help="Additional trans file that contains additional user-defined atom types (e.g. modified amino acids)", action="append",default=[])
-parser.add_argument("--topfile",help="Additional topology file in CNS format that contains additional user-defined atom types (e.g. modified amino acids)", action="append",default=[])
+parser.add_argument("--trans", "--transfile",dest="transfile",help="Additional trans file that contains additional user-defined atom types (e.g. modified amino acids)", action="append",default=[])
+parser.add_argument("--top", "--topfile",dest="topfile",help="Additional topology file in CNS format that contains additional user-defined atom types (e.g. modified amino acids)", action="append",default=[])
 parser.add_argument("--patch",dest="patches",
                     help="Provide residue number and patch name to apply", nargs=2, action="append",default=[])
 

@@ -138,8 +138,7 @@ def webform(f, model=None,
     b.has_switch = False
     b.members.append("pdbfile")
     b.members.append("gridname")
-    b.members.append("chain")
-    b.members.append("is_reduced")
+    b.members.append("chain")    
     b.members.append("moleculetype") 
     ff = fp.pdbfile
     ff.name = "Structure file"
@@ -154,10 +153,6 @@ def webform(f, model=None,
     ff.default = "All"
     ff.tooltip = "Which chain ID"
     ff.tooltip_doc = "documentation.html#partners-chains"
-    ff = fp.is_reduced
-    ff.name = "The molecule is in reduced form"
-    ff.tooltip = "Reduced or not"
-    ff.tooltip_doc = "documentation.html#partners-mol_reduced"
     ff = fp.deflex
     ff.tooltip = "Remove flexibility"
     ff.tooltip_doc = "documentation.html#partners-no_flex"
@@ -173,7 +168,8 @@ def webform(f, model=None,
     b.members.append("use_modes")
     b.has_switch = True
     b.members.append("modes_file")
-    b.members.append("generate_modes")    
+    b.members.append("generate_modes")
+    b.members.append("aacontact_modes")
     b.members.append("nr_modes")
     b.members.append("aa_modes_file")
     ff = fp.use_modes
@@ -251,8 +247,7 @@ def webform(f, model=None,
 
   b = fg.new_group("b_grids", "block")
   b.title = None
-  b.members.append("gridname")
-  b.members.append("gridfile")
+  b.members.append("gridname")  
   b.members.append("plateau_distance")
   b.members.append("neighbour_distance")
   b.members.append("omp")
@@ -261,11 +256,7 @@ def webform(f, model=None,
   ff = fg.gridname
   ff.placeholder = "name..."
   for n in range(f.grids.length):
-    ff = f.grids[n]
-    ff.gridfile.type = "text"
-  f.grids[None].gridfile.type = "text"  
-  ff = fg.gridfile  
-  ff.name = "Path to grid file if previously generated"
+    ff = f.grids[n]      
   ff = fg.omp
   ff.name = "Calculate grid using OpenMP?"
   ff = fg.torque  
