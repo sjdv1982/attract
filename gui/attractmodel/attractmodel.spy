@@ -75,16 +75,35 @@ Type AttractSymmetry {
   }  
 }
 
+Type HaddockRestraintsInterface {
+  """
+  Definition of HADDOCK Ambiguous Interaction Restraints (AIRs)
+  Lists of active and passive residues must be provided
+  """  
+  ## form activereslist.add_header("Please supply residues as comma-separated lists of residue numbers")
+  ## form activereslist.name = "Active residues (directly involved in the interaction)"
+  ## form passivereslist.name = "Passive residues (surrounding surface residues)"  
+  ## form auto_passive.name = "Define passive residues automatically around the active residues"
+  ## form activereslist.type = "text"
+  ## form passivereslist.type = "text"
+  HaddockResidueList activereslist = []
+  HaddockResidueList passivereslist = []
+  Bool auto_passive = False  
+  validate {
+    assert not (auto_passive and len(passivereslist))
+  }
+  error {
+    'assert not (auto_passive and len(passivereslist))'
+    =>
+    'You manually defined passive residues, but also that they should be determined automatically'
+  }
+}
 
 Type AttractPartnerInterface {
   ## form pdbfile.type = "file"
   ## form pdbfile.name = "Structure file"
   *ResourceData_PDB pdbfile
   
-  ## form code.length = 4  
-  ## form code.name = "Or define?"
-  *PDBCode code
-
   *String gridname
   ## form gridname.name = "Name of the grid to use for this molecule"
   
@@ -92,8 +111,9 @@ Type AttractPartnerInterface {
   ## form chain.options = "All", "A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"
   String chain = "All"
         
-  #RestraintsInterface r = RestraintsInterface()
-  ## #form r.name = "Restraint definition"
+  *HaddockRestraintsInterface haddock_restraints
+  ## form haddock_restraints.name = "Definition of residues for HADDOCK-type distance restraints (optional)"
+  ## form haddock_restraints.auto_passive.type = None #TODO: disabled for now
       
   Enum moleculetype("Protein", "DNA", "RNA") = "Protein"
   ## form moleculetype.name = "What kind of molecule are you docking?"
@@ -142,7 +162,7 @@ Type AttractPartnerInterface {
   Bool deflex = False
   ## form deflex.add_header("If you perform RMSD analysis, you may remove all flexibility (ensemble and modes) beforehand")
   ## form deflex.name = "Remove flexibility" 
-
+  
   *ResourceData_PDB rmsd_pdb
   ## form rmsd_pdb.add_header("You can specify a PDB file to use as reference in RMSD calculations")
   ## form rmsd_pdb.add_header("Leave blank to use the docked PDB instead (bound conformation = unbound conformation)")
@@ -171,7 +191,7 @@ Type AttractPartnerInterface {
     else:
       assert (ensemble_size in (0,1)) == (ensemble_list is None) == (ensemblize is None)
   }
-    error {
+  error {
     'assert ensemblize is not None'
     =>
     'The ensemble search must be defined'
@@ -223,8 +243,7 @@ Type AttractPartnerInterface {
 
     'if modes_file is not None: assert not generate_modes'
     =>
-    'If you supply a harmonic modes file, you can't have them generated'
-   
+    'If you supply a harmonic modes file, you can't have them generated'   
   }
 }
 
@@ -266,12 +285,17 @@ Type AttractIteration {
   ## form vmax.add_header("The maximum number of energy minimization or Monte Carlo steps (vmax)") 
   Integer vmax = 100
   ## form traj.add_header("Trajectory mode: only minimize the first structure, and output the structure after every minimization step")
+  ## form traj.name = "Trajectory mode"
   Bool traj = False
   validate {
     assert rcut > 0
     assert vmax > 0
   }  
-  
+  Bool prep = False  
+  ## form prep.add_header("Preparation mode: only minimizes the orientation of the molecules, without forcefield")
+  ## form prep.name = "Preparation mode"
+  Float restweight = 1
+  ## form restweight.name = "Distance restraint weight"
   Bool mc = False
   Float mctemp = 3.5
   Float mcscalerot = 0.05
@@ -376,6 +400,17 @@ Type AttractModel {
       partners[n].name = "Docking partner %d" % (n+1)
       partners[n].group = "Docking partner %d" % (n+1)
   }
+  validate {
+    has_haddock = any([p.haddock_restraints for p in partners])
+    nr_has_haddock = len([1 for p in partners if p.haddock_restraints])
+    if has_haddock: assert nr_has_haddock > 1
+    has_active = any([p.haddock_restraints.activereslist for p in partners if p.haddock_restraints])
+    if has_haddock: assert has_active
+  
+    if len(partners) > 2:
+      for p in partners: assert p.haddock_restraints is None
+  }
+  
   AttractGridArray grids = []
   form {
     grids.length = 10
@@ -426,16 +461,15 @@ Type AttractModel {
   ## form translations_file.type = "file"
   *ResourceData_ATTRACT_Restraints restraints_file
   ## form restraints_file.type = "file"  
-  *ResourceData_ATTRACT_Restraints restraints_score_file
-  ## form restraints_score_file.type = "file"    
+  Float restraints_score_weight = 0.01
   form {
     start_structures_file.add_header("Custom search files")
     start_structures_file.add_header("For a custom search, supply a starting structures file, OR: rotations and/or translations files")
     start_structures_file.name = "Starting structures file for custom search"
     rotations_file.name = "Rotations file for custom search"
     translations_file.name = "Translations file for custom search"
-    restraints_file.name = "ATTRACT restraints file during docking"
-    restraints_score_file.name = "ATTRACT restraints file during scoring"
+    restraints_file.name = "Distance restraints file (ATTRACT format)"
+    restraints_score_weight.name = "weight of distance restraints during scoring"
   }
   validate {
     if search != "custom":
@@ -466,7 +500,7 @@ Type AttractModel {
     rotations_file.group = "Sampling parameters"
     translations_file.group = "Sampling parameters"
     restraints_file.group = "Sampling parameters"
-    restraints_score_file.group = "Sampling parameters"
+    restraints_score_weight.group = "Sampling parameters"
     iattract.group = "Sampling parameters"
     demode.group = "Sampling parameters"
   }
@@ -625,10 +659,8 @@ Type AttractModel {
         assert partner.gridname in gridnames, partner.gridname     
     
     assert len(partners) > 0
-    if calc_lrmsd: assert len(partners) == 2
-    if calc_irmsd: assert len(partners) == 2
-    
-    if atomdensitygrids is not None and len(atomdensitygrids): assert ghost == True
+    for p in partners:
+      if (calc_fnat or calc_irmsd or calc_lrmsd) and p.moleculetype != "Protein" and p.rmsd_bb == True: raise AssertionError
   }
   
   error {
@@ -656,10 +688,6 @@ Type AttractModel {
     =>
     'Your docking search is {search}, you can't upload a starting structures file'
 
-    'if calc_irmsd: assert len(partners) == 2'
-    =>
-    ''
-
     'assert nr_iterations >= len(iterations)'
     =>
     'You defined {len(iterations)} iterations, but you set the number of iterations to only {nr_iterations}'
@@ -671,10 +699,6 @@ Type AttractModel {
     'assert len(partners) == 2'
     =>
     'You must define two docking partners, not {len(partners)}'
-
-    'if calc_lrmsd: assert len(partners) == 2'
-    =>
-    'Ligand RMSD can only be calculated for two partners'
 
     'if p.ensemblize == "custom": assert search == "custom"'
     =>
@@ -708,10 +732,26 @@ Type AttractModel {
     =>
     'ghost mode and ghost-ligands mode are mutually exclusive'
 
-    'if atomdensitygrids is not None and len(atomdensitygrids): assert ghost == True'
+    'if (calc_fnat or calc_irmsd or calc_lrmsd) and p.moleculetype != "Protein" and p.rmsd_bb == True: raise AssertionError'
     =>
-    'Atom density grids are only meaningful in ghost mode'
+    'Selecting backbone coordinates for RMSD calculation is only possible for proteins'
+    
+    'for p in partners: assert p.haddock_restraints is None'
+    =>
+    'HADDOCK active/passive residues are not yet supported for multi-body docking'
+    
+    'if completion_tool is not None: assert completion_tool in ("whatif", "pdb2pqr_whatif", "amber", "cns")'
+    =>
+    ''
 
+    'if has_haddock: assert has_active'
+    =>
+    'If you define HADDOCK restraints, you must define active residues for at least one partner'
+
+    'if has_haddock: assert nr_has_haddock > 1'
+    =>
+    'If you define HADDOCK restraints, you must do so for at least two partners'
+    
   }
   
 }

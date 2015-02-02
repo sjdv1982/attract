@@ -96,10 +96,10 @@ def prepare_input(topology,start,ligands,current,name,coor,ligandrange,ligandato
     check = True
     restraints = []
     for ligand in currligands:
-      if not os.path.exists(os.path.splitext(ligand)[0]+'_'+current+name+'.txt'):
+      if not os.path.exists(os.path.splitext(ligand)[0]+'_'+current+name+'.rest'):
 	check = False
       else:
-	restraints.append(os.path.splitext(ligand)[0]+'_'+current+name+'.txt')
+	restraints.append(os.path.splitext(ligand)[0]+'_'+current+name+'.rest')
     
     if check:
       return ('flexm-'+current+name+'.dat',restraints)
@@ -110,7 +110,7 @@ def prepare_input(topology,start,ligands,current,name,coor,ligandrange,ligandato
   else:
     restraints = []
     for i, ligand in enumerate(currligands):
-      restraints.append(os.path.splitext(ligand)[0]+'_'+name+'.txt')
+      restraints.append(os.path.splitext(ligand)[0]+'_'+name+'.rest')
       
     return ('flexm-'+name+'.dat',restraints)
   
@@ -127,7 +127,7 @@ def prepare_input(topology,start,ligands,current,name,coor,ligandrange,ligandato
     else:
       get_restraints.make_restraints(topology,directorypath,ligand,current+name+'-ilist'+str(i+1)+'.txt',current+name,str(offset))
     
-    restraints.append(os.path.splitext(ligand)[0]+'_'+current+name+'.txt')
+    restraints.append(os.path.splitext(ligand)[0]+'_'+current+name+'.rest')
     offset += read_file(ligand)
 
   return ('flexm-'+current+name+'.dat',restraints)
