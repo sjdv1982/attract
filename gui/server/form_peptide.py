@@ -192,7 +192,6 @@ def webform(f, model=None):
   c.categoryname = "energy"
   c.description = ""
   _assign_category(f, c, "Energy and interaction parameters", span = True)
-  f.gravity.default = 0
   ### END energy category  
 
   ### START analysis category
