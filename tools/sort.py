@@ -30,7 +30,7 @@ for st in strucs:
   stnr += 1
   l1,l2 = s
   print "#"+str(stnr)
-  print "##"+str(r) + " => sort"
+  print "## "+str(r) + " => sort"
   try:
     for l in l1: print l
     for l in l2: print l
