@@ -31,7 +31,6 @@ def peptide2model(pmodel):
    runname=pmodel.runname,
    partners=partners,
    use_grids=pmodel.use_grids,
-   gravity=pmodel.gravity,
    use_iattract=pmodel.use_iattract,
    calc_lrmsd=pmodel.calc_lrmsd,
    calc_irmsd=pmodel.calc_irmsd,

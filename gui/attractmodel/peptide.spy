@@ -106,8 +106,6 @@ Type AttractPeptideModel {
   #***Energy and interaction parameters***
   Bool use_grids = True
   ## form use_grids.name = "Perform grid-accelerated docking"
-  Bool gravity = False
-  ## form gravity.name = "Gravity"  
   Bool use_iattract = True
   ## form use_iattract.name = "Perform iATTRACT refinement after the docking"
   Enum completion_tool("whatif", "pdb2pqr_whatif", "amber", "cns") = "pdb2pqr_whatif"
@@ -125,7 +123,6 @@ Type AttractPeptideModel {
   }  
   form {
     _g = "Energy and interaction parameters"
-    gravity.group = _g
     use_grids.group = _g
     use_iattract.group = _g
     completion_tool.group = _g
