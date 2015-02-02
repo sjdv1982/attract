@@ -4,7 +4,7 @@
 
 import sys, os
 datfile=sys.argv[1]
-pdbfile=sys.argv[2]
+ligpdbfile=sys.argv[2]
 outfile=sys.argv[3]
 nr_dump_atoms = int(sys.argv[4])
 if nr_dump_atoms == -1:
@@ -17,7 +17,7 @@ else:
 import numpy
 import collectlibpy as collectlib
 
-initargs = [datfile, pdbfile, pdbfile] + rest
+initargs = [datfile, ligpdbfile, ligpdbfile] + rest
 collectlib.collect_init(initargs)
 result = collectlib.collect_next()
 coor = collectlib.collect_coor_raw()
@@ -27,7 +27,7 @@ natom = len(coor) / 6
 if dump_atoms is None:
   nr_dump_atoms = natom
 
-maxstruc = 10**8
+maxstruc = 10**5
 allcoor = numpy.zeros(shape=(maxstruc,3*nr_dump_atoms))
 
 mask = []
@@ -47,5 +47,8 @@ while 1:
   if result: break
   coor = collectlib.collect_coor_raw()
   allcoor[nstruc,:] = coor[mask]
-  nstruc += 1  
+  nstruc += 1
+  if nstruc == maxstruc:
+    maxstruc = int(maxstruc * 1.2 + 0.99999) #grow allcoor with 20%
+    allcoor.resize(maxstruc,3*nr_dump_atoms)    
 numpy.save(outfile, allcoor[:nstruc])

@@ -1,21 +1,15 @@
-peptide2model_version = "Converted from AttractPeptideModel by peptide2model 1.0"
+peptide2model_version = "Converted from AttractPeptideModel by peptide2model 1.1"
 import os
 import sys
 
 def peptide2model(pmodel):
+  """
+  Converts AttractPeptideModel to AttractEasyModel
+  """
   partners = []
   #Convert receptor protein
   p = pmodel.p1
-  pp = AttractEasyPartnerInterface.empty()
-  pp.pdbfile=p.pdbfile
-  pp.use_rmsd=p.use_rmsd
-  pp.rmsd_pdb=p.rmsd_pdb
-  pp.rmsd_bb=p.rmsd_bb
-  pp.moleculetype = "Protein"
-  if p.ensemble_size > 1:      
-    pp.ensemble_size = p.ensemble_size
-    
-  pp = AttractEasyPartnerInterface(pp)
+  pp = AttractEasyPartnerInterface(p)
   partners.append(pp)
   #Convert peptide  
   p = pmodel.p2
@@ -25,8 +19,11 @@ def peptide2model(pmodel):
   pp.use_rmsd=p.use_rmsd
   pp.rmsd_pdb=p.rmsd_pdb
   pp.rmsd_bb=p.rmsd_bb
-  partner_use_flex = True     
-  pp.ensemble_size = 3
+  pp.ensemble_size = 3  
+  if pmodel.p1.haddock_restraints:
+    pp.haddock_restraints = HaddockRestraintsInterface (
+      passivereslist = range(1,len(p.sequence)+1)
+     )
   pp = AttractEasyPartnerInterface(pp)
   partners.append(pp) 
     
@@ -41,7 +38,7 @@ def peptide2model(pmodel):
    calc_fnat=pmodel.calc_fnat,
    nr_collect=pmodel.nr_collect,
    np=pmodel.np,
-   
+   completion_tool=pmodel.completion_tool
   )  
 
   return newmodel

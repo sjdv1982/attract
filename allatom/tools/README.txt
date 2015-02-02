@@ -20,22 +20,16 @@ To create a combined file for DNA, RNA and protein, concatenate different trans 
 3. Generate the ATTRACT parameters using the gen_par tool
 	Example: python gen_par.py allatom.trans > allatom.par
 
-4. Choose between 4a and 4b.
+4. Use allatom/aareduce.py to reduce your PDBs. This requires the trans file and the topology file.
+   Example: python aareduce.py mypdb.pdb oplsx.trans topallhdg5.3_HIS.pro 
+   This will create mypdb-aaX.pdb. 
 
-	4a. Use allatom/reduce.py to reduce your PDBs. This requires the trans file and the topology file.
-	Example: python reduce.py mypdb.pdb oplsx.trans topallhdg5.3_HIS.pro 
-	This will create mypdb-aaX.pdb. 
-	The coordinates of all missing atoms are represented by XXXXXXXX. You will have to fill them in yourself.
-	
-	For reducing protein, 1st apply attract-nomenclature-protein.py to correct the nomenclature of residues and atoms in your protein
-	Example: python attract-nomenclature-protein.py <PDB file>
-	
-	For reducing rna (resp. dna), use the topology files rna.top (resp. dna.top).
-	The difference between those files consist in the charge of the sugar atom C2' (type C2R (resp. C2D)).
-	
-	4b. Use pqreduce.py to reduce your PDBs. This requires the trans file and the topology file, and the installation of pdb2pqr.
-	Example: python pqreduce.py mypdb.pdb oplsx.trans topallhdg.pro 
-	This will create mypdb-aa.pdb. All missing atoms will have been filled in by pdb2pqr.
+   For reducing rna (resp. dna), use the topology files rna.top (resp. dna.top).
+   The difference between those files consist in the charge of the sugar atom C2' (type C2R (resp. C2D)).
+
+   The coordinates of all missing atoms are represented by XXXXXXXX. You will have to fill them in yourself.
+   Alternatively, you can use a backend (pdb2pqr or the WHATIF server) to complete hydrogens and other missing atoms
+      
 
 5. Run ATTRACT normally, with the following differences:
 	- Use the all-atom "reduced" PDB files as generated above
