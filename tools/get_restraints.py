@@ -115,7 +115,7 @@ def make_model(filelist,residues,presidues,nlistcut=30):
   
 def write_output(nbonds, pdb, name, offset, atomid,strong=1.0):
     sel = []
-    output = os.path.splitext(pdb)[0]+'_'+name+'.txt'
+    output = os.path.splitext(pdb)[0]+'_'+name+'.rest'
     out = open(output,'w')
     if len(nbonds) == 0:
       out.write('dummy 1 1')

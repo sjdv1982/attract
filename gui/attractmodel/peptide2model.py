@@ -1,4 +1,4 @@
-peptide2model_version = "Converted from AttractPeptideModel by peptide2model 1.0"
+peptide2model_version = "Converted from AttractPeptideModel by peptide2model 1.1"
 import os
 import sys
 
@@ -19,7 +19,11 @@ def peptide2model(pmodel):
   pp.use_rmsd=p.use_rmsd
   pp.rmsd_pdb=p.rmsd_pdb
   pp.rmsd_bb=p.rmsd_bb
-  pp.ensemble_size = 3
+  pp.ensemble_size = 3  
+  if pmodel.p1.haddock_restraints:
+    pp.haddock_restraints = HaddockRestraintsInterface (
+      passivereslist = range(1,len(p.sequence)+1)
+     )
   pp = AttractEasyPartnerInterface(pp)
   partners.append(pp) 
     
