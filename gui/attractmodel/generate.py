@@ -1,6 +1,8 @@
 import os
 
 #TODO: fix ATTRACT-EM interface
+#TODO: Analysis tab is empty in full interface
+#TODO: Symmetry help is too small
 #TODO: a script to add energies back to deredundant output
 #TODO: a better backbone tool that takes into account order differences (also CA option, P option for nucleic acids?)
 
