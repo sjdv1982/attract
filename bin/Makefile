@@ -53,11 +53,6 @@ matrix-lrmsd: matrix-lrmsd.o read_parameters.o read_pdb.o read_pdb2.o read_dof.o
   read_ens.o axsym.o matinv.o matmult.o state.h
 	$(CXX) $(CFLAGS)  $^ -lgfortran -o $@
 
-lrmsd: lrmsd.o read_parameters.o read_pdb.o read_pdb2.o read_dof.o \
-  cartstate.o euler2rotmat.o deform.o rotate.o read_hm.o memcpy.o write_pdb.o \
-  read_ens.o axsym.o matinv.o matmult.o state.h
-	$(CXX) $(CFLAGS)  $^ -lgfortran -o $@
-
 rmsd: rmsd.o read_parameters.o read_pdb.o read_pdb2.o read_dof.o \
   cartstate.o euler2rotmat.o deform.o rotate.o read_hm.o memcpy.o write_pdb.o \
   read_ens.o axsym.o matinv.o matmult.o state.h
@@ -187,7 +182,7 @@ rmsca: rmsca.o
 rest: redatom translate rotam compare viewe rmsca center trans cluster_struc
 	
 
-all: max.fin attract attract-infinite collect collectlib.so lrmsd rmsd make-grid \
+all: max.fin attract attract-infinite collect collectlib.so rmsd make-grid \
  make-grid-omp make-grid-torque make-grid-torque-omp shm-grid \
  shm-grid-torque shm-clean systsearch fix_receptor \
  omp_threadnum deredundant matrix-lrmsd rest axsymmetry ncsymmetry \
