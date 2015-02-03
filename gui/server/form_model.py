@@ -213,6 +213,8 @@ def webform(f, model=None,
     b.members.append("rmsd")
     b.has_switch = True
     b.members.append("rmsd_pdb")
+    b.members.append("rmsd_pdb_alt")
+    b.members.append("rmsd_pdb_alt2")
     b.members.append("collect_pdb")
     b.members.append("collect_ensemble_list")
     b.members.append("rmsd_bb")
@@ -392,7 +394,7 @@ def webform(f, model=None,
 
   ### START analysis category
   c = f.new_group("c_analysis", "category")
-  c.page = 7
+  c.page = 8
   c.icon = "analysis-icon"
   c.title = "Analysis"
   c.categoryname = "analysis"

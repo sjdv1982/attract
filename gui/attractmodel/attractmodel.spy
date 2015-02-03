@@ -168,8 +168,28 @@ Type AttractPartnerInterface {
   ## form rmsd_pdb.add_header("Leave blank to use the docked PDB instead (bound conformation = unbound conformation)")
   ## form rmsd_pdb.name = "RMSD PDB file"
   ## form rmsd_pdb.type = "file"
+  *ResourceData_PDB rmsd_pdb_alt
+  ## form rmsd_pdb_alt.add_header("It is possible to specify alternative references ")
+  ## form rmsd_pdb_alt.name = "Alternative RMSD PDB file"
+  ## form rmsd_pdb_alt.type = "file"  
+  *ResourceData_PDB rmsd_pdb_alt2
+  ## form rmsd_pdb_alt2.name = "Alternative RMSD PDB file 2"
+  ## form rmsd_pdb_alt2.type = "file"    
   Bool rmsd_bb = True
   ## form rmsd_bb.name = "Select only backbone atoms for RMSD calculation"
+  validate {
+    if rmsd_pdb_alt is not None: assert rmsd_pdb is not None
+    if rmsd_pdb_alt2 is not None: assert rmsd_pdb_alt is not None
+  }
+  error {
+    'if rmsd_pdb_alt is not None: assert rmsd_pdb is not None'
+    =>
+    'If you specify an alternative RMSD reference, also provide a main PDB reference'
+
+    'if rmsd_pdb_alt2 is not None: assert rmsd_pdb_alt is not None'
+    =>
+    'You specified a second alternative RMSD reference, but not a first alternative'    
+  }
 
   *ResourceData_PDB collect_pdb
   ## form collect_pdb.add_header("You can specify a different PDB file to use as template for collecting the structures")

@@ -1,9 +1,7 @@
 import os
 
 #TODO: fix ATTRACT-EM interface
-#TODO: Analysis tab is empty in full interface
-#TODO: Symmetry help is too small
-#TODO: a script to add energies back to deredundant output
+#TODO: Symmetry help in full interface is too small
 #TODO: a better backbone tool that takes into account order differences (also CA option, P option for nucleic acids?)
 
 generator_version = "0.3"
@@ -626,7 +624,7 @@ echo '**************************************************************'
     if len(gridparams) and not it.prep: gridpar = " $gridparams" 
     ret += "%s %s %s%s%s %s %s\n" % (attract, inp, ipar, gridpar, itparams, tail, outp0)
     if it.prep:
-      ret += "$ATTRACTDIR/fix_receptor %s %d%s > %s\n" % (outp0, len(m.partners), flexpar1, outp)
+      ret += "$ATTRACTDIR/fix_receptor %s %d%s | python $ATTRACTTOOLS/fill.py /dev/stdin %s > %s\n" % (outp0, len(m.partners), flexpar1, outp0, outp)
     inp = outp       
   ret += "\n"  
   result = outp  
@@ -674,7 +672,7 @@ echo 'Fix all structures into the receptor's coordinate frame
 echo '**************************************************************'
 """     
       fixresult = result + "-fixre"
-      ret += "$ATTRACTDIR/fix_receptor %s %d%s > %s\n" % (result, len(m.partners), flexpar1, fixresult)
+      ret += "$ATTRACTDIR/fix_receptor %s %d%s | python $ATTRACTTOOLS/fill.py /dev/stdin %s > %s\n" % (result, len(m.partners), flexpar1, result, fixresult)
       result = fixresult
     
     outp = os.path.splitext(result)[0] +"-dr.dat"
@@ -683,7 +681,7 @@ echo '**************************************************************'
 echo 'Remove redundant structures'
 echo '**************************************************************'
 """     
-    ret += "$ATTRACTDIR/deredundant %s %d%s > %s\n" % (result, len(m.partners), flexpar1, outp)
+    ret += "$ATTRACTDIR/deredundant %s %d%s | python $ATTRACTTOOLS/fill-deredundant.py /dev/stdin %s > %s\n" % (result, len(m.partners), flexpar1, result, outp)
     ret += "\n"  
     result = outp
 
@@ -731,7 +729,7 @@ echo '**************************************************************'
       result = iattract_output_demode
     if m.fix_receptor or m.deredundant or m.calc_lrmsd:
       iattract_output_fixre = result + "-fixre"
-      ret += "$ATTRACTDIR/fix_receptor %s %d%s > %s\n" % (result, len(m.partners), flexpar_iattract, iattract_output_fixre)        
+      ret += "$ATTRACTDIR/fix_receptor %s %d%s | python $ATTRACTTOOLS/fill.py /dev/stdin %s > %s\n" % (result, len(m.partners), flexpar_iattract, result, iattract_output_fixre)        
       if m.fix_receptor or m.deredundant:
          result = iattract_output_fixre
   ret += """
@@ -903,7 +901,7 @@ echo '**************************************************************'
   
     if m.fix_receptor == False and (not m.deredundant or m.iattract): 
       fixresult = result + "-fixre"
-      ret += "$ATTRACTDIR/fix_receptor %s %d%s > %s\n" % (result, len(m.partners), flexpar2, fixresult)
+      ret += "$ATTRACTDIR/fix_receptor %s %d%s | python $ATTRACTTOOLS/fill.py /dev/stdin %s > %s\n" % (result, len(m.partners), flexpar2, result, fixresult)
       result = fixresult
   
     lrmsd_allfilenames = []
