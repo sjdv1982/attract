@@ -692,12 +692,7 @@ echo '**************************************************************'
 echo '**************************************************************'
 echo 'iATTRACT refinement'
 echo '**************************************************************'
-"""           
-    if m.calc_lrmsd or m.calc_irmsd or m.calc_fnat:
-      for pnr, p in enumerate(m.partners):
-        if p.modes_file or p.generate_modes:
-          assert p.deflex == True, pnr+1 #for now, if you use iATTRACT, all modes must be removed in the analysis
-          assert m.demode == True, pnr+1 #for now, if you use iATTRACT, all modes must be removed for collect      
+"""                
     iattract_input = "out_$name-pre-iattract.dat"
     iattract_output = "out_$name-iattract.dat"
     iattract_output_demode = "out_$name-iattract-demode.dat"
@@ -746,11 +741,14 @@ echo '**************************************************************'
   if m.calc_lrmsd or m.calc_irmsd or m.calc_fnat:    
     flexpar2 = ""    
     deflex_any = any((p.deflex for p in m.partners))
+    if not deflex_any and m.iattract is not None:
+      flexpar2 += " --name %s" %iname
     if modes_any and not m.demode and not deflex_any: 
       if unreduced_modes_any:
         flexpar2 = " --modes hm-all-unreduced.dat"
       else:
         flexpar2 = " --modes hm-all.dat"
+    
     for pnr,p in enumerate(m.partners):
       if p.deflex == False and ensemble_lists[pnr] is not None:
         flexpar2 += " --ens %d %s" % (pnr+1,ensemble_lists[pnr])
@@ -778,10 +776,14 @@ echo '**************************************************************'
         if unreduced_modes_any:
           flexpar_unreduced = " --modes hm-all-unreduced.dat"
         else:
-          flexpar_unreduced = " --modes hm-all.dat"    
+          flexpar_unreduced = " --modes hm-all.dat"
+	  
       elif not m.iattract:        
         demodestr = "-demode"
         ret += "python $ATTRACTTOOLS/demode.py out_$name-top%d.dat > out_$name-top%d.dat-demode\n" % (nr, nr)
+        
+    if m.iattract is not None and not m.demode:
+	flexpar_unreduced += " --name %s" %iname
     for pnr,p in enumerate(m.partners):
       if collect_ensemble_lists[pnr] is not None:
         flexpar_unreduced += " --ens %d %s" % (pnr+1,collect_ensemble_lists[pnr])    

@@ -12,7 +12,7 @@ def easy2model(emodel):
     pp.pdbfile=p.pdbfile
     pp.has_hydrogens=p.has_hydrogens
     pp.is_reduced=False
-    pp.collect_pdb=p.pdbfile 
+    #pp.collect_pdb=p.pdbfile 
     pp.chain="All"
     pp.haddock_restraints = p.haddock_restraints
     if p.haddock_restraints: use_haddock = True
@@ -30,7 +30,11 @@ def easy2model(emodel):
     if p.moleculetype in ("DNA", "RNA"):  
       pp.aacontact_modes = True
       has_na = True
-    pp.deflex=True    
+    if emodel.use_iattract:
+      pp.deflex=False
+    else:
+      pp.deflex=True    
+    
     pp.rmsd_pdb=p.rmsd_pdb
     pp.rmsd_bb=p.rmsd_bb
     if p.ensemble_size > 1:
