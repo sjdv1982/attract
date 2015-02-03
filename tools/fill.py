@@ -1,24 +1,30 @@
 import sys
 from _read_struc import read_struc
 header,structures = read_struc(sys.argv[1])
-structures = list(structures)
 header2,structures2 = read_struc(sys.argv[2])
-structures2 = list(structures2)
-
-assert len(structures) == len(structures2)
-
-strucs = zip(structures,structures2)
 
 for h in header: print h
-stnr = 0
-for st in strucs:
-  s,s2 = st
-  stnr += 1
-  l1,l2 = s
-  ll1,ll2 = s2
-  print "#"+str(stnr)
+for stnr, s1 in enumerate(structures):
+  l1,l2 = s1
+  try:
+    s2 = structures2.next()
+  except StopIteration:
+    raise AssertionError("Structure file %s contains more structures than %s" % (sys.argv[1], sys.argv[2]))
+  l1_orig = s2[0]
+     
+  print "#"+str(stnr+1)  
+  
   for l in l1: 
-    if l not in ll1: print l
-  for l in ll1: print l
+    print l
+  for l in l1_orig: 
+    if not l.startswith("###"):
+      print l
   for l in l2: print l
+
+try:
+  s2 = structures2.next()
+except StopIteration:
+  pass
+else:  
+  raise AssertionError("Structure file %s contains more structures than %s" % (sys.argv[2], sys.argv[1]))
 
