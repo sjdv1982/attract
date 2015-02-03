@@ -26,6 +26,8 @@ def get_interface(boundatoms):
     for a,c in zip(p[1],p[0]):
       pos += 1
       cresid = a[21:26]
+      atomcode = a[12:16].strip()
+      if atomcode.startswith("H"): continue
       #print resid, cresid
       if resid is not None: 
         if cresid != resid:
@@ -153,8 +155,6 @@ def read_pdb(f):
   ret2 = []
   for l in open(f):
     if not l.startswith("ATOM"): continue
-    atomcode = l[12:16].strip()
-    if atomcode.startswith("H"): continue
     x,y,z = (float(f) for f in (l[30:38],l[38:46],l[46:54]))
     ret1.append((x,y,z))
     ret2.append(l)
