@@ -28,6 +28,8 @@ if spydertypename == "AttractModel":
   deploy = attractsave.deploy
 elif spydertypename == "AttractEasyModel":
   deploy = attractsave.deploy_easy
+elif spydertypename == "AttractPeptideModel":
+  deploy = attractsave.deploy_peptide
 else:
   raise Exception("Don't know how to deploy Spyder model '%s'" % spydertypename)
 model = spydertype.fromdict(spyderdict)
