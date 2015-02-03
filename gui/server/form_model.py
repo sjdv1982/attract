@@ -137,19 +137,13 @@ def webform(f, model=None,
     b.title = "Structure Sources"
     b.has_switch = False
     b.members.append("pdbfile")
-    b.members.append("code")
     b.members.append("gridname")
-    b.members.append("chain")
-    b.members.append("is_reduced")
+    b.members.append("chain")    
     b.members.append("moleculetype") 
     ff = fp.pdbfile
     ff.name = "Structure file"
     ff.tooltip = "Upload PDB structure file"
     ff.tooltip_doc = "documentation.html#partners-structure_file"
-    ff = fp.code
-    ff.tooltip = "RCSB PDB ID"
-    ff.tooltip_doc = "documentation.html#partners-rcsb_pdbid"
-    ff.placeholder = "RCSB PDB id"
     ff = fp.gridname
     ff.name = "Name of the grid for this molecule"
     ff.tooltip = "Grid name"
@@ -159,10 +153,6 @@ def webform(f, model=None,
     ff.default = "All"
     ff.tooltip = "Which chain ID"
     ff.tooltip_doc = "documentation.html#partners-chains"
-    ff = fp.is_reduced
-    ff.name = "The molecule is in reduced form"
-    ff.tooltip = "Reduced or not"
-    ff.tooltip_doc = "documentation.html#partners-mol_reduced"
     ff = fp.deflex
     ff.tooltip = "Remove flexibility"
     ff.tooltip_doc = "documentation.html#partners-no_flex"
@@ -178,7 +168,8 @@ def webform(f, model=None,
     b.members.append("use_modes")
     b.has_switch = True
     b.members.append("modes_file")
-    b.members.append("generate_modes")    
+    b.members.append("generate_modes")
+    b.members.append("aacontact_modes")
     b.members.append("nr_modes")
     b.members.append("aa_modes_file")
     ff = fp.use_modes
@@ -256,8 +247,7 @@ def webform(f, model=None,
 
   b = fg.new_group("b_grids", "block")
   b.title = None
-  b.members.append("gridname")
-  b.members.append("gridfile")
+  b.members.append("gridname")  
   b.members.append("plateau_distance")
   b.members.append("neighbour_distance")
   b.members.append("omp")
@@ -266,15 +256,10 @@ def webform(f, model=None,
   ff = fg.gridname
   ff.placeholder = "name..."
   for n in range(f.grids.length):
-    ff = f.grids[n]
-    ff.gridfile.type = "text"
-  f.grids[None].gridfile.type = "text"  
-  ff = fg.gridfile  
-  ff.name = "Path to grid file if previously generated"
+    ff = f.grids[n]      
   ff = fg.omp
   ff.name = "Calculate grid using OpenMP?"
-  ff = fg.torque
-  ff.name = ff.get_header()[0]
+  ff = fg.torque  
   ff = fg.plateau_distance
   ff = fg.neighbour_distance
   ### END grids category
@@ -299,13 +284,10 @@ def webform(f, model=None,
     fi.name = None
     fi.group = None
     ff = fi.rcut
-    ff.name = ff.get_header()[0]
     ff.span = True
     ff = fi.vmax
-    ff.name = ff.get_header()[0]
     ff.span = True
     ff = fi.traj
-    ff.name = ff.get_header()[0]
     ff.span = True 
     fi.memberorder = ["rcut", "vmax", "traj", "mc"]
     b = fi.new_group("b_mc", "block")
@@ -344,10 +326,8 @@ def webform(f, model=None,
   _assign_category(f, c, "Energy and interaction parameters", span = True)
   f.gravity.default = 0
   ff = f.rstk
-  f.forcefield.name = f.forcefield.get_header()[0]
   f.ghost.name = "Enable ghost mode, forcefield is turned off"
   ff = f.epsilon
-  ff.name = ff.get_header()[0]  
   ### END energy category  
   
   ### START atomdensitygrid category
@@ -422,7 +402,6 @@ def webform(f, model=None,
   c.members.insert(c.members.index("nr_collect"), "rcut_rescoring")
   ff = f.rcut_rescoring
   ff.span = True
-  ff.name = ff.get_header()[0]
   ff = f.nr_collect
   ff.span = True  
   ### END analysis category

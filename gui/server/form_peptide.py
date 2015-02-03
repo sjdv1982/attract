@@ -159,8 +159,7 @@ def webform(f, model=None):
   b.title = "Structure Sources"
   b.has_switch = False
   b.members.append("sequence")
-  ff = fp.sequence
-  ff.name = "Peptide sequence"
+  ff = fp.sequence  
   ff.tooltip = "Give peptide sequence in single letter code"
   ff.span = True
   ### END b_struc block
@@ -193,8 +192,6 @@ def webform(f, model=None):
   c.categoryname = "energy"
   c.description = ""
   _assign_category(f, c, "Energy and interaction parameters", span = True)
-  f.gravity.default = 0
-  f.use_grids.name = "Perform grid-accelerated docking"
   ### END energy category  
 
   ### START analysis category

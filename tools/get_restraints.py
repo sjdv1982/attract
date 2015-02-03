@@ -115,7 +115,7 @@ def make_model(filelist,residues,presidues,nlistcut=30):
   
 def write_output(nbonds, pdb, name, offset, atomid,strong=1.0):
     sel = []
-    output = os.path.splitext(pdb)[0]+'_'+name+'.txt'
+    output = os.path.splitext(pdb)[0]+'_'+name+'.rest'
     out = open(output,'w')
     if len(nbonds) == 0:
       out.write('dummy 1 1')
@@ -209,5 +209,6 @@ if __name__ == "__main__":
         out.close()
         
     else: 
-        topology = parse_stream(open(sys.argv[1]))
+        parse_stream(open(sys.argv[1]))
+        topology = residues, presidues #importted from parse_cns_top
         make_restraints(topology,*sys.argv[2:])

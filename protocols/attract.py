@@ -1,5 +1,6 @@
 import sys, random, os, time
 from math import *
+import subprocess, threading
 
 def get_energy(f):
   if not os.path.exists(f): return 0
@@ -24,15 +25,25 @@ def get_struc(f):
   return ret
 
 def finished(f, nstruc):
+  #checking if the process has ended doesn't work for slow file systems
   if scoremode:
     fstruc = get_energy(f)
   else:
     fstruc = get_struc(f)
   return fstruc == nstruc
 
-def run(command):
-  print command
-  os.system(command)  
+processes = []
+def run(command, thread=False):
+  print command  
+  def func():
+    p = subprocess.Popen([command], shell=True)
+    processes.append(p)
+    p.wait()    
+  if thread:
+    t = threading.Thread(target=func)
+    t.start()
+  else:
+    func()  
 
 np = 1
 output = None
@@ -129,6 +140,7 @@ try:
   com = "python %s/split.py %s %s %d" % (tooldir, strucfile, pat, chunks); run(com)
   done = 0
   current = 1
+  processes = []
   while 1:
     for vnr in range(np):
       v = queue[vnr]
@@ -149,12 +161,12 @@ try:
     outp = "%s-%d" % (pat2, current)
     queue[q] = outp
     nstrucs[q] = get_struc(inp)
-    com = " ".join([attract,inp]+args) + " > %s &" % outp
+    com = " ".join([attract,inp]+args) + " > %s" % outp
     if existing is not None:
       ef = "%s-%d" % (existing, current)
       if os.path.exists(ef):
         com = "cp %s %s" % (ef, outp)
-    run(com)
+    run(com, thread=True)
     current += 1
 
   o = open(output, "w")
@@ -164,7 +176,11 @@ try:
   if scoremode:
     score = "--score"  
   com = "python %s/join.py %s %s >> %s" % (tooldir, pat2, score, output) 
-  run(com)
+  run(com)  
 finally:
+  for p in processes:
+    if p.returncode is None: #process is still running
+      print "KILL"
+      p.kill()
   com = "rm %s-*" % pat; run(com)
   com = "rm %s-*" % pat2; run(com)
