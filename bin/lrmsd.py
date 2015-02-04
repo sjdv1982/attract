@@ -7,7 +7,7 @@ usage: python lrmsd.py <DAT file> \
 --allatoms: use all atoms rather than backbone atoms
 --ca: use CA atoms rather than backbone atoms
 --p: use P atoms rather than backbone atoms (nucleic acids)
-
+--receptor, --imodes, --modes, --name, --ens, --output: ...
 """
 import sys
 
@@ -55,6 +55,7 @@ if __name__ == "__main__":
   name = None
   opt_allatoms = False
   atomnames = ("CA", "C", "O", "N")
+  receptor = "/dev/null"
 
   anr = 0
   output = None
@@ -100,6 +101,12 @@ if __name__ == "__main__":
       anr -= 2
       continue
 
+    if anr <= len(sys.argv)-2 and arg == "--receptor":
+      receptor = sys.argv[anr+1]
+      sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
+      anr -= 2
+      continue
+
 # Suppport for direct IRMSD with iATTRACT files
     if anr <= len(sys.argv)-2 and arg == "--name":
       name = sys.argv[anr+1]
@@ -126,7 +133,7 @@ if __name__ == "__main__":
     unbounds.append(sys.argv[n])
     bounds.append(sys.argv[n+1])
 
-  initargs = [sys.argv[1], "/dev/null"] + unbounds
+  initargs = [sys.argv[1], receptor] + unbounds
   if modefile: initargs += ["--modes", modefile]
   if imodefile: initargs += ["--imodes", imodefile]
   for nr, ensfile in ensfiles:
@@ -144,9 +151,10 @@ if __name__ == "__main__":
   unboundsizes0 = [len(ub[1]) for ub in unboundatoms]
   
   unboundsizes = []
-  start = 0
-  for i in collectlib.ieins[1:len(unbounds)+1]:
-    unboundsizes.append(i-start)
+  start = 0 
+  for inr, i in enumerate(collectlib.ieins[:len(unbounds)+1]):
+    if inr > 0: unboundsizes.append(i-start)
+    else: receptor_offset = i
     start = i
     
   assert unboundsizes0 == unboundsizes, (unboundsizes0, unboundsizes) #ATTRACT and Python disagree about the PDB sizes...
@@ -212,7 +220,8 @@ if __name__ == "__main__":
         raise ValueError("Structures have not yet been fitted")
     
     coor = collectlib.collect_all_coor()
-    coor = numpy.array(coor)
+    coor = numpy.array(coor)[receptor_offset:]
+    #assert len(coor) == len(allunboundmask)
     allselunbound = coor[allunboundmask]
     f1.write("l-RMSD")
     f1.write(" %.3f" % rmsd(allselbound, allselunbound))

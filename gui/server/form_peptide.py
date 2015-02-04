@@ -136,15 +136,12 @@ def webform(f, model=None):
   b.members.append("use_rmsd")
   b.has_switch = True
   b.members.append("rmsd_pdb")
-  b.members.append("rmsd_bb")
   ff = fp.use_rmsd
   ff.default = False
   ff.type = "switch" 
   ff.name = "RMSD calculation"
   ff = fp.rmsd_pdb
   ff.name = "Reference RMSD PDB file"
-  ff = fp.rmsd_bb
-  ff.span = True
   ### END b_rmsd block
 
   
@@ -170,15 +167,12 @@ def webform(f, model=None):
   b.members.append("use_rmsd")
   b.has_switch = True
   b.members.append("rmsd_pdb")
-  b.members.append("rmsd_bb")
   ff = fp.use_rmsd
   ff.default = False
   ff.type = "switch" 
   ff.name = "RMSD calculation"
   ff = fp.rmsd_pdb
   ff.name = "Reference RMSD PDB file"
-  ff = fp.rmsd_bb
-  ff.span = True
   ### END b_rmsd block
 
  

@@ -36,7 +36,6 @@ def easy2model(emodel):
       pp.deflex=True    
     
     pp.rmsd_pdb=p.rmsd_pdb
-    pp.rmsd_bb=p.rmsd_bb
     if p.ensemble_size > 1:
       partner_use_flex = True
       pp.ensemble = True      
@@ -89,6 +88,9 @@ def easy2model(emodel):
   gravity = 2
   if use_haddock: gravity = 0
   if not has_peptide and not has_na: gravity = 0
+  rmsd_atoms = "backbone"
+  if has_na: 
+    rmsd_atoms = "all"
   newmodel = AttractModel (
    runname=emodel.runname,
    partners=partners,
@@ -101,6 +103,7 @@ def easy2model(emodel):
    forcefield=emodel.forcefield,
    calc_lrmsd=emodel.calc_lrmsd,
    calc_irmsd=emodel.calc_irmsd,
+   rmsd_atoms=rmsd_atoms,
    calc_fnat=emodel.calc_fnat,
    nr_collect=emodel.nr_collect,
    np=emodel.np,

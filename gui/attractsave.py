@@ -50,16 +50,13 @@ def deploy(model, dir):
   for n,p in enumerate(model.partners):
     _deploy(p.pdbfile,d+"partner-%d.pdb" % (n+1))
     _deploy(p.ensemble_list,d+"ensemble-%d.list" % (n+1))
-    _deploy(p.modes_file,d+"partner-%d.modes" % (n+1))
-    _deploy(p.aa_modes_file,d+"partner-aa-%d.modes" % (n+1))
     _deploy(p.rmsd_pdb,d+"partner-rmsd-%d.pdb" % (n+1))
-    _deploy(p.collect_pdb,d+"partner-collect-%d.pdb" % (n+1))
-    _deploy(p.collect_ensemble_list,d+"partner-collect-ensemble-%d.list" % (n+1))
+    _deploy(p.rmsd_pdb_alt,d+"partner-rmsd-alt-%d.pdb" % (n+1))
+    _deploy(p.rmsd_pdb_alt2,d+"partner-rmsd-alt2-%d.pdb" % (n+1))
   _deploy(model.start_structures_file,d+"startstruc.dat")
   _deploy(model.rotations_file,d+"rotations.dat")
   _deploy(model.translations_file,d+"translations.dat")
   _deploy(model.restraints_file,d+"restraints.dat")
-  _deploy(model.restraints_score_file,d+"restraints-score.dat")
 
 def deploy_easy(model, dir):
   d = dir + "/"

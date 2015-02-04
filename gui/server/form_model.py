@@ -153,9 +153,6 @@ def webform(f, model=None,
     ff.default = "All"
     ff.tooltip = "Which chain ID"
     ff.tooltip_doc = "documentation.html#partners-chains"
-    ff = fp.deflex
-    ff.tooltip = "Remove flexibility"
-    ff.tooltip_doc = "documentation.html#partners-no_flex"
     ### END b_struc block
 
     ### START b_modes block
@@ -167,15 +164,12 @@ def webform(f, model=None,
     fp._members["use_modes"] = fp._members["ensemble"].get_copy()        
     b.members.append("use_modes")
     b.has_switch = True
-    b.members.append("modes_file")
     b.members.append("generate_modes")
     b.members.append("aacontact_modes")
     b.members.append("nr_modes")
-    b.members.append("aa_modes_file")
     ff = fp.use_modes
     ff.name = "Use harmonic modes"
     ff.type = "switch"    
-    ff = fp.modes_file
     ff = fp.generate_modes
     ff.name = "Or: generate harmonic modes automatically"
     ff = fp.nr_modes
@@ -183,7 +177,6 @@ def webform(f, model=None,
     ff.type = "number"
     ff.min = 1
     ff.max = 10
-    ff = fp.aa_modes_file
     ### END b_modes block
 
     ### START b_ensemble block
@@ -191,13 +184,11 @@ def webform(f, model=None,
     b.title = "Use ensembles"
     b.members.append("ensemble")
     b.has_switch = True
-    b.members.append("ensemble_list")
     b.members.append("ensemble_size")
     b.members.append("ensemblize")
     ff = fp.ensemble
     ff.type = "switch"
     ff.name = "Use ensembles"
-    ff = fp.ensemble_list
     ff = fp.ensemble_size
     ff.min = 1
     ff = fp.ensemblize
@@ -215,19 +206,11 @@ def webform(f, model=None,
     b.members.append("rmsd_pdb")
     b.members.append("rmsd_pdb_alt")
     b.members.append("rmsd_pdb_alt2")
-    b.members.append("collect_pdb")
-    b.members.append("collect_ensemble_list")
-    b.members.append("rmsd_bb")
-    b.members.append("deflex")
     ff = fp.rmsd
     ff.default = True
     ff.name = "RMSD calculation"
     ff = fp.rmsd_pdb
     ff.name = "Reference RMSD PDB file"
-    ff = fp.collect_pdb
-    ff = fp.collect_ensemble_list
-    ff.span = True
-    ff = fp.rmsd_bb
     ff.span = True
     ### END b_rmsd block
   ### END partners category
@@ -406,6 +389,9 @@ def webform(f, model=None,
   ff.span = True
   ff = f.nr_collect
   ff.span = True  
+  ff = f.deflex
+  ff.tooltip = "Remove flexibility"
+  ff.tooltip_doc = "documentation.html#partners-no_flex"  
   ### END analysis category
 
   ### START computation category
