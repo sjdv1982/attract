@@ -286,6 +286,10 @@ cat /dev/null > hm-all.dat
         if need_aa_modes:
           aa_modes_file_name = "partner%d-hm-aa.dat" % (pnr+1)
           partnercode += "python $ATTRACTTOOLS/modes.py %s %s %d > %s\n" % (aa_filenames[pnr], opts, p.nr_modes, aa_modes_file_name)
+        if aa_rmsd:
+          aa_rmsd_modes_file_name = "partner%d-hm-heavy.dat" % (pnr+1)
+          partnercode += "python $ATTRACTTOOLS/modes.py %s %s %d > %s\n" % (aa_rmsd_filenames[pnr], opts, p.nr_modes, aa_rmsd_modes_file_name)
+          
       if not p.generate_modes:
         partnercode += "echo 0 >> hm-all.dat\n"        
       else:
@@ -294,7 +298,13 @@ cat /dev/null > hm-all.dat
         if not p.generate_modes or not need_aa_modes:
           partnercode += "echo 0 >> hm-all-aa.dat\n"
         else:  
-          partnercode += "cat %s >> hm-all-aa.dat\n" % aa_modes_file_name        
+          partnercode += "cat %s >> hm-all-aa.dat\n" % aa_modes_file_name
+      if aa_rmsd:
+        if not p.generate_modes:
+          partnercode += "echo 0 >> hm-all-heavy.dat\n"
+        else:  
+          partnercode += "cat %s >> hm-all-heavy.dat\n" % aa_rmsd_modes_file_name        
+          
     partnercode += "\n"  
   
   if use_aa: 
@@ -308,6 +318,8 @@ cat /dev/null > hm-all.dat
         aa_modesfile = "hm-all-aa.dat"    
       else:
         aa_modesfile = "hm-all.dat"
+    if aa_rmsd:
+      aa_rmsd_modesfile = "hm-all-heavy.dat"
     rmsd_filenames = aa_filenames
   else:
     rmsd_filenames = filenames
@@ -852,17 +864,22 @@ tmpf2=`mktemp`
   if m.calc_lrmsd or m.calc_irmsd or m.calc_fnat:
 
     rmsd_ensemble_lists = aa_ensemble_lists
+    if modes_any: rmsd_modesfile = aa_modesfile
     if aa_rmsd:
+      if modes_any: rmsd_modesfile = aa_rmsd_modesfile
       rmsd_ensemble_lists = aa_rmsd_ensemble_lists
     flexpar2 = ""        
     if not m.deflex and not m.demode and m.iattract is not None:
       flexpar2 += " --name %s" % iname
-    if modes_any and not m.demode and not m.deflex: 
-      flexpar2 = " --modes %s" % aa_modesfile    
     flexpar2a = flexpar2
+    if modes_any and not m.deflex and not (m.iattract and m.demode): 
+      flexpar2 += " --modes %s" % rmsd_modesfile
+      flexpar2a += " --modes %s" % aa_modesfile        
     for pnr,p in enumerate(m.partners):
       if m.deflex == False and rmsd_ensemble_lists[pnr] is not None:
         flexpar2 += " --ens %d %s" % (pnr+1,rmsd_ensemble_lists[pnr])
+    for pnr,p in enumerate(m.partners):
+      if m.deflex == False and aa_ensemble_lists[pnr] is not None:        
         flexpar2a += " --ens %d %s" % (pnr+1,aa_ensemble_lists[pnr])        
             
     bb_str = "backbone"
