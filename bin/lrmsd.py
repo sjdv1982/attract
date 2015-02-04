@@ -136,7 +136,9 @@ if __name__ == "__main__":
   initargs = [sys.argv[1], receptor] + unbounds
   if modefile: initargs += ["--modes", modefile]
   if imodefile: initargs += ["--imodes", imodefile]
+  ens_receptor = 0
   for nr, ensfile in ensfiles:
+    if nr == "1": ens_receptor = 1
     initargs += ["--ens", nr, ensfile]
 
   collectlib.collect_init(initargs)
@@ -189,12 +191,14 @@ if __name__ == "__main__":
   for ub, m in zip(unboundatoms, unboundmasks): 
     allunboundatoms.append(numpy.array(ub[0]))
     allunboundmask.append(numpy.array(m))
-    m2 = [False] * pos + m + [False] * (len(allboundatoms)-len(m)-pos)
-    assert len(m2) == len(allboundatoms), (len(m2), len(allboundatoms))
-    pos += len(m)
-    unboundmasks2.append(numpy.array(m2))
   allunboundatoms = numpy.concatenate(allunboundatoms)  
   allunboundmask = numpy.concatenate(allunboundmask)
+  
+  for ub, m in zip(unboundatoms, unboundmasks): 
+    m2 = [False] * pos + m + [False] * (len(allunboundatoms)-len(m)-pos)
+    assert len(m2) == len(allunboundatoms), (len(m2), len(allunboundatoms))
+    pos += len(m)
+    unboundmasks2.append(numpy.array(m2))
   
   nstruc = 0
   f1 = sys.stdout
@@ -214,7 +218,7 @@ if __name__ == "__main__":
     nstruc += 1    
     
     l1, l2 = strucs.next()
-    ll = [float(v) for v in l2[0].split()]
+    ll = [float(v) for v in l2[0].split()[ens_receptor:ens_receptor+6]]
     for v in ll:
       if abs(v)> 0.001:
         raise ValueError("Structures have not yet been fitted")

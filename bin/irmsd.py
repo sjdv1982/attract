@@ -275,7 +275,7 @@ if __name__ == "__main__":
   for b in bounds:
     boundatoms.append(read_pdb(b))
 
-  boundsizes = [len(b[1]) for b in boundatoms]
+  boundsizes = [len([a for a in b[1] if a[12:16].strip()[0] != "H"]) for b in boundatoms]
   unboundsizes = []
   start = 0
   for i in collectlib.ieins[:len(unbounds)]:
