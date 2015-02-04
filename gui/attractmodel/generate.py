@@ -72,6 +72,9 @@ def generate(m):
     aa_rmsd = True
   else:  
     aa_rmsd = False
+  if aa_rmsd:
+    aa_rmsd_filenames = []
+    aa_rmsd_ensemble_lists = []
   
   #do we need separate all-atom PDBs for collect, rmsd and/or iattract?     
   if m.forcefield == "OPLSX": 
@@ -87,7 +90,7 @@ def generate(m):
         break
   if separate_aa_pdb:
     aa_filenames = []
-    aa_ensemble_lists = []    
+    aa_ensemble_lists = []
   
   #do we use all-atom representation at all?
   use_aa = (m.forcefield == "OPLSX" or separate_aa_pdb == True)
@@ -125,6 +128,8 @@ echo '**************************************************************'
     ensemble_list = None
     if separate_aa_pdb:
       ensemble_list_aa = None
+    if aa_rmsd:
+      ensemble_list_aa_rmsd = None
     if not p.ensemble:
       if pdbname not in pdbnames: 
         pdbname3_0 = pdbname3
@@ -139,6 +144,7 @@ echo '**************************************************************'
         
         #all-atom reduce; we do this even if we never use it in the docking, just to add missing atoms etc.
         pdbname_aa = pdbname3 + "-aa.pdb"
+        pdbname_aa_rmsd = pdbname3 + "-heavy.pdb"
         opts = []
         if molcode: opts.append(molcode)
         if p.charged_termini: opts.append("--termini")
@@ -153,7 +159,8 @@ echo '**************************************************************'
         mapping = pdbname3 + ".mapping"
         mappings.append(mapping)
         partnercode += "python $ATTRACTDIR/../allatom/aareduce.py %s %s %s > %s\n" % (pdbname4, pdbname_aa, opts, mapping)        
-        
+        if aa_rmsd:
+          partnercode += "python $ATTRACTDIR/../allatom/aareduce.py %s %s --heavy > /dev/null\n" % (pdbname_aa, pdbname_aa_rmsd)        
         if m.forcefield == "ATTRACT":
           pdbname_reduced = pdbname3 + "r.pdb"
           partnercode += "python $ATTRACTTOOLS/reduce.py %s %s %s > /dev/null\n" % (pdbname_aa, pdbname_reduced, molcode)
@@ -167,6 +174,8 @@ echo '**************************************************************'
       filenames.append(pdbname_reduced)
       if separate_aa_pdb:
         aa_filenames.append(pdbname_aa)
+      if aa_rmsd:
+        aa_rmsd_filenames.append(pdbname_aa_rmsd)
     else: #p.ensemble
                   
       d = "partner%d-ensemble" % (pnr+1)
@@ -179,10 +188,14 @@ echo '**************************************************************'
       if separate_aa_pdb:
         ensemble_list_aa = d + "-aa.list"
 	partnercode += "cat /dev/null > %s\n" % ensemble_list_aa      
+      if aa_rmsd:
+        ensemble_list_aa_rmsd = d + "-aa-rmsd.list"
+        partnercode += "cat /dev/null > %s\n" % ensemble_list_aa_rmsd
       for mnr in range(p.ensemble_size):        
         mname1 = dd + "-" + str(mnr+1) + ".pdb"
         mname2 = dd + "-" + str(mnr+1) + "r.pdb"
         mname2aa = dd + "-" + str(mnr+1) + "-aa.pdb"
+        mname2aa_rmsd = dd + "-" + str(mnr+1) + "-heavy.pdb"
         
         #all-atom reduce; we do this even if we never use it in the docking, just to add missing atoms etc.
         opts = []
@@ -202,6 +215,8 @@ echo '**************************************************************'
           mapping = pdbname3 + ".mapping"
           mappings.append(mapping)        
         partnercode += "python $ATTRACTDIR/../allatom/aareduce.py %s %s %s > %s\n" % (mname1, mname2aa, opts, mapping)        
+        if aa_rmsd:
+          partnercode += "python $ATTRACTDIR/../allatom/aareduce.py %s %s --heavy > /dev/null\n" % (mname2aa, mname2aa_rmsd)        
         if m.forcefield == "ATTRACT":          
           partnercode += "python $ATTRACTTOOLS/reduce.py %s %s %s > /dev/null\n" % (mname2aa, mname2, molcode)          
         elif m.forcefield == "OPLSX": 
@@ -210,6 +225,8 @@ echo '**************************************************************'
         partnercode += "echo %s >> %s\n" % (mname2, listens)  
         if separate_aa_pdb:
           partnercode += "echo %s >> %s\n" % (mname2aa, ensemble_list_aa)                  
+        if aa_rmsd:
+          partnercode += "echo %s >> %s\n" % (mname2aa_rmsd, ensemble_list_aa_rmsd)                            
         if mnr == 0: 
           pdbname = mname2 
           pdbname_reference = pdbname
@@ -218,10 +235,14 @@ echo '**************************************************************'
             pdbname_aa = mname2aa
             pdbname_reference = pdbname_aa
             aa_filenames.append(pdbname_aa)
+          if aa_rmsd:
+            aa_rmsd_filenames.append(mname2aa_rmsd)
       ensemble_list = listens      
     ensemble_lists.append(ensemble_list)
     if separate_aa_pdb:
       aa_ensemble_lists.append(ensemble_list_aa)
+    if aa_rmsd:  
+      aa_rmsd_ensemble_lists.append(ensemble_list_aa_rmsd)
   partnercode += "\n"
   
   if modes_any:
@@ -304,7 +325,7 @@ echo %d > partners.pdb
     for f in filenames:
       partnercode += "grep ATOM %s >> partners.pdb\n" % f
       partnercode += "echo TER >> partners.pdb\n"
-          
+     
   ret += """
 #name of the run
 name=%s 
@@ -417,6 +438,35 @@ parals="%s"
   ret += "if [ 1 -eq 1 ]; then ### move and change to disable parts of the protocol\n"  
   ret += partnercode  
   ret += ret_shm
+  
+  if m.calc_lrmsd or m.calc_irmsd or m.calc_fnat:
+    
+    rmsd_refenames = [None] * len(m.partners)
+    if aa_rmsd:
+      has_reduced_rmsd = False
+      aa_rmsd_refenames = [None] * len(m.partners)
+      
+    for pnr in range(len(m.partners)):
+      filename = rmsd_filenames[pnr]
+      p = m.partners[pnr]        
+      if p.rmsd_pdb is not None:
+        filename = p.rmsd_pdb.name
+      rmsd_refenames[pnr] = filename
+      if aa_rmsd:
+        if p.rmsd_pdb is not None:
+          if not has_reduced_rmsd:
+            ret += """
+echo '**************************************************************'
+echo 'Reduce reference PDBs...'
+echo '**************************************************************'
+""" 
+            has_reduced_rmsd = True
+          filename_aa = "refe-rmsd-%d.pdb" % (pnr+1)
+          opt = completion_opt[m.completion_tool, p.moleculetype]
+          ret += "python $ATTRACTDIR/../allatom/aareduce.py %s %s --heavy %s > /dev/null\n" % (filename, filename_aa, opt)
+        else:
+          filename_aa = aa_rmsd_filenames[pnr]
+        aa_rmsd_refenames[pnr] = filename_aa
   
   #determine flexibility parameters for fix_receptor and deredundant during docking
   flexpar1 = ""
@@ -801,23 +851,20 @@ tmpf2=`mktemp`
 
   if m.calc_lrmsd or m.calc_irmsd or m.calc_fnat:
 
+    rmsd_ensemble_lists = aa_ensemble_lists
+    if aa_rmsd:
+      rmsd_ensemble_lists = aa_rmsd_ensemble_lists
     flexpar2 = ""        
     if not m.deflex and not m.demode and m.iattract is not None:
       flexpar2 += " --name %s" % iname
     if modes_any and not m.demode and not m.deflex: 
       flexpar2 = " --modes %s" % aa_modesfile    
+    flexpar2a = flexpar2
     for pnr,p in enumerate(m.partners):
-      if m.deflex == False and aa_ensemble_lists[pnr] is not None:
-        flexpar2 += " --ens %d %s" % (pnr+1,aa_ensemble_lists[pnr])
-    
-    rmsd_refenames = [None] * len(m.partners)
-    for pnr in range(len(m.partners)):
-      filename = rmsd_filenames[pnr]
-      p = m.partners[pnr]        
-      if p.rmsd_pdb is not None:
-        filename = p.rmsd_pdb.name
-      rmsd_refenames[pnr] = filename
-        
+      if m.deflex == False and rmsd_ensemble_lists[pnr] is not None:
+        flexpar2 += " --ens %d %s" % (pnr+1,rmsd_ensemble_lists[pnr])
+        flexpar2a += " --ens %d %s" % (pnr+1,aa_ensemble_lists[pnr])        
+            
     bb_str = "backbone"
     if m.rmsd_atoms == "all":
       bb_str = "all-atom"
@@ -835,23 +882,29 @@ echo '**************************************************************'
   
     if m.fix_receptor == False and (not m.deredundant or m.iattract): 
       fixresult = result + "-fixre"
-      ret += "$ATTRACTDIR/fix_receptor %s %d%s | python $ATTRACTTOOLS/fill.py /dev/stdin %s > %s\n" % (result, len(m.partners), flexpar2, result, fixresult)
+      ret += "$ATTRACTDIR/fix_receptor %s %d%s | python $ATTRACTTOOLS/fill.py /dev/stdin %s > %s\n" % (result, len(m.partners), flexpar2a, result, fixresult)
       result = fixresult
-  
-    lrmsd_allfilenames = []
-    for f1, f2 in zip(rmsd_filenames[1:], rmsd_refenames[1:]):
-      lrmsd_allfilenames.append(f1)
-      lrmsd_allfilenames.append(f2)
-    lrmsd_allfilenames = " ".join(lrmsd_allfilenames)
-    lrmsdpar = "--receptor %s" % rmsd_filenames[0]
+
+    lrmsd_filenames = rmsd_filenames
+    if m.rmsd_atoms == "all":
+      lrmsd_refenames = aa_rmsd_refenames
+      lrmsd_filenames = aa_rmsd_filenames
+
+    lrmsdpar = "--receptor %s" % lrmsd_filenames[0]
+    lrmsd_refenames = rmsd_refenames
     if m.rmsd_atoms == "all":
       lrmsdpar += " --allatoms"
     elif m.rmsd_atoms == "trace":
       mt = m.partners[0].moleculetype
       if mt == "Protein": lrmsdpar += " --ca"
-      elif mt in ("DNA", "RNA"): lrmsdpar += " --p"
+      elif mt in ("DNA", "RNA"): lrmsdpar += " --p"  
+    lrmsd_allfilenames = []
+    for f1, f2 in zip(rmsd_filenames[1:], lrmsd_refenames[1:]):
+      lrmsd_allfilenames.append(f1)
+      lrmsd_allfilenames.append(f2)
+    lrmsd_allfilenames = " ".join(lrmsd_allfilenames)
     lrmsdresult = os.path.splitext(result0)[0] + ".lrmsd"
-    ret += "python $ATTRACTDIR/lrmsd.py %s %s%s %s > %s\n" % (result, lrmsd_allfilenames, flexpar2, lrmsdpar, lrmsdresult)
+    ret += "python $ATTRACTDIR/lrmsd.py %s %s%s %s > %s\n" % (result, lrmsd_allfilenames, flexpar2a, lrmsdpar, lrmsdresult)
     ret += "ln -s %s result.lrmsd\n" % lrmsdresult
     ret += "\n"
 
@@ -863,7 +916,7 @@ echo '**************************************************************'
 """ % bb_str      
     
     irmsd_allfilenames = []
-    for f1, f2 in zip(rmsd_filenames, rmsd_refenames):
+    for f1, f2 in zip(aa_rmsd_filenames, aa_rmsd_refenames):
       irmsd_allfilenames.append(f1)
       irmsd_allfilenames.append(f2)
     irmsd_allfilenames = " ".join(irmsd_allfilenames)
@@ -881,7 +934,7 @@ echo 'calculate fraction of native contacts'
 echo '**************************************************************'
 """    
     fnat_allfilenames = []
-    for f1, f2 in zip(rmsd_filenames, rmsd_refenames):
+    for f1, f2 in zip(aa_rmsd_filenames, aa_rmsd_refenames):
       fnat_allfilenames.append(f1)
       fnat_allfilenames.append(f2)
     fnat_allfilenames = " ".join(fnat_allfilenames)
