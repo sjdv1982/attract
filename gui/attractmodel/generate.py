@@ -1,6 +1,5 @@
 import os
 
-#TODO: lrmsd.py/irmsd.py, also all-atom/backbone/trace (CA/P) option
 #TODO: fix ATTRACT-EM interface
 #TODO: Symmetry help in full interface is too small
 
