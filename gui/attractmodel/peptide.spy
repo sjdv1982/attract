@@ -26,8 +26,6 @@ Type AttractPeptideProteinPartner {
   ## form rmsd_pdb.add_header("You can specify a PDB file to use as reference in RMSD calculations")
   ## form rmsd_pdb.name = "RMSD PDB file"
   ## form rmsd_pdb.type = "file"
-  Bool rmsd_bb = True
-  ## form rmsd_bb.name = "Select only backbone atoms for RMSD calculation"
   validate {  
     if not use_rmsd:
       assert rmsd_pdb is None
@@ -64,8 +62,6 @@ Type AttractPeptidePartner:Degenerate {
   ## form rmsd_pdb.add_header("You can specify a PDB file to use as reference in RMSD calculations")
   ## form rmsd_pdb.name = "RMSD PDB file"
   ## form rmsd_pdb.type = "file"
-  Bool rmsd_bb = True
-  ## form rmsd_bb.name = "Select only backbone atoms for RMSD calculation"
   validate {  
     for c in sequence:
       if c not in "ACDEFGHIKLMNPQRSTVWY":

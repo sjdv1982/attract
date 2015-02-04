@@ -34,15 +34,12 @@ Type AttractEasyPartnerInterface {
   ## form rmsd_pdb.add_header("You can specify a PDB file to use as reference in RMSD calculations")
   ## form rmsd_pdb.name = "RMSD PDB file"
   ## form rmsd_pdb.type = "file"
-  Bool rmsd_bb = True
-  ## form rmsd_bb.name = "Select only backbone atoms for RMSD calculation"
   validate {    
     if ensemble_size > 1: assert generate_modes == False
     if not use_rmsd:
       assert rmsd_pdb is None
     else:
       assert rmsd_pdb is not None
-    if use_rmsd and rmsd_bb: assert moleculetype in ("Protein", "Peptide")
   }
   error {
     'if ensemble_size != 0: assert ensemble_size >= 1'
@@ -63,11 +60,7 @@ Type AttractEasyPartnerInterface {
 
     'if ensemble_size > 1: assert generate_modes == False'
     =>
-    'You can upload an ensemble of conformations, or generate harmonic modes, but not both'
-    
-    'if use_rmsd and rmsd_bb: assert moleculetype in ("Protein", "Peptide")'
-    =>
-    'Selecting backbone coordinates for RMSD calculation is only possible for proteins and peptides'
+    'You can upload an ensemble of conformations, or generate harmonic modes, but not both'    
   } 
 }
 

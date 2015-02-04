@@ -1,8 +1,8 @@
 import os
 
+#TODO: lrmsd.py/irmsd.py, also all-atom/backbone/trace (CA/P) option
 #TODO: fix ATTRACT-EM interface
 #TODO: Symmetry help in full interface is too small
-#TODO: a better backbone tool that takes into account order differences (also CA option, P option for nucleic acids?)
 
 generator_version = "0.3"
 
@@ -29,10 +29,7 @@ supported_moleculetype_interactions = (
 
 def generate(m):     
   assert m.completion_tool not in ("amber", "cns") #TODO: AMBER and CNS completion backends not yet implemented
-  
-  iattract_hybrid = False #are we doing the docking with ATTRACT forcefield, but iATTRACT refinement with iATTRACT ?
-  if (m.iattract and m.forcefield != "OPLSX"): iattract_hybrid = True
-   
+     
   ret = "#!/bin/bash -i\n"
   cleanupfiles = []
   if (m.header is not None):
@@ -51,12 +48,7 @@ def generate(m):
   partnercode = ""
   filenames = []
   ensemble_lists = []
-  collect_ensemble_lists = []
-  aa_filenames = []
-  iattract_ensemble_lists = []
-  reduce_any = False
   pdbnames = []
-  collect_pdbnames = []
   mappings = []
   pdbnames3 = set()
   has_tmpf = False
@@ -74,28 +66,67 @@ def generate(m):
     if tuple(reversed(moleculetype_interaction)) in supported_moleculetype_interactions: continue
     raise ValueError("Unsupported molecule type interaction: %s - %s" % moleculetype_interaction)
 
+  #do we need all-atom representation for RMSD calculation?
+  if m.calc_irmsd or m.calc_fnat:
+    aa_rmsd = True
+  elif m.calc_fnat and m.rmsd_atoms == "all":
+    aa_rmsd = True
+  else:  
+    aa_rmsd = False
+  
+  #do we need separate all-atom PDBs for collect, rmsd and/or iattract?     
+  if m.forcefield == "OPLSX": 
+    separate_aa_pdb = False
+  elif m.iattract or m.collect or aa_rmsd:
+    separate_aa_pdb = True
+  else:
+    separate_aa_pdb = False
+    for p in m.partners:
+      if not m.generate_modes: continue
+      if m.aacontact_modes or p.moleculetype in ("DNA","RNA"):
+        separate_aa_pdb = True
+        break
+  if separate_aa_pdb:
+    aa_filenames = []
+    aa_ensemble_lists = []    
+  
+  #do we use all-atom representation at all?
+  use_aa = (m.forcefield == "OPLSX" or separate_aa_pdb == True)
+  
+  #do we need separate all-atom mode files?
+  if not separate_aa_pdb:
+    separate_aa_mode = False
+  else:
+    separate_aa_mode = False
+    for p in m.partners:
+      if not p.generate_modes: continue
+      if aa_rmsd and not m.deflex:
+        separate_aa_mode = True
+      elif m.collect and not p.demode:
+        separate_aa_mode = True
+      elif m.iattract:
+        separate_aa_mode = True
+
+  modes_any = any((p.generate_modes for p in m.partners))  
+  ens_any = any((p.ensemble for p in m.partners))  
+   
+  partnercode += """
+echo '**************************************************************'
+echo 'Reduce partner PDBs...'
+echo '**************************************************************'
+"""      
   for pnr,p in enumerate(m.partners):
     molcode = ""
     if p.moleculetype == "RNA": molcode = "--rna"
     elif p.moleculetype == "DNA": molcode = "--dna"              
-    ensemble_list = None
-    ensemble_list_iattract = None
-    if p.ensemble_list is not None: ensemble_list = p.ensemble_list.name
-    collect_ensemble_list = None    
-    if p.collect_ensemble_list is not None: collect_ensemble_list = p.collect_ensemble_list.name        
 
     pdbname = p.pdbfile.name
     pdbname2 = os.path.split(pdbname)[1]
-    pdbname3 = os.path.splitext(pdbname2)[0]
+    pdbname3 = os.path.splitext(pdbname2)[0]    
+    ensemble_list = None
+    if separate_aa_pdb:
+      ensemble_list_aa = None
     if not p.ensemble:
-      if reduce_any == False:
-        partnercode += """
-echo '**************************************************************'
-echo 'Reduce partner PDBs...'
-echo '**************************************************************'
-"""
-  
-        reduce_any = True
       if pdbname not in pdbnames: 
         pdbname3_0 = pdbname3
         pcount = 0
@@ -106,14 +137,14 @@ echo '**************************************************************'
         pdbname4 = pdbname3 + ".pdb"
         if pdbname4 != pdbname:
           partnercode += "cat %s > %s\n" % (pdbname, pdbname4)                    
-        use_aa = (m.forcefield == "OPLSX" or iattract_hybrid == True)
         
-        #all-atom reduce
+        #all-atom reduce; we do this even if we never use it in the docking, just to add missing atoms etc.
         pdbname_aa = pdbname3 + "-aa.pdb"
         opts = []
         if molcode: opts.append(molcode)
         if p.charged_termini: opts.append("--termini")
-        if not use_aa: opts.append("--heavy")
+        if not use_aa: 
+          opts.append("--heavy")
         if p.has_hydrogens:
           opts.append("--autoref")
         else:
@@ -127,44 +158,34 @@ echo '**************************************************************'
         if m.forcefield == "ATTRACT":
           pdbname_reduced = pdbname3 + "r.pdb"
           partnercode += "python $ATTRACTTOOLS/reduce.py %s %s %s > /dev/null\n" % (pdbname_aa, pdbname_reduced, molcode)
-        if m.forcefield == "OPLSX":
+        elif m.forcefield == "OPLSX":
           pdbname_reduced = pdbname_aa
         pdbnames.append(pdbname)
       else:
         pdbname_reduced = filenames[pdbnames.index(pdbname)]
-      aa_filenames.append(pdbname_aa)
+        if separate_aa_pdb:
+          pdbname_aa = aa_filenames[pdbnames.index(pdbname)]      
       filenames.append(pdbname_reduced)
-      collect_pdbname = None
-      if p.collect_pdb is not None:
-        collect_pdbname = p.collect_pdb.name
-      collect_pdbnames.append(collect_pdbname)  
+      if separate_aa_pdb:
+        aa_filenames.append(pdbname_aa)
     else: #p.ensemble
+                  
       d = "partner%d-ensemble" % (pnr+1)
       partnercode += "rm -rf %s\n" % d
       partnercode += "mkdir %s\n" % d
       listens = d + ".list"
-      ensemble_list_iattract = d + "-iattract.list"
-      listensr = d + "-r.list"
       dd = d + "/model"
-      partnercode += "$ATTRACTTOOLS/splitmodel %s %s %d > %s\n" % (p.pdbfile.name, dd, p.ensemble_size, listens)
-      partnercode += "cat /dev/null > %s\n" % listensr
-      if iattract_hybrid:
-	partnercode += "cat /dev/null > %s\n" % ensemble_list_iattract      
-      if reduce_any == False:
-          partnercode += """
-echo '**************************************************************'
-echo 'Reduce partner PDBs...'
-echo '**************************************************************'
-"""      
-          reduce_any = True        
-      for mnr in range(p.ensemble_size):
-        
-        use_aa = (m.forcefield == "OPLSX" or iattract_hybrid == True)
+      partnercode += "$ATTRACTTOOLS/splitmodel %s %s %d > /dev/null\n" % (p.pdbfile.name, dd, p.ensemble_size)
+      partnercode += "cat /dev/null > %s\n" % listens
+      if separate_aa_pdb:
+        ensemble_list_aa = d + "-aa.list"
+	partnercode += "cat /dev/null > %s\n" % ensemble_list_aa      
+      for mnr in range(p.ensemble_size):        
         mname1 = dd + "-" + str(mnr+1) + ".pdb"
         mname2 = dd + "-" + str(mnr+1) + "r.pdb"
-        mname2a = dd + "-" + str(mnr+1) + "-aa.pdb"
+        mname2aa = dd + "-" + str(mnr+1) + "-aa.pdb"
         
-        #all-atom reduce
+        #all-atom reduce; we do this even if we never use it in the docking, just to add missing atoms etc.
         opts = []
         if molcode: opts.append(molcode)
         if p.charged_termini: opts.append("--termini")
@@ -172,7 +193,7 @@ echo '**************************************************************'
           opts.append("--heavy")
         elif mnr > 0:  
           opts.append("--reference")
-          opts.append(pdbname_aa)
+          opts.append(pdbname_reference)
         if not p.has_hydrogens:
           opts.append(completion_opt[m.completion_tool, p.moleculetype])                
         opts = " ".join(opts)
@@ -181,38 +202,29 @@ echo '**************************************************************'
         if mnr == 0:
           mapping = pdbname3 + ".mapping"
           mappings.append(mapping)        
-        partnercode += "python $ATTRACTDIR/../allatom/aareduce.py %s %s %s > %s\n" % (mname1, mname2a, opts, mapping)
-        
+        partnercode += "python $ATTRACTDIR/../allatom/aareduce.py %s %s %s > %s\n" % (mname1, mname2aa, opts, mapping)        
         if m.forcefield == "ATTRACT":          
-          partnercode += "python $ATTRACTTOOLS/reduce.py %s %s %s > /dev/null\n" % (mname2a, mname2, molcode)          
-        if m.forcefield == "OPLSX": 
-          mname2 = mname2a
-        elif iattract_hybrid:
-          partnercode += "echo %s >> %s\n" % (mname2a, ensemble_list_iattract)              
-        partnercode += "echo %s >> %s\n" % (mname2, listensr)  
+          partnercode += "python $ATTRACTTOOLS/reduce.py %s %s %s > /dev/null\n" % (mname2aa, mname2, molcode)          
+        elif m.forcefield == "OPLSX": 
+          mname2 = mname2aa
+        
+        partnercode += "echo %s >> %s\n" % (mname2, listens)  
+        if separate_aa_pdb:
+          partnercode += "echo %s >> %s\n" % (mname2aa, ensemble_list_aa)                  
         if mnr == 0: 
-          pdbname = mname2
-          pdbname_aa = mname2a
+          pdbname = mname2 
+          pdbname_reference = pdbname
           filenames.append(pdbname)
-          aa_filenames.append(pdbname_aa)
-          collect_pdbname = None
-          if p.collect_pdb is not None and p.collect_pdb.name == p.pdbfile.name:
-            collect_pdbname = mname1
-          collect_pdbnames.append(collect_pdbname)  
-      ensemble_list = listensr      
-      if p.collect_pdb is not None:        
-        if collect_ensemble_list is None: collect_ensemble_list = listens      
+          if separate_aa_pdb:
+            pdbname_aa = mname2aa
+            pdbname_reference = pdbname_aa
+            aa_filenames.append(pdbname_aa)
+      ensemble_list = listens      
     ensemble_lists.append(ensemble_list)
-    if iattract_hybrid:
-      iattract_ensemble_lists.append(ensemble_list_iattract)
-    collect_ensemble_lists.append(collect_ensemble_list)      
-  if reduce_any: partnercode += "\n"
-
-  if m.iattract and not iattract_hybrid:
-    iattract_ensemble_lists = ensemble_lists
-
-  modes_any = any((p.modes_file or p.generate_modes for p in m.partners))
-  unreduced_modes_any = any((p.aa_modes_file or p.generate_modes for p in m.partners))
+    if separate_aa_pdb:
+      aa_ensemble_lists.append(ensemble_list_aa)
+  partnercode += "\n"
+  
   if modes_any:
     partnercode += """
 echo '**************************************************************'
@@ -220,21 +232,22 @@ echo 'Assemble modes file...'
 echo '**************************************************************'
 cat /dev/null > hm-all.dat
 """ 
-    if iattract_hybrid:
-      partnercode += "cat /dev/null > hm-all-iattract.dat\n"
-    if unreduced_modes_any:
-      hm_all_unreduced = "hm-all-unreduced.dat"
-      partnercode += "cat /dev/null > hm-all-unreduced.dat\n"
-    else: 
-      hm_all_unreduced = "hm-all.dat"
-    partnercode += "\n"  
+    if separate_aa_mode:
+      partnercode += "cat /dev/null > hm-all-aa.dat\n"
+    partnercode += "\n" 
     for pnr,p in enumerate(m.partners):
-      modes_file_name = None
-      collect_pdbname = collect_pdbnames[pnr]
-      if p.modes_file is not None: modes_file_name = p.modes_file.name
-      unreduced_modes_file_name = None
-      if p.aa_modes_file is not None: unreduced_modes_file_name = p.aa_modes_file.name
-      if p.generate_modes: 
+      if p.generate_modes:         
+        if m.forcefield == "OPLSX": 
+          need_aa_modes = True         
+        elif aa_rmsd and not m.deflex:
+          need_aa_modes = True
+        elif m.collect and not p.demode:
+          need_aa_modes = True
+        elif m.iattract:
+          need_aa_modes = True
+        else:
+          need_aa_modes = False
+        if need_aa_modes: assert separate_aa_pdb #if not, I made some error in the code generator logic  
         modes_file_name = "partner%d-hm.dat" % (pnr+1)
         opts = []
         moltype = ""
@@ -250,34 +263,35 @@ cat /dev/null > hm-all.dat
         
         opts = " ".join(opts)  
         partnercode += "python $ATTRACTTOOLS/modes.py %s %s %d > %s\n" % (filenames[pnr], opts, p.nr_modes, modes_file_name)
-        if iattract_hybrid:
-          iattract_modes_file_name = "partner%d-hm-iattract.dat" % (pnr+1)
-          partnercode += "python $ATTRACTTOOLS/modes.py %s %s %d > %s\n" % (aa_filenames[pnr], opts, p.nr_modes, iattract_modes_file_name)
-        if p.collect_pdb is not None:
-          unreduced_modes_file_name = "partner%d-hm-unreduced.dat" % (pnr+1)
-          partnercode += "python $ATTRACTTOOLS/modes.py %s %s %d > %s\n" % (collect_pdbname, opts, p.nr_modes, unreduced_modes_file_name)      
-      if p.nr_modes == 0 or modes_file_name is None:
+        if need_aa_modes:
+          aa_modes_file_name = "partner%d-hm-aa.dat" % (pnr+1)
+          partnercode += "python $ATTRACTTOOLS/modes.py %s %s %d > %s\n" % (aa_filenames[pnr], opts, p.nr_modes, aa_modes_file_name)
+      if not p.generate_modes:
         partnercode += "echo 0 >> hm-all.dat\n"        
-        if iattract_hybrid:
-          partnercode += "echo 0 >> hm-all-iattract.dat\n"
-        if unreduced_modes_any:
-          partnercode += "echo 0 >> hm-all-unreduced.dat\n"
       else:
-        partnercode += "cat %s >> hm-all.dat\n" % modes_file_name        
-        if iattract_hybrid:
-          partnercode += "cat %s >> hm-all-iattract.dat\n" % iattract_modes_file_name        
-        if not m.demode:
-          if unreduced_modes_any:
-            mf = modes_file_name
-            if unreduced_modes_file_name is not None: mf = unreduced_modes_file_name
-            partnercode += "cat %s >> hm-all-unreduced.dat\n" % mf
+        partnercode += "cat %s >> hm-all.dat\n" % modes_file_name                
+      if separate_aa_mode:
+        if not p.generate_modes or not need_aa_modes:
+          partnercode += "echo 0 >> hm-all-aa.dat\n"
+        else:  
+          partnercode += "cat %s >> hm-all-aa.dat\n" % aa_modes_file_name        
     partnercode += "\n"  
   
-  if m.iattract:
-    iattract_modesfile = "hm-all.dat"
-    if iattract_hybrid:
-      iattract_modesfile = "hm-all-iattract.dat"    
-  
+  if use_aa: 
+    if not separate_aa_pdb:
+      aa_filenames = filenames
+    if ens_any:
+      if not separate_aa_pdb:
+        aa_ensemble_lists = ensemble_lists
+    if modes_any:
+      if separate_aa_mode:
+        aa_modesfile = "hm-all-aa.dat"    
+      else:
+        aa_modesfile = "hm-all.dat"
+    rmsd_filenames = aa_filenames
+  else:
+    rmsd_filenames = filenames
+    
   if len(m.partners) == 2:
     partnerfiles = " ".join(filenames)
   else:
@@ -314,7 +328,6 @@ name=%s
     v = g.gridname.strip() + extension + gheader
     gridfiles[g.gridname.strip()] = (v, g.torque)
   grid_used = {}
-  ens_any = False
   for pnr,p in enumerate(m.partners):
     if p.gridname is not None:
       v, is_torque = gridfiles[p.gridname.strip()]
@@ -328,7 +341,6 @@ name=%s
       ps = " --ens %d %s" % (pnr+1, ensemble_lists[pnr])
       params += ps
       scoreparams += ps
-      ens_any = True
   if m.ghost:
     params += " --ghost"
   if m.ghost_ligands:
@@ -707,12 +719,12 @@ echo '**************************************************************'
     iattract_params_demode = ""
     if ens_any:
       for pnr,p in enumerate(m.partners):
-        f = iattract_ensemble_lists[pnr]
+        f = aa_ensemble_lists[pnr]
         if f is not None:
           iattract_params += " --ens %d %s" % (pnr+1, f)
           iattract_params_demode += " --ens %d" % (pnr+1)
     if modes_any:
-      iattract_params += " --modes %s" % iattract_modesfile    
+      iattract_params += " --modes %s" % aa_modesfile    
     if m.runname == "attract":
       iname = "i$name"
     else:
@@ -735,65 +747,35 @@ echo '**************************************************************'
   ret += "ln -s %s result.dat\n" % result
 
   result0 = result
-  deflex_any = False
-  if m.calc_lrmsd or m.calc_irmsd or m.calc_fnat:    
-    flexpar2 = ""    
-    deflex_any = any((p.deflex for p in m.partners))
-    if not deflex_any and m.iattract is not None:
-      flexpar2 += " --name %s" %iname
-    if modes_any and not m.demode and not deflex_any: 
-      if unreduced_modes_any:
-        flexpar2 = " --modes hm-all-unreduced.dat"
-      else:
-        flexpar2 = " --modes hm-all.dat"
-    
-    for pnr,p in enumerate(m.partners):
-      if p.deflex == False and ensemble_lists[pnr] is not None:
-        flexpar2 += " --ens %d %s" % (pnr+1,ensemble_lists[pnr])
-
-
   if m.collect:
-    collect_filenames = filenames
     nr = m.nr_collect
-    for pnr in range(len(m.partners)):
-      p = m.partners[pnr]
-      collect_pdbname = collect_pdbnames[pnr]
-      if p.collect_pdb is not None:
-        collect_filenames[pnr] = collect_pdbname
     ret += """
 echo '**************************************************************'
 echo 'collect top %d structures:'
 echo '**************************************************************'
 """ % nr
     ret += "$ATTRACTTOOLS/top %s %d > out_$name-top%d.dat\n" % (result, nr, nr)
-    collect_filenames = " ".join(collect_filenames)
+    collect_filenames = " ".join(aa_filenames)
     demodestr = ""
-    flexpar_unreduced = ""
+    flexpar_collect = ""
     if modes_any:      
       if not m.demode: 
-        if unreduced_modes_any:
-          flexpar_unreduced = " --modes hm-all-unreduced.dat"
-        else:
-          flexpar_unreduced = " --modes hm-all.dat"
-	  
+        flexpar_collect = " --modes %s" % aa_modesfile 	  
       elif not m.iattract:        
         demodestr = "-demode"
-        ret += "python $ATTRACTTOOLS/demode.py out_$name-top%d.dat > out_$name-top%d.dat-demode\n" % (nr, nr)
-        
-    if m.iattract is not None and not m.demode:
-	flexpar_unreduced += " --name %s" %iname
+        ret += "python $ATTRACTTOOLS/demode.py out_$name-top%d.dat > out_$name-top%d.dat-demode\n" % (nr, nr)        
+    if m.iattract and not m.demode:
+	flexpar_collect += " --name %s" %iname
     for pnr,p in enumerate(m.partners):
-      if collect_ensemble_lists[pnr] is not None:
-        flexpar_unreduced += " --ens %d %s" % (pnr+1,collect_ensemble_lists[pnr])    
-      elif ensemble_lists[pnr] is not None:
-        flexpar_unreduced += " --ens %d %s" % (pnr+1,ensemble_lists[pnr])    
+      if aa_ensemble_lists[pnr] is not None:
+        flexpar_collect += " --ens %d %s" % (pnr+1,aa_ensemble_lists[pnr])    
     ret += "$ATTRACTDIR/collect out_$name-top%d.dat%s %s%s > out_$name-top%d.pdb\n" % \
-     (nr, demodestr, collect_filenames, flexpar_unreduced, nr)
+     (nr, demodestr, collect_filenames, flexpar_collect, nr)
     ret += "ln -s out_$name-top%d.pdb result.pdb\n" % nr
     ret += "\n"
       
-    if deflex_any:
-      deflex_header = """
+  if m.deflex:
+    deflex_header = """
 echo '**************************************************************'
 echo 'Remove flexibility for RMSD calculations'
 echo '**************************************************************'
@@ -801,103 +783,54 @@ tmpf=`mktemp`
 tmpf2=`mktemp`
 
 """ 
-      outp, outp2 = "$tmpf", "$tmpf2"
-      any_modes = False
-      any_ens = False
-      for pnr,p in enumerate(m.partners):
-        if p.deflex:
-          if p.nr_modes:           
-            any_modes = True
-          elif p.ensemble_size:
-            any_ens = True
-      if any_modes and not m.iattract:           
+    outp, outp2 = "$tmpf", "$tmpf2"
+    if modes_any and not (m.iattract and m.demode):           
+      ret += deflex_header
+      has_tmpf = True
+      ret += "python $ATTRACTTOOLS/demode.py %s > %s\n" % \
+        (result, outp)
+      result = outp
+      outp, outp2 = outp2, outp          
+    if ens_any:
+      if not has_tmpf:
         ret += deflex_header
         has_tmpf = True
-        ret += "python $ATTRACTTOOLS/demode.py %s > %s\n" % \
-          (result, outp)
-        result = outp
-        outp, outp2 = outp2, outp          
-      if any_ens:
-        if not has_tmpf:
-          ret += deflex_header
-          has_tmpf = True
-        ret += "python $ATTRACTTOOLS/de-ensemblize.py %s > %s\n" % \
-          (result,outp)
-        result = outp
-        outp, outp2 = outp2, outp
+      ret += "python $ATTRACTTOOLS/de-ensemblize.py %s > %s\n" % \
+        (result,outp)
+      result = outp
+      outp, outp2 = outp2, outp
 
-    first_bb = True
-    all_bb = True
-    rmsd_filenames = []
-    for pnr in range(len(m.partners)):      
-      p = m.partners[pnr]
-      filename = filenames[pnr]
-      if not p.rmsd_bb: all_bb = False
-      if m.calc_lrmsd and p.rmsd_bb:
-        if pnr > 0:
-          if not first_bb:  
-            first_bb = True
-            ret += """
-echo '**************************************************************'
-echo 'Select backbone atoms'
-echo '**************************************************************'
-"""           
-          filename2 = os.path.splitext(filename)[0] + "-bb.pdb"
-          ret += "$ATTRACTTOOLS/backbone %s > %s\n" % (filename, filename2)
-          filename = filename2
-      rmsd_filenames.append(filename)
-    if m.calc_irmsd:
-      irmsd_filenames = [None] * len(m.partners)
-      irmsd_refenames = [None] * len(m.partners)
-      for pnr in range(len(m.partners)):
-        p = m.partners[pnr]
-        filename = p.pdbfile.name
-        irmsd_filenames[pnr] = filename
-        collect_pdbname = collect_pdbnames[pnr]
-        if p.ensemble_size > 0:
-          irmsd_filenames[pnr] = collect_pdbname
-        if p.rmsd_pdb is not None:
-          filename = p.rmsd_pdb.name
-        irmsd_refenames[pnr] = filename
-    if m.calc_fnat:
-      fnat_filenames = [None] * len(m.partners)
-      fnat_refenames = [None] * len(m.partners)
-      for pnr in range(len(m.partners)):
-        p = m.partners[pnr]
-        filename = p.pdbfile.name
-        fnat_filenames[pnr] = filename
-        collect_pdbname = collect_pdbnames[pnr]
-        if p.ensemble_size > 0:
-          fnat_filenames[pnr] = collect_pdbname
-        if p.rmsd_pdb is not None:
-          filename = p.rmsd_pdb.name
-        fnat_refenames[pnr] = filename
-    if m.calc_lrmsd:
-      lrmsd_filenames = rmsd_filenames[1:]
-      lrmsd_refenames = [None] * (len(m.partners)-1)
-      for pnr in range(1,len(m.partners)):
-        filename = filenames[pnr]
-        p = m.partners[pnr]
-        if p.rmsd_pdb is not None:
-          filename = p.rmsd_pdb.name
-          if p.rmsd_bb:
-            filename2 = os.path.splitext(filename)[0] + "-bb.pdb"
-            ret += "$ATTRACTTOOLS/backbone %s > %s\n" % (filename, filename2)
-            filename = filename2                
-        elif p.rmsd_bb:
-          filename2 = os.path.splitext(filename)[0] + "-bb.pdb"
-          filename = filename2          
-        lrmsd_refenames[pnr-1] = filename
+  if m.calc_lrmsd or m.calc_irmsd or m.calc_fnat:
+
+    flexpar2 = ""        
+    if not m.deflex and not m.demode and m.iattract is not None:
+      flexpar2 += " --name %s" % iname
+    if modes_any and not m.demode and not m.deflex: 
+      flexpar2 = " --modes %s" % aa_modesfile    
+    for pnr,p in enumerate(m.partners):
+      if m.deflex == False and aa_ensemble_lists[pnr] is not None:
+        flexpar2 += " --ens %d %s" % (pnr+1,aa_ensemble_lists[pnr])
+    
+    rmsd_refenames = [None] * len(m.partners)
+    for pnr in range(len(m.partners)):
+      filename = rmsd_filenames[pnr]
+      p = m.partners[pnr]        
+      if p.rmsd_pdb is not None:
+        filename = p.rmsd_pdb.name
+      rmsd_refenames[pnr] = filename
         
-    if all_bb:  
-      ret += "\n"
-      bb_str = "backbone "
-    else:
-      bb_str = ""
+    bb_str = "backbone"
+    if m.rmsd_atoms == "all":
+      bb_str = "all-atom"
+    elif m.rmsd_atoms == "trace":
+      mt = m.partners[0].moleculetype
+      if mt == "Protein": bb_str = "c-alpha"
+      elif mt in ("DNA", "RNA"): bb_str = "phosphate"
+        
   if m.calc_lrmsd:      
     ret += """
 echo '**************************************************************'
-echo 'calculate %sligand RMSD'
+echo 'calculate %s ligand RMSD'
 echo '**************************************************************'
 """ % bb_str      
   
@@ -907,29 +840,37 @@ echo '**************************************************************'
       result = fixresult
   
     lrmsd_allfilenames = []
-    for f1, f2 in zip(lrmsd_filenames, lrmsd_refenames):
+    for f1, f2 in zip(rmsd_filenames[1:], rmsd_refenames[1:]):
       lrmsd_allfilenames.append(f1)
       lrmsd_allfilenames.append(f2)
     lrmsd_allfilenames = " ".join(lrmsd_allfilenames)
+    lrmsdpar = "--receptor %s" % rmsd_filenames[0]
+    if m.rmsd_atoms == "all":
+      lrmsdpar += " --allatoms"
+    elif m.rmsd_atoms == "trace":
+      mt = m.partners[0].moleculetype
+      if mt == "Protein": lrmsdpar += " --ca"
+      elif mt in ("DNA", "RNA"): lrmsdpar += " --p"
     lrmsdresult = os.path.splitext(result0)[0] + ".lrmsd"
-    ret += "$ATTRACTDIR/lrmsd %s %s%s > %s\n" % (result, lrmsd_allfilenames, flexpar2, lrmsdresult)
+    ret += "python $ATTRACTDIR/lrmsd.py %s %s%s %s > %s\n" % (result, lrmsd_allfilenames, flexpar2, lrmsdpar, lrmsdresult)
     ret += "ln -s %s result.lrmsd\n" % lrmsdresult
     ret += "\n"
 
   if m.calc_irmsd:      
     ret += """
 echo '**************************************************************'
-echo 'calculate %sinterface RMSD'
+echo 'calculate %s interface RMSD'
 echo '**************************************************************'
 """ % bb_str      
     
     irmsd_allfilenames = []
-    for f1, f2 in zip(irmsd_filenames, irmsd_refenames):
+    for f1, f2 in zip(rmsd_filenames, rmsd_refenames):
       irmsd_allfilenames.append(f1)
       irmsd_allfilenames.append(f2)
     irmsd_allfilenames = " ".join(irmsd_allfilenames)
     irmsdresult = os.path.splitext(result0)[0] + ".irmsd"
-    bbo = "" if all_bb else "--allatoms"
+    bbo = "" 
+    if m.rmsd_atoms == "all": bbo = "--allatoms"
     ret += "python $ATTRACTDIR/irmsd.py %s %s%s %s > %s\n" % (result, irmsd_allfilenames, flexpar2, bbo, irmsdresult)
     ret += "ln -s %s result.irmsd\n" % irmsdresult
     ret += "\n"
@@ -941,7 +882,7 @@ echo 'calculate fraction of native contacts'
 echo '**************************************************************'
 """    
     fnat_allfilenames = []
-    for f1, f2 in zip(fnat_filenames, fnat_refenames):
+    for f1, f2 in zip(rmsd_filenames, rmsd_refenames):
       fnat_allfilenames.append(f1)
       fnat_allfilenames.append(f2)
     fnat_allfilenames = " ".join(fnat_allfilenames)
