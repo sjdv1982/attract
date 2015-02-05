@@ -597,7 +597,7 @@ Type AttractModel {
     rescoring.name = "Perform a rescoring step after docking"
     rcut_rescoring.add_header("The nonbonded pairlist distance cutoff (rcut) (in A**2) during rescoring")
     rcut_rescoring.name = "rcut (rescoring)"
-    sort.name = "Sort the final structures according to ATTRACT energy"
+    sort.name = "Sort the final structures according to forcefield energy"
     deredundant.name = "Remove redundant structures after docking"
     deredundant_ignorens.name = "Ignore ensemble conformers for redundancy"
     calc_lrmsd.name = "Calculate ligand RMSD after docking"
