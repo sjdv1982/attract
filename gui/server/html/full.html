@@ -721,7 +721,14 @@
                           </div>
                           <div class="group-inline clearfix">
                             <div class="field-container">
-                              <div class="title"><h3>iATTRACT parameters</h3></div>
+                              <div class="title"><p>iATTRACT parameters</p></div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Perform iATTRACT refinement after the docking</p></div>
+                              <div class="field-item checkbox align-right">
+                                <input type="checkbox" name="use_iattract" id="use_iattract" value="" checked="checked">
+                              </div>
                             </div>
 
                             <div class="field-container">
@@ -731,14 +738,14 @@
                               </div>
                             </div>
 
-                            <div class="field-container">
-                              <div class="title"><p>Distance cutoff for flexible residues</p></div>
-                              <div class="field-item number align-right">
-                                <input type="number" name="iattract-icut" id="iattract-icut" value = "3.0">
-                              </div>
-                            </div>
-
                           </div> <!--END: group-inline -->
+
+                          <div class="field-container">
+                            <div class="title"><p>Distance cutoff for flexible residues</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="iattract-icut" id="iattract-icut" value = "3.0">
+                            </div>
+                          </div>
                         </div> <!-- END: group-container -->
                       </div> <!-- END: level2 -->
                     </div><!-- END: level1-container -->
@@ -1226,7 +1233,7 @@
                             </div>
 
                             <div class="field-container">
-                              <div class="title"><p>Sort the final structures according to ATTRACT energy</p></div>
+                              <div class="title"><p>Sort the final structures according to forcefield energy</p></div>
                               <div class="field-item checkbox align-right">
                                 <input type="checkbox" name="sort" id="sort" value="" checked="checked">
                               </div>
