@@ -616,8 +616,9 @@ Type AttractModel {
     nr_collect.name = "Number of structures to collect"
   }
   validate {
+    if len(partners) and calc_lrmsd: assert partners[0].rmsd_pdb_alt is None
     for p in partners[1:]:
-      if calc_lrmsd and rmsd_atoms == "backbone": assert p.moleculetype == "Protein"
+      if calc_lrmsd and rmsd_atoms == "backbone": assert p.moleculetype == "Protein"      
     for p in partners[2:]:
       if calc_lrmsd and rmsd_atoms == "trace" and partners[1].moleculetype == "Protein": assert p.moleculetype == "Protein"
       if calc_lrmsd and rmsd_atoms == "trace" and partners[1].moleculetype in ("DNA", "RNA"): assert p.moleculetype in ("DNA", "RNA")
@@ -744,6 +745,10 @@ Type AttractModel {
     'if has_haddock: assert nr_has_haddock > 1'
     =>
     'If you define HADDOCK restraints, you must do so for at least two partners'
+    
+    'if len(partners) and calc_lrmsd: assert partners[0].rmsd_pdb_alt is None'
+    =>
+    'When there are multiple receptor reference structures, ligand RMSD cannot be computed with ATTRACT'
     
     'if calc_lrmsd and rmsd_atoms == "backbone": assert p.moleculetype == "Protein"'
     =>
