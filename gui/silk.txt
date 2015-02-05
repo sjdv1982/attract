@@ -24,7 +24,7 @@ full web server, ATTRACT style:
 silk --default-output attract.web AttractModel -m attractmodel -I $ATTRACTGUI --gui html \
  -I $ATTRACTGUI/server --form form_model webform --view form_model html --webdir $ATTRACTGUI/server/html --webserver-pre form_model webserverform
 
-EASY INTERFACE:
+EASY/STANDARD INTERFACE:
 
 local GUI, basic:
 silk --default-output attract.web AttractEasyModel -m attractmodel -I $ATTRACTGUI
@@ -35,9 +35,14 @@ silk --default-output attract.web AttractEasyModel -m attractmodel -I $ATTRACTGU
 web form, default style:
 silk --default-output attract.web AttractEasyModel -m attractmodel -I $ATTRACTGUI --gui html
 
-full web server, ATTRACT style:
+full web server, ATTRACT Easy style:
 silk --default-output attract.web AttractEasyModel -m attractmodel -I $ATTRACTGUI --gui html \
--I $ATTRACTGUI/server --form formeasy webform --view formeasy html --webdir $ATTRACTGUI/server/html --webserver-pre formeasy webserverform
+-I $ATTRACTGUI/server --form form_standard webform_easy --view form_standard html --webdir $ATTRACTGUI/server/html --webserver-pre form_standard webserverform_easy
+
+full web server, ATTRACT Standard style:
+silk --default-output attract.web AttractEasyModel -m attractmodel -I $ATTRACTGUI --gui html \
+-I $ATTRACTGUI/server --form form_standard webform --view form_standard html --webdir $ATTRACTGUI/server/html --webserver-pre form_standard webserverform
+
 
 CRYO INTERFACE
 

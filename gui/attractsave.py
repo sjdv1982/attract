@@ -49,7 +49,6 @@ def deploy(model, dir):
   elif dir.endswith("/"): d = dir
   for n,p in enumerate(model.partners):
     _deploy(p.pdbfile,d+"partner-%d.pdb" % (n+1))
-    _deploy(p.ensemble_list,d+"ensemble-%d.list" % (n+1))
     _deploy(p.rmsd_pdb,d+"partner-rmsd-%d.pdb" % (n+1))
     _deploy(p.rmsd_pdb_alt,d+"partner-rmsd-alt-%d.pdb" % (n+1))
     _deploy(p.rmsd_pdb_alt2,d+"partner-rmsd-alt2-%d.pdb" % (n+1))
