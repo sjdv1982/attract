@@ -293,11 +293,9 @@ def webform(f, model=None,
   c.categoryname = "sampling"
   c.description = ""
   f.iattract.group = None
-  f.use_iattract.group = None
   _assign_category(f, c, "Sampling parameters", span = True)
   f.start_structures_file.title = "Custom search files"
   f.use_iattract.add_header("iATTRACT parameters")
-  c.members.append("use_iattract")
   c.members.append("iattract.nstruc")
   c.members.append("iattract.icut")
   ### END sampling category  
