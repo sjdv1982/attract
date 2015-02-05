@@ -465,6 +465,8 @@ Type AttractModel {
   ## form demode.add_header("If you used flexibility in the form of normal modes or iATTRACT, you may choose remove the deformations (de-mode) after the docking")
   ## form demode.name = "De-mode" 
   
+  Bool use_iattract = True
+  ## form use_iattract.name = "Perform iATTRACT refinement after the docking"  
   *IAttractParameters iattract
   form {
     iattract.nstruc.default = 50
@@ -478,6 +480,7 @@ Type AttractModel {
     translations_file.group = "Sampling parameters"
     restraints_file.group = "Sampling parameters"
     restraints_score_weight.group = "Sampling parameters"
+    use_iattract.group = "Sampling parameters"
     iattract.group = "Sampling parameters"
     demode.group = "Sampling parameters"
   }
@@ -597,7 +600,7 @@ Type AttractModel {
     rescoring.name = "Perform a rescoring step after docking"
     rcut_rescoring.add_header("The nonbonded pairlist distance cutoff (rcut) (in A**2) during rescoring")
     rcut_rescoring.name = "rcut (rescoring)"
-    sort.name = "Sort the final structures according to ATTRACT energy"
+    sort.name = "Sort the final structures according to forcefield energy"
     deredundant.name = "Remove redundant structures after docking"
     deredundant_ignorens.name = "Ignore ensemble conformers for redundancy"
     calc_lrmsd.name = "Calculate ligand RMSD after docking"

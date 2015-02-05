@@ -1,0 +1,19 @@
+#!/usr/bin/python
+import sys
+files = [open(f) for f in sys.argv[1:]]
+
+for lnr, lines in enumerate(zip(*files)):
+  lnrstr = str(lnr+1)
+  linefields = [l.split() for l in lines]
+  data = []
+  for l in linefields: 
+    assert len(l) == len(linefields[0])
+    assert l[0] == lnrstr
+    data.append([float(v) for v in l[1:]])
+  print lnr+1,
+  for field in zip(*data):
+    print min(field),
+  print
+    
+  
+  

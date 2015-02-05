@@ -1,0 +1,18 @@
+#!/usr/bin/python
+import sys
+files = [open(f) for f in sys.argv[1:]]
+
+for lines in zip(*files):
+  linefields = [l.split() for l in lines]
+  data = []
+  for l in linefields: 
+    assert len(l) == len(linefields[0])
+    assert l[0] == "l-RMSD"
+    data.append([float(v) for v in l[1:]])
+  print "l-RMSD",
+  for field in zip(*data):
+    print min(field),
+  print
+    
+  
+  

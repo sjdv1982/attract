@@ -193,9 +193,25 @@ def webform(f, model=None):
 
   return f
 
+def webform_easy(f, model=None):
+  f = webform(f, model)
+  for p in f.partners[0], f.partners[1]:
+    p.haddock_restraints.type = None
+    p.moleculetype.type = None
+    p.has_hydrogens.type = None
+  f.forcefield.type = None
+  f.completion_tool.type = None
+  f.use_iattract.default = False
+  return f
+
 def webserverform(webdict, form=None, spydertype=None):
   if spydertype is not None: form = spydertype._form()
   f = webform(form)
+  return f
+
+def webserverform_easy(webdict, form=None, spydertype=None):
+  if spydertype is not None: form = spydertype._form()
+  f = webform_easy(form)
   return f
   
 def html(form, cgi, spyderobj, newtab=False):
