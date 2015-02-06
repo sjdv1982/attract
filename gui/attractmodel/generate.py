@@ -74,7 +74,7 @@ fi
   #do we need all-atom representation for RMSD calculation?
   if m.calc_irmsd or m.calc_fnat:
     aa_rmsd = True
-  elif m.calc_fnat and m.rmsd_atoms == "all":
+  elif m.calc_lrmsd and m.rmsd_atoms == "all":
     aa_rmsd = True
   else:  
     aa_rmsd = False
