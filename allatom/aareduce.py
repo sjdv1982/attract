@@ -204,8 +204,12 @@ def write_pdb(pdbres, heavy = False, one_letter_na = False):
       resname = res.resname
       if one_letter_na and resname in mapnucrev:
         resname = mapnucrev[resname]
-      pdblines.append("ATOM %6d %4s %s %5d    %s %4d %7.3f 0 1.00" % \
-       (atomcounter, a0, resname, rescounter, xyz, type, atom.charge))
+      if resname in mapnucrev:
+        pdblines.append("ATOM %6d %4s %s  %5d    %s %4d %7.3f 0 1.00" % \
+         (atomcounter, a0, resname, rescounter, xyz, type, atom.charge))
+      else:
+        pdblines.append("ATOM %6d %4s %s %5d    %s %4d %7.3f 0 1.00" % \
+         (atomcounter, a0, resname, rescounter, xyz, type, atom.charge))
       atomcounter += 1
     mapping.append((res.resid, rescounter))
     rescounter += 1
