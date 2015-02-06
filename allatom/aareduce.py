@@ -17,14 +17,24 @@ except ImportError:
 #Mapping of nucleic-acid codes to DNA/RNA
 mapnuc = {
   "A": ["DA", "RA"],
+  "A3": ["DA", "RA"],
+  "A5": ["DA", "RA"],
   "ADE": ["DA", "RA"],
   "C": ["DC", "RC"],
+  "C3": ["DC", "RC"],
+  "C5": ["DC", "RC"],
   "CYT": ["DC", "RC"],
   "G": ["DG", "RG"],
+  "G3": ["DG", "RG"],
+  "G5": ["DG", "RG"],
   "GUA": ["DG", "RG"],
   "T": ["DT", None],
+  "T3": ["DT", None],
+  "T5": ["DT", None],
   "THY": ["DT", None],
   "U": [None, "RU"],
+  "U3": [None, "RU"],
+  "U5": [None, "RU"],
   "URA": [None, "RU"],
   "URI": [None, "RU"],  
 } 
@@ -65,6 +75,7 @@ def read_pdb(pdblines, add_termini=False):
     ("HT1","HN"),
     ("OP1","O1P"),
     ("OP2","O2P"),
+    ("H1","HN"),
   )
   topres, toppatch = parse_cns_top.residues, parse_cns_top.presidues
   pdbres = []
@@ -74,6 +85,7 @@ def read_pdb(pdblines, add_termini=False):
       atomcode = l[12:16].strip()
       assert l[16] == " ", l
       resname = l[17:20].strip()
+      if resname=="HIE" or resname=="HIP" :resname="HIS"
       if resname in mapnuc:
         if args.dna: 
           resname = mapnuc[resname][0]
