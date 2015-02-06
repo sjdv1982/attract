@@ -316,9 +316,7 @@ cat /dev/null > hm-all.dat
   if use_aa: 
     if not separate_aa_pdb:
       aa_filenames = filenames
-    if ens_any:
-      if not separate_aa_pdb:
-        aa_ensemble_lists = ensemble_lists
+      aa_ensemble_lists = ensemble_lists
     if modes_any:
       if separate_aa_mode:
         aa_modesfile = "hm-all-aa.dat"    
