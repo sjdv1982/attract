@@ -7,10 +7,10 @@ if sys.argv[2] == "-f":
   selected = [int(l.split()[0]) for l in open(sys.argv[3]).readlines()]
 else:  
   selected = [int(v) for v in sys.argv[2:]]
-selected = set(selected)
+selected_set = set(selected)
 
 for snr,s in enumerate(structures):
-  if snr+1 not in selected: continue
+  if snr+1 not in selected_set: continue
   selstruc[snr+1] =  s
 
 for h in header: print h
