@@ -146,15 +146,12 @@ def webform(f, model=None):
     b.members.append("use_rmsd")
     b.has_switch = True
     b.members.append("rmsd_pdb")
-    b.members.append("rmsd_bb")
     ff = fp.use_rmsd
     ff.default = False
     ff.type = "switch" 
     ff.name = "RMSD calculation"
     ff = fp.rmsd_pdb
     ff.name = "Reference RMSD PDB file"
-    ff = fp.rmsd_bb
-    ff.span = True
     ### END b_rmsd block
   ### END partners category 
 
@@ -167,8 +164,6 @@ def webform(f, model=None):
   c.categoryname = "energy"
   c.description = ""
   _assign_category(f, c, "Energy and interaction parameters", span = True)
-  f.gravity.default = 0
-  f.use_grids.name = "Perform grid-accelerated docking"
   ### END energy category  
 
   ### START analysis category
@@ -198,9 +193,25 @@ def webform(f, model=None):
 
   return f
 
+def webform_easy(f, model=None):
+  f = webform(f, model)
+  for p in f.partners[0], f.partners[1]:
+    p.haddock_restraints.type = None
+    p.moleculetype.type = None
+    p.has_hydrogens.type = None
+  f.forcefield.type = None
+  f.completion_tool.type = None
+  f.use_iattract.default = False
+  return f
+
 def webserverform(webdict, form=None, spydertype=None):
   if spydertype is not None: form = spydertype._form()
   f = webform(form)
+  return f
+
+def webserverform_easy(webdict, form=None, spydertype=None):
+  if spydertype is not None: form = spydertype._form()
+  f = webform_easy(form)
   return f
   
 def html(form, cgi, spyderobj, newtab=False):

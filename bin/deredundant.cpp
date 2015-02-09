@@ -311,20 +311,11 @@ int main(int argc, char *argv[]) {
     if (nr_nonredundant < MAXSTRUC) nr_nonredundant++;
     
     char extralabel[1000];
-    sprintf(extralabel, "### %d => deredundant\n", nstruc);
+    sprintf(extralabel, "## %d => deredundant\n", nstruc);
     double dummy = 0;
     int lablen = 0;
-    if (label) {
-      char label2[1000];
-      strcpy(label2, label);
-      strcat(label2, extralabel);
-      label = label2;
-      lablen = strlen(label);
-    }
-    else {
-      label = extralabel;
-      lablen = strlen(extralabel);
-    }
+    label = extralabel;
+    lablen = strlen(extralabel);
 
     print_struc_(
      seed,

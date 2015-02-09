@@ -3,12 +3,19 @@ Type AttractEasyPartnerInterface {
   ## form pdbfile.type = "file"
   ## form pdbfile.name = "Structure file"
   ResourceData_PDB pdbfile
+  Enum moleculetype("Protein", "Peptide","DNA", "RNA") = "Protein"
+  ## form moleculetype.name = "What kind of molecule are you docking?"   
+  Bool has_hydrogens = False
+  ## form has_hydrogens.name = "The PDB file contains all necessary atoms, including polar hydrogens"  
+  
+  *HaddockRestraintsInterface haddock_restraints
+  ## form haddock_restraints.name = "Definition of residues for HADDOCK-type distance restraints (optional)"
+  ## form haddock_restraints.auto_passive.type = None #TODO: disabled for now
+  
   Integer ensemble_size = 0
   ## form ensemble_size.name = "If the PDB is a multi-model ensemble, specify the number of conformers"
   ## validate if ensemble_size != 0: assert ensemble_size >= 1
    
-  Enum moleculetype("Protein", "Peptide","DNA", "RNA") = "Protein"
-  ## form moleculetype.name = "What kind of molecule are you docking?" 
   Bool generate_modes = False
   Integer nr_modes = 5
   form {
@@ -27,8 +34,6 @@ Type AttractEasyPartnerInterface {
   ## form rmsd_pdb.add_header("You can specify a PDB file to use as reference in RMSD calculations")
   ## form rmsd_pdb.name = "RMSD PDB file"
   ## form rmsd_pdb.type = "file"
-  Bool rmsd_bb = True
-  ## form rmsd_bb.name = "Select only backbone atoms for RMSD calculation"
   validate {    
     if ensemble_size > 1: assert generate_modes == False
     if not use_rmsd:
@@ -55,7 +60,7 @@ Type AttractEasyPartnerInterface {
 
     'if ensemble_size > 1: assert generate_modes == False'
     =>
-    'You can upload an ensemble of conformations, or generate harmonic modes, but not both'
+    'You can upload an ensemble of conformations, or generate harmonic modes, but not both'    
   } 
 }
 
@@ -71,22 +76,54 @@ Type AttractEasyModel {
     partners.name = "Docking partners"
     partners[0].name = "Receptor"
     partners[1].name = "Ligand"
+    partners[0].moleculetype.options = ("Protein",)
+    partners[0].moleculetype.optiontitles = ("Protein",)
+  }
+  validate {
+    has_haddock = any([p.haddock_restraints for p in partners])
+    nr_has_haddock = len([1 for p in partners if p.haddock_restraints])
+    if has_haddock: assert nr_has_haddock == 2
+    has_active = any([p.haddock_restraints.activereslist for p in partners if p.haddock_restraints])
+    if has_haddock: assert has_active  
+  }
+  error {
+    'if has_haddock: assert has_active'
+    =>
+    'If you define HADDOCK restraints, you must define active residues for at least one partner'
+
+    'if has_haddock: assert nr_has_haddock == 2'
+    =>
+    'If you define HADDOCK restraints, you must do so for both two partners'  
   }
   
 
   #***Energy and interaction parameters***
   Bool use_grids = True
-  ## form use_grids.name = "Grids"
-  ## form use_grids.add_header("Perform grid-accelerated docking")
-  Bool gravity = False
-  ## form gravity.name = "Gravity"  
+  ## form use_grids.name = "Perform grid-accelerated docking"
   Bool use_iattract = True
   ## form use_iattract.name = "Perform iATTRACT refinement after the docking"
+  Enum forcefield("ATTRACT", "OPLSX") = "ATTRACT"
+  ## form forcefield.add_header("Which forcefield is to be used?")
+  ## form forcefield.name = "Forcefield"  
+  Enum completion_tool("whatif", "pdb2pqr_whatif", "amber", "cns") = "pdb2pqr_whatif"
+  form {
+    completion_tool.add_header("External tool for PDB completion and hydrogens")
+    completion_tool.add_header("NOTE: PDB2PQR, AMBER and CNS require a local installation")
+    completion_tool.add_header("NOTE: PDB2PQR only completes proteins; WHATIF is used for nucleic acids")  
+    completion_tool.name = "PDB completion method"
+    completion_tool.optiontitles = (
+      "WHATIF web server",
+      "PDB2PQR",
+      "AMBER",
+      "CNS",
+    )
+  }
   form {
     _g = "Energy and interaction parameters"
-    gravity.group = _g
     use_grids.group = _g
     use_iattract.group = _g
+    forcefield.group = _g
+    completion_tool.group = _g
   }
 
   
@@ -122,8 +159,6 @@ Type AttractEasyModel {
     assert np > 0
     
     p1, p2 = partners
-    if p1.moleculetype == "Peptide": assert not p2.moleculetype == "Peptide"
-    assert not p1.moleculetype == "Peptide"
     assert p1.use_rmsd == p2.use_rmsd
     if p1.use_rmsd:
       assert calc_lrmsd or calc_irmsd or calc_fnat
@@ -131,7 +166,6 @@ Type AttractEasyModel {
       assert not calc_lrmsd
       assert not calc_irmsd
       assert not calc_fnat
-    if use_iattract: assert p1.moleculetype in ("Protein", "Peptide") and p2.moleculetype in ("Protein", "Peptide")
   }
   error {
     'assert not calc_irmsd'
@@ -165,18 +199,14 @@ Type AttractEasyModel {
     'assert np > 0'
     =>
     'Please use at least one core (np=1)for running the docking.'
-    
-    'if p1.moleculetype == "Peptide": assert not p2.moleculetype == "Peptide"'
+        
+    'if forcefield is not None: assert forcefield in ("ATTRACT", "OPLSX")'
     =>
-    'Peptide-peptide docking in the Easy interface is not supported'
+    ''
 
-    'assert not p1.moleculetype == "Peptide"'
+    'if completion_tool is not None: assert completion_tool in ("whatif", "pdb2pqr_whatif", "amber", "cns")'
     =>
-    'For protein-peptide docking (or DNA/RNA-peptide docking), please specify the peptide as the ligand'
-    
-    'if use_iattract: assert p1.moleculetype in ("Protein", "Peptide") and p2.moleculetype in ("Protein", "Peptide")'
-    =>
-    'iATTRACT refinement of nucleic acids is not currently supported'
+    ''        
   }
   
 }

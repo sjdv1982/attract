@@ -7,7 +7,7 @@ def serve_demo():
   assert os.path.exists(filename)
 
   spydertype = Spyder.AttractEasyModel    
-  formlib = formeasy
+  formlib = form_standard
   cgiscript = "attractserver-easy.py"
   model = spydertype.fromfile(filename)
   
@@ -19,7 +19,7 @@ def serve_demo():
   model.tofile(filename2)
   
   f = spydertype._form()
-  f = formlib.webform(f, model)
+  f = formlib.webform_easy(f, model)
   header = formlib.header.replace("<head>", "<head>\n        <base href=\"%s\" target=\"_blank\">" % webdir, 1)
   html = attracthtmlform.htmlform(
     obj=model, 
@@ -41,7 +41,7 @@ try:
   import spyder.formtools
   import attractmodel
   import attracthtmlform
-  import form_model, formeasy
+  import form_model, form_standard
 
   r = serve_demo()
   print r

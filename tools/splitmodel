@@ -25,4 +25,4 @@ for l in open(f):
   else: print >> ff, l
 
 if size is not None and count != size:
-  print("ERROR in splitmodel: model count should be %d, is %d" % (size, count))
+  raise Exception("ERROR in splitmodel: model count should be %d, is %d" % (size, count))

@@ -6,6 +6,7 @@
 extern bool exists(const char *);
 extern void parse_restraintfile(MiniState &ms, const char *restfile);
 extern "C" void define_atomdensitygrid_(float voxelsize, int dimension, float forceconstant);
+extern "C" void ignoreweights_atomdensitygrid_();
 extern "C" void define_atomdensitymask_(char *maskfile, float forceconstant);
 
 extern void read_ens(int cartstatehandle, int ligand, char *ensfile, bool strict, bool morphing);
@@ -145,6 +146,7 @@ void atomdensitygrid_usage() {
  fprintf(stderr, "--atomdensitygrid option usage: --atomdensitygrid <voxel size> <dimension> <force constant>\n");
   exit(1);
 }
+
 
 void atomdensitymask_usage() {
  fprintf(stderr, "--atomdensitymask option usage: --atomdensitymask <mask file> <force constant>\n");
@@ -477,7 +479,10 @@ void parse_options(int ministatehandle, int cartstatehandle, int nlig, int argc,
       define_atomdensitygrid_(voxelsize, dimension, forceconstant);
       ms.has_globalenergy = 1;
       n += 3;
-    }    
+    } 
+    else if (!strcmp(arg,"--ignoreatomdensityweights")) {
+      ignoreweights_atomdensitygrid_();
+    }
     else if (!strcmp(arg,"--atomdensitymask")) {
       if (argc-n < 3) atomdensitymask_usage();    
       char *maskfile = argv[n+1];

@@ -1,19 +1,24 @@
-easy2model_version = "Converted from AttractEasyModel by easy2model 1.0"
+easy2model_version = "Converted from AttractEasyModel by easy2model 1.1"
 
 def easy2model(emodel):
   partners = []
   use_flex = []
+  use_haddock = False
   has_peptide = False
+  has_na = False
   for i,p in enumerate(emodel.partners):
     partner_use_flex = False
     pp = AttractPartnerInterface.empty()
     pp.pdbfile=p.pdbfile
+    pp.has_hydrogens=p.has_hydrogens
     pp.is_reduced=False
-    pp.collect_pdb=p.pdbfile 
+    #pp.collect_pdb=p.pdbfile 
     pp.chain="All"
+    pp.haddock_restraints = p.haddock_restraints
+    if p.haddock_restraints: use_haddock = True
     if p.moleculetype == "Peptide":
       pp.moleculetype = "Protein"
-      pp.use_termini = True
+      pp.charged_termini = True
       has_peptide = True
     else:
       pp.moleculetype=p.moleculetype
@@ -22,9 +27,15 @@ def easy2model(emodel):
     if p.generate_modes:
       partner_use_flex = True
       pp.nr_modes=p.nr_modes
-    pp.deflex=True    
+    if p.moleculetype in ("DNA", "RNA"):  
+      pp.aacontact_modes = True
+      has_na = True
+    if emodel.use_iattract:
+      pp.deflex=False
+    else:
+      pp.deflex=True    
+    
     pp.rmsd_pdb=p.rmsd_pdb
-    pp.rmsd_bb=p.rmsd_bb
     if p.ensemble_size > 1:
       partner_use_flex = True
       pp.ensemble = True      
@@ -46,20 +57,26 @@ def easy2model(emodel):
     ligandgrid = AttractGrid(gridname="ligandgrid", plateau_distance = 10.0, neighbour_distance=12.0)  
   else:  
     ligandgrid = AttractGrid(gridname="ligandgrid", plateau_distance = 5.0, neighbour_distance=7.0)  
-    
-  if emodel.use_grids and partners[0].nr_modes > 0:
-    partners[0].gridname = "receptorgrid"
-    partners[1].gridname = "ligandgrid"
-    rgrid = [receptorgrid,ligandgrid]
-    iter = [AttractIteration(vmax=1000)]
   
-  elif emodel.use_grids:
-    partners[0].gridname = "receptorgrid"
-    rgrid = [receptorgrid]
-    iter = [AttractIteration(vmax=1000)]
-    
-  else:
-    rgrid = []
+  rgrid = []
+  if emodel.use_grids:
+    if partners[0].nr_modes > 0:
+      partners[0].gridname = "receptorgrid"
+      partners[1].gridname = "ligandgrid"
+      rgrid = [receptorgrid,ligandgrid]
+    else:
+      partners[0].gridname = "receptorgrid"
+      rgrid = [receptorgrid]      
+  
+  if use_haddock:
+    iter = [
+     AttractIteration(vmax=50, prep=True),    
+     AttractIteration(vmax=1000),
+     AttractIteration(vmax=1000, restweight=0.01),
+    ]    
+  elif emodel.use_grids:    
+    iter = [AttractIteration(vmax=1000)]    
+  else:    
     iter = [
      AttractIteration(vmax=50),
      AttractIteration(rcut=500,vmax=60),
@@ -68,7 +85,12 @@ def easy2model(emodel):
      AttractIteration(rcut=50),
     ]
    
-  gravity = 2 if emodel.gravity else 0  
+  gravity = 2
+  if use_haddock: gravity = 0
+  if not has_peptide and not has_na: gravity = 0
+  rmsd_atoms = "backbone"
+  if has_na: 
+    rmsd_atoms = "all"
   newmodel = AttractModel (
    runname=emodel.runname,
    partners=partners,
@@ -78,26 +100,32 @@ def easy2model(emodel):
    fix_receptor=True,
    search="syst",
    gravity=gravity,
+   forcefield=emodel.forcefield,
    calc_lrmsd=emodel.calc_lrmsd,
    calc_irmsd=emodel.calc_irmsd,
+   rmsd_atoms=rmsd_atoms,
    calc_fnat=emodel.calc_fnat,
    nr_collect=emodel.nr_collect,
    np=emodel.np,
    deredundant_ignorens = False,
-   annotation = easy2model_version,
+   demode=True,
+   completion_tool=emodel.completion_tool,
+   annotation = easy2model_version,   
+   use_iattract=emodel.use_iattract,
   )  
-  if has_peptide:
+  if has_peptide or has_na or use_haddock:
     newmodel.search = "random"
-    newmodel.structures= 100000
+    if has_na:
+      newmodel.structures= 200000
+    else:
+      newmodel.structures= 100000
     
   if emodel.use_iattract:
     iattract = IAttractParameters(
      nstruc = emodel.nr_collect
     )
     if has_peptide:
-      iattract.icut= 5.0
-      
+      iattract.icut= 5.0      
     newmodel.iattract = iattract
-    newmodel.demode = True ##TODO: maybe we want this in all cases..???
     newmodel.validate()
   return newmodel

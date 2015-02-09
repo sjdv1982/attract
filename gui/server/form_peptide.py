@@ -93,6 +93,9 @@ def webform(f, model=None):
   f.resourcefilevar = "_tempresource"
   f.arraymarker = "_clonearraymarker"
 
+
+  f.completion_tool.type = None #hide in web interface
+  
   ### START partners category
   c = f.new_group("c_partners", "category")
   c.page = 1
@@ -112,8 +115,10 @@ def webform(f, model=None):
   bp1.members.append("p1")   
   f.p1.controltitle = ""
   f.p1.name = ""
+  f.p1.has_hydrogens.type = None #hide in web interface
+  
   fp = f.p1
-  fp.group = None
+  fp.group = None  
   b = fp.new_group("b_struc","block")
   b.title = "Structure Sources"
   b.has_switch = False
@@ -127,6 +132,7 @@ def webform(f, model=None):
   ff = fp.ensemble_size
   ff.tooltip_doc = "documentation.html#partners-ensemble_size"
   ff.span = True
+  fp.haddock_restraints.span = True
   ### END b_struc block
 
 
@@ -136,15 +142,12 @@ def webform(f, model=None):
   b.members.append("use_rmsd")
   b.has_switch = True
   b.members.append("rmsd_pdb")
-  b.members.append("rmsd_bb")
   ff = fp.use_rmsd
   ff.default = False
   ff.type = "switch" 
   ff.name = "RMSD calculation"
   ff = fp.rmsd_pdb
   ff.name = "Reference RMSD PDB file"
-  ff = fp.rmsd_bb
-  ff.span = True
   ### END b_rmsd block
 
   
@@ -159,8 +162,7 @@ def webform(f, model=None):
   b.title = "Structure Sources"
   b.has_switch = False
   b.members.append("sequence")
-  ff = fp.sequence
-  ff.name = "Peptide sequence"
+  ff = fp.sequence  
   ff.tooltip = "Give peptide sequence in single letter code"
   ff.span = True
   ### END b_struc block
@@ -171,15 +173,12 @@ def webform(f, model=None):
   b.members.append("use_rmsd")
   b.has_switch = True
   b.members.append("rmsd_pdb")
-  b.members.append("rmsd_bb")
   ff = fp.use_rmsd
   ff.default = False
   ff.type = "switch" 
   ff.name = "RMSD calculation"
   ff = fp.rmsd_pdb
   ff.name = "Reference RMSD PDB file"
-  ff = fp.rmsd_bb
-  ff.span = True
   ### END b_rmsd block
 
  
@@ -193,8 +192,6 @@ def webform(f, model=None):
   c.categoryname = "energy"
   c.description = ""
   _assign_category(f, c, "Energy and interaction parameters", span = True)
-  f.gravity.default = 0
-  f.use_grids.name = "Perform grid-accelerated docking"
   ### END energy category  
 
   ### START analysis category

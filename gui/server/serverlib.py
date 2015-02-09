@@ -9,9 +9,7 @@ import traceback
 response_success = """<B>Your docking parameters were received successfully</B>
 A docking protocol script was generated from your parameters
 
-<!--
 You will now receive three files for download:
-//-->
 """
 
 response_processing1_error = """<B>Your docking parameters were received successfully, but they could not be processed</B>
@@ -33,9 +31,7 @@ The ATTRACT web interface is in active development, thank you for your patience.
 
 <B>Error message</B>
 %s
-<!--
 You will now receive two files for download:
-//-->
 """
 
 response_generator_error = """<B>Your docking parameters were received successfully, but no protocol script could be generated</B>
@@ -47,9 +43,7 @@ The ATTRACT web interface is in active development, thank you for your patience.
 <B>Error message</B>
 %s
 
-<!--
 You will now receive two files for download:
-//-->
 
 """
 
@@ -60,8 +54,7 @@ This performs the docking and analysis using ATTRACT
 
 <b><i>Download the docking directory: <a href='%s'>%s</a></i></b>
 
-<!--
-The directory also contains a deployed parameter file (%s) that can be edited locally. 
+[ADVANCED]The directory also contains a deployed parameter file (%s) that can be edited locally. 
 Its resources (PDB files etc.) are deployed: they refer to the file names in the docking directory.
 
 <u>Deployed parameter files in the local ATTRACT GUI</u>
@@ -69,11 +62,10 @@ You can edit the deployed parameter file directly with the local ATTRACT GUI, an
 
 <u>Advanced usage: deployed parameter files in the web GUI</u>
 You cannot upload deployed parameter files to the web interface. You have to embed your parameter file using gui-embed, or use the embedded parameter file instead.
-//-->
-
+[/ADVANCED]
 """
 
-response_embedded = """<!-- <B>Embedded parameter file</B>
+response_embedded = """<B>Embedded parameter file</B>
 The embedded parameter file contains all docking parameters needed by ATTRACT, in a single file
 This file describes your docking protocol in a reproducible manner, e.g. for automatic recalculation
 
@@ -82,24 +74,23 @@ You can upload the embedded parameter file to the web interface and modify its p
 
 Download the embedded parameter file: <a href='%s'>%s</a>
 
-<u>Advanced usage: embedded parameter files in the local ATTRACT GUI</u>
+[ADVANCED]<u>Advanced usage: embedded parameter files in the local ATTRACT GUI</u>
 You can edit the embedded parameter file directly with the local ATTRACT GUI
 However, this file contains embedded resources (PDB files etc.). If you want to generate a new docking script, you have to deploy it first into a directory using gui-deploy, or use the deployed parameter file instead
-//-->
-
+[/ADVANCED]
 """
 
-response_deltafile = """<!-- <B>Delta file</B>
+response_deltafile = """<B>Delta file</B>
 The delta file contains the web form parameters that were filled in or changed. This file is in text format (JSON).
 The delta file is the most useful reference file for describing your docking protocol in words, e.g. a Materials & Methods section
 Providing your delta file is essential for help, support, feedback and bug reports.
 
 Download the delta file: <a href='%s'>%s</a>
 
-<u>Advanced usage: delta files in the local ATTRACT GUI</u>
+[ADVANCED]<u>Advanced usage: delta files in the local ATTRACT GUI</u>
 You can load a delta file with the local ATTRACT GUI with the option: --delta &ltdelta file&gt
 Delta files contain embedded resources (PDB files etc.): if you want to generate a new docking script, you have to save it as a parameter file and deploy it first into a directory using gui-deploy
-//-->
+[/ADVANCED]
 """
 
 class AttractServerError(Exception):
@@ -120,11 +111,15 @@ def format_delta(delta, mydir, runname="attract"):
     return "<B>Delta</B>\n" + pprint.pformat(delta)
   
   
-def serve_attract(spydertype, formlib, deploy):
+def serve_attract(spydertype, formlib, deploy, **kwargs):
   # Obtain the webdict (what the user submitted) and f, the spyderform used to generate the HTML
   webdict = spyder.formtools.cgi.dict_from_fieldstorage(cgi.FieldStorage())
-  f = formlib.webserverform(webdict, spydertype=spydertype)
-  
+  easy = "easy" in kwargs and kwargs["easy"]
+  if easy:
+    f = formlib.webserverform_easy(webdict, spydertype=spydertype)
+  else:
+    f = formlib.webserverform(webdict, spydertype=spydertype)
+    
   # Fill in links to embedded resources
   resourceobj = None  
   resourcefilevar = getattr(f, "resourcefilevar", None)
@@ -136,6 +131,10 @@ def serve_attract(spydertype, formlib, deploy):
   # Detect empty form  
   if not len(webdict) or delta is None:
     raise AttractServerError(status="You didn't submit any data", delta=None)      
+  
+  #Special case: use_iattract is by default False in the easy web interface, but True in the standard interface
+  if easy and "use_iattract" not in delta:
+    delta["use_iattract"] = False
   
   # Create a result directory
   cwd = os.getcwd()

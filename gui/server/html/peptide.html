@@ -113,6 +113,19 @@
                               <input type="number" name="p1-ensemble_size" id="p1-ensemble_size" value = "0">
                             </div>
                           </div>
+                          <div class="field-container">
+                            <div class="title"><h3>Definition of residues for HADDOCK-type distance restraints (optional)</h3></div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><p>Please supply residues as comma-separated lists of residue numbers</p></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Active residues (directly involved in the interaction)</p></div>
+                            <div class="field-item text align-right">
+                              <input type="text" name="p1-haddock_restraints-activereslist" id="p1-haddock_restraints-activereslist" value="">
+                            </div>
+                          </div>
                         </div> <!-- END: group-container -->
                       </div> <!-- END: level2 -->
 
@@ -130,18 +143,14 @@
 
                         <div class="group-container">
 
+                          <div class="field-container">
+                            <div class="title"><p>You can specify a PDB file to use as reference in RMSD calculations</p></div>
+                          </div>
 
                           <div class="field-container">
                             <div class="title"><p>Reference RMSD PDB file</p></div>
                             <div class="field-item file align-right">
                               <input type="file" name="p1-rmsd_pdb" id="p1-rmsd_pdb">
-                            </div>
-                          </div>
-
-                          <div class="field-container">
-                            <div class="title"><p>Select only backbone atoms for RMSD calculation</p></div>
-                            <div class="field-item checkbox align-right">
-                              <input type="checkbox" name="p1-rmsd_bb" id="p1-rmsd_bb" value="" checked="checked">
                             </div>
                           </div>
                         </div> <!-- END: group-container -->
@@ -194,18 +203,14 @@
 
                         <div class="group-container">
 
+                          <div class="field-container">
+                            <div class="title"><p>You can specify a PDB file to use as reference in RMSD calculations</p></div>
+                          </div>
 
                           <div class="field-container">
                             <div class="title"><p>Reference RMSD PDB file</p></div>
                             <div class="field-item file align-right">
                               <input type="file" name="p2-rmsd_pdb" id="p2-rmsd_pdb">
-                            </div>
-                          </div>
-
-                          <div class="field-container">
-                            <div class="title"><p>Select only backbone atoms for RMSD calculation</p></div>
-                            <div class="field-item checkbox align-right">
-                              <input type="checkbox" name="p2-rmsd_bb" id="p2-rmsd_bb" value="" checked="checked">
                             </div>
                           </div>
                         </div> <!-- END: group-container -->
@@ -246,13 +251,6 @@
                             <div class="title"><p>Perform grid-accelerated docking</p></div>
                             <div class="field-item checkbox align-right">
                               <input type="checkbox" name="use_grids" id="use_grids" value="" checked="checked">
-                            </div>
-                          </div>
-
-                          <div class="field-container">
-                            <div class="title"><p>Gravity</p></div>
-                            <div class="field-item checkbox align-right">
-                              <input type="checkbox" name="gravity" id="gravity" value="">
                             </div>
                           </div>
 
@@ -359,6 +357,9 @@
 
                         <div class="group-container">
 
+                          <div class="field-container">
+                            <div class="title"><p>Please supply a name for your docking run (one word)</p></div>
+                          </div>
 
                           <div class="field-container">
                             <div class="title"><p>Name of the docking run</p></div>
