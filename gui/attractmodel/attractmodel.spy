@@ -1,9 +1,7 @@
 Type Data_ATTRACT_Structures:Data{}
 Type Data_ATTRACT_Rotations:Data{}
 Type Data_ATTRACT_Translations:Data{}
-Type Data_ATTRACT_Modes:Data{}
 Type Data_ATTRACT_Restraints:Data{}
-Type Data_TXT_FileList_PDB:Data{}
 
 Type AttractSymmetry {
   *Coordinate symmetry_axis
@@ -17,7 +15,7 @@ Type AttractSymmetry {
     symmetry_axis.add_header(" - In the Docking Partner section, only define the reference partner structure")    
     symmetry_axis.add_header("If you want to use distance-restrained symmetry:")
     symmetry_axis.add_header(" - Do not provide explicit symmetry axis and origin")    
-    symmetry_axis.add_header(" - Specify aqll symmetry partners that are to be restrained")    
+    symmetry_axis.add_header(" - Specify all symmetry partners that are to be restrained")    
     symmetry_axis.add_header(" - In the Docking Partner section, specify all partner structures, which must be identical")
     symmetry_axis.name = "Generative symmetry axis"
     symmetry_origin.name = "Origin for generative symmetry axis"
@@ -123,12 +121,6 @@ Type AttractPartnerInterface {
   ## form generate_modes.name = "Generate harmonic modes"
   Bool aacontact_modes = False
   ## form aacontact_modes.name = "Use all-atom contact spring constants in mode generation"
-  *ResourceData_ATTRACT_Modes modes_file 
-  ## form modes_file.name = "Harmonic modes file"
-  ## form modes_file.type = "file"
-  *ResourceData_ATTRACT_Modes aa_modes_file 
-  ## form aa_modes_file.name = "All-atom harmonic modes file (for RMSD/collect)"
-  ## form aa_modes_file.type = "file"
   Integer nr_modes = 0
   form {
     nr_modes.name = "Number of harmonic modes to select"
@@ -138,15 +130,10 @@ Type AttractPartnerInterface {
   }
   ## validate if nr_modes != 0: assert nr_modes >= 1 and nr_modes <= 10
   ## validate if generate_modes: assert nr_modes != 0
-  ## validate if generate_modes: assert modes_file is None
-  ## validate if modes_file is not None: assert not generate_modes
   ## validate if nr_modes != 0: assert generate_modes
     
   Bool ensemble = False
   ## form ensemble.name = "The PDB is a multi-model ensemble"
-  *ResourceData_TXT_FileList_PDB ensemble_list
-  ## form ensemble_list.name = "Ensemble list file"
-  ## form ensemble_list.type = "file"
   Integer ensemble_size = 0
   ## form ensemble_size.name = "Number of conformers in the ensemble"
   ## validate if ensemble_size != 0: assert ensemble_size >= 1
@@ -158,55 +145,53 @@ Type AttractPartnerInterface {
   ## form has_hydrogens.name = "The PDB file contains all necessary atoms, including polar hydrogens"  
   Bool charged_termini = False 
   ## form charged_termini.name = "Add charged termini to each chain"  
-  
-  Bool deflex = False
-  ## form deflex.add_header("If you perform RMSD analysis, you may remove all flexibility (ensemble and modes) beforehand")
-  ## form deflex.name = "Remove flexibility" 
-  
+    
   *ResourceData_PDB rmsd_pdb
   ## form rmsd_pdb.add_header("You can specify a PDB file to use as reference in RMSD calculations")
   ## form rmsd_pdb.add_header("Leave blank to use the docked PDB instead (bound conformation = unbound conformation)")
   ## form rmsd_pdb.name = "RMSD PDB file"
   ## form rmsd_pdb.type = "file"
-  Bool rmsd_bb = True
-  ## form rmsd_bb.name = "Select only backbone atoms for RMSD calculation"
+  *ResourceData_PDB rmsd_pdb_alt
+  ## form rmsd_pdb_alt.add_header("It is possible to specify alternative references ")
+  ## form rmsd_pdb_alt.name = "Alternative RMSD PDB file"
+  ## form rmsd_pdb_alt.type = "file"  
+  *ResourceData_PDB rmsd_pdb_alt2
+  ## form rmsd_pdb_alt2.name = "Alternative RMSD PDB file 2"
+  ## form rmsd_pdb_alt2.type = "file"    
+  validate {
+    if rmsd_pdb_alt is not None: assert rmsd_pdb is not None
+    if rmsd_pdb_alt2 is not None: assert rmsd_pdb_alt is not None
+  }
+  error {
+    'if rmsd_pdb_alt is not None: assert rmsd_pdb is not None'
+    =>
+    'If you specify an alternative RMSD reference, also provide a main PDB reference'
 
-  *ResourceData_PDB collect_pdb
-  ## form collect_pdb.add_header("You can specify a different PDB file to use as template for collecting the structures")
-  ## form collect_pdb.add_header("Leave blank to use the reduced PDB instead")
-  ## form collect_pdb.name = "Collect PDB file"
-  ## form collect_pdb.type = "file"
-  *ResourceData_TXT_FileList_PDB collect_ensemble_list
-  ## form collect_ensemble_list.add_header("If you specified a PDB file above, you may provide an ensemble conformer list for it")
-  ## form collect_ensemble_list.name = "Collect ensemble list file"
-  ## form collect_ensemble_list.type = "file"  
-
+    'if rmsd_pdb_alt2 is not None: assert rmsd_pdb_alt is not None'
+    =>
+    'You specified a second alternative RMSD reference, but not a first alternative'    
+  }
   validate {
     if chain not in ("All", "A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"):
        raise spyder.core.ValidationError("Please provide a chain")  
     if ensemble:
-      assert ensemble_list is None
       assert ensemble_size > 1
       assert ensemblize is not None
     else:
-      assert (ensemble_size in (0,1)) == (ensemble_list is None) == (ensemblize is None)
+      assert (ensemble_size in (0,1)) == (ensemblize is None)
   }
   error {
     'assert ensemblize is not None'
     =>
     'The ensemble search must be defined'
 
-    'assert (ensemble_size in (0,1)) == (ensemble_list is None) == (ensemblize is None)'
+    'assert (ensemble_size in (0,1)) == (ensemblize is None)'
     =>
-    'You must define the ensemble size, ensemble list file and ensemble search, or none of the above'
+    'You must define the ensemble size and ensemble search, or none of the above'
 
     'if ensemblize is not None: assert ensemblize in ("random","all","custom")'
     =>
     ''
-
-    'assert ensemble_list is None'
-    =>
-    'If the PDB is already an multi-model ensemble, you can't define an ensemble list as well'
 
     'raise spyder.core.ValidationError("Please provide a chain")'
     =>
@@ -220,10 +205,6 @@ Type AttractPartnerInterface {
     'if moleculetype is not None: assert moleculetype in ("Protein", "DNA", "RNA")'
     =>
     ''
-
-    'if generate_modes: assert modes_file is None'
-    =>
-    'If you want to generate modes, you can't supply a pre-generated modes file'
 
     'assert ensemble_size > 1'
     =>
@@ -240,10 +221,6 @@ Type AttractPartnerInterface {
     'if nr_modes != 0: assert generate_modes'
     =>
     'You defined a number of modes, but you did not turn on harmonic mode generation'
-
-    'if modes_file is not None: assert not generate_modes'
-    =>
-    'If you supply a harmonic modes file, you can't have them generated'   
   }
 }
 
@@ -485,9 +462,11 @@ Type AttractModel {
       assert len(partners) == 2          
   }
   Bool demode = False
-  ## form demode.add_header("If you used flexibility in the form normal modes or iATTRACT, you may choose remove the deformations (de-mode) after the docking")
+  ## form demode.add_header("If you used flexibility in the form of normal modes or iATTRACT, you may choose remove the deformations (de-mode) after the docking")
   ## form demode.name = "De-mode" 
   
+  Bool use_iattract = True
+  ## form use_iattract.name = "Perform iATTRACT refinement after the docking"  
   *IAttractParameters iattract
   form {
     iattract.nstruc.default = 50
@@ -501,6 +480,7 @@ Type AttractModel {
     translations_file.group = "Sampling parameters"
     restraints_file.group = "Sampling parameters"
     restraints_score_weight.group = "Sampling parameters"
+    use_iattract.group = "Sampling parameters"
     iattract.group = "Sampling parameters"
     demode.group = "Sampling parameters"
   }
@@ -594,7 +574,11 @@ Type AttractModel {
   Bool sort = True
   Bool deredundant = True
   Bool deredundant_ignorens = True
+  Bool deflex = False
+  ## form deflex.add_header("If you perform RMSD analysis, you may remove all flexibility (ensemble and modes) beforehand")
+  ## form deflex.name = "Remove flexibility"   
   Bool calc_lrmsd = False  
+  Enum rmsd_atoms("all","backbone","trace") = "backbone"
   Bool calc_irmsd = False
   Bool calc_fnat = False
   Bool collect = True
@@ -605,7 +589,9 @@ Type AttractModel {
     sort.group = "Analysis"
     deredundant.group = "Analysis"
     deredundant_ignorens.group = "Analysis"
+    deflex.group = "Analysis"
     calc_lrmsd.group = "Analysis"
+    rmsd_atoms.group = "Analysis"
     calc_irmsd.group = "Analysis"
     calc_fnat.group = "Analysis"
     collect.group = "Analysis"
@@ -614,14 +600,28 @@ Type AttractModel {
     rescoring.name = "Perform a rescoring step after docking"
     rcut_rescoring.add_header("The nonbonded pairlist distance cutoff (rcut) (in A**2) during rescoring")
     rcut_rescoring.name = "rcut (rescoring)"
-    sort.name = "Sort the final structures according to ATTRACT energy"
+    sort.name = "Sort the final structures according to forcefield energy"
     deredundant.name = "Remove redundant structures after docking"
     deredundant_ignorens.name = "Ignore ensemble conformers for redundancy"
     calc_lrmsd.name = "Calculate ligand RMSD after docking"
+    rmsd_atoms.name = "Which atoms to use in RMSD calculation"
+    rmsd_atoms.optiontitles = (
+      "All heavy atoms",
+      "Protein backbone",
+      "Trace (CA or P; ligand RMSD only)"
+    )
     calc_irmsd.name = "Calculate interface RMSD after docking"
     calc_fnat.name = "Calculate fraction of native contacts after docking"
     collect.name = "Collect the structures as PDBs after docking"
     nr_collect.name = "Number of structures to collect"
+  }
+  validate {
+    if len(partners) and calc_lrmsd: assert partners[0].rmsd_pdb_alt is None
+    for p in partners[1:]:
+      if calc_lrmsd and rmsd_atoms == "backbone": assert p.moleculetype == "Protein"      
+    for p in partners[2:]:
+      if calc_lrmsd and rmsd_atoms == "trace" and partners[1].moleculetype == "Protein": assert p.moleculetype == "Protein"
+      if calc_lrmsd and rmsd_atoms == "trace" and partners[1].moleculetype in ("DNA", "RNA"): assert p.moleculetype in ("DNA", "RNA")
   }
   #***
     
@@ -659,8 +659,6 @@ Type AttractModel {
         assert partner.gridname in gridnames, partner.gridname     
     
     assert len(partners) > 0
-    for p in partners:
-      if (calc_fnat or calc_irmsd or calc_lrmsd) and p.moleculetype != "Protein" and p.rmsd_bb == True: raise AssertionError
   }
   
   error {
@@ -731,10 +729,6 @@ Type AttractModel {
     'if ghost: assert not ghost_ligands'
     =>
     'ghost mode and ghost-ligands mode are mutually exclusive'
-
-    'if (calc_fnat or calc_irmsd or calc_lrmsd) and p.moleculetype != "Protein" and p.rmsd_bb == True: raise AssertionError'
-    =>
-    'Selecting backbone coordinates for RMSD calculation is only possible for proteins'
     
     'for p in partners: assert p.haddock_restraints is None'
     =>
@@ -752,6 +746,26 @@ Type AttractModel {
     =>
     'If you define HADDOCK restraints, you must do so for at least two partners'
     
+    'if len(partners) and calc_lrmsd: assert partners[0].rmsd_pdb_alt is None'
+    =>
+    'When there are multiple receptor reference structures, ligand RMSD cannot be computed with ATTRACT'
+    
+    'if calc_lrmsd and rmsd_atoms == "backbone": assert p.moleculetype == "Protein"'
+    =>
+    'If you use backbone atoms for ligand RMSD calculations, all your ligands must be proteins'
+
+    'if rmsd_atoms is not None: assert rmsd_atoms in ("all","backbone","trace")'
+    =>
+    ''
+    
+    'if calc_lrmsd and rmsd_atoms == "trace" and partners[1].moleculetype in ("DNA", "RNA"): assert p.moleculetype in ("DNA", "RNA")'
+    =>
+    'If you want to use the P trace to calculate ligand RMSD, all ligands must be DNA/RNA, not just the first'
+
+    'if calc_lrmsd and rmsd_atoms == "trace" and partners[1].moleculetype == "Protein": assert p.moleculetype == "Protein"'
+    =>
+    'If you want to use the CA trace to calculate ligand RMSD, all ligands must be protein, not just the first'
+  
   }
   
 }

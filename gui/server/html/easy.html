@@ -165,69 +165,6 @@
                               <input type="file" name="partners-0-rmsd_pdb" id="partners-0-rmsd_pdb">
                             </div>
                           </div>
-
-                          <div class="field-container">
-                            <div class="title"><p>Select only backbone atoms for RMSD calculation</p></div>
-                            <div class="field-item checkbox align-right">
-                              <input type="checkbox" name="partners-0-rmsd_bb" id="partners-0-rmsd_bb" value="" checked="checked">
-                            </div>
-                          </div>
-                        </div> <!-- END: group-container -->
-                      </div> <!-- END: level2 -->
-
-                      <div class="level2">
-
-                        <div class="group-container">
-
-                          <div class="group-inline clearfix">
-
-                            <div class="field-container">
-                              <div class="title"><p>What kind of molecule are you docking?</p></div>
-                              <div class="field-item select align-right">
-                                <select name="partners-0-moleculetype" id="partners-0-moleculetype">
-                                  <option value="Protein" selected>Protein</option>
-                                </select>
-                              </div>
-                            </div>
-
-                            <div class="field-container">
-                              <div class="title"><p>The PDB file contains all necessary atoms, including polar hydrogens</p></div>
-                              <div class="field-item checkbox align-right">
-                                <input type="checkbox" name="partners-0-has_hydrogens" id="partners-0-has_hydrogens" value="">
-                              </div>
-                            </div>
-
-                          </div> <!--END: group-inline -->
-                        </div> <!-- END: group-container -->
-                      </div> <!-- END: level2 -->
-
-                      <div class="level2">
-
-                        <div class="group-container">
-
-                          <div class="field-container">
-                            <div class="title"><h3>Definition of residues for HADDOCK-type distance restraints (optional)</h3></div>
-                          </div>
-                          <div class="group-inline clearfix">
-                            <div class="field-container">
-                              <div class="title"><p>Please supply residues as comma-separated lists of residue numbers</p></div>
-                            </div>
-
-                            <div class="field-container">
-                              <div class="title"><p>Active residues (directly involved in the interaction)</p></div>
-                              <div class="field-item text align-right">
-                                <input type="text" name="partners-0-haddock_restraints-activereslist" id="partners-0-haddock_restraints-activereslist" value="">
-                              </div>
-                            </div>
-
-                            <div class="field-container">
-                              <div class="title"><p>Passive residues (surrounding surface residues)</p></div>
-                              <div class="field-item text align-right">
-                                <input type="text" name="partners-0-haddock_restraints-passivereslist" id="partners-0-haddock_restraints-passivereslist" value="">
-                              </div>
-                            </div>
-
-                          </div> <!--END: group-inline -->
                         </div> <!-- END: group-container -->
                       </div> <!-- END: level2 -->
                     </div><!-- END: level1-container -->
@@ -317,72 +254,6 @@
                               <input type="file" name="partners-1-rmsd_pdb" id="partners-1-rmsd_pdb">
                             </div>
                           </div>
-
-                          <div class="field-container">
-                            <div class="title"><p>Select only backbone atoms for RMSD calculation</p></div>
-                            <div class="field-item checkbox align-right">
-                              <input type="checkbox" name="partners-1-rmsd_bb" id="partners-1-rmsd_bb" value="" checked="checked">
-                            </div>
-                          </div>
-                        </div> <!-- END: group-container -->
-                      </div> <!-- END: level2 -->
-
-                      <div class="level2">
-
-                        <div class="group-container">
-
-                          <div class="group-inline clearfix">
-
-                            <div class="field-container">
-                              <div class="title"><p>What kind of molecule are you docking?</p></div>
-                              <div class="field-item select align-right">
-                                <select name="partners-1-moleculetype" id="partners-1-moleculetype">
-                                  <option value="Protein" selected>Protein</option>
-                                  <option value="Peptide">Peptide</option>
-                                  <option value="DNA">DNA</option>
-                                  <option value="RNA">RNA</option>
-                                </select>
-                              </div>
-                            </div>
-
-                            <div class="field-container">
-                              <div class="title"><p>The PDB file contains all necessary atoms, including polar hydrogens</p></div>
-                              <div class="field-item checkbox align-right">
-                                <input type="checkbox" name="partners-1-has_hydrogens" id="partners-1-has_hydrogens" value="">
-                              </div>
-                            </div>
-
-                          </div> <!--END: group-inline -->
-                        </div> <!-- END: group-container -->
-                      </div> <!-- END: level2 -->
-
-                      <div class="level2">
-
-                        <div class="group-container">
-
-                          <div class="field-container">
-                            <div class="title"><h3>Definition of residues for HADDOCK-type distance restraints (optional)</h3></div>
-                          </div>
-                          <div class="group-inline clearfix">
-                            <div class="field-container">
-                              <div class="title"><p>Please supply residues as comma-separated lists of residue numbers</p></div>
-                            </div>
-
-                            <div class="field-container">
-                              <div class="title"><p>Active residues (directly involved in the interaction)</p></div>
-                              <div class="field-item text align-right">
-                                <input type="text" name="partners-1-haddock_restraints-activereslist" id="partners-1-haddock_restraints-activereslist" value="">
-                              </div>
-                            </div>
-
-                            <div class="field-container">
-                              <div class="title"><p>Passive residues (surrounding surface residues)</p></div>
-                              <div class="field-item text align-right">
-                                <input type="text" name="partners-1-haddock_restraints-passivereslist" id="partners-1-haddock_restraints-passivereslist" value="">
-                              </div>
-                            </div>
-
-                          </div> <!--END: group-inline -->
                         </div> <!-- END: group-container -->
                       </div> <!-- END: level2 -->
                     </div><!-- END: level1-container -->
@@ -428,35 +299,7 @@
                           <div class="field-container">
                             <div class="title"><p>Perform iATTRACT refinement after the docking</p></div>
                             <div class="field-item checkbox align-right">
-                              <input type="checkbox" name="use_iattract" id="use_iattract" value="" checked="checked">
-                            </div>
-                          </div>
-                          <div class="field-container">
-                            <div class="title"><p>Which forcefield is to be used?</p></div>
-                          </div>
-
-                          <div class="field-container">
-                            <div class="title"><p>Forcefield</p></div>
-                            <div class="field-item select align-right">
-                              <select name="forcefield" id="forcefield">
-                                <option value="ATTRACT" selected>ATTRACT</option>
-                                <option value="OPLSX">OPLSX</option>
-                              </select>
-                            </div>
-                          </div>
-                          <div class="field-container">
-                            <div class="title"><p>External tool for PDB completion and hydrogens<br>NOTE: PDB2PQR, AMBER and CNS require a local installation<br>NOTE: PDB2PQR only completes proteins; WHATIF is used for nucleic acids</p></div>
-                          </div>
-
-                          <div class="field-container">
-                            <div class="title"><p>PDB completion method</p></div>
-                            <div class="field-item select align-right">
-                              <select name="completion_tool" id="completion_tool">
-                                <option value="whatif">WHATIF web server</option>
-                                <option value="pdb2pqr_whatif" selected>PDB2PQR</option>
-                                <option value="amber">AMBER</option>
-                                <option value="cns">CNS</option>
-                              </select>
+                              <input type="checkbox" name="use_iattract" id="use_iattract" value="">
                             </div>
                           </div>
                         </div> <!-- END: group-container -->

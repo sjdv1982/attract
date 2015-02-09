@@ -12,7 +12,7 @@ try:
   import spyder, Spyder
   import spyder.formtools
   import attractmodel
-  import form_narefine
+  import form_standard
   import attractsave
   from serverlib import serve_attract, AttractServerError
   os.system("chmod a+r+w /tmp/*spy.*")
@@ -28,7 +28,7 @@ The ATTRACT web interface is in active development, thank you for your patience.
   sys.exit()
   
 try:  
-  r = serve_attract(Spyder.NARefineInterface, form_narefine, attractsave.deploy_narefine)
+  r = serve_attract(Spyder.AttractEasyModel, form_standard, attractsave.deploy_easy, easy=False)
   report(r)
 except AttractServerError as e:
   report("<b>There was an inconsistency in your data</b>")

@@ -200,21 +200,11 @@
                           <div class="group-inline clearfix">
 
                             <div class="field-container">
-                              <div class="title"><p>Harmonic modes file</p></div>
-                              <div class="field-item file align-right">
-                                <input type="file" name="partners-0-modes_file" id="partners-0-modes_file">
-                              </div>
-                            </div>
-
-                            <div class="field-container">
                               <div class="title"><p>Or: generate harmonic modes automatically</p></div>
                               <div class="field-item checkbox align-right">
                                 <input type="checkbox" name="partners-0-generate_modes" id="partners-0-generate_modes" value="">
                               </div>
                             </div>
-
-                          </div> <!--END: group-inline -->
-                          <div class="group-inline clearfix">
 
                             <div class="field-container">
                               <div class="title"><p>Use all-atom contact spring constants in mode generation</p></div>
@@ -223,19 +213,12 @@
                               </div>
                             </div>
 
-                            <div class="field-container">
-                              <div class="title"><p>Number of modes to select</p></div>
-                              <div class="field-item number align-right">
-                                <input type="number" name="partners-0-nr_modes" id="partners-0-nr_modes" value = "0" min="1" max="10">
-                              </div>
-                            </div>
-
                           </div> <!--END: group-inline -->
 
                           <div class="field-container">
-                            <div class="title"><p>All-atom harmonic modes file (for RMSD/collect)</p></div>
-                            <div class="field-item file align-right">
-                              <input type="file" name="partners-0-aa_modes_file" id="partners-0-aa_modes_file">
+                            <div class="title"><p>Number of modes to select</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="partners-0-nr_modes" id="partners-0-nr_modes" value = "0" min="1" max="10">
                             </div>
                           </div>
                         </div> <!-- END: group-container -->
@@ -258,32 +241,25 @@
                           <div class="group-inline clearfix">
 
                             <div class="field-container">
-                              <div class="title"><p>Ensemble list file</p></div>
-                              <div class="field-item file align-right">
-                                <input type="file" name="partners-0-ensemble_list" id="partners-0-ensemble_list">
-                              </div>
-                            </div>
-
-                            <div class="field-container">
                               <div class="title"><p>Number of conformers in the ensemble</p></div>
                               <div class="field-item number align-right">
                                 <input type="number" name="partners-0-ensemble_size" id="partners-0-ensemble_size" value = "0" min="1">
                               </div>
                             </div>
 
-                          </div> <!--END: group-inline -->
-
-                          <div class="field-container">
-                            <div class="title"><p>Ensemble search</p></div>
-                            <div class="field-item select align-right">
-                              <select name="partners-0-ensemblize" id="partners-0-ensemblize">
-                                <option value="" selected></option>
-                                <option value="random">Random</option>
-                                <option value="all">All</option>
-                                <option value="custom">Custom (none)</option>
-                              </select>
+                            <div class="field-container">
+                              <div class="title"><p>Ensemble search</p></div>
+                              <div class="field-item select align-right">
+                                <select name="partners-0-ensemblize" id="partners-0-ensemblize">
+                                  <option value="" selected></option>
+                                  <option value="random">Random</option>
+                                  <option value="all">All</option>
+                                  <option value="custom">Custom (none)</option>
+                                </select>
+                              </div>
                             </div>
-                          </div>
+
+                          </div> <!--END: group-inline -->
                         </div> <!-- END: group-container -->
                       </div> <!-- END: level2 -->
 
@@ -301,57 +277,36 @@
 
                         <div class="group-container">
 
+                          <div class="field-container">
+                            <div class="title"><p>You can specify a PDB file to use as reference in RMSD calculations<br>Leave blank to use the docked PDB instead (bound conformation = unbound conformation)</p></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Reference RMSD PDB file</p></div>
+                            <div class="field-item file align-right">
+                              <input type="file" name="partners-0-rmsd_pdb" id="partners-0-rmsd_pdb">
+                            </div>
+                          </div>
                           <div class="group-inline clearfix">
                             <div class="field-container">
-                              <div class="title"><p>You can specify a PDB file to use as reference in RMSD calculations<br>Leave blank to use the docked PDB instead (bound conformation = unbound conformation)</p></div>
+                              <div class="title"><p>It is possible to specify alternative references </p></div>
                             </div>
 
                             <div class="field-container">
-                              <div class="title"><p>Reference RMSD PDB file</p></div>
+                              <div class="title"><p>Alternative RMSD PDB file</p></div>
                               <div class="field-item file align-right">
-                                <input type="file" name="partners-0-rmsd_pdb" id="partners-0-rmsd_pdb">
+                                <input type="file" name="partners-0-rmsd_pdb_alt" id="partners-0-rmsd_pdb_alt">
                               </div>
                             </div>
-                            <div class="field-container">
-                              <div class="title"><p>You can specify a different PDB file to use as template for collecting the structures<br>Leave blank to use the reduced PDB instead</p></div>
-                            </div>
 
                             <div class="field-container">
-                              <div class="title"><p>Collect PDB file</p></div>
+                              <div class="title"><p>Alternative RMSD PDB file 2</p></div>
                               <div class="field-item file align-right">
-                                <input type="file" name="partners-0-collect_pdb" id="partners-0-collect_pdb">
+                                <input type="file" name="partners-0-rmsd_pdb_alt2" id="partners-0-rmsd_pdb_alt2">
                               </div>
                             </div>
 
                           </div> <!--END: group-inline -->
-                          <div class="field-container">
-                            <div class="title"><p>If you specified a PDB file above, you may provide an ensemble conformer list for it</p></div>
-                          </div>
-
-                          <div class="field-container">
-                            <div class="title"><p>Collect ensemble list file</p></div>
-                            <div class="field-item file align-right">
-                              <input type="file" name="partners-0-collect_ensemble_list" id="partners-0-collect_ensemble_list">
-                            </div>
-                          </div>
-
-                          <div class="field-container">
-                            <div class="title"><p>Select only backbone atoms for RMSD calculation</p></div>
-                            <div class="field-item checkbox align-right">
-                              <input type="checkbox" name="partners-0-rmsd_bb" id="partners-0-rmsd_bb" value="" checked="checked">
-                            </div>
-                          </div>
-                          <div class="field-container">
-                            <div class="title"><p>If you perform RMSD analysis, you may remove all flexibility (ensemble and modes) beforehand</p></div>
-                          </div>
-
-                          <div class="field-container">
-                            <div class="title"><p>Remove flexibility</p></div>
-                            <div class="tooltip"><div class="tooltip-body"><a href="documentation.html#partners-no_flex" target="_blank">Remove flexibility</a></div></div>
-                            <div class="field-item checkbox align-right">
-                              <input type="checkbox" name="partners-0-deflex" id="partners-0-deflex" value="">
-                            </div>
-                          </div>
                         </div> <!-- END: group-container -->
                       </div> <!-- END: level2 -->
 
@@ -755,7 +710,7 @@
                             </div>
                           </div>
                           <div class="field-container">
-                            <div class="title"><p>If you used flexibility in the form normal modes or iATTRACT, you may choose remove the deformations (de-mode) after the docking</p></div>
+                            <div class="title"><p>If you used flexibility in the form of normal modes or iATTRACT, you may choose remove the deformations (de-mode) after the docking</p></div>
                           </div>
 
                           <div class="field-container">
@@ -764,10 +719,17 @@
                               <input type="checkbox" name="demode" id="demode" value="">
                             </div>
                           </div>
-                          <div class="group-inline clearfix">
-                            <div class="field-container">
-                              <div class="title"><h3>iATTRACT parameters</h3></div>
+                          <div class="field-container">
+                            <div class="title"><p>iATTRACT parameters</p></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Perform iATTRACT refinement after the docking</p></div>
+                            <div class="field-item checkbox align-right">
+                              <input type="checkbox" name="use_iattract" id="use_iattract" value="" checked="checked">
                             </div>
+                          </div>
+                          <div class="group-inline clearfix">
 
                             <div class="field-container">
                               <div class="title"><p>Number of structures to refine</p></div>
@@ -1236,7 +1198,7 @@
                 </div><!-- END: UI container -->
               </div>
 
-              <div id="page7" class="category-container">
+              <div id="page8" class="category-container">
                 <div class="form-category-description">
                   <div class="large-icon analysis-icon"></div>
                   <div class="description">
@@ -1271,7 +1233,7 @@
                             </div>
 
                             <div class="field-container">
-                              <div class="title"><p>Sort the final structures according to ATTRACT energy</p></div>
+                              <div class="title"><p>Sort the final structures according to forcefield energy</p></div>
                               <div class="field-item checkbox align-right">
                                 <input type="checkbox" name="sort" id="sort" value="" checked="checked">
                               </div>
@@ -1296,11 +1258,36 @@
 
                           </div> <!--END: group-inline -->
                           <div class="group-inline clearfix">
+                            <div class="field-container">
+                              <div class="title"><p>If you perform RMSD analysis, you may remove all flexibility (ensemble and modes) beforehand</p></div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Remove flexibility</p></div>
+                              <div class="tooltip"><div class="tooltip-body"><a href="documentation.html#partners-no_flex" target="_blank">Remove flexibility</a></div></div>
+                              <div class="field-item checkbox align-right">
+                                <input type="checkbox" name="deflex" id="deflex" value="">
+                              </div>
+                            </div>
 
                             <div class="field-container">
                               <div class="title"><p>Calculate ligand RMSD after docking</p></div>
                               <div class="field-item checkbox align-right">
                                 <input type="checkbox" name="calc_lrmsd" id="calc_lrmsd" value="">
+                              </div>
+                            </div>
+
+                          </div> <!--END: group-inline -->
+                          <div class="group-inline clearfix">
+
+                            <div class="field-container">
+                              <div class="title"><p>Which atoms to use in RMSD calculation</p></div>
+                              <div class="field-item select align-right">
+                                <select name="rmsd_atoms" id="rmsd_atoms">
+                                  <option value="all">All heavy atoms</option>
+                                  <option value="backbone" selected>Protein backbone</option>
+                                  <option value="trace">Trace (CA or P; ligand RMSD only)</option>
+                                </select>
                               </div>
                             </div>
 

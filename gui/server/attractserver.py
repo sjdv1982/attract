@@ -3,7 +3,10 @@
 #!/usr/bin/env python
 from __future__ import print_function
 
-print("Content-type: text/html\n\n<pre>")
+def report(s):
+  print(s.replace("[ADVANCED]","").replace("[/ADVANCED]",""))
+
+report("Content-type: text/html\n\n<pre>")
 
 try:  
   import os, sys, time, traceback
@@ -22,28 +25,28 @@ The ATTRACT web interface is in active development, thank you for your patience.
 """
   s += "\n<B>Full error information</B>:\n\n"
   s += traceback.format_exc()
-  print(s)
-  print("</pre>")
+  report(s)
+  report("</pre>")
   sys.exit()
   
 try:  
   r = serve_attract(Spyder.AttractModel, form_model, attractsave.deploy)
-  print(r)
+  report(r)
 except AttractServerError as e:
-  print("<b>There was an inconsistency in your data</b>")
-  print("\n<B>Error message</B>")
-  print(e.status)
-  print()
-  if e.delta is not None: print(e.delta)
-  print("</pre>") 
+  report("<b>There was an inconsistency in your data</b>")
+  report("\n<B>Error message</B>")
+  report(e.status)
+  report()
+  if e.delta is not None: report(e.delta)
+  report("</pre>") 
   sys.exit()  
 except Exception as e:
-  print("There was an unknown error in the server")
-  print("""Please save this page from your browser as HTML and email it to sjoerd@tum.de, and it will be fixed as soon as possible.
+  report("There was an unknown error in the server")
+  report("""Please save this page from your browser as HTML and email it to sjoerd@tum.de, and it will be fixed as soon as possible.
 The ATTRACT web interface is in active development, thank you for your patience.  
 """)  
-  print(traceback.format_exc() + "\n")
-  print("</pre>") 
+  report(traceback.format_exc() + "\n")
+  report("</pre>") 
   sys.exit()
 
-print("</pre>")
+report("</pre>")

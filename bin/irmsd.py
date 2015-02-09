@@ -87,7 +87,7 @@ def get_interface(boundatoms):
   ret = [(v[0],v[1]) for v in ret]
   return ret
   
-def get_selection(boundatoms, use_allresidues, use_allatoms):
+def get_selection(boundatoms, atomnames, use_allresidues, use_allatoms):
   
   allatoms = []
   for b in boundatoms: allatoms += b[1]
@@ -97,7 +97,7 @@ def get_selection(boundatoms, use_allresidues, use_allatoms):
     selatoms = [(n+1,a) for n,a in enumerate(allatoms)]
       
   if not use_allatoms:
-    selatoms = [(n,a) for n,a in selatoms if a[13:15] in ("CA","C ","O ","N ")]
+    selatoms = [(n,a) for n,a in selatoms if a[13:16].strip() in atomnames]
   selected = set([n for n,a in selatoms])
 
   mask = []
@@ -171,6 +171,7 @@ if __name__ == "__main__":
 
   anr = 0
   output = None
+  atomnames = ("CA","C","O","N")
   while 1:
     anr += 1
         
@@ -188,6 +189,18 @@ if __name__ == "__main__":
       opt_allresidues = True
       anr -= 1
       continue  
+      
+    if arg == "--ca": 
+      sys.argv = sys.argv[:anr] + sys.argv[anr+1:]
+      atomnames = ("CA",)
+      anr -= 1
+      continue
+
+    if arg == "--p": 
+      sys.argv = sys.argv[:anr] + sys.argv[anr+1:]
+      atomnames = ("P",)
+      anr -= 1
+      continue
       
     if anr <= len(sys.argv)-3 and arg == "--ens":
       ensfiles.append((sys.argv[anr+1],sys.argv[anr+2]))
@@ -262,7 +275,7 @@ if __name__ == "__main__":
   for b in bounds:
     boundatoms.append(read_pdb(b))
 
-  boundsizes = [len(b[1]) for b in boundatoms]
+  boundsizes = [len([a for a in b[1] if a[12:16].strip()[0] != "H"]) for b in boundatoms]
   unboundsizes = []
   start = 0
   for i in collectlib.ieins[:len(unbounds)]:
@@ -275,7 +288,7 @@ if __name__ == "__main__":
 
   allboundatoms = []
   for b in boundatoms: allboundatoms += b[0]
-  sel = get_selection(boundatoms, opt_allresidues, opt_allatoms)
+  sel = get_selection(boundatoms, atomnames, opt_allresidues, opt_allatoms)
   allboundatoms = numpy.array(allboundatoms)
   fboundatoms = allboundatoms[sel]
 
