@@ -93,6 +93,9 @@ def webform(f, model=None):
   f.resourcefilevar = "_tempresource"
   f.arraymarker = "_clonearraymarker"
 
+
+  f.completion_tool.type = None #hide in web interface
+  
   ### START partners category
   c = f.new_group("c_partners", "category")
   c.page = 1
@@ -112,8 +115,10 @@ def webform(f, model=None):
   bp1.members.append("p1")   
   f.p1.controltitle = ""
   f.p1.name = ""
+  f.p1.has_hydrogens.type = None #hide in web interface
+  
   fp = f.p1
-  fp.group = None
+  fp.group = None  
   b = fp.new_group("b_struc","block")
   b.title = "Structure Sources"
   b.has_switch = False
@@ -127,6 +132,7 @@ def webform(f, model=None):
   ff = fp.ensemble_size
   ff.tooltip_doc = "documentation.html#partners-ensemble_size"
   ff.span = True
+  fp.haddock_restraints.span = True
   ### END b_struc block
 
 

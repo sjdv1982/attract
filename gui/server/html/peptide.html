@@ -95,34 +95,24 @@
                           <div class="field-container">
                             <div class="title"><h3></h3></div>
                           </div>
-                          <div class="group-inline clearfix">
-                            <div class="field-container">
-                              <div class="title"><h3>Structure Sources</h3></div>
-                            </div>
+                          <div class="field-container">
+                            <div class="title"><h3>Structure Sources</h3></div>
+                          </div>
 
-                            <div class="field-container">
-                              <div class="title"><p>Structure file</p></div>
-                              <div class="tooltip"><div class="tooltip-body"><a href="documentation.html#partners-structure_file" target="_blank">Upload PDB structure file</a></div></div>
-                              <div class="field-item file align-right">
-                                <input type="file" name="p1-pdbfile" id="p1-pdbfile">
-                              </div>
+                          <div class="field-container">
+                            <div class="title"><p>Structure file</p></div>
+                            <div class="tooltip"><div class="tooltip-body"><a href="documentation.html#partners-structure_file" target="_blank">Upload PDB structure file</a></div></div>
+                            <div class="field-item file align-right">
+                              <input type="file" name="p1-pdbfile" id="p1-pdbfile">
                             </div>
+                          </div>
 
-                            <div class="field-container">
-                              <div class="title"><p>If the PDB is a multi-model ensemble, specify the number of conformers</p></div>
-                              <div class="field-item number align-right">
-                                <input type="number" name="p1-ensemble_size" id="p1-ensemble_size" value = "0">
-                              </div>
+                          <div class="field-container">
+                            <div class="title"><p>If the PDB is a multi-model ensemble, specify the number of conformers</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="p1-ensemble_size" id="p1-ensemble_size" value = "0">
                             </div>
-
-                            <div class="field-container">
-                              <div class="title"><p>The PDB file contains all necessary atoms, including polar hydrogens</p></div>
-                              <div class="field-item checkbox align-right">
-                                <input type="checkbox" name="p1-has_hydrogens" id="p1-has_hydrogens" value="">
-                              </div>
-                            </div>
-
-                          </div> <!--END: group-inline -->
+                          </div>
                           <div class="field-container">
                             <div class="title"><h3>Definition of residues for HADDOCK-type distance restraints (optional)</h3></div>
                           </div>
@@ -268,21 +258,6 @@
                             <div class="title"><p>Perform iATTRACT refinement after the docking</p></div>
                             <div class="field-item checkbox align-right">
                               <input type="checkbox" name="use_iattract" id="use_iattract" value="" checked="checked">
-                            </div>
-                          </div>
-                          <div class="field-container">
-                            <div class="title"><p>External tool for PDB completion and hydrogens<br>NOTE: PDB2PQR, AMBER and CNS require a local installation<br>NOTE: PDB2PQR only completes proteins; WHATIF is used for nucleic acids</p></div>
-                          </div>
-
-                          <div class="field-container">
-                            <div class="title"><p>PDB completion method</p></div>
-                            <div class="field-item select align-right">
-                              <select name="completion_tool" id="completion_tool">
-                                <option value="whatif">WHATIF web server</option>
-                                <option value="pdb2pqr_whatif" selected>PDB2PQR</option>
-                                <option value="amber">AMBER</option>
-                                <option value="cns">CNS</option>
-                              </select>
                             </div>
                           </div>
                         </div> <!-- END: group-container -->
