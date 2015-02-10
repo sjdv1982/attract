@@ -23,14 +23,24 @@ except ImportError:
 #Mapping of nucleic-acid codes to DNA/RNA
 mapnuc = {
   "A": ["DA", "RA"],
+  "A3": ["DA", "RA"],
+  "A5": ["DA", "RA"],
   "ADE": ["DA", "RA"],
   "C": ["DC", "RC"],
+  "C3": ["DC", "RC"],
+  "C5": ["DC", "RC"],
   "CYT": ["DC", "RC"],
   "G": ["DG", "RG"],
+  "G3": ["DG", "RG"],
+  "G5": ["DG", "RG"],
   "GUA": ["DG", "RG"],
   "T": ["DT", None],
+  "T3": ["DT", None],
+  "T5": ["DT", None],
   "THY": ["DT", None],
   "U": [None, "RU"],
+  "U3": [None, "RU"],
+  "U5": [None, "RU"],
   "URA": [None, "RU"],
   "URI": [None, "RU"],  
 } 
@@ -46,6 +56,7 @@ else:
 parser.add_argument("--dna",help="Automatically interpret nucleic acids as DNA", action="store_true")
 parser.add_argument("--rna",help="Automatically interpret nucleic acids as RNA", action="store_true")
 parser.add_argument("--compat",help="Maximize compatibility with reduce.f", action="store_true")
+parser.add_argument("--chain", help="Set the chain in the output PDB", default=" ")
 
 if has_argparse:
   args = parser.parse_args()
@@ -95,6 +106,8 @@ def read_forcefield(forcefieldfile):
 ff = read_forcefield(reducedat)
 pdb = args.pdb
 assert os.path.exists(pdb)
+chain = args.chain
+assert len(chain) == 1, chain
 if args.output is None:
   args.output = os.path.splitext(pdb)[0] + "r.pdb"
 outp = open(args.output, "w")  
@@ -118,8 +131,11 @@ def print_res():
     if args.compat and resname in ("GLN", "GLU") and l[1] in ("CN1", "CO1"):
       x, y, z = c[1] * 0.333, c[2] * 0.333, c[3] * 0.333
     atomcounter += 1
-    line = (atomcounter, l[1], resname, rescounter, x, y, z, l[0], l[3], 1.0)
-    print >> outp, "ATOM%7d  %-3s %-3s  %4d    %8.3f%8.3f%8.3f%5d%8.3f 0%5.2f" % line
+    atomname = l[1]
+    if len(atomname) < 4:
+        atomname = " " + atomname + "   "[len(atomname):]
+    line = (atomcounter, atomname, resname, chain, rescounter, x, y, z, l[0], l[3], 1.0)
+    print >> outp, "ATOM%7d %4s %3s %s%4d    %8.3f%8.3f%8.3f%5d%8.3f 0%5.2f" % line
   rescoor = {}
   
 for l in open(pdb):
