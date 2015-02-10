@@ -272,7 +272,7 @@ cat /dev/null > hm-all.dat
           need_aa_modes = True         
         elif aa_rmsd and not m.deflex:
           need_aa_modes = True
-        elif m.collect and not p.demode:
+        elif m.collect and not m.demode:
           need_aa_modes = True
         elif m.use_iattract:
           need_aa_modes = True
