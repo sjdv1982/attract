@@ -17,14 +17,24 @@ except ImportError:
 #Mapping of nucleic-acid codes to DNA/RNA
 mapnuc = {
   "A": ["DA", "RA"],
+  "A3": ["DA", "RA"],
+  "A5": ["DA", "RA"],
   "ADE": ["DA", "RA"],
   "C": ["DC", "RC"],
+  "C3": ["DC", "RC"],
+  "C5": ["DC", "RC"],
   "CYT": ["DC", "RC"],
   "G": ["DG", "RG"],
+  "G3": ["DG", "RG"],
+  "G5": ["DG", "RG"],
   "GUA": ["DG", "RG"],
   "T": ["DT", None],
+  "T3": ["DT", None],
+  "T5": ["DT", None],
   "THY": ["DT", None],
   "U": [None, "RU"],
+  "U3": [None, "RU"],
+  "U5": [None, "RU"],
   "URA": [None, "RU"],
   "URI": [None, "RU"],  
 } 
@@ -65,6 +75,7 @@ def read_pdb(pdblines, add_termini=False):
     ("HT1","HN"),
     ("OP1","O1P"),
     ("OP2","O2P"),
+    ("H1","HN"),
   )
   topres, toppatch = parse_cns_top.residues, parse_cns_top.presidues
   pdbres = []
@@ -74,6 +85,7 @@ def read_pdb(pdblines, add_termini=False):
       atomcode = l[12:16].strip()
       assert l[16] == " ", l
       resname = l[17:20].strip()
+      if resname=="HIE" or resname=="HIP" :resname="HIS"
       if resname in mapnuc:
         if args.dna: 
           resname = mapnuc[resname][0]
@@ -167,7 +179,7 @@ def check_pdb(pdbres, heavy=False):
       if aa.strip() not in res.coords:
         raise ValueError('Missing coordinates for atom "%s" in residue %s %s%s' % (aa.strip(), res.resname, res.chain, res.resid))
 
-def write_pdb(pdbres, heavy = False, one_letter_na = False):
+def write_pdb(pdbres, chain, heavy = False, one_letter_na = False):
   pdblines = []
   mapping = []
   atomcounter = 1
@@ -190,10 +202,11 @@ def write_pdb(pdbres, heavy = False, one_letter_na = False):
       if len(a0) < 4:
         a0 = " " + a0 + "   "[len(a0):]
       resname = res.resname
+      atomname = a0
       if one_letter_na and resname in mapnucrev:
         resname = mapnucrev[resname]
-      pdblines.append("ATOM %6d %4s %s %5d    %s %4d %7.3f 0 1.00" % \
-       (atomcounter, a0, resname, rescounter, xyz, type, atom.charge))
+      pdblines.append("ATOM%7d %4s %3s %s%4d    %s %4d %7.3f 0 1.00" % \
+        (atomcounter, atomname, resname, chain, rescounter, xyz, type, atom.charge))
       atomcounter += 1
     mapping.append((res.resid, rescounter))
     rescounter += 1
@@ -254,6 +267,7 @@ parser.add_argument("--trans", "--transfile",dest="transfile",help="Additional t
 parser.add_argument("--top", "--topfile",dest="topfile",help="Additional topology file in CNS format that contains additional user-defined atom types (e.g. modified amino acids)", action="append",default=[])
 parser.add_argument("--patch",dest="patches",
                     help="Provide residue number and patch name to apply", nargs=2, action="append",default=[])
+parser.add_argument("--chain", help="Set the chain in the output PDB", default=" ")
 
 if has_argparse:
   args = parser.parse_args()
@@ -264,6 +278,8 @@ else:
   if positional_args:
     args.pdb = positional_args[0]
     if len(positional_args) > 1: args.output = positional_args[1]
+
+assert len(args.chain) == 1, args.chain
 
 if args.heavy and (args.autorefe or args.refe):
   raise ValueError("--(auto)refe and --heavy are mutually incompatible")
@@ -289,7 +305,7 @@ for f, name in transfiles:
   parse_transfile(f, name)
   
 pdb = read_pdb(open(args.pdb), add_termini=args.termini)
-pdblines = write_pdb(pdb)[0]
+pdblines = write_pdb(pdb, args.chain)[0]
 
 termini_pdb(pdb, args.nter, args.cter)
 patches = {}
@@ -306,14 +322,14 @@ if args.refe:
     update_patches(refe)
   set_reference(pdb, refe)
 if args.pdb2pqr:
-  pdblines = write_pdb(pdb, one_letter_na = True)[0]
+  pdblines = write_pdb(pdb, args.chain, one_letter_na = True)[0]
   pqrlines = run_pdb2pqr(pdblines)
   pqr = read_pdb(pqrlines)
   pdbcomplete(pdb, pqr)
   if not args.heavy and not args.refe: 
     update_patches(pdb)
 if args.whatif:
-  pdblines = write_pdb(pdb, one_letter_na = True)[0]
+  pdblines = write_pdb(pdb, args.chain, one_letter_na = True)[0]
   whatiflines = run_whatif(pdblines)
   whatif = read_pdb(whatiflines)
   pdbcomplete(pdb, whatif)
@@ -326,7 +342,7 @@ if args.refe:
 if not args.manual: 
   pdb_lastresort(pdb)
   check_pdb(pdb, heavy=args.heavy)
-pdblines, mapping = write_pdb(pdb, heavy=args.heavy)
+pdblines, mapping = write_pdb(pdb, args.chain, heavy=args.heavy)
 
 outf = open(outfile, "w")
 for l in pdblines: 
