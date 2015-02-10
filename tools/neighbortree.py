@@ -16,11 +16,10 @@ def read_pdb(pdb):
     receptorid = []
     data = open(pdb).readlines()
     data = [x for x in data if 'ATOM' in x]
-    for count,line in enumerate(data):
-        tmp = line.replace('-',' -')
-        list = tmp.split()
-        receptor.append((count+1,int(list[4]),float(list[5]),float(list[6]),float(list[7])))
-                          
+    for count,l in enumerate(data):
+      x,y,z = [float(f) for f in (l[30:38],l[38:46],l[46:54])]
+      resid = l[21:26]
+      receptor.append((count+1,resid,x,y,z)
     return receptor 
 
   
