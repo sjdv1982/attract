@@ -55,6 +55,7 @@ fi
   ensemble_lists = []
   pdbnames = []
   mappings = []
+  pdbchains = []
   pdbnames3 = set()
   has_tmpf = False
   
@@ -110,7 +111,7 @@ fi
       if not p.generate_modes: continue
       if aa_rmsd and not m.deflex:
         separate_aa_mode = True
-      elif m.collect and not p.demode:
+      elif m.collect and not m.demode:
         separate_aa_mode = True
       elif m.use_iattract:
         separate_aa_mode = True
@@ -124,6 +125,7 @@ echo 'Reduce partner PDBs...'
 echo '**************************************************************'
 """      
   for pnr,p in enumerate(m.partners):
+    pdbchains.append(chr(65+pnr))
     molcode = ""
     if p.moleculetype == "RNA": molcode = "--rna"
     elif p.moleculetype == "DNA": molcode = "--dna"              
@@ -151,8 +153,10 @@ echo '**************************************************************'
         #all-atom reduce; we do this even if we never use it in the docking, just to add missing atoms etc.
         pdbname_aa = pdbname3 + "-aa.pdb"
         pdbname_aa_rmsd = pdbname3 + "-heavy.pdb"
-        opts = []
+        opts = ["--chain", pdbchains[pnr]]
         if molcode: opts.append(molcode)
+        opts0 = " ".join(opts)
+        
         if p.charged_termini: opts.append("--termini")
         if not use_aa: 
           opts.append("--heavy")
@@ -166,10 +170,10 @@ echo '**************************************************************'
         mappings.append(mapping)
         partnercode += "python $ATTRACTDIR/../allatom/aareduce.py %s %s %s > %s\n" % (pdbname4, pdbname_aa, opts, mapping)        
         if aa_rmsd:
-          partnercode += "python $ATTRACTDIR/../allatom/aareduce.py %s %s --heavy > /dev/null\n" % (pdbname_aa, pdbname_aa_rmsd)        
+          partnercode += "python $ATTRACTDIR/../allatom/aareduce.py %s %s --heavy %s > /dev/null\n" % (pdbname_aa, pdbname_aa_rmsd, opts0)        
         if m.forcefield == "ATTRACT":
           pdbname_reduced = pdbname3 + "r.pdb"
-          partnercode += "python $ATTRACTTOOLS/reduce.py %s %s %s > /dev/null\n" % (pdbname_aa, pdbname_reduced, molcode)
+          partnercode += "python $ATTRACTTOOLS/reduce.py %s %s %s > /dev/null\n" % (pdbname_aa, pdbname_reduced, opts0)
         elif m.forcefield == "OPLSX":
           pdbname_reduced = pdbname_aa
         pdbnames.append(pdbname)
@@ -204,8 +208,9 @@ echo '**************************************************************'
         mname2aa_rmsd = dd + "-" + str(mnr+1) + "-heavy.pdb"
         
         #all-atom reduce; we do this even if we never use it in the docking, just to add missing atoms etc.
-        opts = []
+        opts = ["--chain", pdbchains[pnr]]
         if molcode: opts.append(molcode)
+        opts0 = " ".join(opts)
         if p.charged_termini: opts.append("--termini")
         if not use_aa: 
           opts.append("--heavy")
@@ -224,7 +229,7 @@ echo '**************************************************************'
         if aa_rmsd:
           partnercode += "python $ATTRACTDIR/../allatom/aareduce.py %s %s --heavy > /dev/null\n" % (mname2aa, mname2aa_rmsd)        
         if m.forcefield == "ATTRACT":          
-          partnercode += "python $ATTRACTTOOLS/reduce.py %s %s %s > /dev/null\n" % (mname2aa, mname2, molcode)          
+          partnercode += "python $ATTRACTTOOLS/reduce.py %s %s %s > /dev/null\n" % (mname2aa, mname2, opts0)          
         elif m.forcefield == "OPLSX": 
           mname2 = mname2aa
         
@@ -267,7 +272,7 @@ cat /dev/null > hm-all.dat
           need_aa_modes = True         
         elif aa_rmsd and not m.deflex:
           need_aa_modes = True
-        elif m.collect and not p.demode:
+        elif m.collect and not m.demode:
           need_aa_modes = True
         elif m.use_iattract:
           need_aa_modes = True
