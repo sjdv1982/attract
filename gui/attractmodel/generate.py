@@ -1028,6 +1028,7 @@ echo '**************************************************************'
   if (m.footer is not None):
     ret += m.footer + "\n\n"
     
+  ret += "$ATTRACTDIR/shm-clean\n\n"    
   ret += "fi ### move to disable parts of the protocol\n" 
   ret = ret.replace("\n\n\n","\n\n")
   ret = ret.replace("\n\n\n","\n\n")
