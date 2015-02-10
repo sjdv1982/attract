@@ -27,11 +27,10 @@ def make_interfacelist(ilist, pdb):
     data = open(pdb).readlines()
     data = [x for x in data if 'ATOM' in x]
     for count,line in enumerate(data):
-        tmp = line.replace('-',' -')
-        list = tmp.split()
-        if int(list[4]) in rlist:
+        if int(int(line[22:26])) in rlist:
 	  ratoms.append(count+1)
-        receptorid.append((list[3],list[4],list[2],list[1]))
+	receptorid.append((line[17:20],line[22:26].strip(), line[12:16].strip(), line[4:11].strip()))
+        #receptorid.append((list[3],list[4],list[2],list[1]))
                            
     return ratoms, receptorid  
 
