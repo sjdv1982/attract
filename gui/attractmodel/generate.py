@@ -111,7 +111,7 @@ fi
       if not p.generate_modes: continue
       if aa_rmsd and not m.deflex:
         separate_aa_mode = True
-      elif m.collect and not p.demode:
+      elif m.collect and not m.demode:
         separate_aa_mode = True
       elif m.use_iattract:
         separate_aa_mode = True
