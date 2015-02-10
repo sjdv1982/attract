@@ -208,8 +208,9 @@ echo '**************************************************************'
         mname2aa_rmsd = dd + "-" + str(mnr+1) + "-heavy.pdb"
         
         #all-atom reduce; we do this even if we never use it in the docking, just to add missing atoms etc.
-        opts = []
+        opts = ["--chain", pdbchains[pnr]]
         if molcode: opts.append(molcode)
+        opts0 = " ".join(opts)
         if p.charged_termini: opts.append("--termini")
         if not use_aa: 
           opts.append("--heavy")
