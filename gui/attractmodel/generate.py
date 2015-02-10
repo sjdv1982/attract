@@ -228,7 +228,7 @@ echo '**************************************************************'
         if aa_rmsd:
           partnercode += "python $ATTRACTDIR/../allatom/aareduce.py %s %s --heavy > /dev/null\n" % (mname2aa, mname2aa_rmsd)        
         if m.forcefield == "ATTRACT":          
-          partnercode += "python $ATTRACTTOOLS/reduce.py %s %s %s > /dev/null\n" % (mname2aa, mname2, opts_red)          
+          partnercode += "python $ATTRACTTOOLS/reduce.py %s %s %s > /dev/null\n" % (mname2aa, mname2, opts0)          
         elif m.forcefield == "OPLSX": 
           mname2 = mname2aa
         
