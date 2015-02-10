@@ -17,7 +17,7 @@ def validate(ilist,unbounds):
     if len(ilist[i]) < 8:
       check = True
       
-    flex = [l for l in unbounds[i] if int(l.split()[4]) in ilist[i]]
+    flex = [l for l in unbounds[i] if int(l[22:26]) in ilist[i]]
     count += len(flex)
    
   if count > 333 and check == True:
@@ -29,7 +29,7 @@ def countflex(ilist,unbounds):
   check = True
   count = 0
   for i in range(len(ilist)):
-    flex = [l for l in unbounds[i] if int(l.split()[4]) in ilist[i]]
+    flex = [l for l in unbounds[i] if int(l[22:26]) in ilist[i]]
     count += len(flex)
    
   if count < 333:
@@ -56,13 +56,13 @@ def collect_contacts(unbounds,ligandrange,Y,rcut):
     for i in range(len(unbounds)):
       if ii >= ligandrange[i][0] and ii < ligandrange[i][1]:
 	line = allunbounds[ii]
-	res1 = int(line.split()[4]) 
+	res1 = int(line[22:26])
 	if not res1 in ilist[i]:
 	  ilist[i].append(res1)
 	  
       if jj >= ligandrange[i][0] and jj < ligandrange[i][1]:
 	line2 = allunbounds[jj]
-        res2 = int(line2.split()[4])
+        res2 = int(line2[22:26])
 	if not res2 in ilist[i]:
 	  ilist[i].append(res2)
 
@@ -108,7 +108,7 @@ def make(ligands,ligandatoms, name,ligandrange,coor,thresh=3.0,ensfiles=[],modef
     out.close()
     
     imodestring += '-1\n'
-    data = [j+1 for j, line in enumerate(ligandatoms[i]) if int(line.split()[4]) in interface[i]]
+    data = [j+1 for j, line in enumerate(ligandatoms[i]) if int(line[22:26]) in interface[i]]
     for item in data:
       imodestring += str(item)+'\n'
       
@@ -128,7 +128,7 @@ def make_defined(ifilelist,ligands,name):
     
   for i in range(len(interface)):
     imodestring += '-1\n'
-    data = [j+1 for j, line in enumerate(ligandatoms[i]) if int(line.split()[4]) in interface[i]]
+    data = [j+1 for j, line in enumerate(ligandatoms[i]) if int(line[22:26]) in interface[i]]
     for item in data:
       imodestring += str(item)+'\n'
       
