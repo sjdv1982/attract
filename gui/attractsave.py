@@ -16,7 +16,13 @@ def save(m, outp, *args):
 def generate(m, outp, *args):
   v = m._get() 
   outpdir = os.path.split(outp)[0]
-  if v is not None:
+  if v is not None: 
+    if isinstance(v, Spyder.AttractPeptideModel):
+      v = v.convert(Spyder.AttractEasyModel) 
+      r = v.partners[1].pdbfile
+      r.link("./peptide.pdb")
+      r.save()
+    
     embedded = check_embedded(v)
     if embedded is not None:
       print("Cannot generate shell script: %s is an embedded resource, not a file name" % embedded)
@@ -43,19 +49,13 @@ def deploy(model, dir):
   elif dir.endswith("/"): d = dir
   for n,p in enumerate(model.partners):
     _deploy(p.pdbfile,d+"partner-%d.pdb" % (n+1))
-    _deploy(p.ensemble_list,d+"ensemble-%d.list" % (n+1))
-    _deploy(p.modes_file,d+"partner-%d.modes" % (n+1))
-    _deploy(p.aa_modes_file,d+"partner-aa-%d.modes" % (n+1))
     _deploy(p.rmsd_pdb,d+"partner-rmsd-%d.pdb" % (n+1))
-    _deploy(p.collect_pdb,d+"partner-collect-%d.pdb" % (n+1))
-    _deploy(p.collect_ensemble_list,d+"partner-collect-ensemble-%d.list" % (n+1))
-  _deploy(model.cryoem_data,d+"cryo.map")
-  _deploy(model.cryoem_scoring_data,d+"cryo-scoring.map")
+    _deploy(p.rmsd_pdb_alt,d+"partner-rmsd-alt-%d.pdb" % (n+1))
+    _deploy(p.rmsd_pdb_alt2,d+"partner-rmsd-alt2-%d.pdb" % (n+1))
   _deploy(model.start_structures_file,d+"startstruc.dat")
   _deploy(model.rotations_file,d+"rotations.dat")
   _deploy(model.translations_file,d+"translations.dat")
   _deploy(model.restraints_file,d+"restraints.dat")
-  _deploy(model.restraints_score_file,d+"restraints-score.dat")
 
 def deploy_easy(model, dir):
   d = dir + "/"
@@ -65,4 +65,17 @@ def deploy_easy(model, dir):
   _deploy(model.partners[0].rmsd_pdb,d+"receptor-rmsd.pdb")
   _deploy(model.partners[1].pdbfile,d+"ligand.pdb")
   _deploy(model.partners[1].rmsd_pdb,d+"ligand-rmsd.pdb")
-  
+
+def deploy_narefine(model, dir):
+  d = dir + "/"
+  if dir in (None, "", ".", "./"): d = ""
+  elif dir.endswith("/"): d = dir
+  _deploy(model.pdbfile,d+"input.pdb")
+   
+def deploy_peptide(model,dir):
+  d = dir + "/"
+  if dir in (None, "",".","./"): d = ""
+  elif dir.endswith("/"): d = dir
+  _deploy(model.p1.pdbfile,d+"receptor.pdb")
+  _deploy(model.p1.rmsd_pdb,d+"receptor-rmsd.pdb")
+  _deploy(model.p2.rmsd_pdb,d+"peptide-rmsd.pdb")

@@ -5,7 +5,7 @@ Created on Fri Aug  2 12:05:30 2013
 @author: christina
 
 iATTRACT refinement with OPLS force field
-TODO make multi body and ensemble docking iattract refinement
+Supports ensemble docking (tested) and multi-body docking (untested)
 """
 
 import sys, random, os, time, itertools
@@ -24,6 +24,11 @@ import imodes, get_restraints
 import parse_cns_top
 import collectlibpy as collectlib
 import neighbortree
+
+topstream = [(allatomdir + "/topallhdg5.3.pro", "oplsx"),
+             (allatomdir + "/dna-rna-allatom.top", "dna-rna")
+            ]
+
 def get_energy(f):
   if not os.path.exists(f): return 0
   ret = 0
@@ -81,7 +86,6 @@ def prepare_input(topology,start,ligands,current,name,coor,ligandrange,ligandato
   currligands = ligands
   if len(ensemblefiles):
     data = open(start).readlines()
-    # TODO check if this is the right format for dat files
     data = [line for line in data if not '#' in line]
     for nr, filename in ensemblefiles:
       currensnr = int(data[int(nr)-1].split()[0])
@@ -92,40 +96,27 @@ def prepare_input(topology,start,ligands,current,name,coor,ligandrange,ligandato
     check = True
     restraints = []
     for ligand in currligands:
-      if not os.path.exists(os.path.splitext(ligand)[0]+'_'+current+name+'.txt'):
+      if not os.path.exists(os.path.splitext(ligand)[0]+'_'+current+name+'.rest'):
 	check = False
       else:
-	restraints.append(os.path.splitext(ligand)[0]+'_'+current+name+'.txt')
+	restraints.append(os.path.splitext(ligand)[0]+'_'+current+name+'.rest')
     
     if check:
       return ('flexm-'+current+name+'.dat',restraints)
     
   if otf:
-    imodes.make(ligands,ligandatoms,current+name,ligandrange,coor,icut,ensemblefiles,modefile,imodefile)
+    imodes.make(ligands,ligandatoms,current+name,ligandrange,coor,icut,ensemblefiles,modefile,imodefile,noflex)
     
   else:
     restraints = []
     for i, ligand in enumerate(currligands):
-      restraints.append(os.path.splitext(ligand)[0]+'_'+name+'.txt')
+      restraints.append(os.path.splitext(ligand)[0]+'_'+name+'.rest')
       
     return ('flexm-'+name+'.dat',restraints)
   
-  count = 0
-  if len(noflex):
-    for ligand in noflex:
-      out = open(current+name+'-ilist'+str(ligand)+'.txt','w')
-      out.write('#no flexible residues')
-      out.close()	
-	
-  for i,ligand in enumerate(ligands):
-    if not os.path.exists(current+name+'-ilist'+str(i+1)+'.txt'):
-      out = open(current+name+'-ilist'+str(i+1)+'.txt','w')
-      out.write('#no flexible residues')
-      out.close()
-      count += 1
   
     
-  if count == len(ligands):
+  if len(noflex) == len(ligands):
     return ("",[])
   
   offset = 0
@@ -136,7 +127,7 @@ def prepare_input(topology,start,ligands,current,name,coor,ligandrange,ligandato
     else:
       get_restraints.make_restraints(topology,directorypath,ligand,current+name+'-ilist'+str(i+1)+'.txt',current+name,str(offset))
     
-    restraints.append(os.path.splitext(ligand)[0]+'_'+current+name+'.txt')
+    restraints.append(os.path.splitext(ligand)[0]+'_'+current+name+'.rest')
     offset += read_file(ligand)
 
   return ('flexm-'+current+name+'.dat',restraints)
@@ -248,7 +239,7 @@ if __name__ == "__main__":
       anr -= 1
       continue
   
-    if arg == "--top":
+    if arg == "--top" or arg == "--topfile":
       assert os.path.exists(nextarg), nextarg
       topfiles.append(nextarg)
       sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
@@ -315,11 +306,11 @@ if __name__ == "__main__":
   if jobsize is not None and chunks is not None:
     raise ValueError("You must specify --jobsize <value> OR --chunks <value>, not both!")
 
-  if len(topfiles):
-    topologystream = itertools.chain(*[open(f) for f in topfiles])
-  else:
-    topologystream = open(allatomdir+'/topallhdg5.3.pro')
-  topology = parse_cns_top.parse_stream(topologystream)
+  for f in topfiles:
+    topstream.append((f, f))
+  for f, nam in topstream:
+    parse_cns_top.parse_stream(open(f), nam)
+  topology = parse_cns_top.residues, parse_cns_top.presidues
   totstruc = get_struc(strucfile)
   if jobsize is not None:
     chunks = ceil(totstruc/float(jobsize))
@@ -427,7 +418,8 @@ if __name__ == "__main__":
     runs = [(i,attract,pat,pat2,args,name,ligandrange,ligandatoms,coor[i-1],otf,noflex,interface_cutoff) for i in range(1,int(chunks)+1)]
     p = Pool(np)
     try:
-      p.map_async(run_docking,runs).get(99999)
+      #for crun in runs: run_docking(crun) #serial execution
+      p.map_async(run_docking,runs).get(99999) #parallel execution
       
     except KeyboardInterrupt:
       p.terminate()

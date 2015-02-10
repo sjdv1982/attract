@@ -24,3 +24,13 @@ def euler2rotmat(phi,ssi,rot):
   r8 = -srot * ss
   r9 = cs
   return ((r1,r2,r3),(r4,r5,r6),(r7,r8,r9))
+
+if __name__ == "__main__":
+  import sys
+  phi = float(sys.argv[1])
+  ssi = float(sys.argv[2])
+  rot = float(sys.argv[3])
+  rotmat = euler2rotmat(phi,ssi,rot)
+  print rotmat[0]
+  print rotmat[1]
+  print rotmat[2]

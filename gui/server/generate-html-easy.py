@@ -3,11 +3,11 @@ sys.path.insert(0, "..")
 import spyder
 spyder.silent = True
 from attractmodel import AttractEasyModel
-import formeasy
+import form_standard
 
 cgi = sys.argv[1]
 
 f = AttractEasyModel._form()
-f = formeasy.webform(f)
-html = formeasy.html(f, cgi, None, newtab=True)
+f = form_standard.webform_easy(f)
+html = form_standard.html(f, cgi, None, newtab=True)
 print(html)

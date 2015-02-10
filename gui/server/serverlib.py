@@ -1,6 +1,6 @@
 from serverconfig import *
 import os, sys, cgi, datetime, string, re, random
-import spyder
+import spyder, Spyder
 import spyder.formtools
 from spyder.formtools import embed
 import pprint, json
@@ -10,7 +10,6 @@ response_success = """<B>Your docking parameters were received successfully</B>
 A docking protocol script was generated from your parameters
 
 You will now receive three files for download:
-
 """
 
 response_processing1_error = """<B>Your docking parameters were received successfully, but they could not be processed</B>
@@ -32,9 +31,7 @@ The ATTRACT web interface is in active development, thank you for your patience.
 
 <B>Error message</B>
 %s
-
 You will now receive two files for download:
-
 """
 
 response_generator_error = """<B>Your docking parameters were received successfully, but no protocol script could be generated</B>
@@ -57,7 +54,7 @@ This performs the docking and analysis using ATTRACT
 
 <b><i>Download the docking directory: <a href='%s'>%s</a></i></b>
 
-The directory also contains a deployed parameter file (%s) that can be edited locally. 
+[ADVANCED]The directory also contains a deployed parameter file (%s) that can be edited locally. 
 Its resources (PDB files etc.) are deployed: they refer to the file names in the docking directory.
 
 <u>Deployed parameter files in the local ATTRACT GUI</u>
@@ -65,7 +62,7 @@ You can edit the deployed parameter file directly with the local ATTRACT GUI, an
 
 <u>Advanced usage: deployed parameter files in the web GUI</u>
 You cannot upload deployed parameter files to the web interface. You have to embed your parameter file using gui-embed, or use the embedded parameter file instead.
-
+[/ADVANCED]
 """
 
 response_embedded = """<B>Embedded parameter file</B>
@@ -77,10 +74,10 @@ You can upload the embedded parameter file to the web interface and modify its p
 
 Download the embedded parameter file: <a href='%s'>%s</a>
 
-<u>Advanced usage: embedded parameter files in the local ATTRACT GUI</u>
+[ADVANCED]<u>Advanced usage: embedded parameter files in the local ATTRACT GUI</u>
 You can edit the embedded parameter file directly with the local ATTRACT GUI
 However, this file contains embedded resources (PDB files etc.). If you want to generate a new docking script, you have to deploy it first into a directory using gui-deploy, or use the deployed parameter file instead
-
+[/ADVANCED]
 """
 
 response_deltafile = """<B>Delta file</B>
@@ -90,10 +87,10 @@ Providing your delta file is essential for help, support, feedback and bug repor
 
 Download the delta file: <a href='%s'>%s</a>
 
-<u>Advanced usage: delta files in the local ATTRACT GUI</u>
+[ADVANCED]<u>Advanced usage: delta files in the local ATTRACT GUI</u>
 You can load a delta file with the local ATTRACT GUI with the option: --delta &ltdelta file&gt
 Delta files contain embedded resources (PDB files etc.): if you want to generate a new docking script, you have to save it as a parameter file and deploy it first into a directory using gui-deploy
-
+[/ADVANCED]
 """
 
 class AttractServerError(Exception):
@@ -114,11 +111,15 @@ def format_delta(delta, mydir, runname="attract"):
     return "<B>Delta</B>\n" + pprint.pformat(delta)
   
   
-def serve_attract(spydertype, formlib, deploy):
+def serve_attract(spydertype, formlib, deploy, **kwargs):
   # Obtain the webdict (what the user submitted) and f, the spyderform used to generate the HTML
   webdict = spyder.formtools.cgi.dict_from_fieldstorage(cgi.FieldStorage())
-  f = formlib.webserverform(webdict, spydertype=spydertype)
-  
+  easy = "easy" in kwargs and kwargs["easy"]
+  if easy:
+    f = formlib.webserverform_easy(webdict, spydertype=spydertype)
+  else:
+    f = formlib.webserverform(webdict, spydertype=spydertype)
+    
   # Fill in links to embedded resources
   resourceobj = None  
   resourcefilevar = getattr(f, "resourcefilevar", None)
@@ -130,6 +131,10 @@ def serve_attract(spydertype, formlib, deploy):
   # Detect empty form  
   if not len(webdict) or delta is None:
     raise AttractServerError(status="You didn't submit any data", delta=None)      
+  
+  #Special case: use_iattract is by default False in the easy web interface, but True in the standard interface
+  if easy and "use_iattract" not in delta:
+    delta["use_iattract"] = False
   
   # Create a result directory
   cwd = os.getcwd()
@@ -184,6 +189,11 @@ def serve_attract(spydertype, formlib, deploy):
   
   try:
     #Run the generator, write the script and create the archive
+    if isinstance(newmodel, Spyder.AttractPeptideModel):
+      newmodel = newmodel.convert(Spyder.AttractEasyModel) 
+      r = newmodel.partners[1].pdbfile
+      r.link("peptide.pdb")
+      r.save()
     script = newmodel.generate()
     shname = "%s.sh" % runname
     f = open(shname, "w")

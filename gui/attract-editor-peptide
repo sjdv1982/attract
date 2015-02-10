@@ -1,0 +1,2 @@
+#!/bin/sh
+silk --default-output attract.web AttractPeptideModel -m attractmodel -I $ATTRACTGUI --form localgui buttons --logic localgui logic $@

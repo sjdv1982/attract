@@ -13,6 +13,7 @@ struct AtomDensityGrid {
   bool *maskgrid;
   float clash_threshold;
   float forceconstant;
+  bool ignoreweights = false;
 };
 AtomDensityGrid grids[ATOMDENSITYGRIDS];
 int ngrids = 0;
@@ -121,7 +122,12 @@ inline void trilin(AtomDensityGrid &g, Applyfunc apply, double ax, double ay, do
 }
 
 void apply_weight(AtomDensityGrid &g, int indxyz, double cwxyz, double &dummy, double &gradx, double &grady, double &gradz, double sx, double sy, double sz, double weight) {
-  g.density[indxyz] += weight * cwxyz;         
+  if (g.ignoreweights){
+    g.density[indxyz] += cwxyz;
+  }
+  else{
+  g.density[indxyz] += weight * cwxyz;  
+  }
 }
 
 void apply_clash(AtomDensityGrid &g, int indxyz, double cwxyz, double &overlap, double &gradx, double &grady, double &gradz, double sx, double sy, double sz, double weight) {
@@ -236,6 +242,11 @@ extern "C" void define_atomdensitygrid_(float voxelsize, int dimension, float fo
   g.maskgrid = NULL;
   g.forceconstant = forceconstant;
   ngrids++;
+}
+
+extern "C" void ignoreweights_atomdensitygrid_(){
+  AtomDensityGrid &g = grids[ngrids];
+  g.ignoreweights = true;  
 }
 
 extern double *weight_atoms(int nratoms,  const int *atomtypes);

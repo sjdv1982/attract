@@ -61,10 +61,9 @@ header = """<!DOCTYPE html>
                 <p>Menu</p>
                 <nav class="header-tooltip">
                   <ul>
-                    <li><a href="#" class="message-icon">Messages<span id="message-counter">2</span></a></li>
                     <li><a href="#" class="download-icon" onClick="submitForm();">Save</a></li>
-                    <li><a href="#" class="contact-icon">Contact</a></li>
-                    <li><a href="documentation.html" target="_blank" class="help-icon">Help</a></li>
+                    <li><a href="documentation.html#contact" target="_blank" class="contact-icon">Contact</a></li>
+                    <li><a href="documentation.html" target="_blank" class="help-icon">Help and documentation</a></li>
                   </ul>
                 </nav> 
               </div>
@@ -138,19 +137,13 @@ def webform(f, model=None,
     b.title = "Structure Sources"
     b.has_switch = False
     b.members.append("pdbfile")
-    b.members.append("code")
     b.members.append("gridname")
-    b.members.append("chain")
-    b.members.append("is_reduced")
+    b.members.append("chain")    
     b.members.append("moleculetype") 
     ff = fp.pdbfile
     ff.name = "Structure file"
     ff.tooltip = "Upload PDB structure file"
     ff.tooltip_doc = "documentation.html#partners-structure_file"
-    ff = fp.code
-    ff.tooltip = "RCSB PDB ID"
-    ff.tooltip_doc = "documentation.html#partners-rcsb_pdbid"
-    ff.placeholder = "RCSB PDB id"
     ff = fp.gridname
     ff.name = "Name of the grid for this molecule"
     ff.tooltip = "Grid name"
@@ -160,13 +153,6 @@ def webform(f, model=None,
     ff.default = "All"
     ff.tooltip = "Which chain ID"
     ff.tooltip_doc = "documentation.html#partners-chains"
-    ff = fp.is_reduced
-    ff.name = "The molecule is in reduced form"
-    ff.tooltip = "Reduced or not"
-    ff.tooltip_doc = "documentation.html#partners-mol_reduced"
-    ff = fp.deflex
-    ff.tooltip = "Remove flexibility"
-    ff.tooltip_doc = "documentation.html#partners-no_flex"
     ### END b_struc block
 
     ### START b_modes block
@@ -178,14 +164,12 @@ def webform(f, model=None,
     fp._members["use_modes"] = fp._members["ensemble"].get_copy()        
     b.members.append("use_modes")
     b.has_switch = True
-    b.members.append("modes_file")
-    b.members.append("generate_modes")    
+    b.members.append("generate_modes")
+    b.members.append("aacontact_modes")
     b.members.append("nr_modes")
-    b.members.append("aa_modes_file")
     ff = fp.use_modes
     ff.name = "Use harmonic modes"
     ff.type = "switch"    
-    ff = fp.modes_file
     ff = fp.generate_modes
     ff.name = "Or: generate harmonic modes automatically"
     ff = fp.nr_modes
@@ -193,7 +177,6 @@ def webform(f, model=None,
     ff.type = "number"
     ff.min = 1
     ff.max = 10
-    ff = fp.aa_modes_file
     ### END b_modes block
 
     ### START b_ensemble block
@@ -201,13 +184,11 @@ def webform(f, model=None,
     b.title = "Use ensembles"
     b.members.append("ensemble")
     b.has_switch = True
-    b.members.append("ensemble_list")
     b.members.append("ensemble_size")
     b.members.append("ensemblize")
     ff = fp.ensemble
     ff.type = "switch"
     ff.name = "Use ensembles"
-    ff = fp.ensemble_list
     ff = fp.ensemble_size
     ff.min = 1
     ff = fp.ensemblize
@@ -223,19 +204,13 @@ def webform(f, model=None,
     b.members.append("rmsd")
     b.has_switch = True
     b.members.append("rmsd_pdb")
-    b.members.append("collect_pdb")
-    b.members.append("collect_ensemble_list")
-    b.members.append("rmsd_bb")
-    b.members.append("deflex")
+    b.members.append("rmsd_pdb_alt")
+    b.members.append("rmsd_pdb_alt2")
     ff = fp.rmsd
     ff.default = True
     ff.name = "RMSD calculation"
     ff = fp.rmsd_pdb
     ff.name = "Reference RMSD PDB file"
-    ff = fp.collect_pdb
-    ff = fp.collect_ensemble_list
-    ff.span = True
-    ff = fp.rmsd_bb
     ff.span = True
     ### END b_rmsd block
   ### END partners category
@@ -257,8 +232,7 @@ def webform(f, model=None,
 
   b = fg.new_group("b_grids", "block")
   b.title = None
-  b.members.append("gridname")
-  b.members.append("gridfile")
+  b.members.append("gridname")  
   b.members.append("plateau_distance")
   b.members.append("neighbour_distance")
   b.members.append("omp")
@@ -267,15 +241,10 @@ def webform(f, model=None,
   ff = fg.gridname
   ff.placeholder = "name..."
   for n in range(f.grids.length):
-    ff = f.grids[n]
-    ff.gridfile.type = "text"
-  f.grids[None].gridfile.type = "text"  
-  ff = fg.gridfile  
-  ff.name = "Path to grid file if previously generated"
+    ff = f.grids[n]      
   ff = fg.omp
   ff.name = "Calculate grid using OpenMP?"
-  ff = fg.torque
-  ff.name = ff.get_header()[0]
+  ff = fg.torque  
   ff = fg.plateau_distance
   ff = fg.neighbour_distance
   ### END grids category
@@ -300,13 +269,10 @@ def webform(f, model=None,
     fi.name = None
     fi.group = None
     ff = fi.rcut
-    ff.name = ff.get_header()[0]
     ff.span = True
     ff = fi.vmax
-    ff.name = ff.get_header()[0]
     ff.span = True
     ff = fi.traj
-    ff.name = ff.get_header()[0]
     ff.span = True 
     fi.memberorder = ["rcut", "vmax", "traj", "mc"]
     b = fi.new_group("b_mc", "block")
@@ -329,7 +295,7 @@ def webform(f, model=None,
   f.iattract.group = None
   _assign_category(f, c, "Sampling parameters", span = True)
   f.start_structures_file.title = "Custom search files"
-  f.iattract.nstruc.title = "iATTRACT parameters"
+  f.use_iattract.add_header("iATTRACT parameters")
   c.members.append("iattract.nstruc")
   c.members.append("iattract.icut")
   ### END sampling category  
@@ -345,10 +311,8 @@ def webform(f, model=None,
   _assign_category(f, c, "Energy and interaction parameters", span = True)
   f.gravity.default = 0
   ff = f.rstk
-  f.forcefield.name = f.forcefield.get_header()[0]
   f.ghost.name = "Enable ghost mode, forcefield is turned off"
   ff = f.epsilon
-  ff.name = ff.get_header()[0]  
   ### END energy category  
   
   ### START atomdensitygrid category
@@ -413,7 +377,7 @@ def webform(f, model=None,
 
   ### START analysis category
   c = f.new_group("c_analysis", "category")
-  c.page = 7
+  c.page = 8
   c.icon = "analysis-icon"
   c.title = "Analysis"
   c.categoryname = "analysis"
@@ -423,9 +387,11 @@ def webform(f, model=None,
   c.members.insert(c.members.index("nr_collect"), "rcut_rescoring")
   ff = f.rcut_rescoring
   ff.span = True
-  ff.name = ff.get_header()[0]
   ff = f.nr_collect
   ff.span = True  
+  ff = f.deflex
+  ff.tooltip = "Remove flexibility"
+  ff.tooltip_doc = "documentation.html#partners-no_flex"  
   ### END analysis category
 
   ### START computation category
