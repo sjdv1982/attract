@@ -61,16 +61,7 @@ def finished(f, nstruc):
 def run(command):
   print command
   os.system(command)  
- 
-def read_file(file1):
-    a1 = []
-    for line in open(file1):
-        list = line.split()
-        if len(list) > 0 and list[0] == 'ATOM':
-            a1.append(list[1])  
-            
-    return len(a1)
-  
+   
 def read_pdb(f):
   ret1 = []
   for l in open(f):
@@ -128,7 +119,7 @@ def prepare_input(topology,start,ligands,current,name,coor,ligandrange,ligandato
       get_restraints.make_restraints(topology,directorypath,ligand,current+name+'-ilist'+str(i+1)+'.txt',current+name,str(offset))
     
     restraints.append(os.path.splitext(ligand)[0]+'_'+current+name+'.rest')
-    offset += read_file(ligand)
+    offset += len(read_pdb(ligand))
 
   return ('flexm-'+current+name+'.dat',restraints)
 
@@ -153,7 +144,7 @@ def prepare_input2(topology,ilist, ligands, name, args):
       else:
 	get_restraints.make_restraints(topology,directorypath,ligands[i],name+'-ilist'+str(i+1)+'.txt',name,str(offset))
 	
-      offset += read_file(ligands[i])
+      offset += len(read_pdb(ligands[i]))
     
 def run_docking(datain):
     current,attract,pat,pat2,args,name,ligandrange,ligandatoms,coor,otf,noflex,icut = datain

@@ -111,7 +111,7 @@ fi
       if not p.generate_modes: continue
       if aa_rmsd and not m.deflex:
         separate_aa_mode = True
-      elif m.collect and not p.demode:
+      elif m.collect and not m.demode:
         separate_aa_mode = True
       elif m.use_iattract:
         separate_aa_mode = True
@@ -208,8 +208,9 @@ echo '**************************************************************'
         mname2aa_rmsd = dd + "-" + str(mnr+1) + "-heavy.pdb"
         
         #all-atom reduce; we do this even if we never use it in the docking, just to add missing atoms etc.
-        opts = []
+        opts = ["--chain", pdbchains[pnr]]
         if molcode: opts.append(molcode)
+        opts0 = " ".join(opts)
         if p.charged_termini: opts.append("--termini")
         if not use_aa: 
           opts.append("--heavy")
@@ -228,7 +229,7 @@ echo '**************************************************************'
         if aa_rmsd:
           partnercode += "python $ATTRACTDIR/../allatom/aareduce.py %s %s --heavy > /dev/null\n" % (mname2aa, mname2aa_rmsd)        
         if m.forcefield == "ATTRACT":          
-          partnercode += "python $ATTRACTTOOLS/reduce.py %s %s %s > /dev/null\n" % (mname2aa, mname2, opts_red)          
+          partnercode += "python $ATTRACTTOOLS/reduce.py %s %s %s > /dev/null\n" % (mname2aa, mname2, opts0)          
         elif m.forcefield == "OPLSX": 
           mname2 = mname2aa
         
@@ -271,7 +272,7 @@ cat /dev/null > hm-all.dat
           need_aa_modes = True         
         elif aa_rmsd and not m.deflex:
           need_aa_modes = True
-        elif m.collect and not p.demode:
+        elif m.collect and not m.demode:
           need_aa_modes = True
         elif m.use_iattract:
           need_aa_modes = True
@@ -1027,6 +1028,7 @@ echo '**************************************************************'
   if (m.footer is not None):
     ret += m.footer + "\n\n"
     
+  ret += "$ATTRACTDIR/shm-clean\n\n"    
   ret += "fi ### move to disable parts of the protocol\n" 
   ret = ret.replace("\n\n\n","\n\n")
   ret = ret.replace("\n\n\n","\n\n")

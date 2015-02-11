@@ -8,10 +8,9 @@ Created on Wed Jun 12 13:14:50 2013
 def read_file(file1):
     atomlist = []
     for line in open(file1):
-        tmp = line.replace('-',' -')
-        list = tmp.split()
-        if len(list) > 0 and list[0] == 'ATOM':
-            atomlist.append((int(list[1]),int(list[4]),float(list[5]),float(list[6]),float(list[7])))
+        x,y,z = (float(f) for f in (line[30:38],line[38:46],line[46:54]))
+        if l.startswith('ATOM'):
+            atomlist.append((int(line[4:11]),int(line[22:26]),x,y,z))
             
     return atomlist
 
@@ -20,18 +19,14 @@ def read_struc(file1):
     atomlistb = []
     count = 0
     data = open(file1).readlines()
-    data = [ x for x in data if 'ATOM' in x]
-    for count, line in enumerate(data):
-        tmp = line.replace('-',' -')
-        l = line
-        list = tmp.split()
-        if count < int(list[1]):
-            x,y,z = (float(f) for f in (l[30:38],l[38:46],l[46:54]))
-            atomlista.append((int(list[1]),int(list[4]),x,y,z))
-            
-        elif count > int(list[1]):
-            x,y,z = (float(f) for f in (l[30:38],l[38:46],l[46:54]))
-            atomlistb.append((int(list[1]),int(list[4]),x,y,z))
+    data = [ x for x in data if x.startswith('ATOM')]
+    for count, l in enumerate(data):
+        x,y,z = (float(f) for f in (l[30:38],l[38:46],l[46:54]))
+        item = (int(line[4:11]),int(line[22:26]), x, y, z)
+        if count < item[0]:            
+            atomlista.append(item)            
+        elif count > item[0]:
+            atomlistb.append(item)
           
     return atomlista, atomlistb
 
