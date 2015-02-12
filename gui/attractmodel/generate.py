@@ -4,7 +4,7 @@ import os, itertools
 #TODO: Symmetry help in full interface is too small
 
 generator_version = "0.3"
-req_attract2_version = "0.1"
+req_attract2_version = "0.2"
 
 parameterfiledict = {
   "ATTRACT" :  "$ATTRACTDIR/../attract.par",
