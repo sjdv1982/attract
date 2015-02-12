@@ -6,6 +6,7 @@ so = currdir+ os.sep+"collectlib.so"
 from ctypes import *
 import numpy
 lib = None
+ieins = None
 
 def reload():
   global lib
@@ -26,6 +27,18 @@ def collect_init(args):
   nlig = c_int.in_dll(lib, "nlig").value
   #maxlig = c_int.in_dll(lib, "maxlig").value
   ieins = (POINTER(c_int)).in_dll(lib, "ieins")
+
+def check_sizes(sizes, filenames):
+  assert ieins is not None
+  start = 0
+  for inr,i in enumerate(ieins[:len(sizes)]):
+    collectsize = i-start
+    if collectsize != sizes[inr]:
+      raise Exception(
+  "Parsing difference between collect and Python: PDB %s: %d vs %d atoms" % (filenames[inr], collectsize, sizes[inr])
+  )
+    start = i
+
 
 def collect_iattract(args):
   args =  ["collect"] + args
