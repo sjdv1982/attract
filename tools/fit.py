@@ -2,6 +2,7 @@ import sys
 
 import numpy
 from math import *
+import rmsdlib
 
 def read_pdb(pdb):
   atoms = []
@@ -27,43 +28,6 @@ def apply_matrix(atoms, pivot, rotmat, trans):
     ret.append(atom2)
   return ret
 
-def fit(atoms1, atoms2):
-  # adapted from QKabsch.py by Jason Vertrees. 
-  # further adapted from irmsd for fitting by Sjoerd de Vries
-  L = len(atoms1)
-  assert( L > 0 )
-
-  # must alway center the two proteins to avoid
-  # affine transformations.  Center the two proteins
-  # to their selections.
-  COM1 = numpy.sum(atoms1,axis=0) / float(L)
-  COM2 = numpy.sum(atoms2,axis=0) / float(L)
-  atoms1 = atoms1 - COM1
-  atoms2 = atoms2 - COM2
-
-  # Initial residual, see Kabsch.
-  E0 = numpy.sum( numpy.sum(atoms1 * atoms1,axis=0),axis=0) + numpy.sum( numpy.sum(atoms2 * atoms2,axis=0),axis=0)
-
-  #
-  # This beautiful step provides the answer.  V and Wt are the orthonormal
-  # bases that when multiplied by each other give us the rotation matrix, U.
-  # S, (Sigma, from SVD) provides us with the error!  Isn't SVD great!
-  V, S, Wt = numpy.linalg.svd( numpy.dot( numpy.transpose(atoms1), atoms2))
-
-  # We already have our solution, in the results from SVD.
-  # we just need to check for reflections and then produce
-  # the rotation.  V and Wt are orthonormal, so their det's
-  # are +/-1.0 (and thus products are +/- 1.0 ).
-  reflect = float(str(float(numpy.linalg.det(V) * numpy.linalg.det(Wt))))
-
-  if reflect == -1.0:
-	  S[-1] = -S[-1]
-	  V[:,-1] = -V[:,-1]
-  
-  U = V.dot(Wt).transpose()
-  RMSD = E0 - (2.0 * sum(S))
-  RMSD = numpy.sqrt(abs(RMSD / L))  
-  return U, COM1-COM2, RMSD
 
 def cyclesfit(atoms1, atoms2,iterations=5,cutoff=2):
   """
@@ -74,7 +38,7 @@ def cyclesfit(atoms1, atoms2,iterations=5,cutoff=2):
   a1, a2 = numpy.array(atoms1), numpy.array(atoms2)
   pivot = numpy.sum(a2,axis=0) / float(len(a2))
   for n in range(iterations):
-    rotmat, offset, rmsd = fit(a1,a2)
+    rotmat, offset, rmsd = rmsdlib.fit(a1,a2)
     aa2 = apply_matrix(a2, pivot, rotmat, offset)
     dif = aa2 - a1
     d = dif.sum(axis=1)
@@ -90,7 +54,7 @@ def cyclesfit(atoms1, atoms2,iterations=5,cutoff=2):
     
     a1 = aa1
     a2 = aa2    
-  return fit(a1, a2)
+  return rmsdlib.fit(a1, a2)
 
 def select_bb(lines, atoms):
   ret = []
@@ -151,7 +115,7 @@ if args.iterative:
   rotmat, offset, rmsd = cyclesfit(atoms1_fit,atoms2_fit, args.iterative_cycles, args.iterative_cutoff)
 else:
   #perform a direct fit
-  rotmat, offset, rmsd = fit(atoms1_fit,atoms2_fit)
+  rotmat, offset, rmsd = rmsdlib.fit(atoms1_fit,atoms2_fit)
 
 pivot = numpy.sum(atoms2,axis=0) / float(len(atoms2))
 fitted_atoms = apply_matrix(atoms2, pivot, rotmat, offset)
