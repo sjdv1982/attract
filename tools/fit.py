@@ -117,7 +117,7 @@ else:
   #perform a direct fit
   rotmat, offset, rmsd = rmsdlib.fit(atoms1_fit,atoms2_fit)
 
-pivot = numpy.sum(atoms2,axis=0) / float(len(atoms2))
+pivot = numpy.sum(atoms2_fit,axis=0) / float(len(atoms2_fit))
 fitted_atoms = apply_matrix(atoms2, pivot, rotmat, offset)
 if args.rmsd:
   print "%.3f" % rmsd
