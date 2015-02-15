@@ -5,7 +5,9 @@ These atoms are parsed from the trans files and topology files derived from the 
 """
 import sys, os
 import parse_cns_top 
-from pdbcomplete import pdbcomplete, run_pdb2pqr, run_whatif, pdbfix, update_patches, pdb_lastresort
+import pdbcomplete
+from pdbcomplete import run_pdb2pqr, run_whatif, pdbfix, update_patches, pdb_lastresort
+
 
 has_argparse = False
 try:
@@ -69,7 +71,9 @@ def parse_transfile(transfile, topname):
       code_to_type[code, topname] = type
 
 
-def read_pdb(pdblines, add_termini=False):
+mutations = {}
+
+def read_pdb(pdblines, add_termini=False,modbase=False,modres=False):
   repl = (
     ("H","HN"),
     ("HT1","HN"),
@@ -80,54 +84,87 @@ def read_pdb(pdblines, add_termini=False):
   topres, toppatch = parse_cns_top.residues, parse_cns_top.presidues
   pdbres = []
   curr_res = None
-  for l in pdblines:
-    if l.startswith("ATOM"):
-      atomcode = l[12:16].strip()
-      assert l[16] == " ", l
-      resname = l[17:20].strip()
-      if resname=="HIE" or resname=="HIP" :resname="HIS"
-      if resname in mapnuc:
-        if args.dna: 
-          resname = mapnuc[resname][0]
-        elif args.rna:
-          resname = mapnuc[resname][1]
-        else:
-          raise ValueError("PDB contains a nucleic acid named \"%s\", but it could be either RNA or DNA. Please specify the --dna or --rna option" % resname)      
-        
-        if resname is None:
-          if args.dna: na = "DNA"
-          if args.rna: na = "RNA"
-          raise ValueError("'%s' can't be %s" % (l[17:20].strip(), na))      
-      chain = l[21]
-      resid = int(l[22:27])
-      x = float(l[30:38])
-      y = float(l[38:46])
-      z = float(l[46:54])
-      newres = False
-      nter = False
-      if curr_res is None:
-        newres = True
-        if add_termini: nter = True
-      elif chain != curr_res.chain:
-        newres = True
-        if add_termini: 
-          nter = True
-          curr_res.cter = True 
-      elif resid != curr_res.resid or resname != curr_res.resname:
-        newres = True
-      if newres:  
-        try:
-          if resname is None: raise KeyError
-          topr = topres[resname.lower()].copy()
-        except KeyError:
-          raise KeyError("Residue type %s not known by the topology file" % resname)            
-        curr_res = PDBres(chain, resid, resname, topr)        
-        if nter: curr_res.nter = True
-        pdbres.append(curr_res)
-      curr_res.coords[atomcode] = (x,y,z)
-      for pin, pout in repl:
-        if atomcode != pin: continue
-        curr_res.coords[pout] = (x,y,z)
+  atomlines = []
+    
+  if (modbase or modres):
+    res0 = {}
+    pdblines = list(pdblines)
+    for l in pdblines: 
+      if l.startswith("ATOM") or l.startswith("HETATM"):
+        resid = l[22:27]
+        if resid not in res0: res0[resid] = set()
+        atomcode = l[12:16].strip()
+        res0[resid].add(atomcode)
+    res_ok = set()
+    for r in res0:
+      ratoms = res0[r]
+      if modres and "CA" in ratoms and "C" in ratoms and "N" in ratoms:
+        res_ok.add(r)
+      elif modbase:
+        cp = 0
+        for n in range(5):
+          if ("C%d'" % n) in ratoms: cp += 1
+        if cp >= 3:  
+          res_ok.add(r)        
+    for l in pdblines:
+      if l.startswith("ATOM"):
+        atomlines.append(l)
+      elif l.startswith("HETATM"):
+        resid = l[22:27]
+        if resid in res_ok:
+          atomlines.append(l)
+  else:
+    atomlines = [l for l in pdblines if l.startswith("ATOM")]
+  
+  for l in atomlines:
+    atomcode = l[12:16].strip()
+    if l[16] not in (" ", "A"): continue #only keep the first of alternative conformations
+    if l[30:38] == " XXXXXXX": continue #missing atom from --manual mode
+    resname = l[17:20].strip()
+    if resname=="HIE" or resname=="HIP" :resname="HIS"
+    if resname in mutations: resname = mutations[resname]
+    if resname in mapnuc:
+      if args.dna: 
+        resname = mapnuc[resname][0]
+      elif args.rna:
+        resname = mapnuc[resname][1]
+      else:
+        raise ValueError("PDB contains a nucleic acid named \"%s\", but it could be either RNA or DNA. Please specify the --dna or --rna option" % resname)      
+      
+      if resname is None:
+        if args.dna: na = "DNA"
+        if args.rna: na = "RNA"
+        raise ValueError("'%s' can't be %s" % (l[17:20].strip(), na))      
+    chain = l[21]
+    resid = l[22:27]    
+    x = float(l[30:38])
+    y = float(l[38:46])
+    z = float(l[46:54])
+    newres = False
+    nter = False
+    if curr_res is None:
+      newres = True
+      if add_termini: nter = True
+    elif chain != curr_res.chain:
+      newres = True
+      if add_termini: 
+        nter = True
+        curr_res.cter = True 
+    elif resid != curr_res.resid or resname != curr_res.resname:
+      newres = True
+    if newres:  
+      try:
+        if resname is None: raise KeyError
+        topr = topres[resname.lower()].copy()
+      except KeyError:
+        raise KeyError("Residue type %s not known by the topology file" % resname)            
+      curr_res = PDBres(chain, resid, resname, topr)        
+      if nter: curr_res.nter = True
+      pdbres.append(curr_res)
+    curr_res.coords[atomcode] = (x,y,z)
+    for pin, pout in repl:
+      if atomcode != pin: continue
+      curr_res.coords[pout] = (x,y,z)
   if add_termini: 
     curr_res.cter = True    
   return pdbres
@@ -247,6 +284,7 @@ parser.add_argument("--refe", "--reference",help="Analyze the hydrogens of a ref
 parser.add_argument("--autorefe",help="Analyze the hydrogens of the input PDB to determine histidine/cysteine states", action="store_true")
 parser.add_argument("--dna",help="Automatically interpret nucleic acids as DNA", action="store_true")
 parser.add_argument("--rna",help="Automatically interpret nucleic acids as RNA", action="store_true")
+parser.add_argument("--rnalib",help="Use the ATTRACT RNA mononucleotide library to build missing atoms for nucleotides", action="store_true")
 parser.add_argument("--pdb2pqr",help="Use PDB2PQR to complete missing atoms. If no reference has been specified, analyze the hydrogens to determine histidine/cysteine states", action="store_true")
 parser.add_argument("--whatif",help="Use the WHATIF server to complete missing atoms. If no reference has been specified, analyze the hydrogens to determine histidine/cysteine states", action="store_true")
 parser.add_argument("--termini",help="An N-terminus and a C-terminus (5-terminus and 3-terminus for nucleic acids) will be added for each chain", action="store_true")
@@ -268,7 +306,14 @@ parser.add_argument("--top", "--topfile",dest="topfile",help="Additional topolog
 parser.add_argument("--patch",dest="patches",
                     help="Provide residue number and patch name to apply", nargs=2, action="append",default=[])
 parser.add_argument("--chain", help="Set the chain in the output PDB", default=" ")
+parser.add_argument("--mutate", dest="mutatefiles",
+                    help="Provide a 2-column residue mutation file", action="append",default=[])
+parser.add_argument("--modres",
+                    help="Interpret HETATM records as ATOM if they have a protein backbone", action="store_true")
+parser.add_argument("--modbase",
+                    help="Interpret HETATM records as ATOM if they have at least three sugar atoms", action="store_true")
 
+                    
 if has_argparse:
   args = parser.parse_args()
 else:
@@ -280,6 +325,12 @@ else:
     if len(positional_args) > 1: args.output = positional_args[1]
 
 assert len(args.chain) == 1, args.chain
+
+if args.rna and args.dna:
+  raise ValueError("--dna and --rna are mutually incompatible")
+
+if args.rnalib and not args.rna:
+  raise ValueError("--rnalib requires option --rna")
 
 if args.heavy and (args.autorefe or args.refe):
   raise ValueError("--(auto)refe and --heavy are mutually incompatible")
@@ -304,7 +355,17 @@ for f, name in topstream:
 for f, name in transfiles:
   parse_transfile(f, name)
   
-pdb = read_pdb(open(args.pdb), add_termini=args.termini)
+for f in args.mutatefiles:
+  assert os.path.exists(f), f
+  for l in open(f):
+    h = l.find("#")
+    if h != -1: l = l[:h]
+    ll = l.split()
+    if len(ll) == 0: continue
+    assert len(ll) == 2, l
+    mutations[ll[0]] = ll[1]
+  
+pdb = read_pdb(open(args.pdb), add_termini=args.termini,modbase=args.modbase,modres=args.modres)
 pdblines = write_pdb(pdb, args.chain)[0]
 
 termini_pdb(pdb, args.nter, args.cter)
@@ -321,18 +382,21 @@ if args.refe:
   if not args.heavy:
     update_patches(refe)
   set_reference(pdb, refe)
+if args.rnalib:
+  rnalib = pdbcomplete.load_rnalib()
+  pdbcomplete.apply_rnalib(pdb, rnalib, args.heavy)
 if args.pdb2pqr:
   pdblines = write_pdb(pdb, args.chain, one_letter_na = True)[0]
   pqrlines = run_pdb2pqr(pdblines)
   pqr = read_pdb(pqrlines)
-  pdbcomplete(pdb, pqr)
+  pdbcomplete.pdbcomplete(pdb, pqr)
   if not args.heavy and not args.refe: 
     update_patches(pdb)
 if args.whatif:
   pdblines = write_pdb(pdb, args.chain, one_letter_na = True)[0]
   whatiflines = run_whatif(pdblines)
   whatif = read_pdb(whatiflines)
-  pdbcomplete(pdb, whatif)
+  pdbcomplete.pdbcomplete(pdb, whatif)
   if not args.heavy and not args.refe and not args.pdb2pqr: 
     update_patches(pdb)
 
