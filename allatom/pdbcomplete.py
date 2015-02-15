@@ -228,7 +228,7 @@ def apply_rnalib(pdb, lib, heavy):
     fitcoor = numpy.array(_apply_matrix(coor, pivot, rotmat, offset))
     fitcoor = fitcoor.flatten()[numpy.newaxis]
     refecoor = refecoor.reshape((len(refecoor), 3 * len(coor)))
-    d = cdist(fitcoor, refecoor, 'euclidean')[0]
+    d = cdist(fitcoor, refecoor, 'sqeuclidean')[0]
     libconfnr = numpy.argmin(d)
     libconf = libcoor[libconfnr]
     libconf = _apply_matrix(libconf, pivot+offset, rotmat.T, -offset)
