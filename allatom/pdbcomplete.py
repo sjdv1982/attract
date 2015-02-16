@@ -172,11 +172,17 @@ def load_rnalib():
   lib.dir = currdir + "/rnalib"
   lib.sugar = numpy.load(lib.dir + "/sugar.npy")
   lib.sugaratoms = [l[12:16].strip() for l in open(lib.dir + "/sugar.pdb") if l.startswith("ATOM")]
+  lib.base = {}
+  lib.baseatoms = {}
   lib.mono = {}
   lib.monoatoms = {}
   for nuc in "A","C","G","U":
     lib.mono[nuc] = numpy.load(lib.dir + "/%s.npy" % nuc)
     lib.monoatoms[nuc] = [l[12:16].strip() for l in open(lib.dir + "/%s.pdb" % nuc) if l.startswith("ATOM")]
+    base = lib.dir + "/base%s.pdb" % nuc
+    lib.base[nuc] = numpy.array([(float(l[30:38]),float(l[38:46]),float(l[46:54])) for l in \
+     open(base) if l.startswith("ATOM")])
+    lib.baseatoms[nuc] = [l[12:16].strip() for l in open(base) if l.startswith("ATOM")]
   return lib
 
 #taken from fit.py
@@ -210,11 +216,18 @@ def apply_rnalib(pdb, lib, heavy):
         missing.add(aa)
     if not missing: continue
     
+    replace_all = False
     if any([(m not in lib.sugaratoms) for m in missing]):
-      #nucleotide completion
       nuc = res.resname[1]
-      libcoor = lib.mono[nuc]
-      atoms = lib.monoatoms[nuc]
+      if any([(m not in lib.baseatoms[nuc]) for m in missing]):
+        #nucleotide completion      
+        libcoor = lib.mono[nuc]
+        atoms = lib.monoatoms[nuc]
+      else:
+        #base completion
+        replace_all = True
+        libcoor = lib.base[nuc][numpy.newaxis]
+        atoms = lib.baseatoms[nuc]
     else:
       #sugar completion
       libcoor = lib.sugar
@@ -233,7 +246,7 @@ def apply_rnalib(pdb, lib, heavy):
     libconf = libcoor[libconfnr]
     libconf = _apply_matrix(libconf, pivot+offset, rotmat.T, -offset)
     for anr, a in enumerate(atoms):
-      if a in missing:
+      if a in missing or replace_all:
         x,y,z = libconf[anr]
         res.coords[a] = x,y,z
     
