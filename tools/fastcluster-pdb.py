@@ -1,5 +1,5 @@
 """
-Fast all-atom clustering of PDBs
+Fast all-atom clustering of single-body PDBs
 usage: python fastcluster.py <PDB file list> <cutoff>
 
 """
