@@ -7,9 +7,23 @@ class Atom(object):
     self.y = float(l[38:46])
     self.z = float(l[46:54])    
     self.resid = l[21:26]
-    self.chain = l[21]
-    self.resnr = int(l[22:26])
+    self.chain = l[21] #readonly
+    self.resnr = int(l[22:26]) #readonly
     self.resname = l[17:20].strip()
+    self.line = l
+  def write(self, filehandle):
+    l = self.line
+    o = l[:12] 
+    o += "%4.4s" % self.name
+    o += "%3.3s" % self.resname
+    o += l[20]
+    o += self.resid
+    o += l[26:30]
+    o += "%8.3f" % self.x
+    o += "%8.3f" % self.y
+    o += "%8.3f" % self.z
+    o += l[54:]
+    filehandle.write(o)
     
 class PDB(object):
   def __init__(self, filename):
@@ -57,7 +71,14 @@ class PDB(object):
         self._res.remove(n)
       else:  
         self._residues[n] = res
-    
+  
+  def write(self, fil):
+    filehandle = open(fil, "w")
+    for n in self._res:
+      for a in self._residues[n]:
+        a.write(filehandle)
+    filehandle.close()    
+        
 def read_pdb(f):
   assert os.path.exists(f), f
   p = PDB(f)
