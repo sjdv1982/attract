@@ -172,11 +172,17 @@ def load_rnalib():
   lib.dir = currdir + "/rnalib"
   lib.sugar = numpy.load(lib.dir + "/sugar.npy")
   lib.sugaratoms = [l[12:16].strip() for l in open(lib.dir + "/sugar.pdb") if l.startswith("ATOM")]
+  lib.base = {}
+  lib.baseatoms = {}
   lib.mono = {}
   lib.monoatoms = {}
   for nuc in "A","C","G","U":
     lib.mono[nuc] = numpy.load(lib.dir + "/%s.npy" % nuc)
     lib.monoatoms[nuc] = [l[12:16].strip() for l in open(lib.dir + "/%s.pdb" % nuc) if l.startswith("ATOM")]
+    base = lib.dir + "/base%s.pdb" % nuc
+    lib.base[nuc] = numpy.array([(float(l[30:38]),float(l[38:46]),float(l[46:54])) for l in \
+     open(base) if l.startswith("ATOM")])
+    lib.baseatoms[nuc] = [l[12:16].strip() for l in open(base) if l.startswith("ATOM")]
   return lib
 
 #taken from fit.py
@@ -201,42 +207,57 @@ def apply_rnalib(pdb, lib, heavy):
   sys.path[:] = syspath
   for res in pdb:
     if res.resname not in ("RA", "RC", "RG", "RU"): continue    
-    missing = set()
-    top = res.topology
-    for a in top.atomorder:
-      aa = a.upper()
-      if heavy and aa[0].startswith("H"): continue
-      if aa not in res.coords:
-        missing.add(aa)
-    if not missing: continue
-    
-    if any([(m not in lib.sugaratoms) for m in missing]):
-      #nucleotide completion
+    while 1: #keep fixing as long as we can
+      missing = set()
+      top = res.topology
+      for a in top.atomorder:
+        aa = a.upper()
+        if heavy and aa[0].startswith("H"): continue
+        if aa not in res.coords:
+          missing.add(aa)
+      if not missing: break
+      
       nuc = res.resname[1]
-      libcoor = lib.mono[nuc]
-      atoms = lib.monoatoms[nuc]
-    else:
-      #sugar completion
-      libcoor = lib.sugar
-      atoms = lib.sugaratoms    
-    coor = numpy.array([res.coords[a] for a in atoms if a not in missing]) 
-    if len(coor) < 3: continue
-    mask = numpy.array([(a not in missing) for a in atoms])
-    refecoor = numpy.compress(mask, libcoor, axis=1) #or: refecoor = libcoor[:,mask] (slower)    
-    rotmat, offset, rmsd = rmsdlib.fit(refecoor[0],coor)
-    pivot = numpy.sum(coor,axis=0) / float(len(coor))
-    fitcoor = numpy.array(_apply_matrix(coor, pivot, rotmat, offset))
-    fitcoor = fitcoor.flatten()[numpy.newaxis]
-    refecoor = refecoor.reshape((len(refecoor), 3 * len(coor)))
-    d = cdist(fitcoor, refecoor, 'sqeuclidean')[0]
-    libconfnr = numpy.argmin(d)
-    libconf = libcoor[libconfnr]
-    libconf = _apply_matrix(libconf, pivot+offset, rotmat.T, -offset)
-    for anr, a in enumerate(atoms):
-      if a in missing:
-        x,y,z = libconf[anr]
-        res.coords[a] = x,y,z
-    
+      for fmode, fatoms in (
+         ("base", lib.baseatoms[nuc]),
+         ("sugar", lib.sugaratoms),
+         ("nucleotide", lib.monoatoms[nuc]),
+        ):        
+        #we can fix if there are any missing atoms, and there are at least three non-missing atoms
+        if any([(m in fatoms) for m in missing]) and \
+         len([a for a in fatoms if a not in missing]) >= 3:
+           fixmode = fmode
+           break
+      else:
+        break #no more fixing to be done...
+      
+      if fixmode == "base":     
+        libcoor = lib.base[nuc][numpy.newaxis]
+        atoms = lib.baseatoms[nuc] 
+      elif fixmode == "sugar":
+        libcoor = lib.sugar
+        atoms = lib.sugaratoms            
+      elif fixmode == "nucleotide":
+        libcoor = lib.mono[nuc]
+        atoms = lib.monoatoms[nuc]         
+      
+      coor = numpy.array([res.coords[a] for a in atoms if a not in missing]) 
+      mask = numpy.array([(a not in missing) for a in atoms])
+      refecoor = numpy.compress(mask, libcoor, axis=1) #or: refecoor = libcoor[:,mask] (slower)    
+      rotmat, offset, rmsd = rmsdlib.fit(refecoor[0],coor)
+      pivot = numpy.sum(coor,axis=0) / float(len(coor))
+      fitcoor = numpy.array(_apply_matrix(coor, pivot, rotmat, offset))
+      fitcoor = fitcoor.flatten()[numpy.newaxis]
+      refecoor = refecoor.reshape((len(refecoor), 3 * len(coor)))
+      d = cdist(fitcoor, refecoor, 'sqeuclidean')[0]
+      libconfnr = numpy.argmin(d)
+      libconf = libcoor[libconfnr]
+      libconf = _apply_matrix(libconf, pivot+offset, rotmat.T, -offset)
+      for anr, a in enumerate(atoms):
+        if a in missing or fixmode == "base":
+          x,y,z = libconf[anr]
+          res.coords[a] = x,y,z
+      if fixmode == "nucleotide": break
 
 def pdb_lastresort(pdb):
   """
