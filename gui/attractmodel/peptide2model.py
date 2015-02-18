@@ -18,7 +18,6 @@ def peptide2model(pmodel):
   pp.moleculetype = "Peptide"  
   pp.use_rmsd=p.use_rmsd
   pp.rmsd_pdb=p.rmsd_pdb
-  pp.rmsd_bb=p.rmsd_bb
   pp.ensemble_size = 3  
   if pmodel.p1.haddock_restraints:
     pp.haddock_restraints = HaddockRestraintsInterface (

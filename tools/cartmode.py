@@ -31,10 +31,9 @@ def read(files):
         # Make list of corresponding beads
         data = []
         for line in open(files[i+1]):
-	    tmp = line.replace('-',' -')
-            list = tmp.split()
-            if len(list) > 0 and list[0] == 'ATOM':
-                data.append((int(list[1]),int(list[4]), list[2], list[3]))
+            if line.startswith('ATOM'):
+                data.append((int(line[4:11]),int(line[22:26]), line[12:16].strip(), line[17:20]))
+                #data.append((int(list[1]),int(list[4]), list[2], list[3]))
         
         beads = []
         if len(ilist) > 0:
