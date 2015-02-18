@@ -398,14 +398,17 @@ def run(pdbfile):
   termini_pdb(pdb, args.nter, args.cter)
   patches = {}
   for p in args.patches:
-    resnr = int(p[0])
-    resindices = [rnr for rnr,r in enumerate(pdb) if r.resid == resnr]
+    resid = p[0].strip()
+    resindices = [ri for ri,r in enumerate(pdb) if r.resid.strip() == resid]
     if len(resindices) == 0:
-      raise ValueError("No residues have number %d" % resnr)
+      raise ValueError("No residues have resid %s" % resid)
     elif len(resindices) > 1:
-      raise ValueError("Multiple residues have number %d" % resnr)
-    if resnr not in patches: patches[resnr] = []
-    patches[resnr].append(p[1].lower())
+      raise ValueError("Multiple residues have resid %s" % resid)
+    resid2 = pdb[resindices[0]].resid
+    if resid2 not in patches: patches[resid2] = []
+    pname = p[1].lower()
+    if pname == "none": pname = None
+    patches[resid2].append(pname)
   patch_pdb(pdb, patches)
 
   if args.refe:
