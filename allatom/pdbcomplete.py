@@ -223,9 +223,9 @@ def apply_rnalib(pdb, lib, heavy):
          ("sugar", lib.sugaratoms),
          ("nucleotide", lib.monoatoms[nuc]),
         ):        
-        #we can fix if there are any missing atoms, and there are at least three non-missing atoms
+        #we can fix if there are any missing atoms, and there are at least three non-lacking atoms
         if any([(m in fatoms) for m in missing]) and \
-         len([a for a in fatoms if a not in missing]) >= 3:
+         len([a for a in fatoms if a in res.coords]) >= 3:
            fixmode = fmode
            break
       else:
@@ -241,8 +241,8 @@ def apply_rnalib(pdb, lib, heavy):
         libcoor = lib.mono[nuc]
         atoms = lib.monoatoms[nuc]         
       
-      coor = numpy.array([res.coords[a] for a in atoms if a not in missing]) 
-      mask = numpy.array([(a not in missing) for a in atoms])
+      coor = numpy.array([res.coords[a] for a in atoms if a in res.coords]) 
+      mask = numpy.array([(a in res.coords) for a in atoms])
       refecoor = numpy.compress(mask, libcoor, axis=1) #or: refecoor = libcoor[:,mask] (slower)    
       rotmat, offset, rmsd = rmsdlib.fit(refecoor[0],coor)
       pivot = numpy.sum(coor,axis=0) / float(len(coor))
