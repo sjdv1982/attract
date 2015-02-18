@@ -224,6 +224,7 @@ def patch_pdb(pdbres, patches):
         else:
           res.topology.patch(toppatch["5ter"])
       if res.chainlast:
+        res.topology.patch(toppatch["3ter"])
 
 def check_pdb(pdbres, heavy=False):
   for res in pdbres:
