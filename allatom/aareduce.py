@@ -73,6 +73,15 @@ def parse_transfile(transfile, topname):
 
 mutations = {}
 
+def read_filelist(filelist):
+  ret = []
+  for l in open(filelist):
+    l = l.strip()
+    if not len(l): continue
+    assert len(l.split()) == 1, (filelist, l)
+    ret.append(l)
+  return ret
+
 def read_pdb(pdblines, add_termini=False,modbase=False,modres=False):
   repl = (
     ("H","HN"),
@@ -312,7 +321,8 @@ parser.add_argument("--modres",
                     help="Interpret HETATM records as ATOM if they have a protein backbone", action="store_true")
 parser.add_argument("--modbase",
                     help="Interpret HETATM records as ATOM if they have at least three sugar atoms", action="store_true")
-
+parser.add_argument("--batch",
+                    help="run aareduce in batch mode. Input and output must be two lists of PDBs", action="store_true")
                     
 if has_argparse:
   args = parser.parse_args()
@@ -340,9 +350,9 @@ if args.autorefe and args.refe:
 if args.autorefe: 
   args.refe = args.pdb
 
-outfile = os.path.splitext(args.pdb)[0] + "-aa.pdb"
-if args.output is not None: 
-  outfile = args.output
+if args.batch and args.output is None: 
+  raise ValueError("--batch requires a file list as output argument")
+
 
 for fnr, f in enumerate(args.topfile):
   assert os.path.exists(f), f
@@ -364,52 +374,72 @@ for f in args.mutatefiles:
     if len(ll) == 0: continue
     assert len(ll) == 2, l
     mutations[ll[0]] = ll[1]
-  
-pdb = read_pdb(open(args.pdb), add_termini=args.termini,modbase=args.modbase,modres=args.modres)
-pdblines = write_pdb(pdb, args.chain)[0]
 
-termini_pdb(pdb, args.nter, args.cter)
-patches = {}
-for p in args.patches:
-  resnr = int(p[0])
-  if resnr not in patches: patches[resnr] = []
-  patches[resnr].append(p[1])
-patch_pdb(pdb, patches)
-
-if args.refe:
-  refe = read_pdb(open(args.refe), add_termini=args.termini)
-  patch_pdb(refe, patches)
-  if not args.heavy:
-    update_patches(refe)
-  set_reference(pdb, refe)
 if args.rnalib:
   rnalib = pdbcomplete.load_rnalib()
-  pdbcomplete.apply_rnalib(pdb, rnalib, args.heavy)
-if args.pdb2pqr:
-  pdblines = write_pdb(pdb, args.chain, one_letter_na = True)[0]
-  pqrlines = run_pdb2pqr(pdblines)
-  pqr = read_pdb(pqrlines)
-  pdbcomplete.pdbcomplete(pdb, pqr)
-  if not args.heavy and not args.refe: 
-    update_patches(pdb)
-if args.whatif:
-  pdblines = write_pdb(pdb, args.chain, one_letter_na = True)[0]
-  whatiflines = run_whatif(pdblines)
-  whatif = read_pdb(whatiflines)
-  pdbcomplete.pdbcomplete(pdb, whatif)
-  if not args.heavy and not args.refe and not args.pdb2pqr: 
-    update_patches(pdb)
 
-if args.refe:  
-  pdbfix(pdb, refe)
+def run(pdbfile):  
+  pdb = read_pdb(open(pdbfile), add_termini=args.termini,modbase=args.modbase,modres=args.modres)
+  pdblines = write_pdb(pdb, args.chain)[0]
 
-if not args.manual: 
-  pdb_lastresort(pdb)
-  check_pdb(pdb, heavy=args.heavy)
-pdblines, mapping = write_pdb(pdb, args.chain, heavy=args.heavy)
+  termini_pdb(pdb, args.nter, args.cter)
+  patches = {}
+  for p in args.patches:
+    resnr = int(p[0])
+    if resnr not in patches: patches[resnr] = []
+    patches[resnr].append(p[1])
+  patch_pdb(pdb, patches)
 
-outf = open(outfile, "w")
-for l in pdblines: 
-  print >> outf, l
-for v1, v2 in mapping:
-  print v1, v2  
+  if args.refe:
+    refe = read_pdb(open(args.refe), add_termini=args.termini)
+    patch_pdb(refe, patches)
+    if not args.heavy:
+      update_patches(refe)
+    set_reference(pdb, refe)
+  if args.rnalib:
+    pdbcomplete.apply_rnalib(pdb, rnalib, args.heavy)
+  if args.pdb2pqr:
+    pdblines = write_pdb(pdb, args.chain, one_letter_na = True)[0]
+    pqrlines = run_pdb2pqr(pdblines)
+    pqr = read_pdb(pqrlines)
+    pdbcomplete.pdbcomplete(pdb, pqr)
+    if not args.heavy and not args.refe: 
+      update_patches(pdb)
+  if args.whatif:
+    pdblines = write_pdb(pdb, args.chain, one_letter_na = True)[0]
+    whatiflines = run_whatif(pdblines)
+    whatif = read_pdb(whatiflines)
+    pdbcomplete.pdbcomplete(pdb, whatif)
+    if not args.heavy and not args.refe and not args.pdb2pqr: 
+      update_patches(pdb)
+
+  if args.refe:  
+    pdbfix(pdb, refe)
+
+  if not args.manual: 
+    pdb_lastresort(pdb)
+    check_pdb(pdb, heavy=args.heavy)
+  pdblines, mapping = write_pdb(pdb, args.chain, heavy=args.heavy)
+  return pdblines, mapping
+
+if args.batch:
+  infiles = read_filelist(args.pdb)
+  for f in infiles:
+    assert os.path.exists(f), f
+  outfiles = read_filelist(args.output)
+  for pdb, outfile in zip(infiles, outfiles):
+    pdblines, mapping = run(pdb)
+    outf = open(outfile, "w")
+    for l in pdblines: 
+      print >> outf, l  
+    outf.close()  
+else:  
+  outfile = os.path.splitext(args.pdb)[0] + "-aa.pdb"
+  if args.output is not None: 
+    outfile = args.output  
+  pdblines, mapping = run(args.pdb)
+  outf = open(outfile, "w")
+  for l in pdblines: 
+    print >> outf, l
+  for v1, v2 in mapping:
+    print v1, v2  
