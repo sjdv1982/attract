@@ -56,6 +56,8 @@ class PDBres:
     self.resid = resid
     self.resname = resname
     self.coords = {} 
+    self.chainfirst = False
+    self.chainlast = False
     self.nter = False    
     self.cter = False
     self.topology = topology
@@ -89,6 +91,7 @@ def read_pdb(pdblines, add_termini=False,modbase=False,modres=False):
     ("OP1","O1P"),
     ("OP2","O2P"),
     ("H1","HN"),
+    ("OP3","O3P"),
   )
   topres, toppatch = parse_cns_top.residues, parse_cns_top.presidues
   pdbres = []
@@ -151,11 +154,15 @@ def read_pdb(pdblines, add_termini=False,modbase=False,modres=False):
     z = float(l[46:54])
     newres = False
     nter = False
+    chainfirst = False
     if curr_res is None:
       newres = True
+      chainfirst = True
       if add_termini: nter = True
     elif chain != curr_res.chain:
       newres = True
+      chainfirst = True
+      curr_res.chainlast = True
       if add_termini: 
         nter = True
         curr_res.cter = True 
@@ -167,15 +174,18 @@ def read_pdb(pdblines, add_termini=False,modbase=False,modres=False):
         topr = topres[resname.lower()].copy()
       except KeyError:
         raise KeyError("Residue type %s not known by the topology file" % resname)            
-      curr_res = PDBres(chain, resid, resname, topr)        
+      curr_res = PDBres(chain, resid, resname, topr)  
+      if chainfirst: curr_res.chainfirst = True      
       if nter: curr_res.nter = True
       pdbres.append(curr_res)
     curr_res.coords[atomcode] = (x,y,z)
     for pin, pout in repl:
       if atomcode != pin: continue
       curr_res.coords[pout] = (x,y,z)
-  if add_termini: 
-    curr_res.cter = True    
+  if curr_res is not None:
+    curr_res.chainlast = True
+    if add_termini: 
+      curr_res.cter = True    
   return pdbres
 
 def termini_pdb(pdbres, nter, cter):
@@ -208,10 +218,12 @@ def patch_pdb(pdbres, patches):
       if res.cter:
         res.topology.patch(toppatch["cter2"])
     elif len(pdbres) > 1 and "p" in res.topology.atomorder: #DNA/RNA
-      if res.nter:
-        res.topology.patch(toppatch["5ter"])
-      if res.cter:
-        res.topology.patch(toppatch["3ter"])
+      if res.chainfirst:
+        if res.nter:
+          res.topology.patch(toppatch["5pho"])
+        else:
+          res.topology.patch(toppatch["5ter"])
+      if res.chainlast:
 
 def check_pdb(pdbres, heavy=False):
   for res in pdbres:
@@ -386,8 +398,13 @@ def run(pdbfile):
   patches = {}
   for p in args.patches:
     resnr = int(p[0])
+    resindices = [rnr for rnr,r in enumerate(pdb) if r.resid == resnr]
+    if len(resindices) == 0:
+      raise ValueError("No residues have number %d" % resnr)
+    elif len(resindices) > 1:
+      raise ValueError("Multiple residues have number %d" % resnr)
     if resnr not in patches: patches[resnr] = []
-    patches[resnr].append(p[1])
+    patches[resnr].append(p[1].lower())
   patch_pdb(pdb, patches)
 
   if args.refe:
