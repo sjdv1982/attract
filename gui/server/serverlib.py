@@ -127,7 +127,7 @@ def serve_attract(spydertype, formlib, deploy, **kwargs):
     tmpf = "/tmp/" + webdict[resourcefilevar]
     resourceobj = spydertype.fromfile(tmpf)
   newmodel, status, delta = spyder.formtools.cgi.cgi(webdict, f, resourceobj, spydertype=spydertype)      
- 
+  
   # Detect empty form  
   if not len(webdict) or delta is None:
     raise AttractServerError(status="You didn't submit any data", delta=None)      
@@ -135,6 +135,8 @@ def serve_attract(spydertype, formlib, deploy, **kwargs):
   #Special case: use_iattract is by default False in the easy web interface, but True in the standard interface
   if easy and "use_iattract" not in delta:
     delta["use_iattract"] = False
+  if easy and delta["use_iattract"]: #bug in Spyder?
+    newmodel.use_iattract = True
   
   # Create a result directory
   cwd = os.getcwd()

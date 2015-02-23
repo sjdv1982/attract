@@ -1,6 +1,8 @@
 import sys, os, tempfile
 import parse_cns_top
 
+currdir = os.path.abspath(os.path.split(__file__)[0])
+
 def run_pdb2pqr(pdblines):
   """
   Runs PDB2PQR on the input
@@ -162,6 +164,101 @@ def pdbfix(pdb, refe):
       hres = sres[0] + vref[0], sres[1] + vref[1], sres[2] + vref[2]
       res.coords[proton] = hres
 
+class RNAlib(object):pass
+
+def load_rnalib():
+  import numpy
+  lib = RNAlib()
+  lib.dir = currdir + "/rnalib"
+  lib.sugar = numpy.load(lib.dir + "/sugar.npy")
+  lib.sugaratoms = [l[12:16].strip() for l in open(lib.dir + "/sugar.pdb") if l.startswith("ATOM")]
+  lib.base = {}
+  lib.baseatoms = {}
+  lib.mono = {}
+  lib.monoatoms = {}
+  for nuc in "A","C","G","U":
+    lib.mono[nuc] = numpy.load(lib.dir + "/%s.npy" % nuc)
+    lib.monoatoms[nuc] = [l[12:16].strip() for l in open(lib.dir + "/%s.pdb" % nuc) if l.startswith("ATOM")]
+    base = lib.dir + "/base%s.pdb" % nuc
+    lib.base[nuc] = numpy.array([(float(l[30:38]),float(l[38:46]),float(l[46:54])) for l in \
+     open(base) if l.startswith("ATOM")])
+    lib.baseatoms[nuc] = [l[12:16].strip() for l in open(base) if l.startswith("ATOM")]
+  return lib
+
+#taken from fit.py
+def _apply_matrix(atoms, pivot, rotmat, trans):
+  ret = []  
+  for atom in atoms:
+    a = atom-pivot
+    atom2 = a.dot(rotmat) + pivot + trans
+    ret.append(atom2)
+  return ret
+
+def apply_rnalib(pdb, lib, heavy):  
+  """
+  Adds missing atoms using an RNA lib
+  """
+  assert heavy == True #TODO: remove this when the rna library has hydrogens
+  import numpy
+  syspath = list(sys.path)
+  sys.path.insert(0, os.environ["ATTRACTTOOLS"])
+  import rmsdlib
+  from scipy.spatial.distance import cdist
+  sys.path[:] = syspath
+  for res in pdb:
+    if res.resname not in ("RA", "RC", "RG", "RU"): continue    
+    while 1: #keep fixing as long as we can
+      missing = set()
+      top = res.topology
+      for a in top.atomorder:
+        aa = a.upper()
+        if heavy and aa[0].startswith("H"): continue
+        if aa not in res.coords:
+          missing.add(aa)
+      if not missing: break
+      
+      nuc = res.resname[1]
+      for fmode, fatoms in (
+         ("base", lib.baseatoms[nuc]),
+         ("sugar", lib.sugaratoms),
+         ("nucleotide", lib.monoatoms[nuc]),
+        ):        
+        #we can fix if there are any missing atoms, and there are at least three non-lacking atoms
+        if any([(m in fatoms) for m in missing]) and \
+         len([a for a in fatoms if a in res.coords]) >= 3:
+           fixmode = fmode
+           break
+      else:
+        break #no more fixing to be done...
+      
+      if fixmode == "base":     
+        libcoor = lib.base[nuc][numpy.newaxis]
+        atoms = lib.baseatoms[nuc] 
+      elif fixmode == "sugar":
+        libcoor = lib.sugar
+        atoms = lib.sugaratoms            
+      elif fixmode == "nucleotide":
+        libcoor = lib.mono[nuc]
+        atoms = lib.monoatoms[nuc]         
+      
+      coor = numpy.array([res.coords[a] for a in atoms if a in res.coords]) 
+      mask = numpy.array([(a in res.coords) for a in atoms])
+      refecoor = numpy.compress(mask, libcoor, axis=1) #or: refecoor = libcoor[:,mask] (slower)    
+      rotmat, offset, rmsd = rmsdlib.fit(refecoor[0],coor)
+      pivot = numpy.sum(coor,axis=0) / float(len(coor))
+      fitcoor = numpy.array(_apply_matrix(coor, pivot, rotmat, offset))
+      fitcoor = fitcoor.flatten()[numpy.newaxis]
+      refecoor = refecoor.reshape((len(refecoor), 3 * len(coor)))
+      d = cdist(fitcoor, refecoor, 'sqeuclidean')[0]
+      libconfnr = numpy.argmin(d)
+      libconf = libcoor[libconfnr]
+      libconf = _apply_matrix(libconf, pivot+offset, rotmat.T, -offset)
+      for anr, a in enumerate(atoms):
+        if a in missing or fixmode == "base":
+          x,y,z = libconf[anr]
+          res.coords[a] = x,y,z
+      if fixmode == "nucleotide": break
+
 def pdb_lastresort(pdb):
   """
   Last-resort fixes to prevent errors
@@ -187,5 +284,4 @@ def pdb_lastresort(pdb):
       for p1, p2 in pairs:
         if p1 not in res.coords and p2 in res.coords:
           res.coords[p1] = res.coords[p2]
-        
-      
+              

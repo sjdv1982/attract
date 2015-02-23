@@ -3,6 +3,7 @@ import sys
 import numpy
 from math import *
 import rmsdlib
+from multiprocessing import Pool
 
 def read_pdb(pdb):
   atoms = []
@@ -68,7 +69,9 @@ def select_ca(lines, atoms):
     if l[13:15] in ("CA",): ret.append(a)
   return ret
     
-def write_pdb(lines, atoms, extralines):
+def write_pdb(outputfile, lines, atoms, extralines):
+  print outputfile
+  outp = open(outputfile, "w")
   count = 0
   pos = 0
   data = zip(lines, atoms)
@@ -76,21 +79,24 @@ def write_pdb(lines, atoms, extralines):
     while pos < len(extralines):
       p,d = extralines[pos]
       if count < p: break
-      print(d.rstrip("\n"))
+      print >> outp, d.rstrip("\n")
       pos += 1
     if count == len(data): break
     l,a = data[count]
     ll = l[:30] + "%8.3f%8.3f%8.3f" % (a[0],a[1],a[2]) + l[54:].rstrip("\n")
-    print(ll)
+    print >> outp, ll
     count += 1
-  
+  outp.close()
+ 
 import sys
 import argparse
-a = argparse.ArgumentParser(prog="fit.py")
+a = argparse.ArgumentParser(prog="fit-multi.py")
 a.add_argument("reference")
-a.add_argument("mobile")
+a.add_argument("mobilelist")
+a.add_argument("--pattern")
+a.add_argument("--pattern-offset",dest="offset",type=int,default=0)
+a.add_argument("--np",type=int)
 a.add_argument("--allatoms", action="store_true")
-a.add_argument("--rmsd", action="store_true")
 a.add_argument("--iterative", action="store_true")
 a.add_argument("--iterative_cycles",type=int,default=5)
 a.add_argument("--iterative_cutoff",type=float,default=2)
@@ -98,30 +104,44 @@ args = a.parse_args()
 
 #read atoms  
 lines1, atoms1, extralines1 = read_pdb(args.reference)
-lines2, atoms2, extralines2 = read_pdb(args.mobile)
 
 #select backbone
 if args.allatoms:
   atoms1_fit = atoms1
-  atoms2_fit = atoms2
 else:  
   atoms1_fit = select_bb(lines1, atoms1)
-  atoms2_fit = select_bb(lines2, atoms2)
-assert len(atoms1_fit) and len(atoms1_fit) == len(atoms2_fit), (len(atoms1_fit), len(atoms2_fit))
 
+mobiles = [l.strip().strip("\n") for l in open(args.mobilelist) if len(l.strip().strip("\n"))]
+outputs = [args.pattern + "-" + str(n+args.offset+1) + ".pdb" for n in range(len(mobiles))]
 
-if args.iterative:
-  #perform a Pymol-style iterative fit
-  rotmat, offset, rmsd = cyclesfit(atoms1_fit,atoms2_fit, args.iterative_cycles, args.iterative_cutoff)
-else:
-  #perform a direct fit
-  rotmat, offset, rmsd = rmsdlib.fit(atoms1_fit,atoms2_fit)
+def run(runarg):
+  mobile, outputfile = runarg
+  lines2, atoms2, extralines2 = read_pdb(mobile)
+  #select backbone
+  if args.allatoms:
+    atoms2_fit = atoms2
+  else:  
+    atoms2_fit = select_bb(lines2, atoms2)
+  assert len(atoms1_fit) and len(atoms1_fit) == len(atoms2_fit), (len(atoms1_fit), len(atoms2_fit))
 
-pivot = numpy.sum(atoms2_fit,axis=0) / float(len(atoms2_fit))
-fitted_atoms = apply_matrix(atoms2, pivot, rotmat, offset)
-if args.rmsd:
-  print "%.3f" % rmsd
-else:  
-  write_pdb(lines2, fitted_atoms, extralines2)
+  if args.iterative:
+    #perform a Pymol-style iterative fit
+    rotmat, offset, rmsd = cyclesfit(atoms1_fit,atoms2_fit, args.iterative_cycles, args.iterative_cutoff)
+  else:
+    #perform a direct fit
+    rotmat, offset, rmsd = rmsdlib.fit(atoms1_fit,atoms2_fit)
 
- 
+  pivot = numpy.sum(atoms2,axis=0) / float(len(atoms2))
+  fitted_atoms = apply_matrix(atoms2, pivot, rotmat, offset)
+  write_pdb(outputfile, lines2, fitted_atoms, extralines2)
+
+runargs = [(m,o) for m,o in zip(mobiles, outputs)]
+pool = Pool(args.np)
+try:
+  pool.map_async(run, runargs).get(999999)
+except KeyboardInterrupt:
+  pool.terminate()
+  sys.exit(1)
+finally:
+  pool.close()
+  pool.join()
