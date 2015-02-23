@@ -3,7 +3,7 @@ import sys
 import numpy
 from math import *
 import rmsdlib
-from multiprocessing import Pool
+from multiprocessing import Pool, Queue
 
 def read_pdb(pdb):
   atoms = []
@@ -93,9 +93,10 @@ import argparse
 a = argparse.ArgumentParser(prog="fit-multi.py")
 a.add_argument("reference")
 a.add_argument("mobilelist")
-a.add_argument("--pattern")
+a.add_argument("--pattern", help="output file pattern")
 a.add_argument("--pattern-offset",dest="offset",type=int,default=0)
 a.add_argument("--np",type=int)
+a.add_argument("--rmsd", action="store_true")
 a.add_argument("--allatoms", action="store_true")
 a.add_argument("--iterative", action="store_true")
 a.add_argument("--iterative_cycles",type=int,default=5)
@@ -112,7 +113,10 @@ else:
   atoms1_fit = select_bb(lines1, atoms1)
 
 mobiles = [l.strip().strip("\n") for l in open(args.mobilelist) if len(l.strip().strip("\n"))]
-outputs = [args.pattern + "-" + str(n+args.offset+1) + ".pdb" for n in range(len(mobiles))]
+if not args.rmsd:
+  if args.pattern is None: 
+    raise ValueError("If you don't specify --rmsd, you need to provide an output file pattern")
+  outputs = [args.pattern + "-" + str(n+args.offset+1) + ".pdb" for n in range(len(mobiles))]
 
 def run(runarg):
   mobile, outputfile = runarg
@@ -131,17 +135,24 @@ def run(runarg):
     #perform a direct fit
     rotmat, offset, rmsd = rmsdlib.fit(atoms1_fit,atoms2_fit)
 
-  pivot = numpy.sum(atoms2,axis=0) / float(len(atoms2))
-  fitted_atoms = apply_matrix(atoms2, pivot, rotmat, offset)
-  write_pdb(outputfile, lines2, fitted_atoms, extralines2)
+  if args.rmsd:
+    return rmsd
+  else:  
+    pivot = numpy.sum(atoms2,axis=0) / float(len(atoms2))
+    fitted_atoms = apply_matrix(atoms2, pivot, rotmat, offset)
+    write_pdb(outputfile, lines2, fitted_atoms, extralines2)
 
-runargs = [(m,o) for m,o in zip(mobiles, outputs)]
+if args.rmsd:
+  runargs = [(m,None) for m in mobiles]
+else:  
+  runargs = [(m,o) for m,o in zip(mobiles, outputs)]
 pool = Pool(args.np)
 try:
-  pool.map_async(run, runargs).get(999999)
+  result = pool.map(run, runargs)
 except KeyboardInterrupt:
   pool.terminate()
   sys.exit(1)
-finally:
-  pool.close()
-  pool.join()
+
+if args.rmsd:
+  for n in range(len(mobiles)):
+    print "%.3f" % result[n]
