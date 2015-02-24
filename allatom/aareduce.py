@@ -92,6 +92,8 @@ def read_pdb(pdblines, add_termini=False,modbase=False,modres=False):
     ("OP2","O2P"),
     ("H1","HN"),
     ("OP3","O3P"),
+    ("HO5'","H5T"),    
+    ("HO3'","H3T"),        
   )
   topres, toppatch = parse_cns_top.residues, parse_cns_top.presidues
   pdbres = []
