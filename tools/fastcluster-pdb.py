@@ -45,7 +45,7 @@ for pdbnr,pdb in enumerate(pdbfiles[1:]):
     clusts2[:nclust] = clusts[:]
     clusts = clusts2      
   
-  if pdbnr > skip - 1:
+  if pdbnr >= skip - 1:
     d = cdist(coor[numpy.newaxis], clusts[:nclust], 'sqeuclidean')[0]
     if d.min() < lim:
       c = d.argmin()
@@ -56,7 +56,7 @@ for pdbnr,pdb in enumerate(pdbfiles[1:]):
   clusts[nclust,:] = coor
   clustind.append([strucnr])
   nclust += 1 
-  if pdbnr > skip - 1:
+  if pdbnr >= skip - 1:
     print >> sys.stderr, strucnr, nclust
 
 for cnr, c in enumerate(clustind):
