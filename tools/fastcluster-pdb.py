@@ -12,9 +12,6 @@ import os
 
 pdblist = sys.argv[1]
 cutoff = float(sys.argv[2])
-skip = 0
-if len(sys.argv) > 3:
-  skip = int(sys.argv[3]) #assume that the first <skip> structures have been clustered already
 pdbfiles = [l.strip().strip("\n") for l in open(pdblist)]
 for pdb in pdbfiles:
   assert os.path.exists(pdb), pdb
@@ -45,19 +42,17 @@ for pdbnr,pdb in enumerate(pdbfiles[1:]):
     clusts2[:nclust] = clusts[:]
     clusts = clusts2      
   
-  if pdbnr >= skip - 1:
-    d = cdist(coor[numpy.newaxis], clusts[:nclust], 'sqeuclidean')[0]
-    if d.min() < lim:
-      c = d.argmin()
-      clustind[c].append(strucnr)
-      continue
+  d = cdist(coor[numpy.newaxis], clusts[:nclust], 'sqeuclidean')[0]
+  if d.min() < lim:
+    c = d.argmin()
+    clustind[c].append(strucnr)
+    continue
     
   #create new cluster  
   clusts[nclust,:] = coor
   clustind.append([strucnr])
   nclust += 1 
-  if pdbnr >= skip - 1:
-    print >> sys.stderr, strucnr, nclust
+  print >> sys.stderr, strucnr, nclust
 
 for cnr, c in enumerate(clustind):
   print "Cluster", cnr+1, "->", 
