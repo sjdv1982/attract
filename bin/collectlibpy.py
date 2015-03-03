@@ -20,13 +20,17 @@ lib = CDLL(so)
 lib.collect_init.argtypes = [c_int, POINTER(c_char_p)]
 
 def collect_init(args):
-  global nlig, ieins
+  global nlig, ieins, x, coor, coor_raw
   args =  ["collect"] + args
   args = (c_char_p * len(args))(*args)
   lib.collect_init(len(args), args )
   nlig = c_int.in_dll(lib, "nlig").value
   #maxlig = c_int.in_dll(lib, "maxlig").value
   ieins = (POINTER(c_int)).in_dll(lib, "ieins")
+  x = (POINTER(c_double)).in_dll(lib, "x")
+  x2 = (POINTER(c_double)).in_dll(lib, "x")  
+  coor_raw = numpy.ctypeslib.as_array(x, shape=(ieins[nlig-1]*3,))
+  coor = numpy.ctypeslib.as_array(x2, shape=(ieins[nlig-1],3))
 
 def check_sizes(sizes, filenames):
   assert ieins is not None
@@ -53,16 +57,14 @@ def collect_next():
   return ret
 
 def collect_coor(copy=False):
-  x = (POINTER(c_double)).in_dll(lib, "x")  
-  coor = numpy.ctypeslib.as_array(x, shape=(ieins[nlig-1],3))
-  if copy: coor = coor.copy()
-  return coor
+  ret = coor
+  if copy: ret = coor.copy()
+  return ret
 
 def collect_coor_raw(copy=False):
-  x = (POINTER(c_double)).in_dll(lib, "x")  
-  coor = numpy.ctypeslib.as_array(x, shape=(ieins[nlig-1]*3,))
-  if copy: coor = coor.copy()
-  return coor
+  ret = coor_raw
+  if copy: ret = coor_raw.copy()
+  return ret
 
 collect_all_coor = collect_coor
 

@@ -7,21 +7,50 @@ class Atom(object):
     self.y = float(l[38:46])
     self.z = float(l[46:54])    
     self.resid = l[21:26]
-    self.chain = l[21]
-    self.resnr = int(l[22:26])
+    self.chain = l[21] #readonly
+    self.resnr = int(l[22:26]) #readonly
     self.resname = l[17:20].strip()
+    self.line = l
+  def write(self, filehandle):
+    l = self.line
+    o = l[:12] 
+    o += "%4.4s" % self.name
+    o += "%3.3s" % self.resname
+    o += l[20]
+    o += self.resid
+    o += l[26:30]
+    o += "%8.3f" % self.x
+    o += "%8.3f" % self.y
+    o += "%8.3f" % self.z
+    o += l[54:]
+    filehandle.write(o)
     
 class PDB(object):
   def __init__(self, filename):
     self.filename = filename
     self._residues = {}
     self._res = []
+    self._lastres = None
+    self._lastresid = None
   def _add_atom(self, a):
     i = a.resid
-    if i not in self._residues:
-      self._res.append(i)
-      self._residues[i] = []
-    self._residues[i].append(a)    
+    i2 = self._lastresid
+    if i != self._lastres: 
+      if i not in self._residues:
+        self._res.append(i)
+        self._residues[i] = []
+        i2 = i
+      else: #later residue with the same resid      
+        count = 2
+        while 1:
+          i2 = (i, count)
+          if i2 not in self._residues: break
+          count += 1
+        self._res.append(i2)
+        self._residues[i2] = []
+    self._residues[i2].append(a)    
+    self._lastres = i
+    self._lastresid = i2
   def residues(self):
     for n in self._res:
       yield self._residues[n]
@@ -57,7 +86,14 @@ class PDB(object):
         self._res.remove(n)
       else:  
         self._residues[n] = res
-    
+  
+  def write(self, fil):
+    filehandle = open(fil, "w")
+    for n in self._res:
+      for a in self._residues[n]:
+        a.write(filehandle)
+    filehandle.close()    
+        
 def read_pdb(f):
   assert os.path.exists(f), f
   p = PDB(f)
