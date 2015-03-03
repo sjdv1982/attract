@@ -91,7 +91,7 @@ def read_pdb(pdblines, add_termini=False,modbase=False,modres=False):
     ("OP1","O1P"),
     ("OP2","O2P"),
     ("H1","HN"),
-    ("OP3","O3P"),
+    ("OP3","O5T"),
     ("HO5'","H5T"),    
     ("HO3'","H3T"),        
   )
