@@ -113,6 +113,8 @@ def easy2model(emodel):
    annotation = easy2model_version,   
    use_iattract=emodel.use_iattract,
   )  
+  if has_peptide:
+    newmodel.demode = False
   if has_peptide or has_na or use_haddock:
     newmodel.search = "random"
     if has_na:

@@ -30,12 +30,27 @@ class PDB(object):
     self.filename = filename
     self._residues = {}
     self._res = []
+    self._lastres = None
+    self._lastresid = None
   def _add_atom(self, a):
     i = a.resid
-    if i not in self._residues:
-      self._res.append(i)
-      self._residues[i] = []
-    self._residues[i].append(a)    
+    i2 = self._lastresid
+    if i != self._lastres: 
+      if i not in self._residues:
+        self._res.append(i)
+        self._residues[i] = []
+        i2 = i
+      else: #later residue with the same resid      
+        count = 2
+        while 1:
+          i2 = (i, count)
+          if i2 not in self._residues: break
+          count += 1
+        self._res.append(i2)
+        self._residues[i2] = []
+    self._residues[i2].append(a)    
+    self._lastres = i
+    self._lastresid = i2
   def residues(self):
     for n in self._res:
       yield self._residues[n]
