@@ -898,6 +898,8 @@ tmpf2=`mktemp`
     flexpar2 = ""        
     if not m.deflex and not m.demode and m.use_iattract:
       flexpar2 += " --name %s" % iname
+      rmsd_ensemble_lists = aa_ensemble_lists
+      
     flexpar2a = flexpar2
     if modes_any and not m.deflex and not (m.use_iattract and m.demode): 
       flexpar2 += " --modes %s" % rmsd_modesfile
@@ -953,6 +955,10 @@ echo '**************************************************************'
       if mt == "Protein": lrmsdpar += " --ca"
       elif mt in ("DNA", "RNA"): lrmsdpar += " --p"  
     
+    if '--name' in flexpar2a:
+      lrmsd_filenames = aa_filenames
+      lrmsd_refenames = aa_rmsd_refenames
+      
     lrmsdresult = os.path.splitext(result0)[0] + ".lrmsd"
     
     lrmsd_allfilenames_alts = list(generate_rmsdargs(rmsd_filenames[1:], lrmsd_refenames[1:]))
@@ -979,8 +985,12 @@ echo '**************************************************************'
     irmsdresult = os.path.splitext(result0)[0] + ".irmsd"
     bbo = "" 
     if m.rmsd_atoms == "all": bbo = "--allatoms"
-    
-    irmsd_allfilenames_alts = list(generate_rmsdargs(aa_rmsd_filenames, aa_rmsd_refenames))
+    irmsd_allfilenames_alts = []
+    if '--name' in flexpar2:
+      irmsd_allfilenames_alts = list(generate_rmsdargs(aa_filenames, aa_rmsd_refenames))
+    else:
+      irmsd_allfilenames_alts = list(generate_rmsdargs(aa_rmsd_filenames, aa_rmsd_refenames))
+      
     if len(irmsd_allfilenames_alts) == 1:
       irmsd_allfilenames = irmsd_allfilenames_alts[0]
       ret += "python $ATTRACTDIR/irmsd.py %s %s%s %s > %s\n" % (result, irmsd_allfilenames, flexpar2, bbo, irmsdresult)
@@ -1001,7 +1011,12 @@ echo 'calculate fraction of native contacts'
 echo '**************************************************************'
 """    
     fnatresult = os.path.splitext(result0)[0] + ".fnat"
-    fnat_allfilenames_alts = list(generate_rmsdargs(aa_rmsd_filenames, aa_rmsd_refenames))
+    fnat_allfilenames_alts = []
+    if '--name' in flexpar2:
+      fnat_allfilenames_alts = list(generate_rmsdargs(aa_filenames, aa_rmsd_refenames))
+    else:
+      fnat_allfilenames_alts = list(generate_rmsdargs(aa_rmsd_filenames, aa_rmsd_refenames))
+     
     if len(fnat_allfilenames_alts) == 1:
       fnat_allfilenames = fnat_allfilenames_alts[0]
       ret += "python $ATTRACTDIR/fnat.py %s 5 %s%s > %s\n" % (result, fnat_allfilenames, flexpar2, fnatresult)
