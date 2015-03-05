@@ -15,7 +15,9 @@ spydertype = getattr(Spyder, spydertypename)
 model = spydertype.fromdict(data)
 if spydertypename == "AttractPeptideModel": 
   model = model.convert(Spyder.AttractEasyModel)  
-  deploy_peptide(model,'.')
+  r = model.partners[1].pdbfile
+  r.link("./peptide.pdb")
+  r.save()
   
 embedded = check_embedded(model)
 if embedded is not None:
