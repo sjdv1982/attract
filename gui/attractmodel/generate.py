@@ -488,6 +488,7 @@ echo '**************************************************************'
             has_reduced_rmsd = True          
           filenames_aa = []
           opt = completion_opt[m.completion_tool, p.moleculetype]
+          if p.charged_termini: opt +=" --termini"
           
           filename_aa = "refe-rmsd-%d.pdb" % (pnr+1)
           ret += "python $ATTRACTDIR/../allatom/aareduce.py %s %s --heavy %s > /dev/null\n" % (filename, filename_aa, opt)
