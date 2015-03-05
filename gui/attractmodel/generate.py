@@ -763,7 +763,7 @@ echo '**************************************************************'
     ret += "\n"  
     result = "out_$name-sorted.dat"
 
-  if m.deredundant:    
+  if m.deredundant or m.use_iattract:    
     
     if m.fix_receptor == False or m.search != "syst": 
       ret += """
@@ -822,11 +822,7 @@ echo '**************************************************************'
     if m.demode:
       ret += "python $ATTRACTTOOLS/demode.py %s %s > %s\n" % (iattract_output, iattract_params_demode, iattract_output_demode)    
       result = iattract_output_demode
-    if m.fix_receptor or m.deredundant or m.calc_lrmsd:
-      iattract_output_fixre = result + "-fixre"
-      ret += "$ATTRACTDIR/fix_receptor %s %d%s | python $ATTRACTTOOLS/fill.py /dev/stdin %s > %s\n" % (result, len(m.partners), flexpar_iattract, result, iattract_output_fixre)        
-      if m.fix_receptor or m.deredundant:
-         result = iattract_output_fixre
+
   ret += """
 echo '**************************************************************'
 echo 'Soft-link the final results'
