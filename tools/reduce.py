@@ -57,6 +57,8 @@ parser.add_argument("--dna",help="Automatically interpret nucleic acids as DNA",
 parser.add_argument("--rna",help="Automatically interpret nucleic acids as RNA", action="store_true")
 parser.add_argument("--compat",help="Maximize compatibility with reduce.f", action="store_true")
 parser.add_argument("--chain", help="Set the chain in the output PDB", default=" ")
+parser.add_argument("--batch", help="run reduce in batch mode. Input and output must be two lists of PDBs", action="store_true")
+
 
 if has_argparse:
   args = parser.parse_args()
@@ -71,7 +73,19 @@ else:
 if args.dna and args.rna:
   raise ValueError("Options --dna and --rna are mutually exclusive")
 
+if args.batch and args.output is None: 
+  raise ValueError("--batch requires a file list as output argument")
+
 reducedat = os.path.split(os.path.abspath(__file__))[0] + os.sep + "reduce.dat"
+
+def read_filelist(filelist):
+  ret = []
+  for l in open(filelist):
+    l = l.strip()
+    if not len(l): continue
+    assert len(l.split()) == 1, (filelist, l)
+    ret.append(l)
+  return ret
 
 def read_forcefield(forcefieldfile):
   ff = {}
@@ -102,28 +116,12 @@ def read_forcefield(forcefieldfile):
       ff[aa].append( (int(ll[0]), ll[1], set(atoms), charge) )
   return ff  
       
-  
-ff = read_forcefield(reducedat)
-pdb = args.pdb
-assert os.path.exists(pdb)
-chain = args.chain
-assert len(chain) == 1, chain
-if args.output is None:
-  args.output = os.path.splitext(pdb)[0] + "r.pdb"
-outp = open(args.output, "w")  
 
-
-res = None
-resname = None
-rescounter = 0
-atomcounter = 0
-rescoor = {}
-
-def print_res():
+def print_res(mapping=True):
   global rescounter, atomcounter, rescoor
   if not len(rescoor): return  
   rescounter += 1
-  print res[1:].strip(), rescounter
+  if mapping: print res[1:].strip(), rescounter
   for l in ff[resname]:
     if (l[0], l[1]) not in rescoor: continue
     c = rescoor[(l[0], l[1])]
@@ -138,44 +136,75 @@ def print_res():
     print >> outp, "ATOM%7d %4s %3s %s%4d    %8.3f%8.3f%8.3f%5d%8.3f 0%5.2f" % line
   rescoor = {}
   
-for l in open(pdb):
-  if not l.startswith("ATOM"): continue
-  cres = l[21:26]
-  if cres != res:
-    print_res()
-    res = cres
-    resname = l[17:20].strip()
-    if resname in mapnuc:
-      if args.dna: 
-        resname = mapnuc[resname][0]
-      elif args.rna:
-        resname = mapnuc[resname][1]
-      else:
-        raise ValueError("PDB contains a nucleic acid named \"%s\", but it could be either RNA or DNA. Please specify the --dna or --rna option" % resname)
-      if resname is None:
-        if args.dna: na = "DNA"
-        if args.rna: na = "RNA"
-        raise ValueError("'%s' can't be %s" % (l[17:20].strip(), na))      
-      
-    assert resname in ff, l
-    ffres = ff[resname] 
-  try:  
-    atom = l[12:16].strip()
-    x = float(l[30:38])
-    y = float(l[38:46])
-    z = float(l[46:54])
-  except ValueError:
-    continue
-  for bead in ffres:
-    for at in bead[2]:
-      if atom != at: continue
-      beadname = bead[0], bead[1]
-      if beadname not in rescoor: 
-        rescoor[beadname] = [0, 0.0, 0.0, 0.0]
-      c = rescoor[beadname]
-      c[0] += 1
-      c[1] += x
-      c[2] += y
-      c[3] += z
-      break
-print_res()    
+ff = read_forcefield(reducedat)
+chain = args.chain
+assert len(chain) == 1, chain
+
+def run(pdb,mapping=True):
+  global res, resname, rescounter, atomcounter, rescoor  
+  res = None
+  resname = None
+  rescounter = 0
+  atomcounter = 0
+  rescoor = {}
+
+  
+  for l in open(pdb):
+    if not l.startswith("ATOM"): continue
+    cres = l[21:26]
+    if cres != res:
+      print_res(mapping)
+      res = cres
+      resname = l[17:20].strip()
+      if resname in mapnuc:
+        if args.dna: 
+          resname = mapnuc[resname][0]
+        elif args.rna:
+          resname = mapnuc[resname][1]
+        else:
+          raise ValueError("PDB contains a nucleic acid named \"%s\", but it could be either RNA or DNA. Please specify the --dna or --rna option" % resname)
+        if resname is None:
+          if args.dna: na = "DNA"
+          if args.rna: na = "RNA"
+          raise ValueError("'%s' can't be %s" % (l[17:20].strip(), na))      
+        
+      assert resname in ff, l
+      ffres = ff[resname] 
+    try:  
+      atom = l[12:16].strip()
+      x = float(l[30:38])
+      y = float(l[38:46])
+      z = float(l[46:54])
+    except ValueError:
+      continue
+    for bead in ffres:
+      for at in bead[2]:
+        if atom != at: continue
+        beadname = bead[0], bead[1]
+        if beadname not in rescoor: 
+          rescoor[beadname] = [0, 0.0, 0.0, 0.0]
+        c = rescoor[beadname]
+        c[0] += 1
+        c[1] += x
+        c[2] += y
+        c[3] += z
+        break
+
+if args.batch:
+  infiles = read_filelist(args.pdb)
+  for f in infiles:
+    assert os.path.exists(f), f
+  outfiles = read_filelist(args.output)
+  for pdb, outfile in zip(infiles, outfiles):
+    outp = open(outfile, "w")    
+    run(pdb,mapping=False)
+    print_res(mapping=False)
+    outp.close()
+else:  
+  pdb = args.pdb
+  assert os.path.exists(pdb)
+  if args.output is None:
+    args.output = os.path.splitext(pdb)[0] + "r.pdb"
+  outp = open(args.output, "w")    
+  run(pdb)
+  print_res()    
