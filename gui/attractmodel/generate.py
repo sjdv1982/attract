@@ -3,8 +3,8 @@ import os, itertools
 #TODO: fix ATTRACT-EM interface
 #TODO: Symmetry help in full interface is too small
 
-generator_version = "0.3"
-req_attract2_version = "0.2"
+generator_version = "0.4"
+req_attract2_version = "0.3"
 
 parameterfiledict = {
   "ATTRACT" :  "$ATTRACTDIR/../attract.par",
