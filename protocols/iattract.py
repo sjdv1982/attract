@@ -94,7 +94,7 @@ def prepare_input(topology,start,ligands,current,name,coor,ligandrange,ligandato
     
     if check:
       return ('flexm-'+current+name+'.dat',restraints)
-    
+  
   if otf:
     imodes.make(ligands,ligandatoms,current+name,ligandrange,coor,icut,ensemblefiles,modefile,imodefile,noflex)
     
@@ -105,8 +105,7 @@ def prepare_input(topology,start,ligands,current,name,coor,ligandrange,ligandato
       
     return ('flexm-'+name+'.dat',restraints)
   
-  
-    
+   
   if len(noflex) == len(ligands):
     return ("",[])
   

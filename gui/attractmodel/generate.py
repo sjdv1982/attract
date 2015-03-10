@@ -158,10 +158,12 @@ echo '**************************************************************'
         opts0 = " ".join(opts)
         
         if p.charged_termini: opts.append("--termini")
+        if use_aa and not p.has_hydrogens:
+	  opts.append("--dumppatch")
         if not use_aa: 
           opts.append("--heavy")
         if p.has_hydrogens:
-          opts.append("--autoref")
+          opts.append("--autorefe")
         else:
           opts.append(completion_opt[m.completion_tool, p.moleculetype])
         opts = " ".join(opts)
@@ -170,7 +172,10 @@ echo '**************************************************************'
         mappings.append(mapping)
         partnercode += "python $ATTRACTDIR/../allatom/aareduce.py %s %s %s > %s\n" % (pdbname4, pdbname_aa, opts, mapping)        
         if aa_rmsd:
-          partnercode += "python $ATTRACTDIR/../allatom/aareduce.py %s %s --heavy %s > /dev/null\n" % (pdbname_aa, pdbname_aa_rmsd, opts0)        
+	  readpatch = ''
+	  if "--dumppatch" in opts:
+	    readpatch = " --readpatch "
+          partnercode += "python $ATTRACTDIR/../allatom/aareduce.py %s %s --heavy %s > /dev/null\n" % (pdbname_aa, pdbname_aa_rmsd, opts0+readpatch)        
         if m.forcefield == "ATTRACT":
           pdbname_reduced = pdbname3 + "r.pdb"
           partnercode += "python $ATTRACTTOOLS/reduce.py %s %s %s > /dev/null\n" % (pdbname_aa, pdbname_reduced, opts0)
@@ -212,6 +217,8 @@ echo '**************************************************************'
         if molcode: opts.append(molcode)
         opts0 = " ".join(opts)
         if p.charged_termini: opts.append("--termini")
+        if use_aa and not p.has_hydrogens:
+	  opts.append("--dumppatch")        
         if not use_aa: 
           opts.append("--heavy")
         elif mnr > 0:  
@@ -227,7 +234,10 @@ echo '**************************************************************'
           mappings.append(mapping)        
         partnercode += "python $ATTRACTDIR/../allatom/aareduce.py %s %s %s > %s\n" % (mname1, mname2aa, opts, mapping)        
         if aa_rmsd:
-          partnercode += "python $ATTRACTDIR/../allatom/aareduce.py %s %s --heavy > /dev/null\n" % (mname2aa, mname2aa_rmsd)        
+	  readpatch = ''
+	  if "--dumppatch" in opts:
+	    readpatch = " --readpatch "
+          partnercode += "python $ATTRACTDIR/../allatom/aareduce.py %s %s --heavy %s > /dev/null\n" % (mname2aa, mname2aa_rmsd,readpatch)        
         if m.forcefield == "ATTRACT":          
           partnercode += "python $ATTRACTTOOLS/reduce.py %s %s %s > /dev/null\n" % (mname2aa, mname2, opts0)          
         elif m.forcefield == "OPLSX": 
@@ -488,6 +498,11 @@ echo '**************************************************************'
             has_reduced_rmsd = True          
           filenames_aa = []
           opt = completion_opt[m.completion_tool, p.moleculetype]
+          molcode = ""
+	  if p.moleculetype == "RNA": molcode = " --rna"
+	  elif p.moleculetype == "DNA": molcode = " --dna" 
+	  if len(molcode):
+	    opt += molcode
           if p.charged_termini: opt +=" --termini"
           
           filename_aa = "refe-rmsd-%d.pdb" % (pnr+1)
