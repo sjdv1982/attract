@@ -116,8 +116,8 @@ try:
       leafclusts[nleafclust,:] = coor
       leafclust.append([strucnr])
       nleafclust += 1
-      superclust[rootclustnr].append(nsubclust)
       nsubclust+=1
+      superclust[rootclustnr].append(nsubclust)      
     subclust += leafclust  
 
   write_clustfile(superclust, output_superclust)
