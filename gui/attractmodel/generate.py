@@ -3,8 +3,8 @@ import os, itertools
 #TODO: fix ATTRACT-EM interface
 #TODO: Symmetry help in full interface is too small
 
-generator_version = "0.3"
-req_attract2_version = "0.2"
+generator_version = "0.4"
+req_attract2_version = "0.3"
 
 parameterfiledict = {
   "ATTRACT" :  "$ATTRACTDIR/../attract.par",
@@ -158,10 +158,12 @@ echo '**************************************************************'
         opts0 = " ".join(opts)
         
         if p.charged_termini: opts.append("--termini")
+        if use_aa and not p.has_hydrogens:
+	  opts.append("--dumppatch")
         if not use_aa: 
           opts.append("--heavy")
         if p.has_hydrogens:
-          opts.append("--autoref")
+          opts.append("--autorefe")
         else:
           opts.append(completion_opt[m.completion_tool, p.moleculetype])
         opts = " ".join(opts)
@@ -170,7 +172,10 @@ echo '**************************************************************'
         mappings.append(mapping)
         partnercode += "python $ATTRACTDIR/../allatom/aareduce.py %s %s %s > %s\n" % (pdbname4, pdbname_aa, opts, mapping)        
         if aa_rmsd:
-          partnercode += "python $ATTRACTDIR/../allatom/aareduce.py %s %s --heavy %s > /dev/null\n" % (pdbname_aa, pdbname_aa_rmsd, opts0)        
+	  readpatch = ''
+	  if "--dumppatch" in opts:
+	    readpatch = " --readpatch "
+          partnercode += "python $ATTRACTDIR/../allatom/aareduce.py %s %s --heavy %s > /dev/null\n" % (pdbname_aa, pdbname_aa_rmsd, opts0+readpatch)        
         if m.forcefield == "ATTRACT":
           pdbname_reduced = pdbname3 + "r.pdb"
           partnercode += "python $ATTRACTTOOLS/reduce.py %s %s %s > /dev/null\n" % (pdbname_aa, pdbname_reduced, opts0)
@@ -212,6 +217,8 @@ echo '**************************************************************'
         if molcode: opts.append(molcode)
         opts0 = " ".join(opts)
         if p.charged_termini: opts.append("--termini")
+        if use_aa and not p.has_hydrogens:
+	  opts.append("--dumppatch")        
         if not use_aa: 
           opts.append("--heavy")
         elif mnr > 0:  
@@ -227,7 +234,10 @@ echo '**************************************************************'
           mappings.append(mapping)        
         partnercode += "python $ATTRACTDIR/../allatom/aareduce.py %s %s %s > %s\n" % (mname1, mname2aa, opts, mapping)        
         if aa_rmsd:
-          partnercode += "python $ATTRACTDIR/../allatom/aareduce.py %s %s --heavy > /dev/null\n" % (mname2aa, mname2aa_rmsd)        
+	  readpatch = ''
+	  if "--dumppatch" in opts:
+	    readpatch = " --readpatch "
+          partnercode += "python $ATTRACTDIR/../allatom/aareduce.py %s %s --heavy %s > /dev/null\n" % (mname2aa, mname2aa_rmsd,readpatch)        
         if m.forcefield == "ATTRACT":          
           partnercode += "python $ATTRACTTOOLS/reduce.py %s %s %s > /dev/null\n" % (mname2aa, mname2, opts0)          
         elif m.forcefield == "OPLSX": 
@@ -488,6 +498,12 @@ echo '**************************************************************'
             has_reduced_rmsd = True          
           filenames_aa = []
           opt = completion_opt[m.completion_tool, p.moleculetype]
+          molcode = ""
+	  if p.moleculetype == "RNA": molcode = " --rna"
+	  elif p.moleculetype == "DNA": molcode = " --dna" 
+	  if len(molcode):
+	    opt += molcode
+          if p.charged_termini: opt +=" --termini"
           
           filename_aa = "refe-rmsd-%d.pdb" % (pnr+1)
           ret += "python $ATTRACTDIR/../allatom/aareduce.py %s %s --heavy %s > /dev/null\n" % (filename, filename_aa, opt)
@@ -763,7 +779,7 @@ echo '**************************************************************'
     ret += "\n"  
     result = "out_$name-sorted.dat"
 
-  if m.deredundant:    
+  if m.deredundant or m.use_iattract:    
     
     if m.fix_receptor == False or m.search != "syst": 
       ret += """
@@ -822,11 +838,7 @@ echo '**************************************************************'
     if m.demode:
       ret += "python $ATTRACTTOOLS/demode.py %s %s > %s\n" % (iattract_output, iattract_params_demode, iattract_output_demode)    
       result = iattract_output_demode
-    if m.fix_receptor or m.deredundant or m.calc_lrmsd:
-      iattract_output_fixre = result + "-fixre"
-      ret += "$ATTRACTDIR/fix_receptor %s %d%s | python $ATTRACTTOOLS/fill.py /dev/stdin %s > %s\n" % (result, len(m.partners), flexpar_iattract, result, iattract_output_fixre)        
-      if m.fix_receptor or m.deredundant:
-         result = iattract_output_fixre
+
   ret += """
 echo '**************************************************************'
 echo 'Soft-link the final results'
@@ -898,6 +910,8 @@ tmpf2=`mktemp`
     flexpar2 = ""        
     if not m.deflex and not m.demode and m.use_iattract:
       flexpar2 += " --name %s" % iname
+      rmsd_ensemble_lists = aa_ensemble_lists
+      
     flexpar2a = flexpar2
     if modes_any and not m.deflex and not (m.use_iattract and m.demode): 
       flexpar2 += " --modes %s" % rmsd_modesfile
@@ -953,6 +967,10 @@ echo '**************************************************************'
       if mt == "Protein": lrmsdpar += " --ca"
       elif mt in ("DNA", "RNA"): lrmsdpar += " --p"  
     
+    if '--name' in flexpar2a:
+      lrmsd_filenames = aa_filenames
+      lrmsd_refenames = aa_rmsd_refenames
+      
     lrmsdresult = os.path.splitext(result0)[0] + ".lrmsd"
     
     lrmsd_allfilenames_alts = list(generate_rmsdargs(rmsd_filenames[1:], lrmsd_refenames[1:]))
@@ -979,8 +997,12 @@ echo '**************************************************************'
     irmsdresult = os.path.splitext(result0)[0] + ".irmsd"
     bbo = "" 
     if m.rmsd_atoms == "all": bbo = "--allatoms"
-    
-    irmsd_allfilenames_alts = list(generate_rmsdargs(aa_rmsd_filenames, aa_rmsd_refenames))
+    irmsd_allfilenames_alts = []
+    if '--name' in flexpar2:
+      irmsd_allfilenames_alts = list(generate_rmsdargs(aa_filenames, aa_rmsd_refenames))
+    else:
+      irmsd_allfilenames_alts = list(generate_rmsdargs(aa_rmsd_filenames, aa_rmsd_refenames))
+      
     if len(irmsd_allfilenames_alts) == 1:
       irmsd_allfilenames = irmsd_allfilenames_alts[0]
       ret += "python $ATTRACTDIR/irmsd.py %s %s%s %s > %s\n" % (result, irmsd_allfilenames, flexpar2, bbo, irmsdresult)
@@ -1001,7 +1023,12 @@ echo 'calculate fraction of native contacts'
 echo '**************************************************************'
 """    
     fnatresult = os.path.splitext(result0)[0] + ".fnat"
-    fnat_allfilenames_alts = list(generate_rmsdargs(aa_rmsd_filenames, aa_rmsd_refenames))
+    fnat_allfilenames_alts = []
+    if '--name' in flexpar2:
+      fnat_allfilenames_alts = list(generate_rmsdargs(aa_filenames, aa_rmsd_refenames))
+    else:
+      fnat_allfilenames_alts = list(generate_rmsdargs(aa_rmsd_filenames, aa_rmsd_refenames))
+     
     if len(fnat_allfilenames_alts) == 1:
       fnat_allfilenames = fnat_allfilenames_alts[0]
       ret += "python $ATTRACTDIR/fnat.py %s 5 %s%s > %s\n" % (result, fnat_allfilenames, flexpar2, fnatresult)
