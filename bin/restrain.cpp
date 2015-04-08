@@ -283,9 +283,9 @@ inline void restrain_type_4(const Restraint &r, int iab, const Coor *x, Coor *f,
     double cforce = r.par2;
     double dis = sqrt(dsq);
     double violation = dis - r.par1;
-    //if (abs (violation) < 0.01) {
-    //	return;
-    //}
+    if (dsq == 0.0) {
+    	return;
+    }
     double violationsq = violation*violation;
     energy += 0.5 * cforce * violationsq;
     //fprintf(stderr, "Bond restraint %i  %i %f %f \n",atomnr1, atomnr2, dis, r.par1);

@@ -9,6 +9,7 @@
 #include <cmath>
 #include <cstdio>
 #include <iostream>
+#include <fstream>
 #include <sstream> // for ostringstream
 #include <string>
 
@@ -312,11 +313,17 @@ int main(int argc, char *argv[]) {
        out << "flexm-" << nstruc+1 << name << ".dat";
        std::string save;
        save = out.str();
-       const char * newindexmodefile;
+       const char* newindexmodefile;
        newindexmodefile = save.c_str();
-       if (newindexmodefile != NULL) {
+       std::ifstream ifile;
+       ifile.open(newindexmodefile,std::ifstream::in);
+       if (ifile) {
+	  ifile.close();
 	  const int multi = 1;
 	  read_indexmode_(newindexmodefile,"ligand",cs.nlig, cs.nihm, (int *) cs.index_eig, (double *) cs.index_val, multi, strlen(newindexmodefile), strlen("ligand"));
+       }
+       else{
+	break; 
        }
     }
     int result = read_dof_(fil, line, nstruc, argv[1], ens, phi, ssi, rot, 

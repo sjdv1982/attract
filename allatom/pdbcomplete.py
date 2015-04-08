@@ -284,4 +284,10 @@ def pdb_lastresort(pdb):
       for p1, p2 in pairs:
         if p1 not in res.coords and p2 in res.coords:
           res.coords[p1] = res.coords[p2]
+    if "H5T" not in res.coords and "O5'" in res.coords:
+      #WHATIF resfuses to add 5TER
+      res.coords["H5T"] = res.coords["O5'"]
+    if "H3T" not in res.coords and "O3'" in res.coords:
+      #WHATIF resfuses to add 3TER
+      res.coords["H3T"] = res.coords["O3'"]
               

@@ -43,17 +43,32 @@ def make_model(filelist,residues,presidues,nlistcut=30):
         
     interfacelist, atomid = make_interfacelist(interface, pdb)
     nbonds = []
+    patches = []
+    disulfide = False
+    if os.path.exists(os.path.splitext(pdb)[0]+'.patch'):
+      patches = open(os.path.splitext(pdb)[0]+'.patch').readlines()
+      patches = [(line.split()[0], line.split()[1]) for line in patches]
+    else:
+      raise ValueError("You must have a patches file "+os.path.splitext(pdb)[0]+'.patch in the same directory.')
     #search for neighbors and bonds
     for atom in interfacelist:
+        disulfide = False
         natom = atomid[atom-1][2]
         resn = atomid[atom-1][0]
         resi = int(atomid[atom-1][1])
-        a = residues[resn.lower()].copy()
+        a = residues[resn.lower().replace(' ','')].copy()
+        tmp = [x for x in patches if int(x[0]) == resi]
+        if len(tmp):
+	  if tmp[0][1] == 'disu':
+	    disulfide = True
+	  else:
+	    a.patch(presidues[tmp[0][1]])
+	  
         bonds = [ (b[0].upper(),b[1].upper()) for b in a.bonds]
-        bonds = bonds + [('N','HT1'),('N','HT2'),('N','HT3'),('C','OXT')]
+       # bonds = bonds + [('N','HT1'),('N','HT2'),('N','HT3'),('C','OXT'),('H5T',"O5\'"),('H3T',"O3\'")]
         angles = [ (ang[0].upper(),ang[2].upper()) for ang in a.get_angles()]
-        angles = angles + [('HT1','HT2'),('HT2','HT3'),('HT1','HT3'),('HT1','CA'),('HT2','CA'),('HT3','CA'),
-	      ('O','OXT'),('CA','OXT')]
+        #angles = angles + [('HT1','HT2'),('HT2','HT3'),('HT1','HT3'),('HT1','CA'),('HT2','CA'),('HT3','CA'),
+	#      ('O','OXT'),('CA','OXT'),('H3T',"C3\'"),('H5T',"C5\'")]
         #Find and write bonds
         nlist = nlist_all[atom-1]
         if not nlistcut == 30:
@@ -92,13 +107,13 @@ def make_model(filelist,residues,presidues,nlistcut=30):
 	    elif resn == 'CYS' and resn2 == 'CYS' and not resi == resi2:
 	      if natom == 'SG' and n2 == 'SG':
 		# check for disulphurbridge
-		if dd < 3.0:
+		if disulfide:
 		  nbonds.append((atom, n, 1, dd)) #Write 1-2 bonds
 			
 		else:
 		  nbonds.append((atom, n, 3, dd)) # Write non-bonded interaction: at least 1-4, atoms connected by bonds and angles are excluded
 		  
-	      elif (natom,n2) in [('SG','CB'),('CB','SG')]:
+	      elif (natom,n2) in [('SG','CB'),('CB','SG')] and disulfide:
 		# check for disulphurbridge
 		nbonds.append((atom, n, 2, dd)) #Write 1-3 bonds
 			
@@ -149,7 +164,7 @@ def write_output(nbonds, pdb, name, offset, atomid,strong=1.0):
             out.write(sel1+' '+sel2+' 4 '+str(bond[3])+' '+str(1000.0*strong)+'\n')
         
         elif bond[2] == 2:# and len(re.findall('\AH',res1[2])) == 0 and len(re.findall('\AH',res2[2])) == 0:
-            #Write 1-3 bonds to fix angles
+            #Write 1-3 bonds to fix angles            
             out.write(sel1+' '+sel2+' 4 '+str(bond[3])+' '+str(100.0*strong)+'\n')
             
         #Write restraints for other parts of the elastic network with force constant

@@ -94,7 +94,7 @@ def prepare_input(topology,start,ligands,current,name,coor,ligandrange,ligandato
     
     if check:
       return ('flexm-'+current+name+'.dat',restraints)
-    
+  
   if otf:
     imodes.make(ligands,ligandatoms,current+name,ligandrange,coor,icut,ensemblefiles,modefile,imodefile,noflex)
     
@@ -105,8 +105,7 @@ def prepare_input(topology,start,ligands,current,name,coor,ligandrange,ligandato
       
     return ('flexm-'+name+'.dat',restraints)
   
-  
-    
+   
   if len(noflex) == len(ligands):
     return ("",[])
   
@@ -134,15 +133,15 @@ def prepare_input2(topology,ilist, ligands, name, args):
     imodes.make_defined(ilist,ligands,name)
     offset = 0
     for i in range(len(ligands)):
-      tmp = [item[1] for item in ensfiles if int(item[0]) == i+1]
+      tmp = [item[1] for item in ensemblefiles if int(item[0]) == i+1]
       if len(tmp):
 	data = open(tmp[0]).readlines()
 	for line in data:
 	  filename = line.replace('\n','')
-	  get_restraints.make_restraints(topology,directorypath,filename,name+'-ilist'+str(i+1)+'.txt',name,str(offset))
+	  get_restraints.make_restraints(topology,directorypath,filename,ilist[i],name,str(offset))
 	  
       else:
-	get_restraints.make_restraints(topology,directorypath,ligands[i],name+'-ilist'+str(i+1)+'.txt',name,str(offset))
+	get_restraints.make_restraints(topology,directorypath,ligands[i],ilist[i],name,str(offset))
 	
       offset += len(read_pdb(ligands[i]))
     
@@ -310,62 +309,63 @@ if __name__ == "__main__":
   args = sys.argv[2:]
   if torque == '-infinite':
     args = args + ['--rcut','1']
-  #check if interface lists have been provided and generate global imodes and restraints files from them
-  if '--ilist' in args:
-    otf = False
-    k = args.index('--ilist')
-    ligands = [item for item in args if '.pdb' in item]
-    if '--' in args[k+1:k+len(ligands)]:
-      raise ValueError("You must specify one interfacelist for each ligand --ilist ilist-1.txt ilist-2.txt []")
-  
-    check = False
-    for i in range(len(ligands)):
-      if not os.path.exists(args[k+i]):
-	check = True
-    
-    if check:
-      raise ValueError("At least one of the interface list files does not exist, did you generate them correctly?")
-  
-    ilist = args[k+1:k+len(ligands)]
-    args = args[:k]+args[k+len(ligands):]
-    prepare_input2(topology,ilist,ligands,name,args)
+
   
   scoremode = "--score" in args
   ligandrange,coor,ligandatoms = [], [], []
   if not '--vmax' in args:
     args = args + ['--vmax','2500']
     
-  if otf:
-    ligands = [item for item in args if '.pdb' in item]
-    ligandatoms = []
-    ensfiles = []
-    modefile = None
-    imodefile = None   
-    for i, item in enumerate(args):
-      if item == '--ens':
-	ensfiles.append((args[i+1],args[i+2]))
+  ligands = [item for item in args if '.pdb' in item]
+  ligandatoms = []
+  ensfiles = []
+  modefile = None
+  imodefile = None   
+  for i, item in enumerate(args):
+    if item == '--ens':
+      ensfiles.append((args[i+1],args[i+2]))
 
-      elif item == '--modes':
-	modefile = args[i+1]
+    elif item == '--modes':
+      modefile = args[i+1]
 
-      elif item == '--imodes':
-	imodefile = args[i+1]
+    elif item == '--imodes':
+      imodefile = args[i+1]
     
-    for i,u in enumerate(ligands):
-      ligandatoms.append(read_pdb(u))
-      has_ens = None
-      for nr, ensfile in ensfiles:
-	if str(i+1) == nr:
-	  has_ens = ensfile
+  for i,u in enumerate(ligands):
+    ligandatoms.append(read_pdb(u))
+    has_ens = None
+    for nr, ensfile in ensfiles:
+      if str(i+1) == nr:
+	has_ens = ensfile
 	  
-      if has_ens is not None:
-	ensligand = open(has_ens).readlines()
-	for ligandname in ensligand:
-	  neighbortree.make(ligandname.replace('\n',''))
+    if has_ens is not None:
+      ensligand = open(has_ens).readlines()
+      for ligandname in ensligand:
+	neighbortree.make(ligandname.replace('\n',''))
 	  
-      else:
-	neighbortree.make(u)
-	
+    else:
+      neighbortree.make(u)
+  #check if interface lists have been provided and generate global imodes and restraints files from them
+  if '--ilist' in args:
+    otf = False
+    k = args.index('--ilist')
+    ligands = [item for item in args if '.pdb' in item]
+    if '--' in args[k+1:k+len(ligands)+1]:
+      raise ValueError("You must specify one interfacelist for each ligand --ilist ilist-1.txt ilist-2.txt []")
+  
+    check = False
+    for i in range(len(ligands)):
+      if not os.path.exists(args[k+1+i]):
+	check = True
+    
+    if check:
+      raise ValueError("At least one of the interface list files does not exist, did you generate them correctly?")
+  
+    ilist = args[k+1:k+len(ligands)+1]
+    args = args[:k]+args[k+len(ligands)+1:]
+    prepare_input2(topology,ilist,ligands,name,args)
+    
+  if otf:	
     initargs = [strucfile]+ligands
     if modefile: initargs += ["--modes", modefile]
     if imodefile: initargs += ["--imodes", imodefile]
@@ -388,7 +388,8 @@ if __name__ == "__main__":
       tmpcoor = collectlib.collect_all_coor()
       coor.append(deepcopy(tmpcoor))
 
-    
+  else:
+    coor = [[0] for i in range(len(ligands))]
   if exists:
     for i in range(int(chunks)):
       coor.append([])
@@ -427,7 +428,14 @@ if __name__ == "__main__":
     o.close()
     score = ""
     if scoremode:
-      score = "--score"  
+      score = "--score" 
+    #check all files if they contain correct structures
+    for i in range(1,int(chunks)+1):
+      data = open(pat2+'-'+str(i)).readlines()
+      if not len(data) or not len(data[-1]) > 6:
+	com = "cp %s-%d %s-%d" % (pat,i,pat2,i)
+	run(com)
+	
     com = "python %s/join.py %s %s >> %s" % (tooldir, pat2, score, output) 
     run(com)
   finally:
