@@ -9,7 +9,7 @@ def read_file(file1):
     atomlist = []
     for line in open(file1):
         x,y,z = (float(f) for f in (line[30:38],line[38:46],line[46:54]))
-        if l.startswith('ATOM'):
+        if line.startswith('ATOM'):
             atomlist.append((int(line[4:11]),int(line[22:26]),x,y,z))
             
     return atomlist
@@ -20,8 +20,8 @@ def read_struc(file1):
     count = 0
     data = open(file1).readlines()
     data = [ x for x in data if x.startswith('ATOM')]
-    for count, l in enumerate(data):
-        x,y,z = (float(f) for f in (l[30:38],l[38:46],l[46:54]))
+    for count, line in enumerate(data):
+        x,y,z = (float(f) for f in (line[30:38],line[38:46],line[46:54]))
         item = (int(line[4:11]),int(line[22:26]), x, y, z)
         if count < item[0]:            
             atomlista.append(item)            

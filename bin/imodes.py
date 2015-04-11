@@ -125,7 +125,8 @@ def make_defined(ifilelist,ligands,name):
   ligandatoms = []
   for i in ligands:
     ligandatoms.append(read_pdb(i))
-    
+  
+  imodestring = ''
   for i in range(len(interface)):
     imodestring += '-1\n'
     data = [j+1 for j, line in enumerate(ligandatoms[i]) if int(line[22:26]) in interface[i]]

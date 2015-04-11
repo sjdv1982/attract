@@ -37,6 +37,7 @@ for n in range(natom):
   sel = False
   if dump_atoms is None or n+1 in dump_atoms: sel=True
   for n in range(3): mask.append(sel)
+print len(mask)
   
 mask = numpy.array(mask, dtype=bool)
 allcoor[0,:] = coor[mask]
