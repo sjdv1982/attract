@@ -158,14 +158,12 @@ def run_docking(datain):
     modefile = None
     ligands = [item for item in args if '.pdb' in item]
     if len(ligands) > 2:
-      print ligands
       newargs = []
       for i, item in enumerate(args):
 	if not item in ligands:
 	  newargs.append(item)
 
       args = newargs[:1]+['partners-aa.pdb']+newargs[1:]
-      print args
       
     for i, item in enumerate(args):
       if item == '--ens':
