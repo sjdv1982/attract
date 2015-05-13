@@ -94,7 +94,7 @@ def prepare_input(topology,start,ligands,current,name,coor,ligandrange,ligandato
     
     if check:
       return ('flexm-'+current+name+'.dat',restraints)
-    
+  
   if otf:
     imodes.make(ligands,ligandatoms,current+name,ligandrange,coor,icut,ensemblefiles,modefile,imodefile,noflex)
     
@@ -105,8 +105,7 @@ def prepare_input(topology,start,ligands,current,name,coor,ligandrange,ligandato
       
     return ('flexm-'+name+'.dat',restraints)
   
-  
-    
+   
   if len(noflex) == len(ligands):
     return ("",[])
   
@@ -429,7 +428,14 @@ if __name__ == "__main__":
     o.close()
     score = ""
     if scoremode:
-      score = "--score"  
+      score = "--score" 
+    #check all files if they contain correct structures
+    for i in range(1,int(chunks)+1):
+      data = open(pat2+'-'+str(i)).readlines()
+      if not len(data) or not len(data[-1]) > 6:
+	com = "cp %s-%d %s-%d" % (pat,i,pat2,i)
+	run(com)
+	
     com = "python %s/join.py %s %s >> %s" % (tooldir, pat2, score, output) 
     run(com)
   finally:

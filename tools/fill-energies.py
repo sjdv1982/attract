@@ -5,12 +5,14 @@ ene = open(sys.argv[2])
 
 for h in header: print h
 stnr = 0
+get_next = True
 for s in structures:
   while 1:
-    try:
-      ll = ene.next()
-    except StopIteration:
-      raise AssertionError("More structures than energies: %d" % stnr)
+    if get_next:
+      try:
+        ll = ene.next()
+      except StopIteration:
+        raise AssertionError("More structures than energies: %d" % stnr)
     p = ll.find("Energy:")
     if p > -1:
       energy = float(ll[p+len("Energy:"):])
@@ -20,7 +22,10 @@ for s in structures:
       except StopIteration:
 	pass
       else:
-        energy2 = ll.rstrip("\n")
+        if ll.find("Energy:") > -1:
+          get_next = False
+        else:  
+          energy2 = ll.rstrip("\n")
       break  
   
   stnr += 1
