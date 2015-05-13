@@ -2,6 +2,8 @@ import sys, random, os, time
 from math import *
 import subprocess, threading
 
+pattern="tmp"
+
 def get_energy(f):
   if not os.path.exists(f): return 0
   ret = 0
@@ -98,6 +100,10 @@ while 1:
     sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
     anr -= 1
     continue
+  if arg == "--pattern":
+    pattern = nextarg
+    sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
+    anr -= 1
   if arg == "--output":
     output = nextarg
     sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
@@ -129,8 +135,8 @@ if not chunks: sys.exit()
 args = sys.argv[2:]
 scoremode = "--score" in args
 while 1:
-  pat = "tmp%d" % random.randint(1,99999)
-  pat2 = "tmp%d" % random.randint(1,99999)
+  pat = "%s%d" % (pattern, random.randint(1,99999))
+  pat2 = "%s%d" % (pattern, random.randint(1,99999))
   if (pat == pat2): continue
   if os.path.exists("%s-1" % pat): continue
   if os.path.exists("%s-1" % pat2): continue
