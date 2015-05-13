@@ -132,7 +132,9 @@ c store old Euler angle, position and ligand and receptor coordinates
 c
 c phi,ssi,rot for first molecule are fixed!
       if(iaccept.eq.1) then
-      ensaa(i)=ens(i)      
+      do i=1, maxlig      
+      ensaa(i)=ens(i)     
+      enddo
       if(iori.eq.1) then 
       do 118 i=1+fixre,nlig
       ii=3*(i-fixre-1)
@@ -337,7 +339,9 @@ c overwrite old xaa variables, see above
 c do not overwrite xaa variables
 c      write(ERROR_UNIT,*)' step rejected'
       iaccept=0
+      do i=1, maxlig      
       ens(i)=ensaa(i)
+      enddo
       if(iori.eq.1) then
       do 1118 i=1+fixre,nlig
       ii=3*(i-fixre-1)
