@@ -87,8 +87,8 @@ try:
     print >> sys.stderr, rootclustnr+1
     if len(rootclust) == 1:
       subclust.append(rootclust)
-      superclust.append([nsubclust])
       nsubclust += 1
+      superclust.append([nsubclust])      
       if rootclustnr > 0:
         result = collectlib.collect_next()
       continue
