@@ -1,0 +1,135 @@
+
+(*
+GRAKO EBNF grammar for CNS expressions
+
+Author: Sjoerd de Vries
+
+Adapted from the CNS syntax manual
+*)
+
+
+(* CNS language features *)
+@@eol_comments :: /\!.*?$/
+@@ignorecase :: True
+
+(* Basic definitions *)
+
+NUMBER = /([0-9])/;
+INTEGER = /([1-9][0-9]*|0+)/;
+float = /([+-]?[0-9]*\.[0-9]+|[0-9]+\.)/;
+expfloat = /([0-9]+\.?|[0-9]*\.)[eE][+-]?[0-9]+/;
+real = float | expfloat | INTEGER;
+SEGID = /[^\s()]{,4}/;
+RESID = /[^\s()]{1,4}/;
+RESNAME = /[^\s()]{1,4}/;
+TYPE = /[^\s()]{1,4}/;
+WILDCARD = {'*'|'%'|'#'|'+'};
+vector = 
+( x:real [","] y:real [","] z:real ) |
+   (* Specification of a vector in the x,y,z form. *)
+( "tail" "="  tail:atom_selection [","] "head" "=" head:atom_selection )
+   (* The tail or the head of the vector are taken as the center
+   of mass of the specified selections. Tail and head default to (0,0,0). *)
+;
+
+(* atom selection grammar *)
+
+atom_selection = ("(" @:atom_selection2 ")") | atom_selection2;
+atom_selection2 = term:term {"or" or_:term};
+term = ("(" @:term2 ")") | term2;
+term2 = factor:factor {"and" and_:factor};
+factor = ("(" @:factor0 ")") | factor0;
+factor0 = 
+  not |
+  byres |
+  bygroup |
+  bondedto |
+  segid |
+  resid |
+  resname |
+  name |
+  chemical |
+  atom |
+  attribute |
+  fbox |
+  sfbox |
+  point |
+  RECALL_STORE |
+  known |
+  hydrogen |
+  all_ |
+  previous |
+  tag |
+  none |
+  id |
+  around |
+  saround;  
+not = "not" not_:atom_selection;
+byres = "byres" byres:atom_selection;
+bygroup = "bygroup" bygroup:atom_selection;
+bondedto = "bondedto" bondedto:atom_selection;
+around = around:atom_selection "around" cutoff:real;
+saround = saround:atom_selection "saround" cutoff:real;
+segid = "segid" segid:(segid2 | SEGID3);
+segid2 = SEGID | WILDCARD;
+SEGID3 = SEGID ":" SEGID;
+resid = "resid" resid:(resid2 | RESID3);
+resid2 = RESID | WILDCARD;
+RESID3 = RESID ":" RESID;
+resname = "resname" resname:(resname2 | RESNAME3);
+resname2 = RESNAME | WILDCARD;
+RESNAME3 = RESNAME ":" RESNAME;
+name = "name" name:(name2 | NAME3);
+name2 = TYPE | WILDCARD;
+NAME3 = TYPE ":" TYPE;
+chemical = "chemical" chemical:(chemical2 | CHEMICAL3);
+chemical2 = TYPE | WILDCARD;
+CHEMICAL3 = TYPE ":" TYPE;
+atom = "atom" atom_segid:segid2 atom_resid:resid2 atom_name:name2;
+attribute = "attribute" attribute_property:ATPROP attribute_operator:attribute_operator attribute_value:real;
+ATPROP = ["abs"]attribute_property;
+fbox = "fbox" real real real real real real;
+sfbox = "sfbox" real real real real real real;
+point = "=" vector ["cut" real];
+RECALL_STORE = "recall store" NUMBER ;
+known = "known";
+hydrogen = "hydrogen" | "hydro";
+all_ = "all";
+previous = "previous" | "prev";
+tag = "tag";
+none = "none";
+id = "id" INTEGER [ ":" INTEGER];
+
+attribute_property =
+"x" | "y" | "z" | "b" | "q" | "xcomp" | "ycomp" | "zcomp" | "bcomp" | "qcomp" |
+"refx" | "refy" | "refz" | "mass" | "charge" | "fbeta" |
+"dx" | "dy" | "dz" | "vx" | "vy" | "vz" | "rmsd" |
+"scatter_a1" | "scatter_a2" | "scatter_a3" | "scatter_a4" |
+"scatter_b1" | "scatter_b2" | "scatter_b3" | "scatter_b4" |
+"scatter_c"  | "scatter_fp" | "scatter_fdp";
+
+attribute_operator = "=" | ">" | "<" | "#" ;
+
+(* Assign statement grammar *)
+
+assign_statements = {assign_statement};
+assign_statement = 
+  assign_statement_2 | 
+  assign_statement_2_cross |
+  assign_statement_4 | 
+  assign_statement_4_cross |
+  assign_statement_6 | 
+  assign_statement_6_cross |
+  assign_statement_pcs | 
+  assign_statement_pcs_cross
+  ;
+  
+assign = "assign" | "assi";
+assign_statement_2 = assign assign:(atom_selection atom_selection) distance:real dminus:real dplus:real;
+assign_statement_2_cross = assign_statement_2 "or" cross_assign:(atom_selection atom_selection);
+assign_statement_4 = assign assign:(atom_selection atom_selection atom_selection atom_selection) real real real NUMBER;
+assign_statement_4_cross = assign_statement_4 "or" cross_assign:(atom_selection atom_selection atom_selection atom_selection);
+assign_statement_6 = assign assign:(atom_selection atom_selection atom_selection atom_selection) real real; 
+assign_statement_6_cross = assign_statement_6 "or" cross_assign:(atom_selection atom_selection atom_selection atom_selection atom_selection atom_selection);
+assign_statement_pcs = assign assign:(atom_selection atom_selection atom_selection atom_selection) real real; 
+assign_statement_pcs_cross = assign_statement_pcs "or" cross_assign:(atom_selection atom_selection atom_selection atom_selection atom_selection);
