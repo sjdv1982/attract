@@ -26,7 +26,10 @@ def load_map(mapfile):
   for l in open(mapfile).readlines():
     if not len(l.strip()): continue
     ll = l.split()
-    ret[ll[0]] = int(ll[1])
+    try:
+      ret[ll[0]] = int(ll[1])
+    except:
+      raise ValueError(l)
   return ret
     
 act1 = [l.strip() for l in open(sys.argv[1]).readlines()]
