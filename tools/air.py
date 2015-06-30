@@ -1,3 +1,8 @@
+"""
+Generates an ATTRACT .rest file from a list of HADDOCK-style active and passive residues
+Author: Sjoerd de Vries
+"""
+
 import sys
 
 if len(sys.argv) not in (9,10,11,12):
@@ -26,7 +31,10 @@ def load_map(mapfile):
   for l in open(mapfile).readlines():
     if not len(l.strip()): continue
     ll = l.split()
-    ret[ll[0]] = int(ll[1])
+    try:
+      ret[ll[0]] = int(ll[1])
+    except:
+      raise ValueError(l)
   return ret
     
 act1 = [l.strip() for l in open(sys.argv[1]).readlines()]
