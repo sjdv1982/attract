@@ -1,3 +1,8 @@
+"""
+Generates an ATTRACT .rest file from a list of HADDOCK-style active and passive residues
+Author: Sjoerd de Vries
+"""
+
 import sys
 
 if len(sys.argv) not in (9,10,11,12):
