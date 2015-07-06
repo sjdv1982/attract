@@ -16,7 +16,7 @@ completion_opt = {
   ("whatif", "DNA"): "--whatif",
   ("whatif", "RNA"): "--whatif",
   ("pdb2pqr_whatif", "Protein"): "--pdb2pqr",
-  ("pdb2pqr_whatif", "DNA"): "--whatif",
+  ("pdb2pqr_whatif", "DNA"): "--pdb2pqr",
   ("pdb2pqr_whatif", "RNA"): "--whatif",
   #TODO: amber, cns
 }  
@@ -690,8 +690,11 @@ echo '**************************************************************'
   ordinals = ["1st", "2nd", "3rd",] + ["%dth" % n for n in range(4,51)]
   iterations = []
   outp = ""
-  if m.nr_iterations is None: m.nr_iterations = len(m.iterations)
-  for n in range(m.nr_iterations):  
+  nr_it = m.nr_iterations
+  if nr_it is None: 
+    nr_it = len(m.iterations)
+  assert nr_it > 0 #could be zero for custom search, but not yet implemented
+  for n in range(nr_it):  
     if m.iterations is None or len(m.iterations) <= n:
       it = AttractIteration()
     else:

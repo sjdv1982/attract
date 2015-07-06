@@ -415,8 +415,10 @@ Type AttractModel {
   }  
   validate {
     if nr_iterations is not None:
-      assert nr_iterations > 0
+      assert nr_iterations > 0 or search == "custom"
       assert nr_iterations >= len(iterations)
+    else:
+      assert len(iterations) > 0 or search == "custom"
   }
   #***Sampling parameters***
   Bool fix_receptor = False
@@ -662,9 +664,13 @@ Type AttractModel {
   }
   
   error {
-    'assert nr_iterations > 0'
+    'assert nr_iterations > 0 or search == "custom"'
     =>
-    'You must set the number of docking iterations to at least 1, not {nr_iterations}'
+    'Unless the docking search is "custom", you must set the number of docking iterations to at least 1, not {nr_iterations}'
+
+    'assert len(iterations) > 0 or search == "custom"'
+    =>
+    'Unless the docking search is "custom", you must set the number of docking iterations to at least 1, not {nr_iterations}'
 
     'if dielec is not None: assert dielec in ("cdie", "rdie")'
     =>
@@ -712,7 +718,7 @@ Type AttractModel {
 
     'assert rotations_file is not None or translations_file is not None'
     =>
-    'You must define a rotations or translations file'
+    'You must define a starting structures file, a rotations file, or a translations file'
 
     'assert translations_file is None'
     =>
