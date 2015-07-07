@@ -109,7 +109,12 @@ for unbounds in rmsdlib.read_multi_pdb(sys.argv[1]):
     for c in p.coordinates():
       coor.append(c)
   coor = numpy.array(coor)
-
+  
+  if len(coor) == 0:
+    nstruc += 1
+    f1.write(str(nstruc)+" None\n")
+    continue
+  
   rmsdlib.check_pdbs(unbounds, bounds)
   nstruc += 1
   fcoor = numpy.compress(selmask, coor, axis=0)

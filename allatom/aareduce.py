@@ -243,8 +243,8 @@ def check_pdb(pdbres, heavy=False):
 def write_pdb(pdbres, chain, heavy = False, one_letter_na = False):
   pdblines = []
   mapping = []
-  atomcounter = 1
-  rescounter = 1
+  atomcounter = args.startatom
+  rescounter = args.startres
   for res in pdbres:
     top = res.topology
     for a in top.atomorder: 
@@ -330,6 +330,8 @@ parser.add_argument("--top", "--topfile",dest="topfile",help="Additional topolog
 parser.add_argument("--patch",dest="patches",
                     help="Provide residue number and patch name to apply", nargs=2, action="append",default=[])
 parser.add_argument("--chain", help="Set the chain in the output PDB", default=" ")
+parser.add_argument("--startres", help="Set residue number of first residue", type=int, default=1)
+parser.add_argument("--startatom", help="Set atom number of first atom", type=int, default=1)
 parser.add_argument("--mutate", dest="mutatefiles",
                     help="Provide a 2-column residue mutation file", action="append",default=[])
 parser.add_argument("--modres",
@@ -475,7 +477,7 @@ if args.batch:
       for i,res in enumerate(pdbtop): 
         if len(res.topology.patches):
 	  for p in res.topology.patches:
-	    outf.write(str(i+1)+' '+p+'\n')
+	    outf.write(str(i+args.startres)+' '+p+'\n')
       outf.close()
 else:  
   outfile = os.path.splitext(args.pdb)[0] + "-aa.pdb"
@@ -496,5 +498,5 @@ else:
     for i,res in enumerate(pdbtop): 
       if len(res.topology.patches):
 	for p in res.topology.patches:
-	  outf.write(str(i+1)+' '+p+'\n')
+	  outf.write(str(i+args.startres)+' '+p+'\n')
     outf.close()
