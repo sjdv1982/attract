@@ -16,7 +16,7 @@ completion_opt = {
   ("whatif", "DNA"): "--whatif",
   ("whatif", "RNA"): "--whatif",
   ("pdb2pqr_whatif", "Protein"): "--pdb2pqr",
-  ("pdb2pqr_whatif", "DNA"): "--whatif",
+  ("pdb2pqr_whatif", "DNA"): "--pdb2pqr",
   ("pdb2pqr_whatif", "RNA"): "--whatif",
   #TODO: amber, cns
 }  
@@ -266,6 +266,21 @@ echo '**************************************************************'
       aa_rmsd_ensemble_lists.append(ensemble_list_aa_rmsd)
   partnercode += "\n"
   
+  if use_aa: 
+    if not separate_aa_pdb:
+      aa_filenames = filenames
+      aa_ensemble_lists = ensemble_lists
+    if modes_any:
+      if separate_aa_mode:
+        aa_modesfile = "hm-all-aa.dat"    
+      else:
+        aa_modesfile = "hm-all.dat"
+    if aa_rmsd:
+      aa_rmsd_modesfile = "hm-all-heavy.dat"
+    rmsd_filenames = aa_filenames
+  else:
+    rmsd_filenames = filenames
+  
   if modes_any:
     partnercode += """
 echo '**************************************************************'
@@ -288,7 +303,8 @@ cat /dev/null > hm-all.dat
           need_aa_modes = True
         else:
           need_aa_modes = False
-        if need_aa_modes: assert separate_aa_pdb #if not, I made some error in the code generator logic  
+        if need_aa_modes and m.forcefield != "OPLSX": 
+          assert separate_aa_pdb #if not, I made some error in the code generator logic  
         modes_file_name = "partner%d-hm.dat" % (pnr+1)
         opts = []
         moltype = ""
@@ -327,22 +343,7 @@ cat /dev/null > hm-all.dat
           partnercode += "cat %s >> hm-all-heavy.dat\n" % aa_rmsd_modes_file_name        
           
     partnercode += "\n"  
-  
-  if use_aa: 
-    if not separate_aa_pdb:
-      aa_filenames = filenames
-      aa_ensemble_lists = ensemble_lists
-    if modes_any:
-      if separate_aa_mode:
-        aa_modesfile = "hm-all-aa.dat"    
-      else:
-        aa_modesfile = "hm-all.dat"
-    if aa_rmsd:
-      aa_rmsd_modesfile = "hm-all-heavy.dat"
-    rmsd_filenames = aa_filenames
-  else:
-    rmsd_filenames = filenames
-    
+      
   if len(m.partners) == 2:
     partnerfiles = " ".join(filenames)
   else:
@@ -689,8 +690,11 @@ echo '**************************************************************'
   ordinals = ["1st", "2nd", "3rd",] + ["%dth" % n for n in range(4,51)]
   iterations = []
   outp = ""
-  if m.nr_iterations is None: m.nr_iterations = len(m.iterations)
-  for n in range(m.nr_iterations):  
+  nr_it = m.nr_iterations
+  if nr_it is None: 
+    nr_it = len(m.iterations)
+  assert nr_it > 0 #could be zero for custom search, but not yet implemented
+  for n in range(nr_it):  
     if m.iterations is None or len(m.iterations) <= n:
       it = AttractIteration()
     else:
