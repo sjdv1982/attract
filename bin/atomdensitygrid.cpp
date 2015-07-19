@@ -136,7 +136,7 @@ void apply_clash(AtomDensityGrid &g, int indxyz, double cwxyz, double &overlap, 
   double clash = w/g.clash_threshold-1;
   if (clash <= 0) return; 
   //printf("W %.3f %3f\n", w, g.clash_threshold);
-  overlap += clash*clash;
+  overlap += cwxyz*clash*clash;
   double cgrad = 2*clash*cwxyz;
   gradx -= sx * cgrad;
   grady -= sy * cgrad;
@@ -147,7 +147,7 @@ void apply_clash_mask(AtomDensityGrid &g, int indxyz, double cwxyz, double &over
   double w = g.density[indxyz];
   double clash = w/g.clash_threshold-g.maskgrid[indxyz];
   if (clash <= 0) return; 
-  overlap += clash*clash;
+  overlap += cwxyz*clash*clash;
   double cgrad = 2*clash*cwxyz;
   gradx -= sx * cgrad;
   grady -= sy * cgrad;
@@ -158,14 +158,14 @@ void apply_clash_noforces(AtomDensityGrid &g, int indxyz, double cwxyz, double &
   double w = g.density[indxyz];
   double clash = w/g.clash_threshold-1;
   if (clash <= 0) return; 
-  overlap += clash*clash;
+  overlap += cwxyz*clash*clash;
 }
 
 void apply_clash_mask_noforces(AtomDensityGrid &g, int indxyz, double cwxyz, double &overlap, double &gradx, double &grady, double &gradz, double sx, double sy, double sz, double weight) {
   double w = g.density[indxyz];
   double clash = w/g.clash_threshold-g.maskgrid[indxyz];
   if (clash <= 0) return; 
-  overlap += clash*clash;
+  overlap += cwxyz*clash*clash;
 }
 
 static void error(const char *filename) {

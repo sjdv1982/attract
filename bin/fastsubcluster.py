@@ -87,8 +87,8 @@ try:
     print >> sys.stderr, rootclustnr+1
     if len(rootclust) == 1:
       subclust.append(rootclust)
-      superclust.append([nsubclust])
       nsubclust += 1
+      superclust.append([nsubclust])      
       if rootclustnr > 0:
         result = collectlib.collect_next()
       continue
@@ -116,8 +116,8 @@ try:
       leafclusts[nleafclust,:] = coor
       leafclust.append([strucnr])
       nleafclust += 1
-      superclust[rootclustnr].append(nsubclust)
       nsubclust+=1
+      superclust[rootclustnr].append(nsubclust)      
     subclust += leafclust  
 
   write_clustfile(superclust, output_superclust)

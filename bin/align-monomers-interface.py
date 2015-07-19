@@ -1,8 +1,8 @@
 """
-Aligns protein complexes on the interface region of the bound PDB
-Does not align the monomers (use align-monomers-interface.py for that)
+Aligns each protein monomer on the interface region of the bound PDB
+Does not align the complex (use align-interface.py for that)
 Writes out a DAT file 
-usage: python align-interface.py <DAT file> \
+usage: python align-monomers-interface.py <DAT file>\
  <unbound PDB 1> <bound PDB 1> [<unbound PDB 2> <bound PDB 2>] [...]
  [--allatoms] [--allresidues]
 
@@ -53,8 +53,8 @@ def align_interface(atoms1, atoms2):
   reflect = float(str(float(numpy.linalg.det(V) * numpy.linalg.det(Wt))))
 
   if reflect == -1.0:
-	  S[-1] = -S[-1]
-	  V[:,-1] = -V[:,-1]
+          S[-1] = -S[-1]
+          V[:,-1] = -V[:,-1]
   rotmatd = numpy.dot( V, Wt)
   rotmatd = numpy.transpose(rotmatd)
   rotmatd = [[min(xx,1) for xx in x] for x in rotmatd]
@@ -172,10 +172,23 @@ if __name__ == "__main__":
   if not opt_allatoms:
     amask = rmsdlib.build_atommask(bounds, atomnames)
     sel = (sel & amask)
-  allboundatoms = numpy.array(allboundatoms)
-  fboundatoms = numpy.array(allboundatoms[sel])
-  icom = numpy.sum(fboundatoms,axis=0) / float(len(fboundatoms))
-  fboundatoms = fboundatoms - icom
+
+  sels = []
+  fboundatoms = []  
+  icoms = []
+  pos = 0
+  for p in bounds:
+    sel2 = numpy.array([False] * len(allboundatoms))
+    newpos = pos + len(p.coordinates())
+    sel2[pos:newpos] = True
+    sel2 = sel & sel2
+    sels.append(sel2)  
+    fb = numpy.array(allboundatoms[sel2])
+    icom = numpy.sum(fb,axis=0) / float(len(fb))
+    fb -= icom
+    icoms.append(icom)
+    fboundatoms.append(fb)
+    pos = newpos
   
   nstruc = 0
   f1 = sys.stdout
@@ -191,13 +204,17 @@ if __name__ == "__main__":
     nstruc += 1
     coor = collectlib.collect_all_coor()
     coor = numpy.array(coor)
-    fcoor = coor[sel]
-    irotmat, ipivot = align_interface(fboundatoms,fcoor) 
     
     print >> f1, "#" + str(nstruc)
     if len(structure[0]):
       print >> f1, "\n".join(structure[0])
     for lignr, lig in enumerate(ligands):
+      sel = sels[lignr]
+      icom = icoms[lignr]
+      fcoor = coor[sel]
+      fb = fboundatoms[lignr]
+      irotmat, ipivot = align_interface(fb,fcoor) 
+      
       ll = lig.split()      
       if str(lignr+1) in ensembles:
         ens = ll[0] + " "
@@ -219,4 +236,4 @@ if __name__ == "__main__":
       newrotdofs = rotmat2euler(newrotmat)  
       lignew = "  " + ens + "%.6f %.6f %.6f " % tuple(newrotdofs) + "%.6f %.6f %.6f " % tuple(newtransdofs) + " ".join(dofs[6:])
       print >> f1, lignew    
-    
+          

@@ -338,7 +338,10 @@ parser.add_argument("--modbase",
                     help="Interpret HETATM records as ATOM if they have at least three sugar atoms", action="store_true")
 parser.add_argument("--batch",
                     help="run aareduce in batch mode. Input and output must be two lists of PDBs", action="store_true")
-                    
+parser.add_argument("--dumppatch",
+                    help="Dump all applied patches to a file", action="store_true")     
+parser.add_argument("--readpatch",
+		    help="Read previously applied patches from a file (requires converted input pdb)", action="store_true") 
 if has_argparse:
   args = parser.parse_args()
 else:
@@ -367,6 +370,9 @@ if args.autorefe:
 
 if args.batch and args.output is None: 
   raise ValueError("--batch requires a file list as output argument")
+
+if args.readpatch and len(args.patches):
+  raise ValueError("--readpatch and explicit patch specification via --patch are mutually incompatible")
 
 
 for fnr, f in enumerate(args.topfile):
@@ -399,6 +405,11 @@ def run(pdbfile):
 
   termini_pdb(pdb, args.nter, args.cter)
   patches = {}
+  if args.readpatch:
+    indata = open(os.path.splitext(pdbfile)[0]+'.patch').readlines()
+    indata = [line.split() for line in indata]
+    args.patches = indata
+    
   for p in args.patches:
     resid = p[0].strip()
     resindices = [ri for ri,r in enumerate(pdb) if r.resid.strip() == resid]
@@ -443,7 +454,7 @@ def run(pdbfile):
     pdb_lastresort(pdb)
     check_pdb(pdb, heavy=args.heavy)
   pdblines, mapping = write_pdb(pdb, args.chain, heavy=args.heavy)
-  return pdblines, mapping
+  return pdblines, mapping, pdb
 
 if args.batch:
   infiles = read_filelist(args.pdb)
@@ -451,18 +462,39 @@ if args.batch:
     assert os.path.exists(f), f
   outfiles = read_filelist(args.output)
   for pdb, outfile in zip(infiles, outfiles):
-    pdblines, mapping = run(pdb)
+    pdblines, mapping, pdbtop = run(pdb)
     outf = open(outfile, "w")
     for l in pdblines: 
       print >> outf, l  
-    outf.close()  
+    outf.close()
+    if args.dumppatch:
+      outfile = os.path.splitext(args.pdb)[0] + ".patch"
+      if args.output is not None: 
+        outfile = os.path.splitext(args.output)[0] + ".patch"
+      outf = open(outfile, "w")
+      for i,res in enumerate(pdbtop): 
+        if len(res.topology.patches):
+	  for p in res.topology.patches:
+	    outf.write(str(i+1)+' '+p+'\n')
+      outf.close()
 else:  
   outfile = os.path.splitext(args.pdb)[0] + "-aa.pdb"
   if args.output is not None: 
     outfile = args.output  
-  pdblines, mapping = run(args.pdb)
+  pdblines, mapping, pdbtop = run(args.pdb)
   outf = open(outfile, "w")
   for l in pdblines: 
     print >> outf, l
   for v1, v2 in mapping:
     print v1, v2  
+  outf.close()
+  if args.dumppatch:
+    outfile = os.path.splitext(args.pdb)[0] + "-aa.patch"
+    if args.output is not None: 
+      outfile = os.path.splitext(args.output)[0] + ".patch"
+    outf = open(outfile, "w")
+    for i,res in enumerate(pdbtop): 
+      if len(res.topology.patches):
+	for p in res.topology.patches:
+	  outf.write(str(i+1)+' '+p+'\n')
+    outf.close()
