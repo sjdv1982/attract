@@ -98,6 +98,7 @@ a.add_argument("--pattern-offset",dest="offset",type=int,default=0)
 a.add_argument("--np",type=int)
 a.add_argument("--rmsd", action="store_true")
 a.add_argument("--allatoms", action="store_true")
+a.add_argument("--ca", action="store_true")
 a.add_argument("--iterative", action="store_true")
 a.add_argument("--iterative_cycles",type=int,default=5)
 a.add_argument("--iterative_cutoff",type=float,default=2)
@@ -108,7 +109,10 @@ lines1, atoms1, extralines1 = read_pdb(args.reference)
 
 #select backbone
 if args.allatoms:
+  assert not args.ca
   atoms1_fit = atoms1
+elif args.ca:
+  atoms1_fit = select_ca(lines1, atoms1)
 else:  
   atoms1_fit = select_bb(lines1, atoms1)
 
@@ -123,7 +127,10 @@ def run(runarg):
   lines2, atoms2, extralines2 = read_pdb(mobile)
   #select backbone
   if args.allatoms:
+    assert not args.ca
     atoms2_fit = atoms2
+  elif args.ca:
+    atoms2_fit = select_ca(lines2, atoms2)
   else:  
     atoms2_fit = select_bb(lines2, atoms2)
   assert len(atoms1_fit) and len(atoms1_fit) == len(atoms2_fit), (len(atoms1_fit), len(atoms2_fit))

@@ -12,10 +12,10 @@ usage: python lrmsd.py <DAT file> \
 import sys
 
 import numpy
-import collectlibpy as collectlib
-from _read_struc import read_struc
 import os
 sys.path.insert(0, os.environ["ATTRACTTOOLS"])
+import collectlibpy as collectlib
+from _read_struc import read_struc
 import rmsdlib
   
 ensfiles = []
@@ -119,10 +119,21 @@ collectlib.check_sizes([receptor_offset] + unboundsizes, [receptor] + unboundfil
 
 if opt_allatoms:
   unbound_amask = rmsdlib.build_hydrogenmask(unbounds)
-  unbound_amasks_ligand = [rmsdlib.build_hydrogenmask([u]) for u in unbounds]
 else:
   unbound_amask = rmsdlib.build_atommask(unbounds, atomnames)
-  unbound_amasks_ligand = [rmsdlib.build_atommask([u], atomnames) for u in unbounds]
+
+  
+unbound_amasks_ligand = []
+for unr, u in enumerate(unbounds):
+  if opt_allatoms:
+    uu = rmsdlib.build_hydrogenmask([u])
+  else:
+    uu = rmsdlib.build_atommask([u], atomnames)
+  offset = 0
+  if unr: offset = sum(unboundsizes[:unr])
+  offsetmask = numpy.zeros(offset, dtype="bool")
+  uu = numpy.concatenate((offsetmask, uu),axis=0)
+  unbound_amasks_ligand.append(uu)
   
 for p in unbounds + bounds: 
   if opt_allatoms:
