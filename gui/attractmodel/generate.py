@@ -16,7 +16,7 @@ completion_opt = {
   ("whatif", "DNA"): "--whatif",
   ("whatif", "RNA"): "--whatif",
   ("pdb2pqr_whatif", "Protein"): "--pdb2pqr",
-  ("pdb2pqr_whatif", "DNA"): "--pdb2pqr",
+  ("pdb2pqr_whatif", "DNA"): "--pdb2pqr --whatif",
   ("pdb2pqr_whatif", "RNA"): "--whatif",
   #TODO: amber, cns
 }  
