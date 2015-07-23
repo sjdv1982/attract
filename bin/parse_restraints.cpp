@@ -108,7 +108,7 @@ void parse_restraintfile(MiniState &ms, const char *restfile) {
       }
       r.maxindex = maxindex;
 
-      if (r.type > 5) {
+      if (r.type > 6) {
         fprintf(stderr, "Reading error in %s, line %d: Restraint type %s not supported\n", restfile, line, fields[2]);
 	exit(1);      
       }
@@ -118,6 +118,7 @@ void parse_restraintfile(MiniState &ms, const char *restfile) {
       if (r.type == 3 && nf != 5) wrong = 1;
       if (r.type == 4 && nf != 5) wrong = 1;
       if (r.type == 5 && nf != 5) wrong = 1;
+      if (r.type == 6 && nf != 6) wrong = 1;
       if (wrong) {
         fprintf(stderr, "Reading error in %s, line %d: Wrong number of parameters for restraint type %d\n", restfile, line, r.type);
 	exit(1);      
@@ -137,6 +138,12 @@ void parse_restraintfile(MiniState &ms, const char *restfile) {
       if (r.type == 5) {
                     if (r.s1 != 1 || r.s2 != 1) {
                       fprintf(stderr, "Reading error in %s, line %d: LJ restraints require single-atom selections\n", restfile, line);
+            	  exit(1);
+                    }
+                  }
+      if (r.type == 6) {
+                    if (r.s1 != 1 || r.s2 != 1) {
+                      fprintf(stderr, "Reading error in %s, line %d: step potential requires single-atom selections\n", restfile, line);
             	  exit(1);
                     }
                   }
