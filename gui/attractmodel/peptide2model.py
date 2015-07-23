@@ -64,14 +64,14 @@ def buildpeptide(seq):
 
 def create_PDB(seq,phi,psi,output):
   try:
+    import Bio.PDB  
+  except ImportError:
+    raise ImportError("You need to have BioPython installed to convert peptide sequences to structures")  
+  try:
     import Geometry
     import PeptideBuilder
   except ImportError:
     raise ImportError("You need to have the Python module PeptideBuilder installed to convert peptide sequences to structures")
-  try:
-    import Bio.PDB  
-  except ImportError:
-    raise ImportError("You need to have BioPython installed to convert peptide sequences to structures")
   
   geo = Geometry.geometry(seq[0])
   struc = PeptideBuilder.initialize_res(geo)
