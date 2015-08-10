@@ -57,6 +57,8 @@ parser.add_argument("--dna",help="Automatically interpret nucleic acids as DNA",
 parser.add_argument("--rna",help="Automatically interpret nucleic acids as RNA", action="store_true")
 parser.add_argument("--compat",help="Maximize compatibility with reduce.f", action="store_true")
 parser.add_argument("--chain", help="Set the chain in the output PDB", default=" ")
+parser.add_argument("--startres", help="Set residue number of the first residue, default 1", type=int,default=1)
+parser.add_argument("--startatom", help="Set atom number of the first atom, default 1", type=int,default=1)
 parser.add_argument("--batch", help="run reduce in batch mode. Input and output must be two lists of PDBs", action="store_true")
 
 
@@ -144,8 +146,8 @@ def run(pdb,mapping=True):
   global res, resname, rescounter, atomcounter, rescoor  
   res = None
   resname = None
-  rescounter = 0
-  atomcounter = 0
+  rescounter = args.startres-1
+  atomcounter = args.startatom-1
   rescoor = {}
 
   

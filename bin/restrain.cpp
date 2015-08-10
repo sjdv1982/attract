@@ -344,13 +344,38 @@ inline void restrain_type_5(const Restraint &r, int iab, const Coor *x, Coor *f,
   }
 }
 
+inline void restrain_type_6(const Restraint &r, int iab, const Coor *x, Coor *f, double &energy) {
+  //Step potential, use only for scoring!
+  if (r.s1 == 1 && r.s2 == 1) {
+    int atomnr1 = r.selection1[0]-1;
+    int atomnr2 = r.selection2[0]-1;
+    const Coor &a1 = x[atomnr1];
+    const Coor &a2 = x[atomnr2];
+    double disx = a1[0]-a2[0];
+    double disy = a1[1]-a2[1];
+    double disz = a1[2]-a2[2];
+    double dsq = disx*disx+disy*disy+disz*disz;
+    double limsq = r.par1 * r.par1;
+    if (limsq < dsq) {
+      //printf("ENERGY: 0\n");
+      return;
+    }
+    double limsq2 = r.par3 * r.par3;
+    if (limsq2 > dsq) {
+      //printf("ENERGY: 0\n");
+      return;
+    }
+    double cforce = r.par2;
+    energy += cforce;
+  }
+}
+
 inline void restrain_type_7(double weight, const Restraint &r, int iab, const Coor *x, Coor *f, double &energy) {
   //positional restraints
   Coor refe = {r.par4, r.par5, r.par6}; 
   for (int n = 0; n < r.s1; n++) {
     int atomnr1 = r.selection1[n]-1;
     const Coor &a1 = x[atomnr1];
-
     double dsq = 0;
     for (int i = 0; i < 3; i++) {
       char mask = (1 << i);
@@ -416,6 +441,7 @@ extern "C" void restrain_(const int &ministatehandle, const int &cartstatehandle
     if (r.type == 3) restrain_type_3(weight,r,iab,x,f,energy);    
     if (r.type == 4) restrain_type_4(r,iab,x,f,energy);
     if (r.type == 5) restrain_type_5(r,iab,x,f,energy);
+    if (r.type == 6) restrain_type_6(r,iab,x,f,energy);
     if (r.type == 7) restrain_type_7(weight, r,iab,x,f,energy);
   }
 }

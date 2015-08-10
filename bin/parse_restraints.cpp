@@ -123,12 +123,18 @@ void parse_restraintfile(MiniState &ms, const char *restfile) {
       }  
       r.maxindex = maxindex;
 
+      if (r.type > 7) {
+        fprintf(stderr, "Reading error in %s, line %d: Restraint type %s not supported\n", restfile, line, fields[2]);
+	exit(1);      
+      }
+
       bool wrong = 0;
       if (r.type == 1 && nf != 5) wrong = 1;
       if (r.type == 2 && nf != 7) wrong = 1;
       if (r.type == 3 && nf != 5) wrong = 1;
       if (r.type == 4 && nf != 5) wrong = 1;
       if (r.type == 5 && nf != 5) wrong = 1;
+      if (r.type == 6 && nf != 6) wrong = 1;
       if (r.type == 7 && nf != 9) wrong = 1;
       if (wrong) {
         fprintf(stderr, "Reading error in %s, line %d: Wrong number of parameters for restraint type %d\n", restfile, line, r.type);
@@ -152,6 +158,12 @@ void parse_restraintfile(MiniState &ms, const char *restfile) {
           exit(1);
         }
       }
+      if (r.type == 6) {
+        if (r.s1 != 1 || r.s2 != 1) {
+          fprintf(stderr, "Reading error in %s, line %d: step potential requires single-atom selections\n", restfile, line);
+          exit(1);
+        }
+      }      
       if (r.type == 7) {
         r.par1 = atof(fields[2]); //mindist
         r.par2 = atof(fields[3]); //maxdist
