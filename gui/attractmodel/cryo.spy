@@ -71,8 +71,8 @@ Type CryoInterface {
     maskweight.group = g
   }
   
-  *ResourceData_ATTRACT_Restraints restraints_file
-  ## form restraints_file.type = "file"
+  *ResourceData_CNS_Restraints harmonic_restraints_file
+  ##form harmonic_restraints_file.type = "file"
   Integer tabu = 0
   Enum score_method("gvm", "corr") = "gvm"
   Float score_threshold = 10.0  
@@ -90,7 +90,7 @@ Type CryoInterface {
   Float rstk = 0.1 #only in first stage
   form {
     g = "Sampling"
-    restraints_file.group = g
+    harmonic_restraints_file.group = g
     score_method.group = g
     score_threshold.group = g
     nstruc.group = g

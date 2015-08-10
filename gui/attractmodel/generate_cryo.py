@@ -175,9 +175,10 @@ set -u -e
   dock0 = "$ATTRACTDIR'/../attract.par partners.pdb --ghost" + axpar + "'"
   rest = ""
   restweights = 0.1, 0.2, 0.6, 0.6, 1.0 
-  if m.restraints_file is not None:
-    #TODO: convert if not ATTRACT format
-    rest = " --rest %s" % m.restraints_file.name
+  if m.harmonic_restraints_file is not None:
+    raise NotImplementedError #TODO: convert with tbl2attract    
+    restfile = "harmonic-restraints.rest"
+    rest = " --rest %s" % restfile
   ret += "dock0=%s\n" % dock0 
   dock_stages = []
   dock_stages_min = []

@@ -3,7 +3,7 @@ import os, itertools
 #TODO: fix ATTRACT-EM interface
 #TODO: Symmetry help in full interface is too small
 
-generator_version = "0.4"
+generator_version = "0.5"
 req_attract2_version = "0.3"
 
 parameterfiledict = {
@@ -28,8 +28,6 @@ supported_moleculetype_interactions = (
 )  
 
 def generate(m):     
-  assert m.completion_tool not in ("amber", "cns") #TODO: AMBER and CNS completion backends not yet implemented
-     
   ret = "#!/bin/bash -i\n"
   cleanupfiles = []
   if (m.header is not None):
@@ -358,6 +356,10 @@ echo %d > partners.pdb
       partnercode += "grep ATOM %s >> partners.pdb\n" % f
       partnercode += "echo TER >> partners.pdb\n"
      
+  air_restraints_file = "air-restraints.rest"
+  harmonic_restraints_file = "harmonic-restraints.rest"
+  haddock_restraints_file = "haddock-restraints.rest"
+  position_restraints_file = "position-restraints.rest"
   ret += """
 #name of the run
 name=%s 
@@ -399,8 +401,8 @@ name=%s
     params += " --ghost-ligands"    
   if m.gravity:
     params += " --gravity %d" % m.gravity
-  if m.rstk != 0.01:
-    params += " --rstk %s" % str(m.rstk)
+  if m.rstk_dof != 0.01:
+    params += " --rstk %s" % str(m.rstk_dof)
   if m.dielec == "cdie": 
     ps = " --cdie"
     params += ps  
@@ -409,21 +411,23 @@ name=%s
     ps = " --epsilon %s" % (str(m.epsilon))
     params += ps
     scoreparams += ps  
-  has_restraints = False 
-  has_haddock_restraints = False
-  if m.restraints_file is not None:
-    ps = " --rest %s" % (str(m.restraints_file.name))
-    params += ps
-    has_restraints = True
+  rest = []
+  has_restraints = False
+  has_air_restraints = False  
   for p in m.partners:
     if p.haddock_restraints is not None:
-      has_haddock_restraints = True
-  if has_haddock_restraints:    
-    haddock_restraints_filename = "haddock-restraints-%s.rest" % m.runname
-    ps = " --rest %s" % haddock_restraints_filename
-    params += ps
+      has_air_restraints = True
+      rest.append("--rest " + air_restraints_file)
+  if m.harmonic_restraints_file:
+    rest.append("--rest " + harmonic_restraints_file)    
+  if m.haddock_restraints_file:  
+    rest.append("--rest " + haddock_restraints_file)    
+  if m.position_restraints_file:
+    rest.append("--rest " + position_restraints_file)  
+  if len(rest):
     has_restraints = True
-  if has_restraints:
+    ps = " " + " ".join(rest)
+    params += ps
     ps_score = ps + " --restweight %s"  % (str(m.restraints_score_weight))
     scoreparams += ps_score
         
@@ -543,10 +547,11 @@ echo '**************************************************************'
       nr_modes = p.nr_modes
       flexpar1 += " %d" % nr_modes
   
-  if has_haddock_restraints:
+  rest = ""
+  if has_air_restraints:
       ret += """
 echo '**************************************************************'
-echo 'Generate HADDOCK restraints...'
+echo 'Generate HADDOCK AIR restraints...'
 echo '**************************************************************'
 """
       
@@ -569,8 +574,50 @@ echo '**************************************************************'
           
       dist = 2.0
       if m.forcefield == "ATTRACT": dist = 3.0
-      #TODO: version of air.py for multi-body docking
-      ret += "python $ATTRACTTOOLS/air.py %s 0.5 %s > %s\n" % (" ".join(air_filenames), dist, haddock_restraints_filename)
+      removal = m.haddock_random_removal
+      k = m.rstk_haddock
+      ret += "python $ATTRACTTOOLS/air.py %s %s %s > %s\n" % (" ".join(air_filenames), chance_removal, dist, k)
+      rest += "--rest %s" % haddock_restraints_filename
+
+  
+  if m.harmonic_restraints_file:
+    ret += """
+echo '**************************************************************'
+echo 'Generate harmonic restraints...'
+echo '**************************************************************'
+"""
+    tbl = m.harmonic_restraints_file.name
+    tbl_pdbs = " ".join(filenames)
+    tbl_mappings = " ".join(mappings)
+      
+    ret += "python $ATTRACTTOOLS/tbl2attract.py %s --mode harmonic --pdbs %s --mappings %s --k %s > %s\n" % \
+      (tbl, tbl_pdbs, tbl_mappings, m.rstk_harmonic, harmonic_restraints_file)    
+
+  if m.haddock_restraints_file:
+    ret += """
+echo '**************************************************************'
+echo 'Generate custom HADDOCK restraints...'
+echo '**************************************************************'
+"""
+    tbl = m.haddock_restraints_file.name
+    tbl_pdbs = " ".join(filenames)
+    tbl_mappings = " ".join(mappings)
+      
+    ret += "python $ATTRACTTOOLS/tbl2attract.py %s --mode haddock --pdbs %s --mappings %s --k %s --softsquare %s --chance_removal %s > %s\n" % \
+      (tbl, tbl_pdbs, tbl_mappings, m.rstk_haddock, haddock_restraints_file, m.haddock_softsquare, m.haddock_random_removal)    
+
+  if m.position_restraints_file:
+    ret += """
+echo '**************************************************************'
+echo 'Generate position restraints...'
+echo '**************************************************************'
+"""
+    tbl = m.position_restraints_file.name
+    tbl_pdbs = " ".join(filenames)
+    tbl_mappings = " ".join(mappings)
+      
+    ret += "python $ATTRACTTOOLS/tbl2attract.py %s --mode position --pdbs %s --mappings %s --k %s > %s\n" % \
+      (tbl, tbl_pdbs, tbl_mappings, m.rstk_position, position_restraints_file)    
     
   if m.search == "syst" or m.search == "custom":
     if m.search == "syst" or m.start_structures_file is None:
