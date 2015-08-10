@@ -15,7 +15,7 @@ from __future__ import print_function, division, absolute_import, unicode_litera
 from grako.parsing import graken, Parser
 
 
-__version__ = (2015, 6, 23, 12, 8, 49, 1)
+__version__ = (2015, 8, 9, 21, 35, 32, 6)
 
 __all__ = [
     'tbl_grammarParser',
@@ -92,6 +92,28 @@ class tbl_grammarParser(Parser):
                 with self._option():
                     self._token('+')
                 self._error('expecting one of: # % * +')
+        self._closure(block0)
+
+    @graken()
+    def _XYZ_(self):
+
+        def block0():
+            with self._choice():
+                with self._option():
+                    self._token('x')
+                with self._option():
+                    self._token('y')
+                with self._option():
+                    self._token('z')
+                with self._option():
+                    self._token('xy')
+                with self._option():
+                    self._token('xz')
+                with self._option():
+                    self._token('yz')
+                with self._option():
+                    self._token('xyz')
+                self._error('expecting one of: x xy xyz xz y yz z')
         self._closure(block0)
 
     @graken()
@@ -705,6 +727,8 @@ class tbl_grammarParser(Parser):
                 self._assign_statement_pcs_()
             with self._option():
                 self._assign_statement_pcs_cross_()
+            with self._option():
+                self._assign_statement_positional_()
             self._error('no available options')
 
     @graken()
@@ -853,6 +877,27 @@ class tbl_grammarParser(Parser):
             []
         )
 
+    @graken()
+    def _assign_statement_positional_(self):
+        self._assign_()
+        self._atom_selection_()
+        self.ast['assign'] = self.last_node
+        self._real_()
+        self.ast['distance'] = self.last_node
+        self._real_()
+        self.ast['dminus'] = self.last_node
+        self._real_()
+        self.ast['dplus'] = self.last_node
+        self._XYZ_()
+        self.ast['type'] = self.last_node
+        self._vector_()
+        self.ast['xyz'] = self.last_node
+
+        self.ast._define(
+            ['assign', 'distance', 'dminus', 'dplus', 'type', 'xyz'],
+            []
+        )
+
 
 class tbl_grammarSemantics(object):
     def NUMBER(self, ast):
@@ -883,6 +928,9 @@ class tbl_grammarSemantics(object):
         return ast
 
     def WILDCARD(self, ast):
+        return ast
+
+    def XYZ(self, ast):
         return ast
 
     def vector(self, ast):
@@ -1048,6 +1096,9 @@ class tbl_grammarSemantics(object):
         return ast
 
     def assign_statement_pcs_cross(self, ast):
+        return ast
+
+    def assign_statement_positional(self, ast):
         return ast
 
 
