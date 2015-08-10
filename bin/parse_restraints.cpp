@@ -101,8 +101,8 @@ void parse_restraintfile(MiniState &ms, const char *restfile) {
         if (r.selection1[n] > maxindex) maxindex = r.selection1[n];
       }
 
-      if (strlen(fields[1]) == 1 && fields[1][0] == '6') {
-        r.type = 6;
+      if (strlen(fields[1]) == 1 && fields[1][0] == '7') {
+        r.type = 7;
       }
       else {
         r.type = atoi(fields[2]);
@@ -129,7 +129,7 @@ void parse_restraintfile(MiniState &ms, const char *restfile) {
       if (r.type == 3 && nf != 5) wrong = 1;
       if (r.type == 4 && nf != 5) wrong = 1;
       if (r.type == 5 && nf != 5) wrong = 1;
-      if (r.type == 6 && nf != 9) wrong = 1;
+      if (r.type == 7 && nf != 9) wrong = 1;
       if (wrong) {
         fprintf(stderr, "Reading error in %s, line %d: Wrong number of parameters for restraint type %d\n", restfile, line, r.type);
 	exit(1);      
@@ -152,7 +152,7 @@ void parse_restraintfile(MiniState &ms, const char *restfile) {
           exit(1);
         }
       }
-      if (r.type == 6) {
+      if (r.type == 7) {
         r.par1 = atof(fields[2]); //mindist
         r.par2 = atof(fields[3]); //maxdist
         r.par3 = atof(fields[4]); //force constant        

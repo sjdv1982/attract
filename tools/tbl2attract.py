@@ -296,7 +296,7 @@ for rest in restraints:
   maxdist = rest.distance + rest.dplus
   if args.mode == "position":
     x, y, z = rest.xyz.x, rest.xyz.y, rest.xyz.z
-    r = "selection%d 6 %s %s %s %s %s %s %s" % (rest.maskindices[0]+1, mindist, maxdist, args.k, rest.typ, x, y, z)
+    r = "selection%d 7 %s %s %s %s %s %s %s" % (rest.maskindices[0]+1, mindist, maxdist, args.k, rest.typ, x, y, z)
     print r
   else: # "harmonic", "haddock"
     r = "selection%d selection%d" % (rest.maskindices[0]+1, rest.maskindices[1]+1)  

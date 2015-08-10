@@ -344,7 +344,7 @@ inline void restrain_type_5(const Restraint &r, int iab, const Coor *x, Coor *f,
   }
 }
 
-inline void restrain_type_6(double weight, const Restraint &r, int iab, const Coor *x, Coor *f, double &energy) {
+inline void restrain_type_7(double weight, const Restraint &r, int iab, const Coor *x, Coor *f, double &energy) {
   //positional restraints
   Coor refe = {r.par4, r.par5, r.par6}; 
   for (int n = 0; n < r.s1; n++) {
@@ -416,6 +416,6 @@ extern "C" void restrain_(const int &ministatehandle, const int &cartstatehandle
     if (r.type == 3) restrain_type_3(weight,r,iab,x,f,energy);    
     if (r.type == 4) restrain_type_4(r,iab,x,f,energy);
     if (r.type == 5) restrain_type_5(r,iab,x,f,energy);
-    if (r.type == 6) restrain_type_6(weight, r,iab,x,f,energy);
+    if (r.type == 7) restrain_type_7(weight, r,iab,x,f,energy);
   }
 }
