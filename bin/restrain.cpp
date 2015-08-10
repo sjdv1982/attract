@@ -348,13 +348,13 @@ inline void restrain_type_6(double weight, const Restraint &r, int iab, const Co
   //positional restraints
   Coor refe = {r.par4, r.par5, r.par6}; 
   for (int n = 0; n < r.s1; n++) {
-    int atomnr1 = r.selection1[0]-1;
+    int atomnr1 = r.selection1[n]-1;
     const Coor &a1 = x[atomnr1];
 
     double dsq = 0;
     for (int i = 0; i < 3; i++) {
       char mask = (1 << i);
-      if (!(r.position_type & mask)) continue;
+      if (!(r.position_type & mask)) continue;      
       double d = a1[i] - refe[i];
       dsq += d*d;
     }    
@@ -363,7 +363,7 @@ inline void restrain_type_6(double weight, const Restraint &r, int iab, const Co
     double cforce = r.par3;
     if (dsq > dmaxsq) {      
       double dis = sqrt(dsq);
-      double violation = dis - dmaxsq;
+      double violation = dis - r.par2;
       double violationsq = violation*violation;
       energy += weight * 0.5 * cforce * violationsq;
       if (iab) {
@@ -373,7 +373,6 @@ inline void restrain_type_6(double weight, const Restraint &r, int iab, const Co
           char mask = (1 << i);
           if (!(r.position_type & mask)) continue;
           double d = a1[i] - refe[i];
-          dsq += d*d;
           double force = weight * d * cforce * factor;
           f1[i] -= force;
         }            
@@ -381,7 +380,7 @@ inline void restrain_type_6(double weight, const Restraint &r, int iab, const Co
     }
     if (dsq < dminsq) {      
       double dis = sqrt(dsq);
-      double violation = dminsq - dis;
+      double violation = r.par1 - dis;
       double violationsq = violation*violation;
       energy += weight * 0.5 * cforce * violationsq;
       if (iab) {
@@ -391,7 +390,6 @@ inline void restrain_type_6(double weight, const Restraint &r, int iab, const Co
           char mask = (1 << i);
           if (!(r.position_type & mask)) continue;
           double d = a1[i] - refe[i];
-          dsq += d*d;
           double force = weight * d * cforce * factor;
           f1[i] += force;
         }            

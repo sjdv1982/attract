@@ -93,6 +93,7 @@ void parse_restraintfile(MiniState &ms, const char *restfile) {
 	exit(1);      
       }            
       Restraint r;
+      memset(&r, 0, sizeof(r));
       r.selection1 = selections[id1];
       r.s1 = sel_natoms[id1];
       int maxindex = 0;
@@ -157,7 +158,7 @@ void parse_restraintfile(MiniState &ms, const char *restfile) {
         r.par3 = atof(fields[4]); //force constant        
         string position_type = fields[5];
         for (int n = 0; n < position_type.length(); n++) {
-          char c = position_type[n];
+          char c = position_type[n];          
           switch (c) {
             case 'x': 
               r.position_type |= 1;
