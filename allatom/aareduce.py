@@ -280,7 +280,7 @@ def set_reference(pdbres, pdbreferes):
     pdbr, refr = pdbres[n], pdbreferes[n]
     if pdbr.resname != refr.resname:
       rsid = pdbr.resid
-      if refr.resid != pdbr.resid: rsid = "%d(%d)" % (pdbr.resid, refr.resid)
+      if refr.resid != pdbr.resid: rsid = "%s(%s)" % (pdbr.resid, refr.resid)
       raise ValueError("PDB and reference are different at resid %s: %s vs %s" % (rsid, pdbr.resname, refr.resname))
     pdbr.nter = refr.nter
     pdbr.cter = refr.cter 
