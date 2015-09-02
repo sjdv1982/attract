@@ -300,7 +300,7 @@ for rest in restraints:
     print r
   else: # "harmonic", "haddock"
     r = "selection%d selection%d" % (rest.maskindices[0]+1, rest.maskindices[1]+1)  
-    if mode == "haddock": 
+    if args.mode == "haddock": 
       if mindist > 0:
         raise Exception("HADDOCK restraints with minimum distance > 0 are not supported")
       print r + " 2 %s %s %s %s" % (maxdist, args.k, args.softsquare, args.chance_removal)
