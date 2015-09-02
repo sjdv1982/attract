@@ -446,15 +446,15 @@ name=%s
       sym_origin = "%.3f %.3f %.3f" % (s.x, s.y, s.z)      
       params += " --axsym %d %d %s %s" % (partner, symcode, sym_axis, sym_origin)
   paramsprep = params.replace("--fix-receptor","").replace("--ghost-ligands","").replace("--ghost","").replace("--rest "+position_restraints_file,"").replace("  ", " ") + " --ghost"
-  params += "\""
+  
   paramsprep += "\""
-  scoreparams += "\""  
-  ret += """
-#docking parameters
-params=%s
-paramsprep=%s
-scoreparams=%s
-"""  % (params, paramsprep, scoreparams)
+  params += "\""  
+  scoreparams += "\""    
+  
+  ret += "\n#docking parameters\n"
+  if m.iterations is not None and any([it.prep for it in m.iterations]):
+    ret += "paramsprep=%s\n" % paramsprep
+  ret += "params=%s\nscoreparams=%s\n" % (params, scoreparams)
   if len(gridparams):
     ret += """
 #grid parameters

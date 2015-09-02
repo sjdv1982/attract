@@ -67,6 +67,8 @@ def deploy_easy(model, dir):
   _deploy(model.partners[0].rmsd_pdb,d+"receptor-rmsd.pdb")
   _deploy(model.partners[1].pdbfile,d+"ligand.pdb")
   _deploy(model.partners[1].rmsd_pdb,d+"ligand-rmsd.pdb")
+  _deploy(model.harmonic_restraints_file,d+"harmonic-restraints.tbl")
+  _deploy(model.position_restraints_file,d+"position-restraints.tbl")
 
 def deploy_narefine(model, dir):
   d = dir + "/"

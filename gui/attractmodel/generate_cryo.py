@@ -161,7 +161,7 @@ set -u -e
   if m.mapmass is None:
     ret += "mapmass=`python $ATTRACTTOOLS/mass.py $complex`\n"
   else:
-    ret += "mapmass=%s" % m.mapmass
+    ret += "mapmass=%s\n" % m.mapmass
   ret += "python $ATTRACTTOOLS/em/mapsumset-smart.py $mapfile0 $mapfile $mapmass\n" 
   ret += "mask1=map-scale-mask1.mask\n"
   ret += "mask2=map-scale-mask2.mask\n"
@@ -196,7 +196,7 @@ set -u -e
     dock_stage = " --atomdensitymask \'$mask2\' %s --mc --mcscalerot %s --mcscalecenter %s --mcmax %s" % \
      (m.maskweight[n], m.mcscalerot[n]*fr, m.mcscalecenter[n]*fc, m.mcmax[n])
     dock_stage_min = " --atomdensitymask \'$mask2\' %s" % m.maskweight[n]
-    if m.restraints_file:
+    if m.harmonic_restraints_file:
       t = rest + " --restweight %s" % restweights[n]
       dock_stage += t
       dock_stage_min += t
