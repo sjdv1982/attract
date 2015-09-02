@@ -1,10 +1,10 @@
-
 (*
 GRAKO EBNF grammar for CNS expressions
 
 Author: Sjoerd de Vries
 
 Adapted from the CNS syntax manual
+Added support for position-restraint assign statements
 *)
 
 
@@ -24,6 +24,7 @@ RESID = /[^\s()]{1,4}/;
 RESNAME = /[^\s()]{1,4}/;
 TYPE = /[^\s()]{1,4}/;
 WILDCARD = {'*'|'%'|'#'|'+'};
+XYZ = {'x' | 'y' | 'z' | 'xy' | 'xz' | 'yz' | 'xyz'} ;
 vector = 
 ( x:real [","] y:real [","] z:real ) |
    (* Specification of a vector in the x,y,z form. *)
@@ -121,7 +122,8 @@ assign_statement =
   assign_statement_6 | 
   assign_statement_6_cross |
   assign_statement_pcs | 
-  assign_statement_pcs_cross
+  assign_statement_pcs_cross |
+  assign_statement_positional
   ;
   
 assign = "assign" | "assi";
@@ -133,3 +135,4 @@ assign_statement_6 = assign assign:(atom_selection atom_selection atom_selection
 assign_statement_6_cross = assign_statement_6 "or" cross_assign:(atom_selection atom_selection atom_selection atom_selection atom_selection atom_selection);
 assign_statement_pcs = assign assign:(atom_selection atom_selection atom_selection atom_selection) real real; 
 assign_statement_pcs_cross = assign_statement_pcs "or" cross_assign:(atom_selection atom_selection atom_selection atom_selection atom_selection);
+assign_statement_positional = assign assign:atom_selection distance:real dminus:real dplus:real type:XYZ xyz:vector; 

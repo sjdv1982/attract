@@ -79,45 +79,63 @@ void parse_restraintfile(MiniState &ms, const char *restfile) {
         fprintf(stderr, "Reading error in %s, line %d: maximum number of restraints exceeded\n", restfile, line);
 	exit(1);      
       }
-      if (nf < 3 || nf > 8) {
+      if (nf < 3) {
         fprintf(stderr, "Reading error in %s, line %d: too few fields\n", restfile, line);
 	exit(1);      
+      }
+      if (nf > 9) {
+        fprintf(stderr, "Reading error in %s, line %d: too many fields\n", restfile, line);
+        exit(1);      
       }
       string id1(fields[0]);
       if (selections.find(id1) == selections.end()) {
         fprintf(stderr, "Reading error in %s, line %d: Unknown selection %s\n", restfile, line, id1.c_str());
 	exit(1);      
       }            
-      string id2(fields[1]);
-      if (selections.find(id2) == selections.end()) {
-        fprintf(stderr, "Reading error in %s, line %d: Unknown selection %s\n", restfile, line, id2.c_str());
-	exit(1);      
-      }
       Restraint r;
+      memset(&r, 0, sizeof(r));
       r.selection1 = selections[id1];
       r.s1 = sel_natoms[id1];
-      r.selection2 = selections[id2];
-      r.s2 = sel_natoms[id2];
-      r.type = atoi(fields[2]);
       int maxindex = 0;
       for (int n = 0; n < r.s1; n++) {
         if (r.selection1[n] > maxindex) maxindex = r.selection1[n];
       }
-      for (int n = 0; n < r.s2; n++) {
-        if (r.selection2[n] > maxindex) maxindex = r.selection2[n];
+
+      if (strlen(fields[1]) == 1 && fields[1][0] == '7') {
+        r.type = 7;
       }
+      else {
+        r.type = atoi(fields[2]);
+        if (r.type > 5) {
+          fprintf(stderr, "Reading error in %s, line %d: Restraint type %s not supported\n", restfile, line, fields[2]);
+          exit(1);      
+        }
+        string id2(fields[1]);
+        if (selections.find(id2) == selections.end()) {
+          fprintf(stderr, "Reading error in %s, line %d: Unknown selection %s\n", restfile, line, id2.c_str());
+          exit(1);      
+        }
+        r.selection2 = selections[id2];
+        r.s2 = sel_natoms[id2];
+        for (int n = 0; n < r.s2; n++) {
+          if (r.selection2[n] > maxindex) maxindex = r.selection2[n];
+        }
+      }  
       r.maxindex = maxindex;
 
-      if (r.type > 5) {
+      if (r.type > 7) {
         fprintf(stderr, "Reading error in %s, line %d: Restraint type %s not supported\n", restfile, line, fields[2]);
 	exit(1);      
       }
+
       bool wrong = 0;
       if (r.type == 1 && nf != 5) wrong = 1;
       if (r.type == 2 && nf != 7) wrong = 1;
       if (r.type == 3 && nf != 5) wrong = 1;
       if (r.type == 4 && nf != 5) wrong = 1;
       if (r.type == 5 && nf != 5) wrong = 1;
+      if (r.type == 6 && nf != 6) wrong = 1;
+      if (r.type == 7 && nf != 9) wrong = 1;
       if (wrong) {
         fprintf(stderr, "Reading error in %s, line %d: Wrong number of parameters for restraint type %d\n", restfile, line, r.type);
 	exit(1);      
@@ -129,22 +147,56 @@ void parse_restraintfile(MiniState &ms, const char *restfile) {
         }
       }
       if (r.type == 4) {
-              if (r.s1 != 1 || r.s2 != 1) {
-                fprintf(stderr, "Reading error in %s, line %d: harmonic bond restraints require single-atom selections\n", restfile, line);
+        if (r.s1 != 1 || r.s2 != 1) {
+          fprintf(stderr, "Reading error in %s, line %d: harmonic bond restraints require single-atom selections\n", restfile, line);
       	  exit(1);
-              }
-            }
+        }
+      }
       if (r.type == 5) {
-                    if (r.s1 != 1 || r.s2 != 1) {
-                      fprintf(stderr, "Reading error in %s, line %d: LJ restraints require single-atom selections\n", restfile, line);
-            	  exit(1);
-                    }
-                  }
-      if (nf > 3) r.par1 = atof(fields[3]);
-      if (nf > 4) r.par2 = atof(fields[4]);
-      if (nf > 5) r.par3 = atof(fields[5]);
-      if (nf > 6) r.par4 = atof(fields[6]);
-      if (nf > 7) r.par5 = atof(fields[7]);
+        if (r.s1 != 1 || r.s2 != 1) {
+          fprintf(stderr, "Reading error in %s, line %d: LJ restraints require single-atom selections\n", restfile, line);
+          exit(1);
+        }
+      }
+      if (r.type == 6) {
+        if (r.s1 != 1 || r.s2 != 1) {
+          fprintf(stderr, "Reading error in %s, line %d: step potential requires single-atom selections\n", restfile, line);
+          exit(1);
+        }
+      }      
+      if (r.type == 7) {
+        r.par1 = atof(fields[2]); //mindist
+        r.par2 = atof(fields[3]); //maxdist
+        r.par3 = atof(fields[4]); //force constant        
+        string position_type = fields[5];
+        for (int n = 0; n < position_type.length(); n++) {
+          char c = position_type[n];          
+          switch (c) {
+            case 'x': 
+              r.position_type |= 1;
+              break;
+            case 'y': 
+              r.position_type |= 2;
+              break;
+            case 'z':
+              r.position_type |= 4;
+              break;              
+            default:
+              fprintf(stderr, "Reading error in %s, line %d: Position restraint type characters must be [xyz]\n", restfile, line);
+              exit(1);            
+          }
+        }
+        r.par4 = atof(fields[6]);  //refe-x
+        r.par5 = atof(fields[7]);  //refe-y
+        r.par6 = atof(fields[8]);  //refe-z
+      }
+      else {
+        if (nf > 3) r.par1 = atof(fields[3]);
+        if (nf > 4) r.par2 = atof(fields[4]);
+        if (nf > 5) r.par3 = atof(fields[5]);
+        if (nf > 6) r.par4 = atof(fields[6]);
+        if (nf > 7) r.par5 = atof(fields[7]);
+      }
       restraints[nr_restraints] = r;
       nr_restraints++;
     }

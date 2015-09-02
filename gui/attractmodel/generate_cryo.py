@@ -76,14 +76,13 @@ set -u -e
   pdbnames = []
   collectnames = []
   pdbnames3 = set(("partners.pdb","partners-axsym.pdb"))
-  for p in m.partners:
+  for pnr, p in enumerate(m.partners):
+    chain = chr(ord('A') + pnr)
     assert p.code is None #TODO: not implemented
     #TODO: select chain
     pdbname = p.pdbfile.name
     pdbname2 = os.path.split(pdbname)[1]
     if pdbname not in pdbnames: 
-      if pdbname2.count(".") > 1:
-        raise ValueError("The 'reduce' program does not support PDB files with double extension: '%s'" % pdbname2)
       pdbname3 = os.path.splitext(pdbname2)[0]
       pdbname3_0 = pdbname3
       pcount = 0
@@ -95,8 +94,10 @@ set -u -e
       if pdbname4 != pdbname:
         ret += "cat %s > %s\n" % (pdbname, pdbname4)          
       collectnames.append(pdbname4)
+      pdbname_heavy = pdbname3 + "-heavy.pdb"
       pdbname_reduced = pdbname3 + "r.pdb"
-      ret += "$ATTRACTDIR/reduce %s > /dev/null\n" % pdbname4            
+      ret += "python $ATTRACTDIR/../allatom/aareduce.py --heavy --chain %s %s %s > /dev/null\n" % (chain, pdbname4, pdbname_heavy)
+      ret += "python $ATTRACTTOOLS/reduce.py --chain %s %s %s > /dev/null\n" % (chain, pdbname_heavy, pdbname_reduced)
       pdbnames.append(pdbname)
     else:
       pdbname_reduced = filenames[pdbnames.index(pdbname)]
@@ -171,18 +172,24 @@ set -u -e
   
   ret += "\n#iteration parameters\n"
   ret += "energy_threshold=%s\n" % m.energy_threshold
-  dock0 = "$ATTRACTDIR'/../parmw.par partners.pdb --ghost" + axpar + "'"
-  assert m.restraints_file is None #TODO
+  dock0 = "$ATTRACTDIR'/../attract.par partners.pdb --ghost" + axpar + "'"
+  rest = ""
+  restweights = 0.1, 0.2, 0.6, 0.6, 1.0 
+  if m.harmonic_restraints_file is not None:
+    raise NotImplementedError #TODO: convert with tbl2attract    
+    restfile = "harmonic-restraints.rest"
+    rest = " --rest %s" % restfile
   ret += "dock0=%s\n" % dock0 
   dock_stages = []
   dock_stages_min = []
   fr = m.global_scale_rot
-  fc = m.global_scale_trans
+  fc = m.global_scale_trans    
   dock_stage = "--atomdensitymask \'$mask1\' %s --mc --mcscalerot %s --mcscalecenter %s --mcmax %s" % \
    (m.maskweight[0], m.mcscalerot[0]*fr, m.mcscalecenter[0]*fc, m.mcmax[0])
+  if rest:
+    dock_stage += rest + " --restweight %s" % restweights[0]
   if m.gravity:
     dock_stage += " --gravity 1"   
-  if m.gravity or m.restraints_file:
     dock_stage += " --rstk %s" % m.rstk    
   dock_stages.append(dock_stage) 
   for n in range(1,4):
@@ -190,7 +197,7 @@ set -u -e
      (m.maskweight[n], m.mcscalerot[n]*fr, m.mcscalecenter[n]*fc, m.mcmax[n])
     dock_stage_min = " --atomdensitymask \'$mask2\' %s" % m.maskweight[n]
     if m.restraints_file:
-      t = " --rstk %s" % m.rstk         
+      t = rest + " --restweight %s" % restweights[n]
       dock_stage += t
       dock_stage_min += t
     dock_stages.append(dock_stage)
@@ -218,7 +225,7 @@ set -u -e
   ret += "clone2=%s\n" % clone2
   fast = ""
   if len(m.partners) > 1: fast = " --fast"
-  ret += "\nif [ ! -s randsearch.dat ]; then\n python $ATTRACTTOOLS/randsearch.py %d %d%s > randsearch.dat\nfi\n"  % (len(m.partners), m.nstruc, fast)
+  ret += "\nif [ ! -s randsearch.dat ]; then\n python $ATTRACTTOOLS/randsearch.py %d $nstruc%s > randsearch.dat\nfi\n"  % (len(m.partners), fast)
   ret += "inp=randsearch.dat\n\n"
 
   runs = m.tabu + 1
