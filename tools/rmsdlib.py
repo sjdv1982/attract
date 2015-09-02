@@ -129,6 +129,29 @@ def read_multi_pdb(f):
     a = Atom(l)
     p._add_atom(a)      
   if not endmodel: yield pdbs
+
+def read_multi_attract_pdb(f):  
+  partner = 1
+  p = PDB("partner %d" % (partner))
+  pdbs = [p]
+  partners = None
+  for l in open(f):
+    if partners is None:
+      partners = int(l)
+      continue
+    if l.startswith("TER"):
+      if not len(p._res):
+        pdbs = pdbs[:-1]      
+      partner += 1
+      p = PDB("partner %d" % (partner))
+      pdbs.append(p)
+    if not l.startswith("ATOM"): continue
+    a = Atom(l)
+    p._add_atom(a)      
+  if not len(p._res):
+    pdbs = pdbs[:-1]
+  assert len(pdbs) == partners, (len(pdbs), partners)  
+  return pdbs
     
 def check_pdbs(unbounds, bounds):
   for ub, b in zip(unbounds, bounds):
