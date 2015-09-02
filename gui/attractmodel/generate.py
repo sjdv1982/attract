@@ -445,7 +445,7 @@ name=%s
       s = sym.symmetry_origin
       sym_origin = "%.3f %.3f %.3f" % (s.x, s.y, s.z)      
       params += " --axsym %d %d %s %s" % (partner, symcode, sym_axis, sym_origin)
-  paramsprep = params.replace("--fix-receptor","").replace("--ghost-ligands","").replace("--ghost","").replace("  ", " ") + " --ghost"
+  paramsprep = params.replace("--fix-receptor","").replace("--ghost-ligands","").replace("--ghost","").replace("--rest "+position_restraints_file,"").replace("  ", " ") + " --ghost"
   params += "\""
   paramsprep += "\""
   scoreparams += "\""  
@@ -604,7 +604,7 @@ echo '**************************************************************'
     tbl_mappings = " ".join(mappings)
       
     ret += "python $ATTRACTTOOLS/tbl2attract.py %s --mode haddock --pdbs %s --mappings %s --k %s --softsquare %s --chance_removal %s > %s\n" % \
-      (tbl, tbl_pdbs, tbl_mappings, m.rstk_haddock, haddock_restraints_file, m.haddock_softsquare, m.haddock_random_removal)    
+      (tbl, tbl_pdbs, tbl_mappings, m.rstk_haddock, m.haddock_softsquare, m.haddock_random_removal,haddock_restraints_file)    
 
   if m.position_restraints_file:
     ret += """
