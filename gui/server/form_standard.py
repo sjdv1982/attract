@@ -33,9 +33,10 @@ header = """<!DOCTYPE html>
             <nav id="form-category-navigation" class="row">
               <ul>
                 <li id="view-page1"><a id="nav-block-partners" class="puzzle-icon">Partners</a></li>
-                <li id="view-page2"><a id="nav-block-energy" class="energy-icon">Energy and Interaction</a></li>
-                <li id="view-page3"><a id="nav-block-analysis" class="analysis-icon">Analysis</a></li>
-                <li id="view-page4"><a id="nav-block-computation" class="computation-icon">Computation</a></li>
+                <li id="view-page2"><a id="nav-block-sampling" class="sampling-icon">Sampling</a></li>
+                <li id="view-page3"><a id="nav-block-energy" class="energy-icon">Energy and Interaction</a></li>                
+                <li id="view-page4"><a id="nav-block-analysis" class="analysis-icon">Analysis</a></li>
+                <li id="view-page5"><a id="nav-block-computation" class="computation-icon">Computation</a></li>
               </ul>
             </nav>
             
@@ -155,9 +156,20 @@ def webform(f, model=None):
     ### END b_rmsd block
   ### END partners category 
 
+  ### START restraints category
+  c = f.new_group("c_restraints", "category")
+  c.page = 2
+  c.icon = "sampling-icon"
+  c.title = "Custom distance restraints"
+  c.always_active = True
+  c.categoryname = "sampling"
+  c.description = ""
+  _assign_category(f, c, "Custom distance restraints", span = True)
+  ### END energy category  
+
   ### START energy category
   c = f.new_group("c_energy", "category")
-  c.page = 2
+  c.page = 3
   c.icon = "energy-icon"
   c.title = "Energy and Interaction"
   c.always_active = True
@@ -168,7 +180,7 @@ def webform(f, model=None):
 
   ### START analysis category
   c = f.new_group("c_analysis", "category")
-  c.page = 3
+  c.page = 4
   c.icon = "analysis-icon"
   c.title = "Analysis"
   c.always_active = True
@@ -181,7 +193,7 @@ def webform(f, model=None):
 
   ### START computation category
   c = f.new_group("c_computation", "category")
-  c.page = 4
+  c.page = 5
   c.icon = "computation-icon"
   c.title = "Computation"
   c.always_active = True
