@@ -579,7 +579,26 @@ echo '**************************************************************'
       ret += "python $ATTRACTTOOLS/air.py %s %s %s > %s\n" % (" ".join(air_filenames), chance_removal, dist, k)
       rest += "--rest %s" % haddock_restraints_filename
 
-  
+  if m.harmonic_restraints_file or m.haddock_restraints_file or m.position_restraints_file:
+    tbl_pdbs = " ".join(filenames)
+    tbl_mappings = " ".join(mappings)
+    
+    axcopies = {}
+    for n in range(len(m.symmetries)):
+      ax = m.symmetries[n]
+      if ax.symmetry_axis is None: continue
+    
+      copies = ax.symmetry_fold
+      copies_done = 1
+      molecule = ax.partners[0]
+      if molecule in axcopies: 
+        copies *= axcopies[molecule]
+        copies_done *= axcopies[molecule]      
+      axcopies[molecule] = copies        
+      for n in range(copies_done, copies):
+        tbl_pdbs  += " " + filenames[molecule-1]
+        tbl_mappings += " " + mappings[molecule-1]     
+    
   if m.harmonic_restraints_file:
     ret += """
 echo '**************************************************************'
@@ -587,9 +606,6 @@ echo 'Generate harmonic restraints...'
 echo '**************************************************************'
 """
     tbl = m.harmonic_restraints_file.name
-    tbl_pdbs = " ".join(filenames)
-    tbl_mappings = " ".join(mappings)
-      
     ret += "python $ATTRACTTOOLS/tbl2attract.py %s --mode harmonic --pdbs %s --mappings %s --k %s > %s\n" % \
       (tbl, tbl_pdbs, tbl_mappings, m.rstk_harmonic, harmonic_restraints_file)    
 
@@ -599,10 +615,7 @@ echo '**************************************************************'
 echo 'Generate custom HADDOCK restraints...'
 echo '**************************************************************'
 """
-    tbl = m.haddock_restraints_file.name
-    tbl_pdbs = " ".join(filenames)
-    tbl_mappings = " ".join(mappings)
-      
+    tbl = m.haddock_restraints_file.name      
     ret += "python $ATTRACTTOOLS/tbl2attract.py %s --mode haddock --pdbs %s --mappings %s --k %s --softsquare %s --chance_removal %s > %s\n" % \
       (tbl, tbl_pdbs, tbl_mappings, m.rstk_haddock, m.haddock_softsquare, m.haddock_random_removal,haddock_restraints_file)    
 
@@ -613,9 +626,6 @@ echo 'Generate position restraints...'
 echo '**************************************************************'
 """
     tbl = m.position_restraints_file.name
-    tbl_pdbs = " ".join(filenames)
-    tbl_mappings = " ".join(mappings)
-      
     ret += "python $ATTRACTTOOLS/tbl2attract.py %s --mode position --pdbs %s --mappings %s --k %s > %s\n" % \
       (tbl, tbl_pdbs, tbl_mappings, m.rstk_position, position_restraints_file)    
     
