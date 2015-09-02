@@ -3,9 +3,21 @@ Type Data_ATTRACT_Rotations:Data{}
 Type Data_ATTRACT_Translations:Data{}
 Type Data_CNS_Restraints:Data{}
 
+Type DCoordinate:Coordinate {
+  """Class for 3D (x,y,z) coordinates. 
+     x, y, z are optional and default to zero
+  """
+  Delete x
+  Delete y
+  Delete z
+  Float x = 0
+  Float y = 0
+  Float z = 0
+}  
+
 Type AttractSymmetry {
-  Coordinate symmetry_axis = (0,0,0)
-  Coordinate symmetry_origin = (0,0,0)
+  *DCoordinate symmetry_axis
+  *DCoordinate symmetry_origin
   form {
     symmetry_axis.add_header("You can use generative symmetry or distance-restrained symmetry")
     symmetry_axis.add_header("If you want to use generative symmetry:")
@@ -20,16 +32,16 @@ Type AttractSymmetry {
     symmetry_axis.name = "Generative symmetry axis"
     symmetry_origin.name = "Origin for generative symmetry axis"
   }
-  Integer symmetry_fold
+  *Integer symmetry_fold
   form {
     symmetry_fold.name = "Symmetry fold (2-fold, 3-fold, ...)"
   }
   validate {
-    assert symmetry_fold > 1
+    if symmetry_fold is not None: assert symmetry_fold > 1
   }
   Enum symmetry("Cx","Dx") = "Cx"
   validate {
-    if symmetry_origin != Coordinate(0,0,0): assert symmetry_axis != Coordinate(0,0,0)
+    if symmetry_origin is not None: assert symmetry_axis is not None
   }
   IntegerArray partners = []
   form {
@@ -38,10 +50,11 @@ Type AttractSymmetry {
   validate {
     if symmetry_axis is not None: 
       assert len(partners) == 1
+      assert symmetry_fold is not None
       assert symmetry == "Cx"
     else:
       assert len(partners) > 1
-      assert symmetry_fold == len(partners)
+      assert symmetry_fold is None or symmetry_fold == len(partners)
       if symmetry == "Dx": assert len(partners) == 4
   }
   error {
@@ -49,7 +62,7 @@ Type AttractSymmetry {
     =>
     ''
 
-    'if symmetry_origin != Coordinate(0,0,0): assert symmetry_axis != Coordinate(0,0,0)'
+    'if symmetry_origin is not None: assert symmetry_axis is not None'
     =>
     'If you specify a symmetry origin, you must also supply a symmetry axis'
     
@@ -57,7 +70,7 @@ Type AttractSymmetry {
     =>
     'With Dx-symmetry and no symmetry axis, the number of partners must be 4, not {len(partners)}'
 
-    'if symmetry_axis is not None: assert len(partners) == 1'
+    'assert len(partners) == 1'
     =>
     'If you define a symmetry axis, you must define exactly one symmetry partner, not {len(partners)}'
 

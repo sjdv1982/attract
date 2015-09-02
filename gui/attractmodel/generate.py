@@ -26,7 +26,7 @@ supported_moleculetype_interactions = (
   ("Protein", "DNA"),
   ("Protein", "RNA"),
 )  
-
+    
 def generate(m):     
   ret = "#!/bin/bash -i\n"
   cleanupfiles = []
@@ -431,7 +431,7 @@ name=%s
     ps_score = ps + " --restweight %s"  % (str(m.restraints_score_weight))
     scoreparams += ps_score
         
-  for sym in m.symmetries:        
+  for sym in m.symmetries:
     if sym.symmetry_axis is None: #distance-restrained symmetry      
       symcode = len(sym.partners)
       if sym.symmetry == "Dx": symcode = -4
@@ -443,6 +443,7 @@ name=%s
       s = sym.symmetry_axis
       sym_axis = "%.3f %.3f %.3f" % (s.x, s.y, s.z)
       s = sym.symmetry_origin
+      if s is None: s = Coordinate(0,0,0)
       sym_origin = "%.3f %.3f %.3f" % (s.x, s.y, s.z)      
       params += " --axsym %d %d %s %s" % (partner, symcode, sym_axis, sym_origin)
   paramsprep = params.replace("--fix-receptor","").replace("--ghost-ligands","").replace("--ghost","").replace("--rest "+position_restraints_file,"").replace("  ", " ") + " --ghost"
@@ -586,8 +587,7 @@ echo '**************************************************************'
     axcopies = {}
     for n in range(len(m.symmetries)):
       ax = m.symmetries[n]
-      if ax.symmetry_axis is None: continue
-    
+      if ax.symmetry_axis is None: continue    
       copies = ax.symmetry_fold
       copies_done = 1
       molecule = ax.partners[0]
@@ -726,7 +726,16 @@ echo '**************************************************************'
       tail += " --shm"
     direc = ">"
     for fnr in range(len(filenames)):
-      if fnr == partner: continue
+      ok = True
+      if fnr == partner: 
+        ok = False
+        for sym in m.symmetries:
+          if sym.symmetry_axis is None: continue
+          if sym.partners[0] == fnr + 1:
+            ok = True
+            break
+      if not ok:
+        continue
       ret += "awk '{print substr($0,58,2)}' %s | sort -nu %s %s.alphabet\n" % (filenames[fnr], direc, g.gridname.strip())
       direc = ">>"
     tail += " --alphabet %s.alphabet" % g.gridname.strip()  
