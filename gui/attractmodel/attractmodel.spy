@@ -3,9 +3,45 @@ Type Data_ATTRACT_Rotations:Data{}
 Type Data_ATTRACT_Translations:Data{}
 Type Data_CNS_Restraints:Data{}
 
+Type DCoordinate:Coordinate {
+  """Class for 3D (x,y,z) coordinates. 
+     x, y, z are optional and default to zero
+  """
+  Delete x
+  Delete y
+  Delete z
+  Float x = 0
+  Float y = 0
+  Float z = 0
+}  
+
+Type DVector:DCoordinate {
+  """Fork of Coordinate that ensures a length of 1
+     x, y, z are optional and default to zero
+  """
+  Delete form
+  form {
+    x.min = -1
+    x.max = 1
+    x.default = 0
+    x.digits = 5
+    y.min = -1
+    y.max = 1
+    y.default = 0    
+    y.digits = 5
+    z.min = -1
+    z.max = 1
+    z.default = 0  
+    z.digits = 5
+  }    
+  validate {
+    assert abs(x**2+y**2+z**2 - 1) < 0.001
+  }  
+}  
+
 Type AttractSymmetry {
-  *Coordinate symmetry_axis
-  *Coordinate symmetry_origin
+  *DVector symmetry_axis
+  *DCoordinate symmetry_origin
   form {
     symmetry_axis.add_header("You can use generative symmetry or distance-restrained symmetry")
     symmetry_axis.add_header("If you want to use generative symmetry:")
@@ -30,7 +66,6 @@ Type AttractSymmetry {
   Enum symmetry("Cx","Dx") = "Cx"
   validate {
     if symmetry_origin is not None: assert symmetry_axis is not None
-    if symmetry_axis is not None: assert symmetry_origin is not None
   }
   IntegerArray partners = []
   form {
@@ -54,22 +89,18 @@ Type AttractSymmetry {
     'if symmetry_origin is not None: assert symmetry_axis is not None'
     =>
     'If you specify a symmetry origin, you must also supply a symmetry axis'
-
-    'if symmetry_axis is not None: assert symmetry_origin is not None'
-    =>
-    'If you specify a symmetry axis, you must also supply a symmetry origin'
     
     'if symmetry == "Dx": assert len(partners) == 4'
     =>
     'With Dx-symmetry and no symmetry axis, the number of partners must be 4, not {len(partners)}'
 
-    'if symmetry_axis is not None: assert len(partners) == 1'
+    'assert len(partners) == 1'
     =>
     'If you define a symmetry axis, you must define exactly one symmetry partner, not {len(partners)}'
 
     'assert len(partners) > 1'
     =>
-    'If you don't define a symmetry axis, you have define at least 2 symmetry partners, not {len(partners)}'
+    "If you don't define a symmetry axis, you have define at least 2 symmetry partners, not {len(partners)}"
   }  
 }
 
@@ -432,6 +463,9 @@ Type AttractModel {
   }  
   Integer structures = 10000
   ## form structures.name = "Number of structures for random search"
+  Float randsearch_radius = 30
+  ## form randsearch_radius.name = "Initial distance from center (radius) for random search"
+  
   *ResourceData_ATTRACT_Structures start_structures_file
   ## form start_structures_file.type = "file"
   *ResourceData_ATTRACT_Rotations rotations_file
@@ -484,6 +518,7 @@ Type AttractModel {
     fix_receptor.group = "Sampling parameters"
     search.group = "Sampling parameters"
     structures.group = "Sampling parameters"
+    randsearch_radius.group = "Sampling parameters"
     start_structures_file.group = "Sampling parameters"
     rotations_file.group = "Sampling parameters"
     translations_file.group = "Sampling parameters"
