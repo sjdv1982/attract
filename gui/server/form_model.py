@@ -310,9 +310,7 @@ def webform(f, model=None,
   f.atomdensitygrids.group = None
   _assign_category(f, c, "Energy and interaction parameters", span = True)
   f.gravity.default = 0
-  ff = f.rstk
   f.ghost.name = "Enable ghost mode, forcefield is turned off"
-  ff = f.epsilon
   ### END energy category  
   
   ### START atomdensitygrid category
