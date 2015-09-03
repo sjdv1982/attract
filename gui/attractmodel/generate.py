@@ -89,7 +89,7 @@ fi
   else:
     separate_aa_pdb = False
     for p in m.partners:
-      if not m.generate_modes: continue
+      if not p.generate_modes: continue
       if m.aacontact_modes or p.moleculetype in ("DNA","RNA"):
         separate_aa_pdb = True
         break
@@ -436,7 +436,9 @@ name=%s
       symcode = len(sym.partners)
       if sym.symmetry == "Dx": symcode = -4
       partners = " ".join([str(v) for v in sym.partners])
-      params += " --sym %d %s" % (symcode, partners)
+      p = " --sym %d %s" % (symcode, partners)
+      params += p
+      scoreparams += p
     else: #generative symmetry
       symcode = sym.symmetry_fold
       partner = sym.partners[0]
@@ -445,7 +447,9 @@ name=%s
       s = sym.symmetry_origin
       if s is None: s = Coordinate(0,0,0)
       sym_origin = "%.3f %.3f %.3f" % (s.x, s.y, s.z)      
-      params += " --axsym %d %d %s %s" % (partner, symcode, sym_axis, sym_origin)
+      p = " --axsym %d %d %s %s" % (partner, symcode, sym_axis, sym_origin)
+      params += p
+      scoreparams += p
   paramsprep = params.replace("--fix-receptor","").replace("--ghost-ligands","").replace("--ghost","").replace("--rest "+position_restraints_file,"").replace("  ", " ") + " --ghost"
   
   paramsprep += "\""
@@ -665,8 +669,10 @@ echo '**************************************************************'
 """    
     fixre = ""
     if m.fix_receptor: fixre = " --fix-receptor"
-    ret += "python $ATTRACTTOOLS/randsearch.py %d %d%s > randsearch.dat\n" % \
-     (len(m.partners), m.structures, fixre)
+    radius = ""
+    if m.randsearch_radius != 30: radius = " --radius %s" % m.randsearch_radius
+    ret += "python $ATTRACTTOOLS/randsearch.py %d %d%s%s > randsearch.dat\n" % \
+     (len(m.partners), m.structures, fixre, radius)
     ret += "start=randsearch.dat\n"    
     start = "randsearch.dat"
   else:
