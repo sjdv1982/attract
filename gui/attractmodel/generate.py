@@ -670,7 +670,7 @@ echo '**************************************************************'
     fixre = ""
     if m.fix_receptor: fixre = " --fix-receptor"
     radius = ""
-    if m.randsearch_radius != 30: radius = " --radius %s" % m.randsearch_radius
+    if m.randsearch_radius != 35: radius = " --radius %s" % m.randsearch_radius
     ret += "python $ATTRACTTOOLS/randsearch.py %d %d%s%s > randsearch.dat\n" % \
      (len(m.partners), m.structures, fixre, radius)
     ret += "start=randsearch.dat\n"    

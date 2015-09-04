@@ -86,7 +86,7 @@ Type CryoInterface {
   FloatArray mcscalerot[4] = (0.5,0.25,0.1,0.1)
   FloatArray mcscalecenter[4] = (0.5,0.25,0.1,0.1)
   FloatArray mcmax[4] = (250,250,250,250)
-  Float randsearch_radius = 30
+  Float randsearch_radius = 35
   Bool gravity = False #only in first stage
   Float rstk = 0.1 #only in first stage
   form {
