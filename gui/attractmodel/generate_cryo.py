@@ -226,7 +226,7 @@ set -u -e
   fast = ""
   if len(m.partners) > 1: fast = " --fast"
   radius = ""
-  if m.randsearch_radius != 30: radius = " --radius %s" % m.randsearch_radius  
+  if m.randsearch_radius != 35: radius = " --radius %s" % m.randsearch_radius  
   ret += "\nif [ ! -s randsearch.dat ]; then\n python $ATTRACTTOOLS/randsearch.py %d $nstruc%s%s > randsearch.dat\nfi\n"  % (len(m.partners), fast, radius)
   ret += "inp=randsearch.dat\n\n"
 

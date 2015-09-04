@@ -463,7 +463,7 @@ Type AttractModel {
   }  
   Integer structures = 10000
   ## form structures.name = "Number of structures for random search"
-  Float randsearch_radius = 30
+  Float randsearch_radius = 35
   ## form randsearch_radius.name = "Initial distance from center (radius) for random search"
   
   *ResourceData_ATTRACT_Structures start_structures_file
