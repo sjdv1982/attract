@@ -209,10 +209,9 @@ set -u -e
   ret += "dock_stage3=\'%s\'\n" % dock_stages[2]
   ret += "dock_stage4=\'%s\'\n" % dock_stages[3]
   ret += "dock_stage5=\'%s\'\n" % dock_stages[4]
-  if len(m.partners) > 1:
-    ret += "dock_stage2_min=\'%s\'\n" % dock_stages_min[0]
-    ret += "dock_stage3_min=\'%s\'\n" % dock_stages_min[1]
-    ret += "dock_stage4_min=\'%s\'\n" % dock_stages_min[2]
+  ret += "dock_stage2_min=\'%s\'\n" % dock_stages_min[0]
+  ret += "dock_stage3_min=\'%s\'\n" % dock_stages_min[1]
+  ret += "dock_stage4_min=\'%s\'\n" % dock_stages_min[2]
   
   clonefac = m.nstruc/m.ntop
   if len(m.partners) == 1:
