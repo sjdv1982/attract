@@ -1,6 +1,8 @@
 """
-Calculate interface RMSD from a multi-model PDB
-usage: python irmsd.py 
+Calculate interface RMSD per protein partner from a multi-model PDB
+Fits the complex on the interface of the reference and then calculates deviations at the interface for each protein partner separately
+usage: python irmsd-pdbperligand.py <pdb file> refeA.pdb refeB.pdb \
+
  [--allatoms] [--allresidues] [--output <file>] [--cutoff <interface cutoff, default 10>]
 
 --allatoms: use all atoms rather than backbone atoms
@@ -95,6 +97,20 @@ if not opt_allatoms:
   amask = rmsdlib.build_atommask(bounds, atomnames)
   selmask = (selmask & amask)
 
+ligandselmask = []
+currentligand = 0
+currentsel = 0
+boundsizes = [len(list(p.atoms())) for p in bounds]
+for s in boundsizes:
+  count = 0
+  for n in selmask[currentligand:currentligand+s]:
+    if n:
+      count += 1
+      
+  ligandselmask.append((currentsel,currentsel+count))
+  currentsel += count
+  currentligand += s
+  
 fboundatoms = allboundatoms[selmask]
 
 nstruc = 0
@@ -118,5 +134,18 @@ for unbounds in rmsdlib.read_multi_pdb(sys.argv[1]):
   rmsdlib.check_pdbs(unbounds, bounds)
   nstruc += 1
   fcoor = numpy.compress(selmask, coor, axis=0)
-  irmsd = rmsdlib.fit(fboundatoms,fcoor)[2]
-  f1.write(str(nstruc)+" %.3f\n" % irmsd)
+  U = rmsdlib.fit(fboundatoms,fcoor)[0]
+  rotfcoor = numpy.array([],ndmin=2)
+  for c in fcoor:
+    rotfcoor = numpy.append(rotfcoor,U.dot(c))
+  
+  rotfcoor = numpy.reshape(rotfcoor,(-1,3))
+  f1.write(str(nstruc))
+  for start, end in ligandselmask:
+    sel1 = rotfcoor[start:end]
+    sel2 = fboundatoms[start:end]
+    irmsd = rmsdlib.rmsd(sel1,sel2)
+    f1.write(" %.3f" % irmsd)
+    
+  f1.write("\n")
+

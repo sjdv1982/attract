@@ -4,7 +4,7 @@ from math import *
 
 try:
   situsfile = sys.argv[1]
-  threshold = float(sys.argv[2])
+  threshold = float(sys.argv[2]) #Units: daltons per 5A voxel, will be scaled with voxel size to a minimum of 1 Da/voxel
   maskvoxelsize = float(sys.argv[3])
   boxlim = float(sys.argv[4]) #construct a mask from -boxlim to boxlim Angstroms, in all directions
   maskfile = sys.argv[5]
@@ -21,6 +21,8 @@ except:
 extrusion = 3 #1 on each side
     
 data, gridspacing, origin = read_situs(situsfile)
+threshold = threshold / 125.0 * gridspacing**3 
+if threshold < 1.0: threshold = 1.0
 data[data<threshold]=-1
 data[data>=threshold]=1
 assert gridspacing <= maskvoxelsize

@@ -1,18 +1,18 @@
 """
 Tool to generate random initial DOF files
-syntax: python randsearch.py <bodies> <structures> [seed] [--fast] [--fix-receptor]
+syntax: python randsearch.py <bodies> <structures> [seed] [--fast] [--fix-receptor] [radius=35]
 In case of two bodies:
-  The bodies are placed 70 A from each other, at opposite ends of the origin
+  The bodies are placed <2*radius> Angstroms from each other, at opposite ends of the origin
   If --fix-receptor, the receptor is placed at the origin
 In case of 1 or >2 bodies:
-  The bodies are placed on the surface of a sphere of 35 A radius
+  The bodies are placed on the surface of a sphere of <radius> Angstroms
   If --fix-receptor, the first body (receptor) is placed at the origin
   The (remaining) positions are regularized, enforcing constant relative distances towards each other 
    (unless the --fast option was specified)  
 """
 from __future__ import print_function
 
-radius = 35
+radius = 35.0
 
 import sys
 try:
@@ -104,7 +104,7 @@ for n in range(structures):
           xx,yy,zz = p[j]
 	  dx,dy,dz = xold-xx,yold-yy,zold-zz
 	  dsq = dx*dx+dy*dy+dz*dz
-	  dsq2 = 30.0/dsq
+	  dsq2 = radius/dsq
 	  x += dx * dsq2
 	  y += dy * dsq2
 	  z += dz * dsq2

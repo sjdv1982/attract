@@ -46,6 +46,9 @@ silk --default-output attract.web AttractEasyModel -m attractmodel -I $ATTRACTGU
 
 CRYO INTERFACE
 
+local GUI, full:
+silk --default-output attract.web CryoInterface -I $ATTRACTGUI -m attractmodel --form localgui buttons --logic localgui logic
+
 full web server, ATTRACT style:
 silk --default-output attract.web CryoInterface -I $ATTRACTGUI -m attractmodel --gui html \
 -I $ATTRACTGUI/server --form form_cryo webform --view form_cryo html --webdir $ATTRACTGUI/server/html --webserver-pre form_cryo webserverform

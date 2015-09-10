@@ -1,11 +1,47 @@
 Type Data_ATTRACT_Structures:Data{}
 Type Data_ATTRACT_Rotations:Data{}
 Type Data_ATTRACT_Translations:Data{}
-Type Data_ATTRACT_Restraints:Data{}
+Type Data_CNS_Restraints:Data{}
+
+Type DCoordinate:Coordinate {
+  """Class for 3D (x,y,z) coordinates. 
+     x, y, z are optional and default to zero
+  """
+  Delete x
+  Delete y
+  Delete z
+  Float x = 0
+  Float y = 0
+  Float z = 0
+}  
+
+Type DVector:DCoordinate {
+  """Fork of Coordinate that ensures a length of 1
+     x, y, z are optional and default to zero
+  """
+  Delete form
+  form {
+    x.min = -1
+    x.max = 1
+    x.default = 0
+    x.digits = 5
+    y.min = -1
+    y.max = 1
+    y.default = 0    
+    y.digits = 5
+    z.min = -1
+    z.max = 1
+    z.default = 0  
+    z.digits = 5
+  }    
+  validate {
+    assert abs(x**2+y**2+z**2 - 1) < 0.001
+  }  
+}  
 
 Type AttractSymmetry {
-  *Coordinate symmetry_axis
-  *Coordinate symmetry_origin
+  *DVector symmetry_axis
+  *DCoordinate symmetry_origin
   form {
     symmetry_axis.add_header("You can use generative symmetry or distance-restrained symmetry")
     symmetry_axis.add_header("If you want to use generative symmetry:")
@@ -30,7 +66,6 @@ Type AttractSymmetry {
   Enum symmetry("Cx","Dx") = "Cx"
   validate {
     if symmetry_origin is not None: assert symmetry_axis is not None
-    if symmetry_axis is not None: assert symmetry_origin is not None
   }
   IntegerArray partners = []
   form {
@@ -54,22 +89,18 @@ Type AttractSymmetry {
     'if symmetry_origin is not None: assert symmetry_axis is not None'
     =>
     'If you specify a symmetry origin, you must also supply a symmetry axis'
-
-    'if symmetry_axis is not None: assert symmetry_origin is not None'
-    =>
-    'If you specify a symmetry axis, you must also supply a symmetry origin'
     
     'if symmetry == "Dx": assert len(partners) == 4'
     =>
     'With Dx-symmetry and no symmetry axis, the number of partners must be 4, not {len(partners)}'
 
-    'if symmetry_axis is not None: assert len(partners) == 1'
+    'assert len(partners) == 1'
     =>
     'If you define a symmetry axis, you must define exactly one symmetry partner, not {len(partners)}'
 
     'assert len(partners) > 1'
     =>
-    'If you don't define a symmetry axis, you have define at least 2 symmetry partners, not {len(partners)}'
+    "If you don't define a symmetry axis, you have define at least 2 symmetry partners, not {len(partners)}"
   }  
 }
 
@@ -110,7 +141,7 @@ Type AttractPartnerInterface {
   String chain = "All"
         
   *HaddockRestraintsInterface haddock_restraints
-  ## form haddock_restraints.name = "Definition of residues for HADDOCK-type distance restraints (optional)"
+  ## form haddock_restraints.name = "Definition of residues for HADDOCK AIR restraints (optional)"
   ## form haddock_restraints.auto_passive.type = None #TODO: disabled for now
       
   Enum moleculetype("Protein", "DNA", "RNA") = "Protein"
@@ -432,14 +463,21 @@ Type AttractModel {
   }  
   Integer structures = 10000
   ## form structures.name = "Number of structures for random search"
+  Float randsearch_radius = 35
+  ## form randsearch_radius.name = "Initial distance from center (radius) for random search"
+  
   *ResourceData_ATTRACT_Structures start_structures_file
   ## form start_structures_file.type = "file"
   *ResourceData_ATTRACT_Rotations rotations_file
   ## form rotations_file.type = "file"
   *ResourceData_ATTRACT_Translations translations_file
   ## form translations_file.type = "file"
-  *ResourceData_ATTRACT_Restraints restraints_file
-  ## form restraints_file.type = "file"  
+  *ResourceData_CNS_Restraints harmonic_restraints_file
+  ## form harmonic_restraints_file.type = "file"  
+  *ResourceData_CNS_Restraints haddock_restraints_file
+  ## form haddock_restraints_file.type = "file"  
+  *ResourceData_CNS_Restraints position_restraints_file  
+  ## form position_restraints_file.type = "file"  
   Float restraints_score_weight = 0.01
   form {
     start_structures_file.add_header("Custom search files")
@@ -447,8 +485,11 @@ Type AttractModel {
     start_structures_file.name = "Starting structures file for custom search"
     rotations_file.name = "Rotations file for custom search"
     translations_file.name = "Translations file for custom search"
-    restraints_file.name = "Distance restraints file (ATTRACT format)"
-    restraints_score_weight.name = "weight of distance restraints during scoring"
+    harmonic_restraints_file.add_header("Distance restraints files")
+    harmonic_restraints_file.name = "Harmonic distance restraints file (CNS/HADDOCK .tbl format)"
+    haddock_restraints_file.name = "HADDOCK distance restraints file (CNS/HADDOCK .tbl format)"
+    position_restraints_file.name = "Position restraints file (CNS/HADDOCK .tbl format)"
+    restraints_score_weight.name = "Weight of all distance restraints during scoring"
   }
   validate {
     if search != "custom":
@@ -477,10 +518,13 @@ Type AttractModel {
     fix_receptor.group = "Sampling parameters"
     search.group = "Sampling parameters"
     structures.group = "Sampling parameters"
+    randsearch_radius.group = "Sampling parameters"
     start_structures_file.group = "Sampling parameters"
     rotations_file.group = "Sampling parameters"
     translations_file.group = "Sampling parameters"
-    restraints_file.group = "Sampling parameters"
+    harmonic_restraints_file.group = "Sampling parameters"
+    haddock_restraints_file.group = "Sampling parameters"
+    position_restraints_file.group = "Sampling parameters"
     restraints_score_weight.group = "Sampling parameters"
     use_iattract.group = "Sampling parameters"
     iattract.group = "Sampling parameters"
@@ -497,26 +541,55 @@ Type AttractModel {
     gravity.optiontitles = ("No gravity", "To global origin", "To receptor", "Between all ligands", "Cryo-EM pre-assembly stage gravity", "Cryo-EM assembly stage gravity")
   }  
   
-  Enum completion_tool("whatif", "pdb2pqr_whatif", "amber", "cns") = "pdb2pqr_whatif"
+  Enum completion_tool("whatif", "pdb2pqr_whatif") = "pdb2pqr_whatif"
   form {
     completion_tool.add_header("External tool for PDB completion and hydrogens")
-    completion_tool.add_header("NOTE: PDB2PQR, AMBER and CNS require a local installation")
+    completion_tool.add_header("NOTE: PDB2PQR requires a local installation")
     completion_tool.add_header("NOTE: PDB2PQR only completes proteins; WHATIF is used for nucleic acids")  
     completion_tool.name = "PDB completion method"
     completion_tool.optiontitles = (
       "WHATIF web server",
       "PDB2PQR",
-      "AMBER",
-      "CNS",
     )
   }
   
-  Float rstk = 0.01
+  Float rstk_dof = 0.01
   form {
-    rstk.name = "Restraining force constant"
-    rstk.digits = 4
+    rstk_dof.name = "Restraining force constant for gravity and non-generative symmetry"
+    rstk_dof.digits = 4
   }
-  
+
+  Float rstk_harmonic = 10.0
+  form {
+    rstk_harmonic.name = "Restraining force constant for harmonic distance restraints"
+    rstk_harmonic.digits = 4
+  }
+
+  Float rstk_haddock = 1.0
+  form {
+    rstk_haddock.name = "Restraining force constant for AIRs and custom HADDOCK restraints"
+    rstk_haddock.digits = 4
+  }
+
+  Float haddock_random_removal = 0.5
+  form {
+    haddock_random_removal.name = "Fraction of AIRs and HADDOCK restraints removed at random"
+    haddock_random_removal.digits = 4
+  }
+
+  Float haddock_softsquare = 2.0
+  form {
+    haddock_softsquare.name = "Soft-square parameter (maximum violation after which the force becomes linear) for custom HADDOCK restraints"
+    haddock_softsquare.digits = 4
+  }
+
+  Float rstk_position = 10.0
+  form {
+    rstk_position.name = "Restraining force constant for position restraints"
+    rstk_position.digits = 4
+  }
+
+
   Enum forcefield("ATTRACT", "OPLSX") = "ATTRACT"
   ## form forcefield.add_header("Which forcefield is to be used?")
   ## form forcefield.name = "Forcefield"
@@ -547,7 +620,12 @@ Type AttractModel {
     _g = "Energy and interaction parameters"
     gravity.group = _g
     completion_tool.group = _g
-    rstk.group = _g
+    rstk_dof.group = _g
+    rstk_harmonic.group = _g
+    rstk_haddock.group = _g
+    haddock_softsquare.group = _g
+    haddock_random_removal.group = _g
+    rstk_position.group = _g
     forcefield.group = _g
     ghost.group = _g
     ghost_ligands.group = _g
@@ -738,7 +816,7 @@ Type AttractModel {
     
     'for p in partners: assert p.haddock_restraints is None'
     =>
-    'HADDOCK active/passive residues are not yet supported for multi-body docking'
+    'HADDOCK active/passive residues are not supported for multi-body docking'
     
     'if completion_tool is not None: assert completion_tool in ("whatif", "pdb2pqr_whatif", "amber", "cns")'
     =>
@@ -746,11 +824,11 @@ Type AttractModel {
 
     'if has_haddock: assert has_active'
     =>
-    'If you define HADDOCK restraints, you must define active residues for at least one partner'
+    'If you define HADDOCK AIR restraints, you must define active residues for at least one partner'
 
     'if has_haddock: assert nr_has_haddock > 1'
     =>
-    'If you define HADDOCK restraints, you must do so for at least two partners'
+    'If you define HADDOCK AIR restraints, you must do so for both partners'
     
     'if len(partners) and calc_lrmsd: assert partners[0].rmsd_pdb_alt is None'
     =>

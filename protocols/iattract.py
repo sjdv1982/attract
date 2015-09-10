@@ -157,6 +157,14 @@ def run_docking(datain):
     ensemblefiles = []
     modefile = None
     ligands = [item for item in args if '.pdb' in item]
+    if len(ligands) > 2:
+      newargs = []
+      for i, item in enumerate(args):
+	if not item in ligands:
+	  newargs.append(item)
+
+      args = newargs[:1]+['partners-aa.pdb']+newargs[1:]
+      
     for i, item in enumerate(args):
       if item == '--ens':
 	ensemblefiles.append((args[i+1],args[i+2]))
@@ -345,6 +353,13 @@ if __name__ == "__main__":
 	  
     else:
       neighbortree.make(u)
+   
+  if len(ligands) > 2:
+    os.system('echo '+str(len(ligands))+' > partners-aa.pdb')
+    for l in ligands:
+      os.system('cat '+l+' >> partners-aa.pdb')
+      os.system('echo TER >> partners-aa.pdb')
+
   #check if interface lists have been provided and generate global imodes and restraints files from them
   if '--ilist' in args:
     otf = False
