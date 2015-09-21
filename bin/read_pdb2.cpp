@@ -26,7 +26,7 @@ void read_pdb2(
     if (!fgets(buf, 2000, fil)) break;
     sscanf(buf, "%10s ", code);
     
-    if (!strncmp(code,"ATOM", 4) || !strncmp(code,"HETATM", 8)) {
+    if (!strncmp(code,"ATOM", 4)) {
       Coor &c = x0[coorcounter];
       c[0] = atof(buf+30);
       c[1] = atof(buf+38);
