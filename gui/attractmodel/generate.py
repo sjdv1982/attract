@@ -26,7 +26,7 @@ supported_moleculetype_interactions = (
   ("Protein", "DNA"),
   ("Protein", "RNA"),
 )  
-
+    
 def generate(m):     
   ret = "#!/bin/bash -i\n"
   cleanupfiles = []
@@ -89,7 +89,7 @@ fi
   else:
     separate_aa_pdb = False
     for p in m.partners:
-      if not m.generate_modes: continue
+      if not p.generate_modes: continue
       if m.aacontact_modes or p.moleculetype in ("DNA","RNA"):
         separate_aa_pdb = True
         break
@@ -431,30 +431,35 @@ name=%s
     ps_score = ps + " --restweight %s"  % (str(m.restraints_score_weight))
     scoreparams += ps_score
         
-  for sym in m.symmetries:        
+  for sym in m.symmetries:
     if sym.symmetry_axis is None: #distance-restrained symmetry      
       symcode = len(sym.partners)
       if sym.symmetry == "Dx": symcode = -4
       partners = " ".join([str(v) for v in sym.partners])
-      params += " --sym %d %s" % (symcode, partners)
+      p = " --sym %d %s" % (symcode, partners)
+      params += p
+      scoreparams += p
     else: #generative symmetry
       symcode = sym.symmetry_fold
       partner = sym.partners[0]
       s = sym.symmetry_axis
       sym_axis = "%.3f %.3f %.3f" % (s.x, s.y, s.z)
       s = sym.symmetry_origin
+      if s is None: s = Coordinate(0,0,0)
       sym_origin = "%.3f %.3f %.3f" % (s.x, s.y, s.z)      
-      params += " --axsym %d %d %s %s" % (partner, symcode, sym_axis, sym_origin)
+      p = " --axsym %d %d %s %s" % (partner, symcode, sym_axis, sym_origin)
+      params += p
+      scoreparams += p
   paramsprep = params.replace("--fix-receptor","").replace("--ghost-ligands","").replace("--ghost","").replace("--rest "+position_restraints_file,"").replace("  ", " ") + " --ghost"
-  params += "\""
+  
   paramsprep += "\""
-  scoreparams += "\""  
-  ret += """
-#docking parameters
-params=%s
-paramsprep=%s
-scoreparams=%s
-"""  % (params, paramsprep, scoreparams)
+  params += "\""  
+  scoreparams += "\""    
+  
+  ret += "\n#docking parameters\n"
+  if m.iterations is not None and any([it.prep for it in m.iterations]):
+    ret += "paramsprep=%s\n" % paramsprep
+  ret += "params=%s\nscoreparams=%s\n" % (params, scoreparams)
   if len(gridparams):
     ret += """
 #grid parameters
@@ -579,7 +584,25 @@ echo '**************************************************************'
       ret += "python $ATTRACTTOOLS/air.py %s %s %s > %s\n" % (" ".join(air_filenames), chance_removal, dist, k)
       rest += "--rest %s" % haddock_restraints_filename
 
-  
+  if m.harmonic_restraints_file or m.haddock_restraints_file or m.position_restraints_file:
+    tbl_pdbs = " ".join(filenames)
+    tbl_mappings = " ".join(mappings)
+    
+    axcopies = {}
+    for n in range(len(m.symmetries)):
+      ax = m.symmetries[n]
+      if ax.symmetry_axis is None: continue    
+      copies = ax.symmetry_fold
+      copies_done = 1
+      molecule = ax.partners[0]
+      if molecule in axcopies: 
+        copies *= axcopies[molecule]
+        copies_done *= axcopies[molecule]      
+      axcopies[molecule] = copies        
+      for n in range(copies_done, copies):
+        tbl_pdbs  += " " + filenames[molecule-1]
+        tbl_mappings += " " + mappings[molecule-1]     
+    
   if m.harmonic_restraints_file:
     ret += """
 echo '**************************************************************'
@@ -587,9 +610,6 @@ echo 'Generate harmonic restraints...'
 echo '**************************************************************'
 """
     tbl = m.harmonic_restraints_file.name
-    tbl_pdbs = " ".join(filenames)
-    tbl_mappings = " ".join(mappings)
-      
     ret += "python $ATTRACTTOOLS/tbl2attract.py %s --mode harmonic --pdbs %s --mappings %s --k %s > %s\n" % \
       (tbl, tbl_pdbs, tbl_mappings, m.rstk_harmonic, harmonic_restraints_file)    
 
@@ -599,10 +619,7 @@ echo '**************************************************************'
 echo 'Generate custom HADDOCK restraints...'
 echo '**************************************************************'
 """
-    tbl = m.haddock_restraints_file.name
-    tbl_pdbs = " ".join(filenames)
-    tbl_mappings = " ".join(mappings)
-      
+    tbl = m.haddock_restraints_file.name      
     ret += "python $ATTRACTTOOLS/tbl2attract.py %s --mode haddock --pdbs %s --mappings %s --k %s --softsquare %s --chance_removal %s > %s\n" % \
       (tbl, tbl_pdbs, tbl_mappings, m.rstk_haddock, m.haddock_softsquare, m.haddock_random_removal,haddock_restraints_file)    
 
@@ -613,9 +630,6 @@ echo 'Generate position restraints...'
 echo '**************************************************************'
 """
     tbl = m.position_restraints_file.name
-    tbl_pdbs = " ".join(filenames)
-    tbl_mappings = " ".join(mappings)
-      
     ret += "python $ATTRACTTOOLS/tbl2attract.py %s --mode position --pdbs %s --mappings %s --k %s > %s\n" % \
       (tbl, tbl_pdbs, tbl_mappings, m.rstk_position, position_restraints_file)    
     
@@ -655,8 +669,10 @@ echo '**************************************************************'
 """    
     fixre = ""
     if m.fix_receptor: fixre = " --fix-receptor"
-    ret += "python $ATTRACTTOOLS/randsearch.py %d %d%s > randsearch.dat\n" % \
-     (len(m.partners), m.structures, fixre)
+    radius = ""
+    if m.randsearch_radius != 35: radius = " --radius %s" % m.randsearch_radius
+    ret += "python $ATTRACTTOOLS/randsearch.py %d %d%s%s > randsearch.dat\n" % \
+     (len(m.partners), m.structures, fixre, radius)
     ret += "start=randsearch.dat\n"    
     start = "randsearch.dat"
   else:
@@ -716,7 +732,16 @@ echo '**************************************************************'
       tail += " --shm"
     direc = ">"
     for fnr in range(len(filenames)):
-      if fnr == partner: continue
+      ok = True
+      if fnr == partner: 
+        ok = False
+        for sym in m.symmetries:
+          if sym.symmetry_axis is None: continue
+          if sym.partners[0] == fnr + 1:
+            ok = True
+            break
+      if not ok:
+        continue
       ret += "awk '{print substr($0,58,2)}' %s | sort -nu %s %s.alphabet\n" % (filenames[fnr], direc, g.gridname.strip())
       direc = ">>"
     tail += " --alphabet %s.alphabet" % g.gridname.strip()  

@@ -1,6 +1,8 @@
 """
 Calculate Gradient Vector Matching (GVM) score
 usage: python gvm.py <SITUS map> <gradient threshold> <ATTRACT DAT file>  <ATTRACT-compatible PDB file()>\
+gradient threshold describes the minimum difference in Daltons between two neighboring voxels of 5A
+If your map has smaller voxel size, the threshold is automatically scaled down, but no lower than 2 Da
 """
 import sys, os, copy
 import multiprocessing
@@ -97,6 +99,8 @@ if __name__ == "__main__":
     assert os.path.exists(pdbfile), pdbfile
   
   emdata, gridspacing, origin = read_situs(emfile)
+  threshold = threshold / 125.0 * gridspacing**3 
+  if threshold < 2.0: threshold = 2.0
 
   emgradx = scipy.ndimage.filters.prewitt(emdata, axis=0, mode="constant")[1:-1,1:-1,1:-1]
   emgrady = scipy.ndimage.filters.prewitt(emdata, axis=1, mode="constant")[1:-1,1:-1,1:-1]

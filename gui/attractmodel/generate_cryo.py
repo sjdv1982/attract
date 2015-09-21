@@ -161,7 +161,7 @@ set -u -e
   if m.mapmass is None:
     ret += "mapmass=`python $ATTRACTTOOLS/mass.py $complex`\n"
   else:
-    ret += "mapmass=%s" % m.mapmass
+    ret += "mapmass=%s\n" % m.mapmass
   ret += "python $ATTRACTTOOLS/em/mapsumset-smart.py $mapfile0 $mapfile $mapmass\n" 
   ret += "mask1=map-scale-mask1.mask\n"
   ret += "mask2=map-scale-mask2.mask\n"
@@ -196,7 +196,7 @@ set -u -e
     dock_stage = " --atomdensitymask \'$mask2\' %s --mc --mcscalerot %s --mcscalecenter %s --mcmax %s" % \
      (m.maskweight[n], m.mcscalerot[n]*fr, m.mcscalecenter[n]*fc, m.mcmax[n])
     dock_stage_min = " --atomdensitymask \'$mask2\' %s" % m.maskweight[n]
-    if m.restraints_file:
+    if m.harmonic_restraints_file:
       t = rest + " --restweight %s" % restweights[n]
       dock_stage += t
       dock_stage_min += t
@@ -209,10 +209,9 @@ set -u -e
   ret += "dock_stage3=\'%s\'\n" % dock_stages[2]
   ret += "dock_stage4=\'%s\'\n" % dock_stages[3]
   ret += "dock_stage5=\'%s\'\n" % dock_stages[4]
-  if len(m.partners) > 1:
-    ret += "dock_stage2_min=\'%s\'\n" % dock_stages_min[0]
-    ret += "dock_stage3_min=\'%s\'\n" % dock_stages_min[1]
-    ret += "dock_stage4_min=\'%s\'\n" % dock_stages_min[2]
+  ret += "dock_stage2_min=\'%s\'\n" % dock_stages_min[0]
+  ret += "dock_stage3_min=\'%s\'\n" % dock_stages_min[1]
+  ret += "dock_stage4_min=\'%s\'\n" % dock_stages_min[2]
   
   clonefac = m.nstruc/m.ntop
   if len(m.partners) == 1:
@@ -225,7 +224,9 @@ set -u -e
   ret += "clone2=%s\n" % clone2
   fast = ""
   if len(m.partners) > 1: fast = " --fast"
-  ret += "\nif [ ! -s randsearch.dat ]; then\n python $ATTRACTTOOLS/randsearch.py %d $nstruc%s > randsearch.dat\nfi\n"  % (len(m.partners), fast)
+  radius = ""
+  if m.randsearch_radius != 35: radius = " --radius %s" % m.randsearch_radius  
+  ret += "\nif [ ! -s randsearch.dat ]; then\n python $ATTRACTTOOLS/randsearch.py %d $nstruc%s%s > randsearch.dat\nfi\n"  % (len(m.partners), fast, radius)
   ret += "inp=randsearch.dat\n\n"
 
   runs = m.tabu + 1
