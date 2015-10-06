@@ -51,6 +51,7 @@ from rmsdlib import read_pdb
 pdbs = []
 for p in args.pdbs:
   pdbs.append(read_pdb(p))
+  
 
 resmaps = []
 for m in args.mappings:
