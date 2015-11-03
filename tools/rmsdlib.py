@@ -1,4 +1,5 @@
 import os
+import sys
 
 class Atom(object):
   def __init__(self , l):
@@ -204,6 +205,7 @@ def _build_resfilters(pdbs):
 
 def build_interfacemask(pdbs, cutoff):
   import numpy
+  cutoff=float(cutoff)
   cutoffsq = cutoff*cutoff
   
   pp = _build_resfilters(pdbs)
