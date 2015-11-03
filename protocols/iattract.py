@@ -94,7 +94,7 @@ def prepare_input(topology,start,ligands,current,name,coor,ligandrange,ligandato
     
     if check:
       return ('flexm-'+current+name+'.dat',restraints)
-    
+  
   if otf:
     imodes.make(ligands,ligandatoms,current+name,ligandrange,coor,icut,ensemblefiles,modefile,imodefile,noflex)
     
@@ -105,8 +105,7 @@ def prepare_input(topology,start,ligands,current,name,coor,ligandrange,ligandato
       
     return ('flexm-'+name+'.dat',restraints)
   
-  
-    
+   
   if len(noflex) == len(ligands):
     return ("",[])
   
@@ -158,6 +157,14 @@ def run_docking(datain):
     ensemblefiles = []
     modefile = None
     ligands = [item for item in args if '.pdb' in item]
+    if len(ligands) > 2:
+      newargs = []
+      for i, item in enumerate(args):
+	if not item in ligands:
+	  newargs.append(item)
+
+      args = newargs[:1]+['partners-aa.pdb']+newargs[1:]
+      
     for i, item in enumerate(args):
       if item == '--ens':
 	ensemblefiles.append((args[i+1],args[i+2]))
@@ -346,6 +353,13 @@ if __name__ == "__main__":
 	  
     else:
       neighbortree.make(u)
+   
+  if len(ligands) > 2:
+    os.system('echo '+str(len(ligands))+' > partners-aa.pdb')
+    for l in ligands:
+      os.system('cat '+l+' >> partners-aa.pdb')
+      os.system('echo TER >> partners-aa.pdb')
+
   #check if interface lists have been provided and generate global imodes and restraints files from them
   if '--ilist' in args:
     otf = False
@@ -429,7 +443,14 @@ if __name__ == "__main__":
     o.close()
     score = ""
     if scoremode:
-      score = "--score"  
+      score = "--score" 
+    #check all files if they contain correct structures
+    for i in range(1,int(chunks)+1):
+      data = open(pat2+'-'+str(i)).readlines()
+      if not len(data) or not len(data[-1]) > 6:
+	com = "cp %s-%d %s-%d" % (pat,i,pat2,i)
+	run(com)
+	
     com = "python %s/join.py %s %s >> %s" % (tooldir, pat2, score, output) 
     run(com)
   finally:

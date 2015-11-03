@@ -96,6 +96,19 @@ Type AttractEasyModel {
     'If you define HADDOCK restraints, you must do so for both two partners'  
   }
   
+  #***Custom distance restraints***
+  *ResourceData_CNS_Restraints harmonic_restraints_file
+  ## form harmonic_restraints_file.type = "file"  
+  *ResourceData_CNS_Restraints position_restraints_file  
+  ## form position_restraints_file.type = "file"  
+  form {
+    harmonic_restraints_file.group = "Custom distance restraints"
+    position_restraints_file.group = "Custom distance restraints"
+
+    harmonic_restraints_file.name = "Harmonic distance restraints file (CNS/HADDOCK .tbl format)"
+    position_restraints_file.name = "Position restraints file (CNS/HADDOCK .tbl format)"
+
+  }
 
   #***Energy and interaction parameters***
   Bool use_grids = True

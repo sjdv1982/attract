@@ -1,3 +1,8 @@
+"""
+Generates an ATTRACT .rest file from a list of HADDOCK-style active and passive residues
+Author: Sjoerd de Vries
+"""
+
 import sys
 
 if len(sys.argv) not in (9,10,11,12):
@@ -26,7 +31,10 @@ def load_map(mapfile):
   for l in open(mapfile).readlines():
     if not len(l.strip()): continue
     ll = l.split()
-    ret[ll[0]] = int(ll[1])
+    try:
+      ret[ll[0]] = int(ll[1])
+    except:
+      raise ValueError(l)
   return ret
     
 act1 = [l.strip() for l in open(sys.argv[1]).readlines()]
@@ -47,36 +55,36 @@ actpass1 = []
 for a in act1a+pass1a:
   actpass1 += pdb1[a]
 print "A_actpass", len(actpass1),
-for nr in actpass1: print nr,
+for nr in sorted(actpass1): print nr,
 print
 
 actpass2 = []
 for a in act2a+pass2a:
   actpass2 += pdb2[a]
 print "B_actpass", len(actpass2),
-for nr in actpass2: print nr+pdb1len,
+for nr in sorted(actpass2): print nr+pdb1len,
 print
   
 for r in act1:
   nrs = pdb1[map1[r]]
   print "A_"+names1[map1[r]]+r,len(nrs),
-  for nr in nrs: print nr,
+  for nr in sorted(nrs): print nr,
   print
 for r in act2:
   nrs = pdb2[map2[r]]
   print "B_"+names2[map2[r]]+r,len(nrs),
-  for nr in nrs: print nr+pdb1len,
+  for nr in sorted(nrs): print nr+pdb1len,
   print
 
 print
 
-noecv = 0.5
+chance_removal = 0.5
 dist = 2.0
 k = 1.0 
-if len(sys.argv) >= 10: noecv = float(sys.argv[9])
+if len(sys.argv) >= 10: chance_removal = float(sys.argv[9])
 if len(sys.argv) >= 11: dist = float(sys.argv[10])
 if len(sys.argv) >= 12: k = float(sys.argv[11])
-params = 2, dist, k, dist, noecv
+params = 2, dist, k, dist, chance_removal
 
 
 for r in act1:

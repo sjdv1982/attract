@@ -6,6 +6,8 @@ def easy2model(emodel):
   use_haddock = False
   has_peptide = False
   has_na = False
+  if emodel.harmonic_restraints_file is not None:
+    use_haddock = True  
   for i,p in enumerate(emodel.partners):
     partner_use_flex = False
     pp = AttractPartnerInterface.empty()
@@ -86,7 +88,8 @@ def easy2model(emodel):
     ]
    
   gravity = 2
-  if use_haddock: gravity = 0
+  if use_haddock or emodel.position_restraints_file is not None:
+    gravity = 0
   if not has_peptide and not has_na: gravity = 0
   rmsd_atoms = "backbone"
   if has_na: 
@@ -115,7 +118,7 @@ def easy2model(emodel):
   )  
   if has_peptide:
     newmodel.demode = False
-  if has_peptide or has_na or use_haddock:
+  if has_peptide or has_na or use_haddock or emodel.position_restraints_file is not None:
     newmodel.search = "random"
     if has_na:
       newmodel.structures= 200000
@@ -129,5 +132,9 @@ def easy2model(emodel):
     if has_peptide:
       iattract.icut= 5.0      
     newmodel.iattract = iattract
-    newmodel.validate()
+  
+  newmodel.harmonic_restraints_file = emodel.harmonic_restraints_file
+  newmodel.position_restraints_file = emodel.position_restraints_file
+  
+  newmodel.validate()
   return newmodel

@@ -141,6 +141,8 @@ struct Restraint {
   double par3;
   double par4;
   double par5;
+  double par6;
+  char position_type; //3-bit mask for xyz
   int maxindex;
 };
 

@@ -21,7 +21,7 @@ Type CryoPartnerInterface {
 Type AxSymmetry {
   Integer molecule
   Integer fold
-  Vector axis
+  DVector axis
   validate {
     assert molecule > 0
     assert fold > 0
@@ -71,8 +71,8 @@ Type CryoInterface {
     maskweight.group = g
   }
   
-  *ResourceData_ATTRACT_Restraints restraints_file
-  ## form restraints_file.type = "file"
+  *ResourceData_CNS_Restraints harmonic_restraints_file
+  ##form harmonic_restraints_file.type = "file"
   Integer tabu = 0
   Enum score_method("gvm", "corr") = "gvm"
   Float score_threshold = 10.0  
@@ -86,11 +86,12 @@ Type CryoInterface {
   FloatArray mcscalerot[4] = (0.5,0.25,0.1,0.1)
   FloatArray mcscalecenter[4] = (0.5,0.25,0.1,0.1)
   FloatArray mcmax[4] = (250,250,250,250)
+  Float randsearch_radius = 35
   Bool gravity = False #only in first stage
   Float rstk = 0.1 #only in first stage
   form {
     g = "Sampling"
-    restraints_file.group = g
+    harmonic_restraints_file.group = g
     score_method.group = g
     score_threshold.group = g
     nstruc.group = g
@@ -103,6 +104,7 @@ Type CryoInterface {
     mcscalerot.group = g
     mcscalecenter.group = g
     mcmax.group = g
+    randsearch_radius.group = g
     gravity.group = g
     rstk.group = g
   }
