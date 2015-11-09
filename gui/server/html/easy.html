@@ -33,9 +33,10 @@
             <nav id="form-category-navigation" class="row">
               <ul>
                 <li id="view-page1"><a id="nav-block-partners" class="puzzle-icon">Partners</a></li>
-                <li id="view-page2"><a id="nav-block-energy" class="energy-icon">Energy and Interaction</a></li>
-                <li id="view-page3"><a id="nav-block-analysis" class="analysis-icon">Analysis</a></li>
-                <li id="view-page4"><a id="nav-block-computation" class="computation-icon">Computation</a></li>
+                <li id="view-page2"><a id="nav-block-sampling" class="sampling-icon">Sampling</a></li>
+                <li id="view-page3"><a id="nav-block-energy" class="energy-icon">Energy and Interaction</a></li>                
+                <li id="view-page4"><a id="nav-block-analysis" class="analysis-icon">Analysis</a></li>
+                <li id="view-page5"><a id="nav-block-computation" class="computation-icon">Computation</a></li>
               </ul>
             </nav>
             
@@ -265,6 +266,53 @@
 
               <div id="page2" class="category-container">
                 <div class="form-category-description">
+                  <div class="large-icon sampling-icon"></div>
+                  <div class="description">
+                    <h2>Custom distance restraints</h2>
+                    <p></p>
+                  </div>
+                </div>
+
+                <!-- UI CONTAINER FOR FORM ELEMENTS OF A CATEGORY SELECTED IN CATEGORY NAVIGATION MENU -->
+                <div class="form-category">
+
+                  <div id="block-sampling-0" class="level1 active always-active">
+
+                    <div class="controls">
+                      <div class="title"><h4>Custom distance restraints</h4></div>
+                      <div class="button reload-icon reload-form-block"><div class="controls-tooltip"><p>Restore default values</p></div></div>
+                    </div>
+
+                    <div class="level1-container">
+
+                      <div class="level2">
+
+                        <div class="group-container">
+
+
+                          <div class="field-container">
+                            <div class="title"><p>Harmonic distance restraints file (CNS/HADDOCK .tbl format)</p></div>
+                            <div class="field-item file align-right">
+                              <input type="file" name="harmonic_restraints_file" id="harmonic_restraints_file">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Position restraints file (CNS/HADDOCK .tbl format)</p></div>
+                            <div class="field-item file align-right">
+                              <input type="file" name="position_restraints_file" id="position_restraints_file">
+                            </div>
+                          </div>
+                        </div> <!-- END: group-container -->
+                      </div> <!-- END: level2 -->
+                    </div><!-- END: level1-container -->
+                  </div><!-- END: level1 -->
+
+                </div><!-- END: UI container -->
+              </div>
+
+              <div id="page3" class="category-container">
+                <div class="form-category-description">
                   <div class="large-icon energy-icon"></div>
                   <div class="description">
                     <h2>Energy and Interaction</h2>
@@ -310,7 +358,7 @@
                 </div><!-- END: UI container -->
               </div>
 
-              <div id="page3" class="category-container">
+              <div id="page4" class="category-container">
                 <div class="form-category-description">
                   <div class="large-icon analysis-icon"></div>
                   <div class="description">
@@ -374,7 +422,7 @@
                 </div><!-- END: UI container -->
               </div>
 
-              <div id="page4" class="category-container">
+              <div id="page5" class="category-container">
                 <div class="form-category-description">
                   <div class="large-icon computation-icon"></div>
                   <div class="description">

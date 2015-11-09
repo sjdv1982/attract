@@ -315,7 +315,7 @@
                         <div class="group-container">
 
                           <div class="field-container">
-                            <div class="title"><h3>Definition of residues for HADDOCK-type distance restraints (optional)</h3></div>
+                            <div class="title"><h3>Definition of residues for HADDOCK AIR restraints (optional)</h3></div>
                           </div>
                           <div class="group-inline clearfix">
                             <div class="field-container">
@@ -668,6 +668,13 @@
                               <input type="number" name="structures" id="structures" value = "10000">
                             </div>
                           </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Initial distance from center (radius) for random search</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="randsearch_radius" id="randsearch_radius" value = "35.0">
+                            </div>
+                          </div>
                           <div class="field-container">
                             <div class="title"><p>Custom search files<br>For a custom search, supply a starting structures file, OR: rotations and/or translations files</p></div>
                           </div>
@@ -695,16 +702,33 @@
                               <input type="file" name="translations_file" id="translations_file">
                             </div>
                           </div>
+                          <div class="field-container">
+                            <div class="title"><p>Distance restraints files</p></div>
+                          </div>
 
                           <div class="field-container">
-                            <div class="title"><p>Distance restraints file (ATTRACT format)</p></div>
+                            <div class="title"><p>Harmonic distance restraints file (CNS/HADDOCK .tbl format)</p></div>
                             <div class="field-item file align-right">
-                              <input type="file" name="restraints_file" id="restraints_file">
+                              <input type="file" name="harmonic_restraints_file" id="harmonic_restraints_file">
                             </div>
                           </div>
 
                           <div class="field-container">
-                            <div class="title"><p>weight of distance restraints during scoring</p></div>
+                            <div class="title"><p>HADDOCK distance restraints file (CNS/HADDOCK .tbl format)</p></div>
+                            <div class="field-item file align-right">
+                              <input type="file" name="haddock_restraints_file" id="haddock_restraints_file">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Position restraints file (CNS/HADDOCK .tbl format)</p></div>
+                            <div class="field-item file align-right">
+                              <input type="file" name="position_restraints_file" id="position_restraints_file">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Weight of all distance restraints during scoring</p></div>
                             <div class="field-item number align-right">
                               <input type="number" name="restraints_score_weight" id="restraints_score_weight" value = "0.01">
                             </div>
@@ -794,7 +818,7 @@
                             </div>
                           </div>
                           <div class="field-container">
-                            <div class="title"><p>External tool for PDB completion and hydrogens<br>NOTE: PDB2PQR, AMBER and CNS require a local installation<br>NOTE: PDB2PQR only completes proteins; WHATIF is used for nucleic acids</p></div>
+                            <div class="title"><p>External tool for PDB completion and hydrogens<br>NOTE: PDB2PQR requires a local installation<br>NOTE: PDB2PQR only completes proteins; WHATIF is used for nucleic acids</p></div>
                           </div>
 
                           <div class="field-container">
@@ -803,16 +827,49 @@
                               <select name="completion_tool" id="completion_tool">
                                 <option value="whatif">WHATIF web server</option>
                                 <option value="pdb2pqr_whatif" selected>PDB2PQR</option>
-                                <option value="amber">AMBER</option>
-                                <option value="cns">CNS</option>
                               </select>
                             </div>
                           </div>
 
                           <div class="field-container">
-                            <div class="title"><p>Restraining force constant</p></div>
+                            <div class="title"><p>Restraining force constant for gravity and non-generative symmetry</p></div>
                             <div class="field-item number align-right">
-                              <input type="number" name="rstk" id="rstk" value = "0.01">
+                              <input type="number" name="rstk_dof" id="rstk_dof" value = "0.01">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Restraining force constant for harmonic distance restraints</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="rstk_harmonic" id="rstk_harmonic" value = "10.0">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Restraining force constant for AIRs and custom HADDOCK restraints</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="rstk_haddock" id="rstk_haddock" value = "1.0">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Fraction of AIRs and HADDOCK restraints removed at random</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="haddock_random_removal" id="haddock_random_removal" value = "0.5">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Soft-square parameter (maximum violation after which the force becomes linear) for custom HADDOCK restraints</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="haddock_softsquare" id="haddock_softsquare" value = "2.0">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Restraining force constant for position restraints</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="rstk_position" id="rstk_position" value = "10.0">
                             </div>
                           </div>
                           <div class="field-container">
@@ -1007,7 +1064,7 @@
                             <div class="field-container">
                               <div class="title"><p>X</p></div>
                               <div class="field-item number align-right">
-                                <input type="number" name="symmetries-0-symmetry_axis-x" id="symmetries-0-symmetry_axis-x" value = "0.0">
+                                <input type="number" name="symmetries-0-symmetry_axis-x" id="symmetries-0-symmetry_axis-x" value = "0.0" min="-1.00000" max="1.00000">
                               </div>
                             </div>
 
@@ -1024,7 +1081,7 @@
                             <div class="field-container">
                               <div class="title"><p>Y</p></div>
                               <div class="field-item number align-right">
-                                <input type="number" name="symmetries-0-symmetry_axis-y" id="symmetries-0-symmetry_axis-y" value = "0.0">
+                                <input type="number" name="symmetries-0-symmetry_axis-y" id="symmetries-0-symmetry_axis-y" value = "0.0" min="-1.00000" max="1.00000">
                               </div>
                             </div>
 
@@ -1041,7 +1098,7 @@
                             <div class="field-container">
                               <div class="title"><p>Z</p></div>
                               <div class="field-item number align-right">
-                                <input type="number" name="symmetries-0-symmetry_axis-z" id="symmetries-0-symmetry_axis-z" value = "0.0">
+                                <input type="number" name="symmetries-0-symmetry_axis-z" id="symmetries-0-symmetry_axis-z" value = "0.0" min="-1.00000" max="1.00000">
                               </div>
                             </div>
 
