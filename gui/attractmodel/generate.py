@@ -582,7 +582,7 @@ echo '**************************************************************'
       chance_removal = m.haddock_random_removal
       k = m.rstk_haddock
       ret += "python $ATTRACTTOOLS/air.py %s %s %s > %s\n" % (" ".join(air_filenames), chance_removal, dist, k)
-      rest += "--rest %s" % haddock_restraints_filename
+      rest += "--rest %s" % haddock_restraints_file
 
   if m.harmonic_restraints_file or m.haddock_restraints_file or m.position_restraints_file:
     tbl_pdbs = " ".join(filenames)
