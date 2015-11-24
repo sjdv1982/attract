@@ -579,10 +579,10 @@ echo '**************************************************************'
           
       dist = 2.0
       if m.forcefield == "ATTRACT": dist = 3.0
-      removal = m.haddock_random_removal
+      chance_removal = m.haddock_random_removal
       k = m.rstk_haddock
-      ret += "python $ATTRACTTOOLS/air.py %s %s %s > %s\n" % (" ".join(air_filenames), chance_removal, dist, k)
-      rest += "--rest %s" % haddock_restraints_filename
+      ret += "python $ATTRACTTOOLS/air.py %s %s %s %s > %s\n" % (" ".join(air_filenames), chance_removal, dist, k, air_restraints_file)
+      rest += "--rest %s" % air_restraints_file
 
   if m.harmonic_restraints_file or m.haddock_restraints_file or m.position_restraints_file:
     tbl_pdbs = " ".join(filenames)

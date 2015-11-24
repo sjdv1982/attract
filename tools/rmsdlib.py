@@ -124,9 +124,8 @@ def read_multi_pdb(f):
     elif l.startswith("ENDMDL") and not endmodel:      
       endmodel = True      
       yield pdbs      
-    else:
-      endmodel = False  
     if not l.startswith("ATOM"): continue
+    endmodel = False  
     a = Atom(l)
     p._add_atom(a)      
   if not endmodel: yield pdbs

@@ -202,7 +202,7 @@ extern "C" void read_hm_(const char *hmfile_, const char *hmword_, const int &nl
     exit(1);
   }
   
-  
+  fclose(fil);
 }
 
 extern "C" void read_indexmode_(const char *hmfile_, const char *hmword_, const int &nlig, int *nhm, int *eigl, double *val_eigl, const int &multi, int hmfile_len, int hmword_len) {
@@ -362,5 +362,5 @@ extern "C" void read_indexmode_(const char *hmfile_, const char *hmword_, const 
     exit(1);
   }
 
-
+  fclose(fil);
 }

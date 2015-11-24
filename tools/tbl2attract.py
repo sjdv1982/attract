@@ -51,6 +51,7 @@ from rmsdlib import read_pdb
 pdbs = []
 for p in args.pdbs:
   pdbs.append(read_pdb(p))
+  
 
 resmaps = []
 for m in args.mappings:
@@ -281,11 +282,15 @@ for a in ast:
     assert len(assign) == 2  
     for aa in assign:
       assert isinstance(aa, dict), "Malformed assign statement"
-      maskindex = evaluate_assign(aa)    
+      maskindex = evaluate_assign(aa) 
+      #print aa, maskindex
       rest.maskindices.append(maskindex)
   restraints.append(rest)
   
 for mnr, m in enumerate(masks):
+  if not sum(m):
+    raise ValueError("No atoms found for restraint %d" %mnr)
+  
   print "selection%d" % (mnr+1),  
   print sum(m),
   for mm in numpy.where(m>0)[0]: print mm+1,

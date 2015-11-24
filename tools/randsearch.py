@@ -47,7 +47,7 @@ except ValueError:
 try:
   assert len(sys.argv) in (3, 4)
   bodies = int(sys.argv[1])
-  assert bodies > 0 and bodies < 1000, bodies
+  assert bodies > 0 and bodies <= 1000, bodies
   structures = int(sys.argv[2])
   assert structures > 0, structures
   seed = 1

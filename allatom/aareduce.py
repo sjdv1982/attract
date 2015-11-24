@@ -470,10 +470,8 @@ if args.batch:
       print >> outf, l  
     outf.close()
     if args.dumppatch:
-      outfile = os.path.splitext(args.pdb)[0] + ".patch"
-      if args.output is not None: 
-        outfile = os.path.splitext(args.output)[0] + ".patch"
-      outf = open(outfile, "w")
+      outfilep = os.path.splitext(outfile)[0] + ".patch"
+      outf = open(outfilep, "w")
       for i,res in enumerate(pdbtop): 
         if len(res.topology.patches):
 	  for p in res.topology.patches:
@@ -491,10 +489,8 @@ else:
     print v1, v2  
   outf.close()
   if args.dumppatch:
-    outfile = os.path.splitext(args.pdb)[0] + "-aa.patch"
-    if args.output is not None: 
-      outfile = os.path.splitext(args.output)[0] + ".patch"
-    outf = open(outfile, "w")
+    outfilep = os.path.splitext(outfile)[0] + ".patch"
+    outf = open(outfilep, "w")
     for i,res in enumerate(pdbtop): 
       if len(res.topology.patches):
 	for p in res.topology.patches:
