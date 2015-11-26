@@ -53,6 +53,12 @@ while 1:
     anr -= 1
     continue
     
+  if arg == "--cap": 
+    sys.argv = sys.argv[:anr] + sys.argv[anr+1:]
+    atomnames = ("P","CA",)
+    anr -= 1
+    continue  
+       
   if anr <= len(sys.argv)-2 and arg == "--output":
     output = sys.argv[anr+1]
     sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
