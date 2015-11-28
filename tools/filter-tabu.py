@@ -10,7 +10,10 @@ def read_rmsd(rmsd_file):
   for l in open(rmsd_file).readlines():
     ll = l.split()
     if ll[0] != "RMSD": continue
-    rmsds.append([float(v) for v in ll[2:]])
+    if len(ll) == 2:
+      rmsds.append([float(ll[1])])
+    else:  
+      rmsds.append([float(v) for v in ll[2:]])
   return rmsds  
 
 all_rmsds = []
