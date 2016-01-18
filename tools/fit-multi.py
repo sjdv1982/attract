@@ -145,7 +145,7 @@ def run(runarg):
   if args.rmsd:
     return rmsd
   else:  
-    pivot = numpy.sum(atoms2,axis=0) / float(len(atoms2))
+    pivot = numpy.sum(atoms2_fit,axis=0) / float(len(atoms2_fit))
     fitted_atoms = apply_matrix(atoms2, pivot, rotmat, offset)
     write_pdb(outputfile, lines2, fitted_atoms, extralines2)
 
