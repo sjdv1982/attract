@@ -22,7 +22,7 @@ c     parameters
       rotmat(4) = cs+rr(2)*rr(2)*cm
       rotmat(5) =  r2r3*cm-rr(1)*ss
 
-      rotmat(6) = -r1r3*cm-rr(2)*ss
+      rotmat(6) = r1r3*cm-rr(2)*ss
       rotmat(7) = r2r3*cm+rr(1)*ss
       rotmat(8) = cs+rr(3)*rr(3)*cm
 
