@@ -184,16 +184,20 @@ while 1:
   coor = collectlib.collect_all_coor()
   coor = numpy.compress(unbound_hmask, coor, axis=0)
   fcoor = numpy.compress(selmask, coor, axis=0)
-  U = rmsdlib.fit(fboundatoms,fcoor)[0]
+  U = rmsdlib.fit(fcoor,fboundatoms)[0]
   rotfcoor = numpy.array([],ndmin=2)
+  L = len(fcoor)
+  COM1 = numpy.sum(fcoor,axis=0) / float(L)
+  COM2 = numpy.sum(fboundatoms,axis=0) / float(L)
   for c in fcoor:
-    rotfcoor = numpy.append(rotfcoor,U.dot(c))
+    rotfcoor = numpy.append(rotfcoor,U.dot(c-COM1))
   
   rotfcoor = numpy.reshape(rotfcoor,(-1,3))
   f1.write(str(nstruc))
   for start, end in ligandselmask:
     sel1 = rotfcoor[start:end]
     sel2 = fboundatoms[start:end]
+    sel2 = sel2-COM2
     irmsd = rmsdlib.rmsd(sel1,sel2)
     f1.write(" %.3f" % irmsd)
     
