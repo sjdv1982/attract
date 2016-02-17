@@ -63,12 +63,6 @@ while 1:
     anr -= 3
     continue
 
-  if anr <= len(sys.argv)-2 and arg == "--cutoff":
-    thresh = sys.argv[anr+1]
-    sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
-    anr -= 2
-    continue
-
   if anr <= len(sys.argv)-2 and arg == "--modes":
     modefile = sys.argv[anr+1]
     sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
@@ -88,7 +82,7 @@ while 1:
     anr -= 2
     continue
   
-  if anr <= len(sys.argv)-2 and arg == "--thresh":
+  if anr <= len(sys.argv)-2 and arg == "--cutoff":
     thresh = float(sys.argv[anr+1])
     sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
     anr -= 2

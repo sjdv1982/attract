@@ -1,6 +1,8 @@
 """
-Calculate interface RMSD from a multi-model PDB
-usage: python irmsd.py 
+Print interface atoms in a multi-model PDB
+Prints all atoms in the PDB that are in the interface of the reference
+usage: python print-interface.py <pdb file> refeA.pdb refeB.pdb \
+
  [--allatoms] [--allresidues] [--output <file>] [--cutoff <interface cutoff, default 10>]
 
 --allatoms: use all atoms rather than backbone atoms
@@ -53,12 +55,6 @@ while 1:
     anr -= 1
     continue
     
-  if arg == "--cap": 
-    sys.argv = sys.argv[:anr] + sys.argv[anr+1:]
-    atomnames = ("P","CA",)
-    anr -= 1
-    continue  
-       
   if anr <= len(sys.argv)-2 and arg == "--output":
     output = sys.argv[anr+1]
     sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
@@ -101,28 +97,30 @@ if not opt_allatoms:
   amask = rmsdlib.build_atommask(bounds, atomnames)
   selmask = (selmask & amask)
 
-fboundatoms = allboundatoms[selmask]
-
-nstruc = 0
+ligandmasks = []
+currentligand = 0
+boundsizes = [len(list(p.atoms())) for p in bounds]
+for s in boundsizes:
+  ligandmask = selmask[currentligand:currentligand+s]
+  ligandmasks.append(ligandmask)
+  currentligand += s
+  
 f1 = sys.stdout
 if output is not None:
   f1 = open(output,'w')
 
-for unbounds in rmsdlib.read_multi_pdb(sys.argv[1]):
-  coor = []  
-  for p in unbounds: 
+for strucnr, unbounds in enumerate(rmsdlib.read_multi_pdb(sys.argv[1])):
+  assert len(unbounds) == len(bounds), (strucnr+1, len(unbounds))
+  f1.write("MODEL %d\n" % (strucnr+1))  
+  for pnr, p in enumerate(unbounds): 
     p.remove_hydrogens()
-    for c in p.coordinates():
-      coor.append(c)
-  coor = numpy.array(coor)
-  
-  if len(coor) == 0:
-    nstruc += 1
-    f1.write(str(nstruc)+" None\n")
-    continue
-  
-  rmsdlib.check_pdbs(unbounds, bounds)
-  nstruc += 1
-  fcoor = numpy.compress(selmask, coor, axis=0)
-  irmsd = rmsdlib.fit(fboundatoms,fcoor)[2]
-  f1.write(str(nstruc)+" %.3f\n" % irmsd)
+    ligandmask = ligandmasks[pnr]
+    atoms = list(p.atoms())
+    assert len(atoms) == len(ligandmask), (len(atoms), len(ligandmask))
+    for n in range(len(atoms)):
+      if not ligandmask[n]: continue
+      atoms[n].write(f1)
+    f1.write("TER\n")
+  f1.write("ENDMDL\n")  
+    
+    

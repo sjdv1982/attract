@@ -15,8 +15,11 @@ class Atom(object):
   def write(self, filehandle):
     l = self.line
     o = l[:12] 
-    o += "%4.4s" % self.name
-    o += "%3.3s" % self.resname
+    if len(self.name) == 4:
+      o += "%4s" % self.name
+    else:
+      o += " %-4.4s" % self.name
+    o += "%-3.3s" % self.resname
     o += l[20]
     o += self.resid
     o += l[26:30]
@@ -123,12 +126,15 @@ def read_multi_pdb(f):
       pdbs.append(p)
     elif l.startswith("ENDMDL") and not endmodel:      
       endmodel = True      
+      if not len(pdbs[-1]._res): pdbs = pdbs[:-1]
       yield pdbs      
     if not l.startswith("ATOM"): continue
     endmodel = False  
     a = Atom(l)
     p._add_atom(a)      
-  if not endmodel: yield pdbs
+  if not endmodel: 
+    if not len(pdbs[-1]._res): pdbs = pdbs[:-1]
+    yield pdbs
 
 def read_multi_attract_pdb(f):  
   partner = 1
