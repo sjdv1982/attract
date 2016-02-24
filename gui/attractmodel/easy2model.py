@@ -1,4 +1,4 @@
-easy2model_version = "Converted from AttractEasyModel by easy2model 1.1"
+easy2model_version = "Converted from AttractEasyModel by easy2model 1.2"
 
 def easy2model(emodel):
   partners = []
@@ -94,6 +94,8 @@ def easy2model(emodel):
   rmsd_atoms = "backbone"
   if has_na: 
     rmsd_atoms = "all"
+  epsilon = 15.0
+  if emodel.forcefield == "OPLSX": epsilon = 10.0
   newmodel = AttractModel (
    runname=emodel.runname,
    partners=partners,
@@ -104,6 +106,7 @@ def easy2model(emodel):
    search="syst",
    gravity=gravity,
    forcefield=emodel.forcefield,
+   epsilon=epsilon,
    calc_lrmsd=emodel.calc_lrmsd,
    calc_irmsd=emodel.calc_irmsd,
    rmsd_atoms=rmsd_atoms,
