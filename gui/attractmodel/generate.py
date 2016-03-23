@@ -3,7 +3,7 @@ import os, itertools
 #TODO: fix ATTRACT-EM interface
 #TODO: Symmetry help in full interface is too small
 
-generator_version = "0.5"
+generator_version = "0.6"
 req_attract2_version = "0.3"
 
 parameterfiledict = {
@@ -357,9 +357,13 @@ echo %d > partners.pdb
       partnercode += "echo TER >> partners.pdb\n"
      
   air_restraints_file = "air-restraints.rest"
+  aa_air_restraints_file = "air-restraints-aa.rest"
   harmonic_restraints_file = "harmonic-restraints.rest"
+  aa_harmonic_restraints_file = "harmonic-restraints-aa.rest"
   haddock_restraints_file = "haddock-restraints.rest"
+  aa_haddock_restraints_file = "haddock-restraints-aa.rest"
   position_restraints_file = "position-restraints.rest"
+  aa_position_restraints_file = "position-restraints-aa.rest"
   ret += """
 #name of the run
 name=%s 
@@ -412,18 +416,23 @@ name=%s
     params += ps
     scoreparams += ps  
   rest = []
+  aa_rest = []
   has_restraints = False
   has_air_restraints = False  
   for p in m.partners:
     if p.haddock_restraints is not None:
       has_air_restraints = True
       rest.append("--rest " + air_restraints_file)
+      aa_rest.append("--rest " + aa_air_restraints_file)
   if m.harmonic_restraints_file:
-    rest.append("--rest " + harmonic_restraints_file)    
+    rest.append("--rest " + harmonic_restraints_file) 
+    aa_rest.append("--rest " + aa_harmonic_restraints_file)
   if m.haddock_restraints_file:  
     rest.append("--rest " + haddock_restraints_file)    
+    aa_rest.append("--rest " + aa_haddock_restraints_file)
   if m.position_restraints_file:
-    rest.append("--rest " + position_restraints_file)  
+    rest.append("--rest " + position_restraints_file) 
+    aa_rest.append("--rest " + aa_position_restraints_file)
   if len(rest):
     has_restraints = True
     ps = " " + " ".join(rest)
@@ -583,9 +592,32 @@ echo '**************************************************************'
       k = m.rstk_haddock
       ret += "python $ATTRACTTOOLS/air.py %s %s %s %s > %s\n" % (" ".join(air_filenames), chance_removal, dist, k, air_restraints_file)
       rest += "--rest %s" % air_restraints_file
+      if m.use_iattract:
+	dist = 2.0
+	air_filenames = []
+        for pnr, p in enumerate(m.partners):        
+          if p.haddock_restraints:
+            f_act = "haddock-active-%s-partner%d.reslist" % (m.runname, pnr+1)
+            actstr = "\n".join([str(r) for r in p.haddock_restraints.activereslist])
+            open(f_act, "w").write(actstr)
+            air_filenames.append(f_act)
+
+            f_pass = "haddock-passive-%s-partner%d.reslist" % (m.runname, pnr+1)
+            passtr = "\n".join([str(r) for r in p.haddock_restraints.passivereslist])
+            open(f_pass, "w").write(passtr)
+            air_filenames.append(f_pass)
+        
+            air_filenames.append(aa_filenames[pnr])
+            air_filenames.append(mappings[pnr])
+            air_filenames.append("\\\n" + " " * 27)
+	
+	ret += "python $ATTRACTTOOLS/air.py %s %s %s %s > %s\n" % (" ".join(air_filenames), chance_removal, dist, k, aa_air_restraints_file)
 
   if m.harmonic_restraints_file or m.haddock_restraints_file or m.position_restraints_file:
     tbl_pdbs = " ".join(filenames)
+    if m.use_iattract:
+      tbl_aa_pdbs = " ".join(aa_filenames)
+      
     tbl_mappings = " ".join(mappings)
     
     axcopies = {}
@@ -611,7 +643,10 @@ echo '**************************************************************'
 """
     tbl = m.harmonic_restraints_file.name
     ret += "python $ATTRACTTOOLS/tbl2attract.py %s --mode harmonic --pdbs %s --mappings %s --k %s > %s\n" % \
-      (tbl, tbl_pdbs, tbl_mappings, m.rstk_harmonic, harmonic_restraints_file)    
+      (tbl, tbl_pdbs, tbl_mappings, m.rstk_harmonic, harmonic_restraints_file)   
+    if m.use_iattract:
+      ret += "python $ATTRACTTOOLS/tbl2attract.py %s --mode harmonic --pdbs %s --mappings %s --k %s > %s\n" % \
+      (tbl, tbl_aa_pdbs, tbl_mappings, m.rstk_harmonic, aa_harmonic_restraints_file)
 
   if m.haddock_restraints_file:
     ret += """
@@ -622,6 +657,9 @@ echo '**************************************************************'
     tbl = m.haddock_restraints_file.name      
     ret += "python $ATTRACTTOOLS/tbl2attract.py %s --mode haddock --pdbs %s --mappings %s --k %s --softsquare %s --chance_removal %s > %s\n" % \
       (tbl, tbl_pdbs, tbl_mappings, m.rstk_haddock, m.haddock_softsquare, m.haddock_random_removal,haddock_restraints_file)    
+    if m.use_iattract:
+      ret += "python $ATTRACTTOOLS/tbl2attract.py %s --mode haddock --pdbs %s --mappings %s --k %s --softsquare %s --chance_removal %s > %s\n" % \
+      (tbl, tbl_aa_pdbs, tbl_mappings, m.rstk_haddock, m.haddock_softsquare, m.haddock_random_removal,aa_haddock_restraints_file)
 
   if m.position_restraints_file:
     ret += """
@@ -632,6 +670,9 @@ echo '**************************************************************'
     tbl = m.position_restraints_file.name
     ret += "python $ATTRACTTOOLS/tbl2attract.py %s --mode position --pdbs %s --mappings %s --k %s > %s\n" % \
       (tbl, tbl_pdbs, tbl_mappings, m.rstk_position, position_restraints_file)    
+    if m.use_iattract:
+      ret += "python $ATTRACTTOOLS/tbl2attract.py %s --mode position --pdbs %s --mappings %s --k %s > %s\n" % \
+      (tbl, tbl_aa_pdbs, tbl_mappings, m.rstk_position, aa_position_restraints_file)
     
   if m.search == "syst" or m.search == "custom":
     if m.search == "syst" or m.start_structures_file is None:
@@ -895,6 +936,9 @@ echo '**************************************************************'
       iattract_params += " " + f            
     iattract_params += " --cdie --epsilon 10 --fix-receptor"
     iattract_params += " --icut %s" % m.iattract.icut
+    if len(aa_rest):
+      ps =" " + " ".join(aa_rest)
+      iattract_params += ps
     iattract_params += " --np %s" % m.np
     iattract_params_demode = ""
     if ens_any:
