@@ -1,0 +1,265 @@
+/*******************************************************************************
+ * gpuATTRACT framework
+ * Copyright (C) 2015 Uwe Ehmann
+ *
+ * This file is part of the gpuATTRACT framework.
+ *
+ * The gpuATTRACT framework is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * The gpuATTRACT framework is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *******************************************************************************/
+
+#ifndef COMP5_HD_H_
+#define COMP5_HD_H_
+
+#include "as/cudaHostAllocation.h"
+
+namespace as {
+
+template <class T, class ALLOC>
+class Comp5_HD {
+public:
+	/* Constructor */
+	Comp5_HD (unsigned numEl) :
+	_numEl(numEl),
+	_numAlloc((_numEl/WARP_SIZE + 1)*WARP_SIZE),
+	_h_x(NULL),	_h_y(NULL),	_h_z(NULL), _h_v(NULL), _h_w(NULL),
+	_d_x(NULL),	_d_y(NULL),	_d_z(NULL), _d_v(NULL), _d_w(NULL),
+	_cpySize(_numAlloc*5*sizeof(T)),
+	_deviceAlloc(false), _hostAlloc(false){ }
+
+	/* Destructor */
+	~Comp5_HD() {
+		freeDevice();
+		freeHost();
+	}
+
+
+	/***************
+	* G E T T E R
+	***************/
+	inline unsigned size() const {
+		return _numEl;
+	}
+
+	inline T* h_x () const {
+		return _h_x;
+	}
+	inline T* h_y () const {
+		return _h_y;
+	}
+	inline T* h_z () const {
+		return _h_z;
+	}
+	inline T* h_v () const {
+		return _h_v;
+	}
+	inline T* h_w () const {
+		return _h_w;
+	}
+
+	inline T* d_x () const {
+		return _d_x;
+	}
+	inline T* d_y () const {
+		return _d_y;
+	}
+	inline T* d_z () const {
+		return _d_z;
+	}
+	inline T* d_v () const {
+		return _d_v;
+	}
+	inline T* d_w () const {
+		return _d_w;
+	}
+
+
+	/***************
+	* S E T T E R
+	***************/
+
+	inline void set_h_x (T* h) {
+		 _h_x = h;
+	}
+	inline void set_h_y (T* h) {
+		 _h_y = h;
+	}
+	inline void set_h_z (T* h) {
+		 _h_z = h;
+	}
+	inline void set_h_v (T* h) {
+		 _h_v = h;
+	}
+	inline void set_h_w (T* h) {
+		 _h_w = h;
+	}
+
+	inline void set_d_x (T* h) {
+		 _d_x = h;
+	}
+	inline void set_d_y (T* h) {
+		 _d_y = h;
+	}
+	inline void set_d_z (T* h) {
+		 _d_z = h;
+	}
+	inline void set_d_v (T* h) {
+		 _d_v = h;
+	}
+	inline void set_d_w (T* h) {
+		 _d_w = h;
+	}
+
+	/****************************
+	 * public member functions
+	 ****************************/
+	void initHost() {
+		if (!_hostAlloc && ALLOC::HostAlloc) {
+			ALLOC::malloc(_h_x, _numAlloc*5*sizeof(T) );
+			memset(_h_x, 0, _numAlloc*5*sizeof(T));
+			_h_y =  _h_x + _numAlloc;
+			_h_z =  _h_x + 2*_numAlloc;
+			_h_v = 	_h_x + 3*_numAlloc;
+			_h_w =  (T*) (_h_x + 4*_numAlloc);
+			_hostAlloc = true;
+		}
+	}
+
+	void initDevice() {
+		if (!_deviceAlloc && ALLOC::DeviceAlloc) {
+			cudaVerify(cudaMalloc((void**)&_d_x, _numAlloc*5*sizeof(T) ));
+			cudaVerify(cudaMemset(_d_x, 0, _numAlloc*5*sizeof(T) ));
+			_d_y =  _d_x + _numAlloc;
+			_d_z =  _d_y + _numAlloc;
+			_d_v =  _d_z + _numAlloc;
+			_d_w =  (T*) (_d_v + _numAlloc);
+			_deviceAlloc = true;
+		}
+	}
+
+	void freeDevice() {
+		if (_deviceAlloc) {
+			cudaFree(_d_x);
+			_deviceAlloc = false;
+		}
+	}
+
+	void freeHost() {
+		if (_hostAlloc) {
+			ALLOC::free(_h_x);
+			_hostAlloc = false;
+		}
+	}
+
+	void resetHostData() {
+		if (_hostAlloc) {
+			memset(_h_x, 0, _numAlloc*5*sizeof(T));
+		}
+	}
+
+	void resetDeviceData(const cudaStream_t &stream = 0) {
+		if (_deviceAlloc) {
+			cudaVerify(cudaMemsetAsync(_d_x, 0, _numAlloc*5*sizeof(T) , stream));
+		}
+	}
+
+	void resetData(const cudaStream_t &stream = 0) {
+		resetHostData();
+		resetDeviceData(stream);
+	}
+
+	inline __host__ void cpyH2D(const cudaStream_t &stream = 0) {
+		cudaVerify(cudaMemcpyAsync(_d_x, _h_x, _cpySize, cudaMemcpyHostToDevice, stream));
+	}
+
+	inline __host__ void cpyD2H(const cudaStream_t &stream = 0) {
+		cudaVerify(cudaMemcpyAsync(_h_x, _d_x, _cpySize, cudaMemcpyDeviceToHost, stream));
+	}
+
+	__host__ void printEl(uint numEl, uint obj) {
+		int colWidth = 15; // column WIDTH for output
+		int precisionSetting = std::cerr.precision();
+		std::ios::fmtflags flagSettings = std::cerr.flags();
+
+
+//		std::cerr.setf(std::ios::fixed | std::ios::showpoint | std::ios::showpos);
+		std::cerr.setf(std::ios::scientific | std::ios::showpoint | std::ios::showpos);
+		std::cerr.precision(5);
+
+		std::cerr << "VectorArray.h:\n";
+		std::cerr << "Object " << obj << std::endl;
+		std::cerr << std::left << std::setw(5) << "num" << ": "
+						<< std::setw(colWidth) << "x" << " "
+						<< std::setw(colWidth) << "y" << " "
+						<< std::setw(colWidth) << "z" << " "
+						<< std::setw(colWidth) << "v" << " "
+						<< std::setw(colWidth) << "w" << std::endl;
+		for (unsigned int i = 0; i < numEl; i++) {
+			uint idx = obj*_numEl + i;
+			std::cerr << std::left << std::setw(5) << i << ": "
+					<< std::setw(colWidth) << _h_x[idx] << " "
+					<< std::setw(colWidth) << _h_y[idx] << " "
+					<< std::setw(colWidth) << _h_z[idx] << " "
+					<< std::setw(colWidth) << _h_v[idx] << " "
+					<< std::setw(colWidth) << _h_w[idx] << std::endl;
+		}
+		std::cerr.precision(precisionSetting);
+		std::cerr.flags(flagSettings);
+	}
+
+	/****************************
+	 * public member variables
+	 ****************************/
+
+protected:
+	/****************************
+	 * protected member functions
+	 ****************************/
+
+	/****************************
+	 * protected member variables
+	 ****************************/
+
+private:
+	/****************************
+	 * private member functions
+	 ****************************/
+
+	/****************************
+	 * private member variables
+	 ****************************/
+
+	unsigned _numEl;		/** number of elements */
+	unsigned _numAlloc;		/** number of allocated elements per component (x,y,z,w,...)*/
+
+	T *_h_x; 		/** Host data, x-component */
+	T *_h_y; 		/** Host data, y-component */
+	T *_h_z; 		/** Host data, z-component */
+	T *_h_v;		/** Host data, v-component */
+	T *_h_w; 		/** Host data, w-component */
+
+
+	T *_d_x; 		/** Device data, x-component */
+	T *_d_y; 		/** Device data, y-component */
+	T *_d_z; 		/** Device data, z-component */
+	T *_d_v;		/** Device data, v-component */
+	T *_d_w; 		/** Device data, w-component */
+
+	unsigned _cpySize;	/** size of memory transactions in bytes */
+	bool _deviceAlloc;	/** memory at device/host already allocated? */
+	bool _hostAlloc;
+};
+
+} //namespace
+
+#endif /* COMP5_HD_H_ */

@@ -1,190 +1,151 @@
-OBJ0= read_hm.o read_dof.o read_parameters.o read_pdb.o write_pdb.o print_struc.o \
-  cartstate.o euler2rotmat.o rotate.o forcerotscale.o deform.o minfor.o minfor_mcm.o monte.o monte_min.o \
-  mc11a.o GGUBS.o parse_options.o select.o pairgen.o  pairenergy.o energy.o \
-  globalenergy.o matmult.o matinv.o reset_forces.o ligmin.o \
-  ligmin_index.o rota.o trans.o \
-  parse_restraints.o restrain.o read_ens.o read_pdb2.cpp\
-  axisrot.o crand.o sym.o enstrans.o ene_morph.cpp \
-  euler2torquemat.o memcpy.o disre.o moderest.o atomdensitygrid.o \
-  axsym.h axsym.o weight_atoms.o ministate.o grid_sharedfuncs.o
+SHELL := /bin/bash
+# Find out the base directory
 
-OBJ= $(OBJ0) nonbon8.o
-H=state.h max.h grid.h nonbon.h max.fin
-FF=gfortran
+.PHONY: default
+default: all
+
+# choose target
+# Show list of all available targets for the current config with cfg_help
+# Each config should at least provide the two targets RELEASE and DEBUG.
+TARGET ?= RELEASE
+
+BASE_PATH = $(shell pwd)
+BINDIR = $(BASE_PATH)/.
+ATTRACTDIR = $(BASE_PATH)/.
+GPU_DIR = $(BASE_PATH)/gpuATTRACT
+
+$(shell mkdir -p $(BINDIR))
+
+.PHONY: help all gpuATTRACT emATTRACT mcATTRACT scATTRACT attract \
+ clean_as clean_em clean_mc clean_sc clean_attract \
+ cleanall_as cleanall_em cleanall_mc cleanall_sc cleanall_attract clean cleanall
+
+em: as
+	cd $(GPU_DIR)/emATTRACT/bin && $(MAKE) TARGET=$(TARGET)
+	cd $(BINDIR) && ln -sf $(GPU_DIR)/emATTRACT/bin/emATTRACT
+	
+mc: as
+	cd $(GPU_DIR)/mcATTRACT/bin && $(MAKE) TARGET=$(TARGET)
+	cd $(BINDIR) && ln -sf $(GPU_DIR)/mcATTRACT/bin/mcATTRACT
+	
+sc: as
+	cd $(GPU_DIR)/scATTRACT/bin && $(MAKE) TARGET=$(TARGET)
+	cd $(BINDIR) && ln -sf $(GPU_DIR)/scATTRACT/bin/scATTRACT
+
+as: check_cuda_version
+	cd $(GPU_DIR)/AttractServer/lib && $(MAKE) TARGET=$(TARGET)
+	cd $(BINDIR) && ln -sf $(GPU_DIR)/AttractServer/lib/libAttractServer.so
+
+attract:
+	cd $(ATTRACTDIR) && $(MAKE) -f _Makefile all
+	
+
+NVCC_RESULT = $(shell which nvcc 2> /dev/null)
+NVCC_TEST = $(notdir $(NVCC_RESULT))
+
+MIN_VERSION="6.5"
+check_cuda_version:
+	@echo "Makefile: Testing CUDA requirements"
+	@if [ "$(NVCC_TEST)" == "nvcc" ]; then \
+		echo -e >&2 "Makefile:\tOK: nvcc compiler found"; \
+	else \
+		echo -e >&2 "Makefile:\tERROR: nvcc compiler not found"; \
+		false; \
+	fi 
+			
+	@NVCC_VERSION=$$(nvcc --version | grep release | cut -d, -f2 | cut -d" " -f3); \
+	if (( $$(echo "$$NVCC_VERSION >= $(MIN_VERSION)" | bc -l) )); then \
+		echo -e >&2 "Makefile:\tOK: Compiler version $$NVCC_VERSION"; \
+	else \
+		echo -e >&2 "Makefile:\tERROR: Compiler version ($$NVCC_VERSION) too old. Upgrade to a version >= $(MIN_VERSION)"; \
+		false; \
+	fi
+
+all: attract gpuATTRACT
+
+gpuATTRACT: em mc sc
+
+clean: clean_gpu clean_attract
+	
+clean_as:
+	@cd $(GPU_DIR)/AttractServer/lib && $(MAKE) clean
+	
+clean_em:
+	@cd $(GPU_DIR)/emATTRACT/bin && $(MAKE) clean
+	
+clean_mc:
+	@cd $(GPU_DIR)/mcATTRACT/bin && $(MAKE) clean
+	
+clean_sc:
+	@cd $(GPU_DIR)/scATTRACT/bin && $(MAKE) clean
+
+clean_attract:
+	@cd $(ATTRACTDIR) && rm -f *.o
+
+clean_gpu: clean_as clean_em clean_mc clean_sc
  
-#Fortran flags
-#1. for final release
-#FLAG= -g -O3 -fno-automatic -ffast-math -fcray-pointer
-#2. for standard development
-FLAG= -g -p -O3 -fno-automatic -ffast-math -fcray-pointer
-#2. for heavy debugging
-#FLAG= -g -p -O0 -fno-automatic -ffast-math -fcray-pointer
-
-CXX        = g++
-CC        = gcc
-
-#C/C++ flags
-
-#1. For final release
-#CFLAGS = -g -O3 -ffast-math -Wno-unused-result
-#2. For standard development
-CFLAGS = -g -p -O3 -ffast-math -Wall
-#3. For heavy debugging
-#CFLAGS = -g -p -O0 -fno-inline -Wall -ffast-math 
-
-attract: attract.o grid.o grid-torque.o $(OBJ) 
-	$(CXX) $(CFLAGS)  $^ -lgfortran -lrt -o $@
+cleanall: cleanall_as cleanall_em cleanall_mc cleanall_sc cleanall_attract
 	
-attract-infinite: attract.o grid.o grid-torque.o nonbon8-infinite.o $(OBJ0)
-	$(CXX) $(CFLAGS)  $^ -lgfortran -lrt -o $@
+cleanall_as:
+	@cd $(GPU_DIR)/AttractServer/lib && make cleanall
 
-collect: collect.o read_parameters.o read_pdb.o read_pdb2.o read_dof.o \
-  cartstate.o euler2rotmat.o deform.o rotate.o read_hm.o memcpy.o write_pdb.o \
-  read_ens.o axsym.o matinv.o matmult.o state.h
-	$(CXX) $(CFLAGS)  $^ -lgfortran -o $@
-
-score-deform: score-deform.o deformscore.o read_parameters.o read_pdb.o read_pdb2.o read_dof.o \
-  cartstate.o euler2rotmat.o deform.o rotate.o read_hm.o memcpy.o write_pdb.o \
-  read_ens.o axsym.o matinv.o matmult.o state.h
-	$(CXX) $(CFLAGS)  $^ -lgfortran -o $@
-
-matrix-lrmsd: matrix-lrmsd.o read_parameters.o read_pdb.o read_pdb2.o read_dof.o \
-  cartstate.o euler2rotmat.o deform.o rotate.o read_hm.o memcpy.o write_pdb.o \
-  read_ens.o axsym.o matinv.o matmult.o state.h
-	$(CXX) $(CFLAGS)  $^ -lgfortran -o $@
-
-rmsd: rmsd.o read_parameters.o read_pdb.o read_pdb2.o read_dof.o \
-  cartstate.o euler2rotmat.o deform.o rotate.o read_hm.o memcpy.o write_pdb.o \
-  read_ens.o axsym.o matinv.o matmult.o state.h
-	$(CXX) $(CFLAGS)  $^ -lgfortran -o $@
-
-make-grid: make-grid.o grid_calculate.o grid.o grid_calculate-torque.o grid-torque.o $(OBJ) 
-	$(CXX) $(CFLAGS) $^  -lgfortran -lrt -o $@
-
-make-grid-omp: make-grid-omp.o grid_calculate-omp.o grid.o grid_calculate-torque-omp.o grid-torque.o $(OBJ) 
-	$(CXX) $(CFLAGS)  $^  -fopenmp -lgfortran -lrt -o $@
-
-make-grid-torque: make-grid-torque.o grid_calculate.o grid.o grid_calculate-torque.o grid-torque.o $(OBJ) 
-	$(CXX) $(CFLAGS)  $^  -lgfortran -lrt -o $@
-
-make-grid-torque-omp: make-grid-torque-omp.o grid_calculate-omp.o grid.o grid_calculate-torque-omp.o grid-torque.o $(OBJ) 
-	$(CXX) $(CFLAGS)  $^  -fopenmp -lgfortran -lrt -o $@
-
-shm-grid: shm-grid.o grid_calculate.o grid.o grid_calculate-torque.o grid-torque.o $(OBJ)
-	$(CXX) $(CFLAGS) $^  -lgfortran -lrt -o $@
-
-shm-grid-torque: shm-grid-torque.o grid_calculate.o grid.o grid_calculate-torque.o grid-torque.o $(OBJ)
-	$(CXX) $(CFLAGS)  $^ -lgfortran -lrt -o $@ 
-
-shm-clean: shm-clean.o
-	$(CXX) $(CFLAGS)  $^ -lrt -o $@
+	@rm -f $(BINDIR)/libAttractServer.so
 	
-systsearch: systsearch.o
-	$(FF) $(FLAG) $< -o $@
+cleanall_em:
+	@cd $(GPU_DIR)/emATTRACT/bin && make cleanall
+
+	@rm -f $(BINDIR)/emATTRACT
 	
-grid.o: grid.cpp $(H) 
-	$(CXX) $(CFLAGS) --param max-inline-insns-single=2000 -c $< -o $@ 
+cleanall_mc:
+	@cd $(GPU_DIR)/mcATTRACT/bin && make cleanall
 
-grid-torque.o: grid.cpp $(H) 
-	$(CXX) $(CFLAGS) --param max-inline-insns-single=2000 -DTORQUEGRID -c $< -o $@ 
-
-fix_receptor:   fix_receptor.o read_dof.o euler2rotmat.o matinv.o matmult.o \
-                print_struc.o state.h
-	$(CXX) $(CFLAGS) $^ -o $@ -lm
-
-deredundant: deredundant.o read_dof.o euler2rotmat.o matmult.o \
-                print_struc.o state.h
-	$(CXX) $(CFLAGS) $^ -o $@ -lm
-
-deredundant-lim: deredundant-lim.o read_dof.o euler2rotmat.o matmult.o \
-                print_struc.o state.h
-	$(CXX) $(CFLAGS) $^ -o $@ -lm
-
-axsymmetry: axsymmetry.o read_dof.o euler2rotmat.o matmult.o matinv.o \
-                print_struc.o state.h axsym.h axsym.o
-	$(CXX) $(CFLAGS) $^ -o $@ -lm
-
-ncsymmetry: ncsymmetry.o read_dof.o euler2rotmat.o matmult.o matinv.o \
-                print_struc.o state.h axsym.h axsym.o
-	$(CXX) $(CFLAGS) $^ -o $@ -lm
+	@rm -f $(BINDIR)/mcATTRACT
 	
-omp_threadnum: omp_threadnum.o
-	$(CXX) $(CFLAGS)  $^  -fopenmp -o $@
+cleanall_sc:
+	@cd $(GPU_DIR)/scATTRACT/bin && make cleanall
 
-%-torque-omp.o: %.cpp $(H)
-	$(CXX) $(CFLAGS) -fopenmp -DTORQUEGRID -c $< -o $@ 
+	@rm -f $(BINDIR)/scATTRACT
 
-%-torque.o: %.cpp $(H)
-	$(CXX) $(CFLAGS) -DTORQUEGRID -c $< -o $@ 
+cleanall_attract:
+	cd $(ATTRACTDIR) && make -f _Makefile clean
 
-%-omp.o: %.cpp $(H)
-	$(CXX) $(CFLAGS) -fopenmp -c $< -o $@ 
+help:	
+	@echo "Options:"
+	@echo "make TARGET=DEBUG | RELEASE     choose target. (Default: RELEASE)"
+	@echo
+	@echo "e.g. make all TARGET=DEBUG -j4"
+	@echo
+	@echo "***Build targets:"
+	@echo "make all            build all targets (attract and gpuATTRACT)"
+	@echo "make attract        build original attract (CPU only)"
+	@echo "make gpuATTRACT     build gpuATTRACT (libAttractServer.so, emATTRACT, mcATTRACT, scATTRACT)"
+	@echo "make as             build libAttractServer.so"
+	@echo "make em             build libAttractServer.so and emATTRACT."
+	@echo "make mc             build libAttractServer.so and mcATTRACT."
+	@echo "make sc             build libAttractServer.so and scATTRACT."
+	@echo " "
+	@echo "***Clean up: delete .o and .d files of ... " 
+	@echo "make clean          all targets."
+	@echo "make clean_gpuATTRACT" 
+	@echo "                    gpuATTRACT"
+	@echo "make clean_attract  attract"     
+	@echo "make clean_as       libAttractServer.so"
+	@echo "make clean_em       emATTRACT."
+	@echo "make clean_mc       mcATTRACT."
+	@echo "make clean_sc       scATTRACT."
+	@echo " "
+	@echo "***Clean up all: as Clean up + removal of executables of ... " 
+	@echo "make cleanall       all targets."
+	@echo "make cleanall_attract"
+	@echo "                    attract"
+	@echo "make cleanall_gpuATTACT
+	@echo "                    gpuATTRACT"
+	@echo "make cleanall_as    libAttractServer.so"
+	@echo "make cleanall_sc    scATTRACT."
+	@echo "make cleanall_em    emATTRACT."
+	@echo "make cleanall_mc    mcATTRACT."
 	
 	
 
-collectlib.so: collectlib-pic.o read_parameters-pic.o read_pdb-pic.o \
-  read_pdb2-pic.o read_dof-pic.o cartstate-pic.o euler2rotmat-pic.o \
-  deform-pic.o rotate-pic.o read_hm-pic.o memcpy-pic.o write_pdb-pic.o \
-  read_ens-pic.o axsym-pic.o matmult-pic.o state.h max.h
-	$(CXX) $(CFLAGS) -Wall -shared -fPIC $^ -lgfortran -lm -o $@ 
-
-_gridify.so: gridify-pic.o	
-	$(CXX) $(CFLAGS) -Wall -shared -fPIC $^ -lm -o $@ 
 	
-max.fin: max.h
-	python make_max.py max.h > max.fin
 	
-#collectlib: collectlib.so
-
-%.o: %.cpp $(H)
-	$(CXX) $(CFLAGS) -c $< -o $@
-
-%.o: %.c $(H)
-	$(CC) $(CFLAGS) -c $< -o $@
-
-%.o: %.f max.fin
-	$(FF) $(FLAG) -c $< -o $@
-	
-
-%-pic.o: %.cpp $(H)
-	$(CXX) $(CFLAGS) -c -fPIC $< -o $@
-
-%-pic.o: %.f $(H)
-	$(FF) $(FLAG) -c -fPIC $< -o $@
-
-clean: 
-	rm -f *.o
-	rm -f attract
-	rm -f attract-infinite
-
-center: read_pdb2.o center.o
-	$(CXX) $(CFLAGS) $^ -o $@
-
-trans: read_pdb2.o transl.o
-	$(CXX) $(CFLAGS) $^ -o $@
-	
-cluster_struc: cluster_struc.o
-	$(CXX) $(CFLAGS) $< -o $@
-
-redatom: redatom.o
-	$(FF) $(FLAG) $< -o $@
-translate: translate.o
-	$(FF) $(FLAG) $< -o $@
-rotam: rotam.o
-	$(FF) $(FLAG) $< -o $@
-compare: compare.o
-	$(FF) $(FLAG) $< -o $@
-viewe: viewe.o
-	$(FF) $(FLAG) $< -o $@
-rmsca: rmsca.o
-	$(FF) $(FLAG) $< -o $@
-
-rest: redatom translate rotam compare viewe rmsca center trans cluster_struc
-	
-
-all: max.fin attract attract-infinite collect collectlib.so rmsd make-grid \
- make-grid-omp make-grid-torque make-grid-torque-omp shm-grid \
- shm-grid-torque shm-clean systsearch fix_receptor \
- omp_threadnum deredundant matrix-lrmsd rest axsymmetry ncsymmetry \
- _gridify.so
-
