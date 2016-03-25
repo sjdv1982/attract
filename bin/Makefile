@@ -138,14 +138,11 @@ help:
 	@echo "make cleanall       all targets."
 	@echo "make cleanall_attract"
 	@echo "                    attract"
-	@echo "make cleanall_gpuATTACT
+	@echo "make cleanall_gpuATTACT"
 	@echo "                    gpuATTRACT"
 	@echo "make cleanall_as    libAttractServer.so"
 	@echo "make cleanall_sc    scATTRACT."
 	@echo "make cleanall_em    emATTRACT."
 	@echo "make cleanall_mc    mcATTRACT."
-	
-	
-
 	
 	
