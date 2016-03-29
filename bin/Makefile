@@ -23,7 +23,11 @@ $(shell mkdir -p $(BINDIR))
 em: as
 	cd $(GPU_DIR)/emATTRACT/bin && $(MAKE) TARGET=$(TARGET)
 	cd $(BINDIR) && ln -sf $(GPU_DIR)/emATTRACT/bin/emATTRACT
-	
+
+gpuATTRACTcheck: as
+	cd $(GPU_DIR)/gpuATTRACTcheck/bin && $(MAKE) TARGET=$(TARGET)
+	cd $(BINDIR) && ln -sf $(GPU_DIR)/gpuATTRACTcheck/bin/gpuATTRACTcheck
+
 mc: as
 	cd $(GPU_DIR)/mcATTRACT/bin && $(MAKE) TARGET=$(TARGET)
 	cd $(BINDIR) && ln -sf $(GPU_DIR)/mcATTRACT/bin/mcATTRACT

@@ -27,3 +27,4 @@ libpeerconnection.log
 html-local
 gui/server/cgi-local
 emATTRACT.log
+bin/ScoringClient.log
