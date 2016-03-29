@@ -36,6 +36,8 @@ int main (int argc, char *argv[]) {
 		cerr << "Error: " << e.what() << endl;
 		exit(EXIT_FAILURE);
 	}
+	float *dummy;
+        cudaMalloc(&dummy, 1000); //just to force the creation of a CUDA context
 }
 
 

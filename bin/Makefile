@@ -67,7 +67,7 @@ check_cuda_version:
 
 all: attract gpuATTRACT
 
-gpuATTRACT: em mc sc
+gpuATTRACT: em mc sc gpuATTRACTcheck
 
 clean: clean_gpu clean_attract
 	
