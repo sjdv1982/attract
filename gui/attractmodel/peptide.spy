@@ -146,7 +146,38 @@ Type AttractPeptideModel {
   #***
     
   #***Computing and parallelization parameters***
-  Integer np = 1
+  
+  Enum use_gpu("never","if_available",  "always") = "never"
+  form {
+    use_gpu.group = "Computing and parallelization parameters"
+    use_gpu.name = "Use GPU acceleration (experimental!)"
+    use_gpu.optiontitles = (
+      "Never",
+      "If available",
+      "Always",
+    )
+  }
+  validate {
+    if use_gpu != "never": 
+      assert use_grids #gpu
+      assert p1.ensemble_size in (0,1) #gpu
+      assert p1.haddock_restraints is None #gpu
+  }
+  error {
+    'assert use_grids #gpu'
+    =>
+    'GPU acceleration must be combined with grids'
+    
+    'assert p1.ensemble_size in (0,1) #gpu'
+    =>
+    'GPU acceleration is not compatible with protein ensembles'    
+    
+    'assert p1.haddock_restraints is None #gpu'
+    =>
+    'GPU acceleration is not compatible with HADDOCK restraints'    
+  }
+  
+  Integer np = 4
   ## form np.group = "Computing and parallelization parameters"
   ## form np.name = "Number of processor cores"
   

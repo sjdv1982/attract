@@ -36,7 +36,8 @@ def peptide2model(pmodel):
    calc_fnat=pmodel.calc_fnat,
    nr_collect=pmodel.nr_collect,
    np=pmodel.np,
-   completion_tool=pmodel.completion_tool
+   completion_tool=pmodel.completion_tool,
+   use_gpu=pmodel.use_gpu,
   )  
 
   return newmodel
