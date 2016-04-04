@@ -56,6 +56,7 @@ fi
   pdbchains = []
   pdbnames3 = set()
   has_tmpf = False
+  use_gpu = (m.use_gpu != "never")
   
   #determine moleculetype interactions (Protein-protein, protein-RNA, protein-DNA, etc.)  
   moleculetype_interactions = set()
@@ -365,7 +366,8 @@ echo %d > partners.pdb
 name=%s 
 """ % m.runname
   ffpar = parameterfiledict[m.forcefield]
-  params = "\"" + ffpar + " " + partnerfiles
+  params = "\"" + ffpar + " " + partnerfiles  
+  gpuparams = "\"" + "-d 0 -p " + ffpar + " -r " + filenames[0] + " -l " + filenames[1]
   scoreparams = params + " --score --fix-receptor"
   gridparams = ""
   if m.fix_receptor: params += " --fix-receptor" 
@@ -377,7 +379,7 @@ name=%s
   ret_shm = ""
   for g in m.grids:
     gheader = ""
-    if m.np > 1: gheader = "header"
+    if m.np > 1 and not use_gpu: gheader = "header"
     extension = ".tgrid" if g.torque else ".grid"
     v = g.gridname.strip() + extension + gheader
     gridfiles[g.gridname.strip()] = (v, g.torque)
@@ -390,7 +392,12 @@ name=%s
       else:
         grid_used[v] = pnr+1
       gridoption = "--torquegrid" if is_torque else "--grid"
-      gridparams += " %s %d %s" % (gridoption, pnr+1, str(v))
+      vv = str(v)
+      if m.np > 1 and use_gpu: vv += "header"
+      gridparams += " %s %d %s" % (gridoption, pnr+1, vv)
+      if use_gpu:
+        assert pnr == 0 #should be caught by the data model
+        gpugridparams = " -g %s" % str(v)
     if ensemble_lists[pnr] is not None:
       ps = " --ens %d %s" % (pnr+1, ensemble_lists[pnr])
       params += ps
@@ -403,11 +410,13 @@ name=%s
     params += " --gravity %d" % m.gravity
   if m.rstk_dof != 0.01:
     params += " --rstk %s" % str(m.rstk_dof)
-  if m.dielec == "cdie": 
+  if m.dielec == "cdie":
+    #TODO: gpuparams
     ps = " --cdie"
     params += ps  
     scoreparams += ps  
   if m.epsilon != 15: 
+    #TODO: gpuparams
     ps = " --epsilon %s" % (str(m.epsilon))
     params += ps
     scoreparams += ps  
@@ -453,18 +462,23 @@ name=%s
   paramsprep = params.replace("--fix-receptor","").replace("--ghost-ligands","").replace("--ghost","").replace("--rest "+position_restraints_file,"").replace("  ", " ") + " --ghost"
   
   paramsprep += "\""
-  params += "\""  
+  params += "\""
+  gpuparams += "\""  
   scoreparams += "\""    
   
   ret += "\n#docking parameters\n"
   if m.iterations is not None and any([it.prep for it in m.iterations]):
     ret += "paramsprep=%s\n" % paramsprep
   ret += "params=%s\nscoreparams=%s\n" % (params, scoreparams)
+  if use_gpu:
+    ret += "gpuparams=%s\n" % gpuparams
   if len(gridparams):
     ret += """
 #grid parameters
 gridparams="%s"
 """  % gridparams
+    if use_gpu:
+      ret += 'gpugridparams="%s"\n' % gpugridparams
   
   if m.np > 1:
     if m.jobsize == 0:
@@ -728,7 +742,7 @@ echo '**************************************************************'
     if g.torque: tomp += "-torque"
     if g.omp: tomp += "-omp"
     tail = ""
-    if m.np > 1: 
+    if m.np > 1 and not use_gpu: 
       tail += " --shm"
     direc = ">"
     for fnr in range(len(filenames)):
@@ -745,11 +759,16 @@ echo '**************************************************************'
       ret += "awk '{print substr($0,58,2)}' %s | sort -nu %s %s.alphabet\n" % (filenames[fnr], direc, g.gridname.strip())
       direc = ">>"
     tail += " --alphabet %s.alphabet" % g.gridname.strip()  
+    if use_gpu:      
+      gpugridparams += "-a %s.alphabet" % g.gridname.strip()  
     if m.dielec == "cdie": tail += " --cdie"
     if m.epsilon != 15: tail += " --epsilon %s" % (str(m.epsilon))    
     if g.calc_potentials == False: tail += " -calc-potentials=0"
-    ret += "$ATTRACTDIR/make-grid%s %s %s %s %s %s %s\n\n" % \
+    ret += "$ATTRACTDIR/make-grid%s %s %s %s %s %s %s\n" % \
      (tomp, f, ffpar, g.plateau_distance, g.neighbour_distance, gridfile, tail)
+    if m.np > 1 and use_gpu:
+      ret += "$ATTRACTDIR/shm-grid %s %s" % (gridfile, gridfile+"header")
+    ret += "\n"  
   ret += """
 echo '**************************************************************'
 echo 'Docking'
@@ -814,7 +833,33 @@ echo '**************************************************************'
       ipar="$paramsprep"
     gridpar = ""
     if len(gridparams) and not it.prep: gridpar = " $gridparams" 
-    ret += "%s %s %s%s%s %s %s\n" % (attract, inp, ipar, gridpar, itparams, tail, outp0)
+    cmd_attract = "%s %s %s%s%s %s %s\n" % (attract, inp, ipar, gridpar, itparams, tail, outp0)
+    if use_gpu:
+      assert ensemble_lists[0] is None #should be guaranteed by the data model
+      if ensemble_lists[1] is not None:
+        cmd_gpu_attract = ""
+        outp_confs = []
+        for conf in range(m.partners[1].ensemble_size):
+          confstr = "-conf%d" % (conf+1)
+          inp_conf, outp_conf = inp + confstr, outp0 + confstr
+          outp_conf0 = outp_conf + "-0"
+          outp_confs.append(outp_conf)
+          cmd_gpu_attract += "python $ATTRACTTOOLS/select-conformer.py %s 2 %d > %s\n" % (inp, conf+1,inp_conf)
+          cmd_gpu_attract += "$ATTRACTDIR/emATTRACT --dof %s $gpuparams $gpugridparams > %s\n" % (inp_conf,outp_conf0)     
+          cmd_gpu_attract += "python $ATTRACTTOOLS/set-conformer.py %s 2 %d > %s\n" % (outp_conf0, conf+1,outp_conf)        
+        cmd_gpu_attract += "$ATTRACTTOOLS/add %s > %s\n" % (" ".join(outp_confs), outp0)
+      else:  
+        cmd_gpu_attract = "$ATTRACTDIR/emATTRACT --dof %s $gpuparams $gpugridparams > %s\n" % (inp,outp0)     
+    if m.use_gpu == "never":
+      ret += cmd_attract
+    elif m.use_gpu == "always":
+      ret += cmd_gpu_attract
+    else:
+      ret += "if $ATTRACTDIR/gpuATTRACTcheck; then\n"
+      ret += " " + "\n ".join(cmd_gpu_attract.splitlines()) + "\n"
+      ret += "else\n"
+      ret += " " + cmd_attract
+      ret += "fi\n"
     if it.prep:
       ret += "$ATTRACTDIR/fix_receptor %s %d%s | python $ATTRACTTOOLS/fill.py /dev/stdin %s > %s\n" % (outp0, len(m.partners), flexpar1, outp0, outp)
     inp = outp       
@@ -1132,6 +1177,9 @@ echo '**************************************************************'
     ret += m.footer + "\n\n"
     
   ret += "$ATTRACTDIR/shm-clean\n\n"    
+  if m.np == 1 or use_gpu:
+    for gridfile in gridfiles.values():
+      ret += "rm -f %s\n" % gridfile[0]
   ret += "fi ### move to disable parts of the protocol\n" 
   ret = ret.replace("\n\n\n","\n\n")
   ret = ret.replace("\n\n\n","\n\n")
