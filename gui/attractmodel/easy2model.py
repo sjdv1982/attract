@@ -1,4 +1,4 @@
-easy2model_version = "Converted from AttractEasyModel by easy2model 1.1"
+easy2model_version = "Converted from AttractEasyModel by easy2model 1.2"
 
 def easy2model(emodel):
   partners = []
@@ -90,10 +90,13 @@ def easy2model(emodel):
   gravity = 2
   if use_haddock or emodel.position_restraints_file is not None:
     gravity = 0
+  if emodel.use_gpu != "never": gravity = 0
   if not has_peptide and not has_na: gravity = 0
   rmsd_atoms = "backbone"
   if has_na: 
     rmsd_atoms = "all"
+  epsilon = 15.0
+  if emodel.forcefield == "OPLSX": epsilon = 10.0
   newmodel = AttractModel (
    runname=emodel.runname,
    partners=partners,
@@ -104,6 +107,7 @@ def easy2model(emodel):
    search="syst",
    gravity=gravity,
    forcefield=emodel.forcefield,
+   epsilon=epsilon,
    calc_lrmsd=emodel.calc_lrmsd,
    calc_irmsd=emodel.calc_irmsd,
    rmsd_atoms=rmsd_atoms,
@@ -115,6 +119,7 @@ def easy2model(emodel):
    completion_tool=emodel.completion_tool,
    annotation = easy2model_version,   
    use_iattract=emodel.use_iattract,
+   use_gpu=emodel.use_gpu,
   )  
   if has_peptide:
     newmodel.demode = False
