@@ -9,12 +9,15 @@ It does not work under Microsoft Windows.
 Installation instructions for Linux:
 
 1. Install g++ and gfortran (under Ubuntu: sudo apt-get install g++ gfortran).
-Go into "attract/bin", type "make clean" and then "make all" or "make all -j4" (if you have 4 cores)
+For CUDA support install the CUDA toolkit. For more information visit "https://developer.nvidia.com/cuda-toolkit".
+In addition install the boost coroutine library version 1.54.0 (under Ubuntu: sudo apt-get install libboost-coroutine1.54-dev).
+Go into "attract/bin", "make all" or "make all -j4" (if you have 4 cores)
 
 2. Export the ATTRACT environment variables. In your .bashrc file, add the following:
   export ATTRACTDIR=/home/user/attract/bin (i.e. wherever you installed attract)
   export ATTRACTTOOLS=$ATTRACTDIR/../tools
   export ATTRACTGUI=$ATTRACTDIR/../gui
+  export LD_LIBRARY_PATH=$ATTRACTDIR:$LD_LIBRARY_PATH
 
 3. For the analysis, also install numpy and scipy (under Ubuntu: sudo apt-get install python-numpy python-scipy)
 

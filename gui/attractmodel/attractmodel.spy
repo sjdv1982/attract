@@ -706,7 +706,124 @@ Type AttractModel {
   #***
     
   #***Computing and parallelization parameters***
-  Integer np = 1
+  
+  Enum use_gpu("never","if_available",  "always") = "never"
+  form {
+    use_gpu.group = "Computing and parallelization parameters"
+    use_gpu.name = "Use GPU acceleration (experimental!)"
+    use_gpu.optiontitles = (
+      "Never",
+      "If available",
+      "Always",
+    )
+  }
+  validate {
+    if use_gpu != "never":
+      use_grids = any([p.gridname for p in partners])
+      assert use_grids #gpu    
+      assert len(partners) == 2 #gpu
+      assert harmonic_restraints_file is None #gpu
+      assert position_restraints_file is None #gpu  
+      assert haddock_restraints_file is None #gpu
+      for g in grids:
+        assert not g.torque #gpu
+        assert g.calc_potentials #gpu
+      for it in iterations:
+        assert not it.traj #gpu
+        assert not it.prep #gpu
+        assert not it.mc #gpu
+      for p in partners:
+        assert not p.generate_modes #gpu
+        assert p.haddock_restraints is None #gpu
+      assert partners[1].gridname is None #gpu
+      assert partners[0].ensemble_size in (0,1) #gpu
+      assert fix_receptor #gpu
+      assert not gravity #gpu
+      assert not ghost #gpu
+      assert len(atomdensitygrids) == 0 #gpu
+      assert len(symmetries) == 0 #gpu
+      
+  }
+  error {
+    'assert use_grids #gpu'
+    =>
+    'GPU acceleration must be combined with grids'
+  
+    'assert len(partners) == 2 #gpu'
+    =>
+    'GPU acceleration is not compatible with multi-body docking'
+    
+    'assert not p.generate_modes #gpu'
+    =>
+    'GPU acceleration is not compatible with harmonic modes'
+
+    'assert p.haddock_restraints is None #gpu'
+    =>
+    'GPU acceleration is not compatible with HADDOCK restraints'    
+
+    'assert haddock_restraints_file is None #gpu'
+    =>
+    'GPU acceleration is not compatible with a HADDOCK restraints file'    
+
+    'assert harmonic_restraints_file is None #gpu'
+    =>
+    'GPU acceleration is not compatible with a harmonic restraints file'    
+
+    'assert position_restraints_file is None #gpu'
+    =>
+    'GPU acceleration is not compatible with a position restraints'    
+
+    'assert partners[0].ensemble_size in (0,1) #gpu'
+    =>
+    'GPU acceleration is not compatible with receptor ensemble docking'
+
+    'assert fix_receptor #gpu'
+    => 
+    'GPU acceleration requires the receptor to be fixed'
+     
+    'assert not gravity #gpu'
+    => 
+    'GPU acceleration is incompatible with gravity'
+    
+    'assert not ghost #gpu'
+    =>
+    'GPU acceleration is incompatible with ghost mode'
+    
+    'assert len(atomdensitygrids) == 0 #gpu'
+    =>
+    'GPU acceleration does not support atom density grids'
+    
+    'assert len(symmetries) == 0 #gpu'
+    =>
+    'GPU acceleration does not support symmetries'
+    
+    'assert not g.torque #gpu'
+    =>
+    'GPU acceleration does not support torque grids'
+      
+   
+    'assert g.calc_potentials #gpu'
+    =>
+    'GPU acceleration does not support neighbourlist-only grids'
+   
+    'assert not it.traj #gpu'
+    =>
+    'GPU acceleration is incompatible with trajectory mode'
+    
+    'assert not it.prep #gpu'
+    =>
+    'GPU acceleration is incompatible with preparation mode'
+    
+    'assert not it.mc #gpu'
+    =>
+    'GPU acceleration + Monte Carlo has not yet been implemented in the protocol generator'
+   
+    'assert partners[1].gridname is None #gpu'
+    =>
+    'GPU acceleration cannot be combined with a grid on the second partner (ligand)'
+  }
+  
+  Integer np = 4
   ## form np.group = "Computing and parallelization parameters"
   ## form np.name = "Number of processor cores"
   Integer jobsize = 0

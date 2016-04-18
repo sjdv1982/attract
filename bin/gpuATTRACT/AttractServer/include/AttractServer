@@ -1,0 +1,16 @@
+/*
+ * AttractServer.h
+ *
+ *  Created on: Aug 28, 2015
+ *      Author: uwe
+ */
+
+#ifndef ATTRACTSERVER_H_
+#define ATTRACTSERVER_H_
+
+#include "as/ServerManagement.h"
+#include "asDB/readFile.h"
+#include "asClient/requestServer.h"
+#include "asClient/DOFTransform.h"
+
+#endif /* ATTRACTSERVER_H_ */

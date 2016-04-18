@@ -52,3 +52,18 @@ silk --default-output attract.web CryoInterface -I $ATTRACTGUI -m attractmodel -
 full web server, ATTRACT style:
 silk --default-output attract.web CryoInterface -I $ATTRACTGUI -m attractmodel --gui html \
 -I $ATTRACTGUI/server --form form_cryo webform --view form_cryo html --webdir $ATTRACTGUI/server/html --webserver-pre form_cryo webserverform
+
+PEPTIDE INTERFACE:
+
+local GUI, basic:
+silk --default-output attract.web AttractPeptideModel -m attractmodel -I $ATTRACTGUI
+
+local GUI, full:
+silk --default-output attract.web AttractPeptideModel -m attractmodel -I $ATTRACTGUI --form localgui buttons --logic localgui logic
+
+web form, default style:
+silk --default-output attract.web AttractPeptideModel -m attractmodel -I $ATTRACTGUI --gui html
+
+full web server:
+silk --default-output attract.web AttractPeptideModel -m attractmodel -I $ATTRACTGUI --gui html \
+-I $ATTRACTGUI/server --form form_peptide webform --view form_peptide html --webdir $ATTRACTGUI/server/html --webserver-pre form_peptide webserverform
