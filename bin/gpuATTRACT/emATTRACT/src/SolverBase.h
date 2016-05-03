@@ -22,6 +22,7 @@
 #define SOLVERBASE_H_
 
 #include <boost/coroutine/all.hpp>
+#include <boost/version.hpp>
 #include <Eigen/Core>
 #include <cassert>
 
