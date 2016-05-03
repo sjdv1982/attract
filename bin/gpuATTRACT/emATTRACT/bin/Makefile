@@ -44,7 +44,7 @@ endif
 CXXFLAGS =  $(CXX_OFLAGS) -std=c++11 -fmessage-length=0
  
 LDFLAGS = -L$(ASDIR)/lib -L$(CUDADIR)/lib64
-LIBS = -lboost_coroutine -lnvToolsExt -lcudart -lAttractServer -lboost_context -lgfortran
+LIBS = -lboost_coroutine -lnvToolsExt -lcudart -lAttractServer -lboost_context -lgfortran -lboost_system
 
 FXX = gfortran
 FXXFLAGS = $(FXX_OFLAGS) -fcray-pointer

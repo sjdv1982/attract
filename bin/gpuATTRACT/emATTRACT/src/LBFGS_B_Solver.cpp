@@ -144,7 +144,7 @@ int lbfgsb_run(LBFGS_B_WorkingStruct& opt, double* x, double* f, double* g) {
 	}
 }
 
-void ema::LBFGS_B_Solver::run(coro_t::caller_type& energyAndGradients) {
+void ema::LBFGS_B_Solver::run(coro_t_push& energyAndGradients) {
 	// dimension of problem
 	int n = state.rows();
 

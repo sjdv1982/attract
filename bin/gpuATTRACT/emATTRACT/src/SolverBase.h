@@ -29,7 +29,17 @@
 
 namespace ema {
 
-using coro_t = boost::coroutines::coroutine<void(void)>;
+#define MINOR_BOOST_VERSION BOOST_VERSION / 100 % 1000  
+#if MINOR_BOOST_VERSION < 55
+using coro_t_pull = boost::coroutines::coroutine<void(void)>;
+using coro_t_push = coro_t_pull::caller_type;
+#elif MINOR_BOOST_VERSION < 56
+using coro_t_pull = boost::coroutines::coroutine<void>::pull_type;
+using coro_t_push = boost::coroutines::coroutine<void>::push_type;
+#else
+using coro_t_pull = boost::coroutines::asymmetric_coroutine<void>::pull_type;
+using coro_t_push = boost::coroutines::asymmetric_coroutine<void>::push_type;
+#endif
 
 struct Statistic {
 	virtual Statistic* getCopy() const = 0;
@@ -94,7 +104,7 @@ public:
 
 protected:
 
-	virtual void run(coro_t::caller_type& ca) = 0;
+	virtual void run(coro_t_push &ca) = 0;
 
 	virtual Statistic* internal_getStats() = 0;
 
@@ -102,7 +112,7 @@ protected:
 	Vector state; // dof
 	ObjGrad objective; // energy
 
-	coro_t* coro;
+	coro_t_pull *coro;
 
 	static bool stats;
 

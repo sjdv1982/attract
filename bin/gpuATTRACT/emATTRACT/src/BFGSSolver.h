@@ -108,13 +108,13 @@ public:
 
 private:
 
-	void run(coro_t::caller_type& ca) override;
+	void run(coro_t_push & ca) override;
 
-	double linesearch_WolfeRule(coro_t::caller_type& ca, const Vector& x0, const ObjGrad& objGrad0, const Vector& p,
+	double linesearch_WolfeRule(coro_t_push & ca, const Vector& x0, const ObjGrad& objGrad0, const Vector& p,
 			const double& dObj,
 			/*OUT:*/ Vector& x_next, ObjGrad& objGrad_next);
 
-	double zoom(coro_t::caller_type& ca, const Vector& x0, const Vector& p,
+	double zoom(coro_t_push & ca, const Vector& x0, const Vector& p,
 		const ObjGrad& objGrad0, const double& phi0_dash, const double& min_alpha,
 		double& alpha_lo, double& alpha_hi,
 		ObjGrad& objGrad_lo, ObjGrad& objGrad_hi,
