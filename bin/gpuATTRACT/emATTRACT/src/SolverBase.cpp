@@ -27,7 +27,7 @@
 
 void ema::SolverBase::start() {
 	assert(state.rows() > 0);
-	coro =  new coro_t(std::bind(&SolverBase::run, this, std::placeholders::_1));
+	coro =  new coro_t_pull(std::bind(&SolverBase::run, this, std::placeholders::_1));
 
 
 }
