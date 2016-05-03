@@ -8,7 +8,7 @@ CURDIR = $(realpath $(PWD) )
 OBJDIR = build
 $(shell mkdir -p $(OBJDIR))
 
-NAME = emATTRACT
+NAME = gpuATTRACTcheck
 BINARY = $(NAME)
 
 
@@ -19,12 +19,14 @@ BINARY = $(NAME)
 TARGET ?= RELEASE
 
 SOURCES_CPP = $(shell find $(CURDIR)/../src/ -name "*.cpp")
+
+#OBJECTS_CPP = $(SOURCES_CPP:.cpp=.o)
+#OBJS_CPP = $(notdir $(OBJECTS_CPP))
 OBJECTS_CPP = $(addprefix $(OBJDIR)/, $(notdir $(SOURCES_CPP:.cpp=.o)))
 
-SOURCES_F = $(shell find $(CURDIR)/../src/ -name "*.f")
-OBJECTS_F = $(addprefix $(OBJDIR)/, $(notdir $(SOURCES_F:.f=.o)))
+#OBJECTS_CU = $(SOURCES_CU:.cu=.o)
 
-OBJECTS = $(OBJECTS_CPP) $(OBJECTS_F)
+OBJECTS = $(OBJECTS_CPP)
 
 ASDIR = ../../AttractServer
 INCLUDES = -I../src -I$(CUDADIR)/include -I$(ASDIR)/include
@@ -32,22 +34,16 @@ INCLUDES = -I../src -I$(CUDADIR)/include -I$(ASDIR)/include
 # AttractServer 
 CXX = g++
 ifeq ($(TARGET), RELEASE)
-	CXX_OFLAGS = -O3 -DNDEBUG
-	FXX_OFLAGS = -O2 
+	OFLAGS = -O3 -DNDEBUG
 else ifeq ($(TARGET), DEBUG) 
-	CXX_OFLAGS = -O0 -g -Wall -Wextra
-	FXX_OFLAGS = -O0 -g -Wall -Wextra
+	OFLAGS = -O0 -g -Wall -Wextra
 else
-	CXX_OFLAGS =
-	FXX_OFLAGS = 
+	OFLAGS =
 endif	
-CXXFLAGS =  $(CXX_OFLAGS) -std=c++11 -fmessage-length=0
+CXXFLAGS =  $(OFLAGS) -std=c++11 -fmessage-length=0
  
-LDFLAGS = -L$(ASDIR)/lib -L$(CUDADIR)/lib64
-LIBS = -lboost_coroutine -lnvToolsExt -lcudart -lAttractServer -lboost_context -lgfortran -lboost_system
-
-FXX = gfortran
-FXXFLAGS = $(FXX_OFLAGS) -fcray-pointer
+LDFLAGS = -L$(ASDIR)/lib -L$(CUDADIR)/lib64 
+LIBS = -lnvToolsExt -lcudart -lAttractServer
 
 # search directories for source files
 VPATH = $(shell find ../src/ -type d)
@@ -62,21 +58,14 @@ $(BINARY): $(OBJECTS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
-$(OBJECTS_CPP): $(OBJDIR)/%.o: %.cpp $(OBJDIR)/%.d
+$(OBJECTS): $(OBJDIR)/%.o: %.cpp $(OBJDIR)/%.d
 	@echo 'Building file: "$<"'
 	@echo 'Invoking: GCC C++ Compiler'
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" -o "$@" "$<"
 	@echo 'Finished building: "$<"'
 	@echo ' '	
 
-$(OBJDIR)/%.d: ;
-
-$(OBJECTS_F): $(OBJDIR)/%.o: %.f
-	@echo 'Building file: "$<"'
-	@echo 'Invoking: GCC Fortran Compiler'
-	$(FXX) $(FXXFLAGS) -c -o "$@" "$<"
-	@echo 'Finished building: "$<"'
-	@echo ' '		
+$(OBJDIR)/%.d: ;	
 	
 
 -include $(OBJECTS:.o=.d)
@@ -89,7 +78,6 @@ clean:
 	rm -r $(OBJDIR)
 	
 cleanall: clean
-	#rm $(BINARY)
 	find . -type f -name "$(BINARY)" -delete
 
 clean_deps:
