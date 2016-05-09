@@ -1,36 +1,50 @@
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-NOTE: ATTRACT 2.0 is still UNDER DEVELOPMENT 
-This installation instruction is still in the DRAFT stage
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
 ATTRACT is developed under Linux. It should work under Mac OSX, but this has not been tested. 
 It does not work under Microsoft Windows.
 
 Installation instructions for Linux:
 
 1. Install g++ and gfortran (under Ubuntu: sudo apt-get install g++ gfortran).
-For CUDA support install the CUDA toolkit. For more information visit "https://developer.nvidia.com/cuda-toolkit".
-In addition install the boost coroutine library version 1.54.0 (under Ubuntu: sudo apt-get install libboost-coroutine1.54-dev).
-Go into "attract/bin", "make all" or "make all -j4" (if you have 4 cores)
 
-2. Export the ATTRACT environment variables. In your .bashrc file, add the following:
+2. Go into "attract/bin", "make all" or "make all -j4" (if you have 4 cores).
+This should create the attract binary. See step 8 to compile ATTRACT with support for GPU acceleration.
+
+3. Export the ATTRACT environment variables. In your .bashrc file, add the following:
   export ATTRACTDIR=/home/user/attract/bin (i.e. wherever you installed attract)
   export ATTRACTTOOLS=$ATTRACTDIR/../tools
   export ATTRACTGUI=$ATTRACTDIR/../gui
   export LD_LIBRARY_PATH=$ATTRACTDIR:$LD_LIBRARY_PATH
 
-3. For the analysis, also install numpy and scipy (under Ubuntu: sudo apt-get install python-numpy python-scipy)
+4. For the analysis, also install numpy and scipy (under Ubuntu: sudo apt-get install python-numpy python-scipy)
 
-4. For iATTRACT and the OPLSX forcefield, install pdb2pqr (under Ubuntu: sudo apt-get install pdb2pqr)
+5. For iATTRACT and the OPLSX forcefield, install pdb2pqr (under Ubuntu: sudo apt-get install pdb2pqr)
 In addition, the pdb2pqr directory must be made accessible to Python. (Under Ubuntu, this directory is
 /usr/share/pdb2pqr . It should contain the files "pdb2pqr.py" and "main.py".)
 To make it accessible, edit your .bashrc file (/home/user/.bashrc) by adding the following
   export PYTHONPATH=$PYTHONPATH:/usr/share/pdb2pqr  
 
-5. Test your installation.
+6. Test your installation.
 Type "source ~/.bashrc" (or start a new command line shell).
 After step 1 and 2, typing "$ATTRACTDIR/attract" should result in:
   Too few arguments
   usage: $path/attract structures.dat parameterfile receptor.pdb [ligand.pdb] [options]
 After step 3, typing "python -c 'import numpy, scipy' " should give no error.
 After step 4, typing "python -c 'import pdb2pqr' " should give no error.
+
+Optional steps:
+
+7. GPU support
+- Install the CUDA toolkit. For more information visit "https://developer.nvidia.com/cuda-toolkit".
+  In particular, you should have the following variables added to your .bashrc:
+    export CUDADIR=/usr/local/cuda 
+    export PATH=$PATH:$CUDADIR/bin
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CUDADIR/lib64
+- Install the boost coroutine and system libraries (under Ubuntu: sudo apt-get install libboost-coroutine-dev libboost-system-dev).
+- Repeat step 2. This should generate the emATTRACT, mcATTRACT and gpuATTRACTcheck binaries.
+- Check that GPU support is enabled successfully by running the gpuATTRACTcheck binary.
+
+8. Spydersilk support 
+With Spydersilk, you can edit ATTRACT protocol files (.web files) locally.
+- Get the Spydersilk code (under Ubuntu: wget http://www.attract.ph.tum.de/services/ATTRACT/downloads/spydersilk-0.03.tar.gz)
+- Install pip (under Ubuntu: sudo apt-get install python-pip)
+- Install Spydersilk: sudo pip install spydersilk-0.03.tar.gz
+- To test that it works, type "cd $ATTRACTGUI; python -c 'import spyder, attractmodel'"
