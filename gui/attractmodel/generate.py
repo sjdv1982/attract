@@ -367,7 +367,10 @@ name=%s
 """ % m.runname
   ffpar = parameterfiledict[m.forcefield]
   params = "\"" + ffpar + " " + partnerfiles  
-  gpuparams = "\"" + "-d 0 -p " + ffpar + " -r " + filenames[0] + " -l " + filenames[1]
+  gpuparams = ""
+  if use_gpu:
+    assert len(filenames) > 1
+    gpuparams = "\"" + "-d 0 -p " + ffpar + " -r " + filenames[0] + " -l " + filenames[1]
   scoreparams = params + " --score --fix-receptor"
   gridparams = ""
   if m.fix_receptor: params += " --fix-receptor" 
