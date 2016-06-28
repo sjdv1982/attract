@@ -25,3 +25,12 @@ def rotmat2euler(rotmat):
     if (rotmat[0][1] < 0): rot *= -1
 
   return phi,ssi,rot
+
+if __name__ == "__main__":
+  import sys
+  data = open(sys.argv[1])
+  rotmat = []
+  for l in data.readlines():
+    rotmat.append([float(x) for x in l.split()])
+  phi, ssi, rot = rotmat2euler(rotmat)
+  print phi, ssi, rot
