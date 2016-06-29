@@ -6,7 +6,7 @@ Installation instructions for Linux:
 1. Install g++ and gfortran (under Ubuntu: sudo apt-get install g++ gfortran).
 
 2. Go into "attract/bin", "make all" or "make all -j4" (if you have 4 cores).
-This should create the attract binary. See step 8 to compile ATTRACT with support for GPU acceleration.
+This should create the attract binary. See step 7 to compile ATTRACT with support for GPU acceleration.
 
 3. Export the ATTRACT environment variables. In your .bashrc file, add the following:
   export ATTRACTDIR=/home/user/attract/bin (i.e. wherever you installed attract)
