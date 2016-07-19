@@ -161,7 +161,60 @@ Type AttractEasyModel {
   #***
     
   #***Computing and parallelization parameters***
-  Integer np = 1
+  Enum use_gpu("never","if_available",  "always") = "never"
+  form {
+    use_gpu.group = "Computing and parallelization parameters"
+    use_gpu.name = "Use GPU acceleration (experimental!)"
+    use_gpu.optiontitles = (
+      "Never",
+      "If available",
+      "Always",
+    )
+  }
+  validate {
+    if use_gpu != "never":
+      assert use_grids #gpu    
+      assert len(partners) == 2 #gpu
+      assert harmonic_restraints_file is None #gpu
+      assert position_restraints_file is None #gpu      
+      for p in partners:
+        assert not p.generate_modes #gpu
+        assert p.haddock_restraints is None #gpu
+      assert partners[0].ensemble_size in (0,1) #gpu
+  }
+  error {
+    'assert use_grids #gpu'
+    =>
+    'GPU acceleration must be combined with grids'
+  
+    'assert len(partners) == 2 #gpu'
+    =>
+    'GPU acceleration is not compatible with multi-body docking'
+    
+    'assert not p.generate_modes #gpu'
+    =>
+    'GPU acceleration is not compatible with harmonic modes'
+
+    'assert p.haddock_restraints is None #gpu'
+    =>
+    'GPU acceleration is not compatible with HADDOCK restraints'    
+    
+    'assert harmonic_restraints_file is None #gpu'
+    =>
+    'GPU acceleration is not compatible with a harmonic restraints file'    
+
+    'assert position_restraints_file is None #gpu'
+    =>
+    'GPU acceleration is not compatible with a position restraints file'    
+
+    'assert partners[0].ensemble_size in (0,1) #gpu'
+    =>
+    'GPU acceleration is not compatible with receptor ensemble docking'
+
+  }
+  
+
+  Integer np = 4
   ## form np.group = "Computing and parallelization parameters"
   ## form np.name = "Number of processor cores"
   

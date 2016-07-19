@@ -18,36 +18,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *******************************************************************************/
 
-#include <cassert>
+#include <iostream>
+#include <cuda_runtime.h>
 
-#include "SolverBase.h"
-#include "BFGSSolver.h"
-#include "VA13Solver.h"
+#include "asClient/cudaArchCheck.h"
 
-
-void ema::SolverBase::start() {
-	assert(state.rows() > 0);
-	coro =  new coro_t_pull(std::bind(&SolverBase::run, this, std::placeholders::_1));
+using namespace std;
 
 
-}
-
-void ema::SolverBase::step() {
-	assert(this->converged() == false);
-	/* make sure that objective is already set !!! */
-	(*coro)();
-
-	if (stats && !converged()) {
-		Statistic* stats = internal_getStats();
-		++stats->numRequests;
+int main (int argc, char *argv[]) {
+	using namespace std;
+	/* Check Compute Capability of devices */
+	try {
+		asClient::checkComputeCapability();
+	} 
+	catch (std::exception& e) {
+		cerr << "Error: " << e.what() << endl;
+		exit(EXIT_FAILURE);
 	}
+	float *dummy;
+        cudaMalloc(&dummy, 1000); //just to force the creation of a CUDA context
 }
 
-void ema::SolverBase::finalize() {
-	if (coro) {
-		delete coro;
-		coro = nullptr;
-	}
-}
 
-bool ema::SolverBase::stats = false;

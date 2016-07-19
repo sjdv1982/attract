@@ -7,8 +7,8 @@ class Atom(object):
     self.x = float(l[30:38])
     self.y = float(l[38:46])
     self.z = float(l[46:54])    
-    self.resid = l[21:26]
-    self.chain = l[21] #readonly
+    self.resid = l[21:27]
+    self.chain = l[21] #readonly    
     self.resnr = int(l[22:26]) #readonly
     self.resname = l[17:20].strip()
     self.line = l
