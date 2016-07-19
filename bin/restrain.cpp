@@ -345,7 +345,7 @@ inline void restrain_type_5(const Restraint &r, int iab, const Coor *x, Coor *f,
 }
 
 inline void restrain_type_6(const Restraint &r, int iab, const Coor *x, Coor *f, double &energy) {
-  //Step potential, use only for scoring!
+  //Step potential, use only for scoring and Monte Carlo!
   if (r.s1 == 1 && r.s2 == 1) {
     int atomnr1 = r.selection1[0]-1;
     int atomnr2 = r.selection2[0]-1;
@@ -355,18 +355,18 @@ inline void restrain_type_6(const Restraint &r, int iab, const Coor *x, Coor *f,
     double disy = a1[1]-a2[1];
     double disz = a1[2]-a2[2];
     double dsq = disx*disx+disy*disy+disz*disz;
-    double limsq = r.par1 * r.par1;
+    double limsq = r.par1 * r.par1;//upper limit of step potential
     if (limsq < dsq) {
       //printf("ENERGY: 0\n");
       return;
     }
-    double limsq2 = r.par3 * r.par3;
+    double limsq2 = r.par3 * r.par3;//lower limit of step potential
     if (limsq2 > dsq) {
       //printf("ENERGY: 0\n");
       return;
     }
-    double cforce = r.par2;
-    energy += cforce;
+    double cforce = r.par2;//depth of step potential
+    energy += 0.5*cforce;
   }
 }
 
@@ -423,6 +423,63 @@ inline void restrain_type_7(double weight, const Restraint &r, int iab, const Co
   }
 }
 
+inline void restrain_type_8(const Restraint &r, int iab, const Coor *x, Coor *f, double &energy) {
+  //Bump potential for e.g. x-link data
+  // goes smoothly to zero at r_min1 = r_ref1+r_0, r_min2= r_ref2-r_0, between r_ref1 and r_ref2 flat potential
+  //can be repulsive and attracttive
+  if (r.s1 == 1 && r.s2 == 1) {
+    int atomnr1 = r.selection1[0]-1;
+    const Coor &a1 = x[atomnr1];
+    int atomnr2 = r.selection2[0]-1;
+    const Coor &a2 = x[atomnr2];
+
+    double disx = a1[0]-a2[0];
+    double disy = a1[1]-a2[1];
+    double disz = a1[2]-a2[2];
+    double dsq = disx*disx+disy*disy+disz*disz;
+    double dist = sqrt(dsq);
+    double limsq = (r.par1 -r.par3)*(r.par1 - r.par3);//restraint goes to zero here
+    double limsq2 = (r.par2+r.par3)*(r.par2 + r.par3);//restraint goes to zero here
+    double limsq3 = r.par3 * r.par3;// 
+    if ((limsq2 < dsq) || (limsq > dsq) ) {
+      //printf("ENERGY: 0 %f\n", dist);
+      return;
+    }
+    limsq = r.par1 * r.par1;
+    limsq2 = r.par2 * r.par2;
+    double cforce = r.par4;
+    
+    double violation = -1.0*limsq3;
+    if (dsq < limsq){
+     violation += (dist - r.par1) * (dist-r.par1); 
+    }
+    else if (dsq > limsq2 ){
+      violation += (dist - r.par2)*(dist-r.par2);
+    }
+    double violationsq = violation*violation;
+    energy += 0.5 * cforce * violationsq;
+    // ToDo check force code
+    if (iab) {
+    	double factor = 2*violation;
+    	Coor force = {disx * cforce*factor,disy * cforce*factor,disz * cforce*factor};
+	if ( dsq >= limsq && dsq <= limsq2 ) {
+	  force[0] = 0.0;
+	  force[1] = 0.0;
+	  force[2] = 0.0;
+	}
+	  //fprintf(stderr, "LJ restraint %i  %i %f %f %f %f %f\n",atomnr1, atomnr2, dsq, limsq, force[0], force[1], force[2]);
+    	Coor &f1 = f[atomnr1];
+    	f1[0] -= force[0];
+    	f1[1] -= force[1];
+    	f1[2] -= force[2];
+    	Coor &f2 = f[atomnr2];
+    	f2[0] += force[0];
+    	f2[1] += force[1];
+    	f2[2] += force[2];
+    }
+  }
+}
+
 extern "C" void restrain_(const int &ministatehandle, const int &cartstatehandle, const int &seed, const int &iab, double &energy) {
   MiniState &ms = ministate_get(ministatehandle);
   CartState &cs = cartstate_get(cartstatehandle);
@@ -443,5 +500,6 @@ extern "C" void restrain_(const int &ministatehandle, const int &cartstatehandle
     if (r.type == 5) restrain_type_5(r,iab,x,f,energy);
     if (r.type == 6) restrain_type_6(r,iab,x,f,energy);
     if (r.type == 7) restrain_type_7(weight, r,iab,x,f,energy);
+    if (r.type == 8) restrain_type_8(r,iab,x,f,energy);
   }
 }
