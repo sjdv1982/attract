@@ -66,6 +66,7 @@ def read_pdb(f):
   ret = []
   for l in open(f):
     if not l.startswith("ATOM"): continue
+    if l[13] == 'H': continue
     x,y,z = (float(f) for f in (l[30:38],l[38:46],l[46:54]))
     ret.append((x,y,z))
   return ret
