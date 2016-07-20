@@ -438,14 +438,14 @@ name=%s
       rest.append("--rest " + air_restraints_file)
       aa_rest.append("--rest " + aa_air_restraints_file)
   if m.harmonic_restraints_file:
-    rest.append("--rest " + harmonic_restraints_file) 
+    rest.append("--rest " + harmonic_restraints_file)
     aa_rest.append("--rest " + aa_harmonic_restraints_file)
-  if m.haddock_restraints_file:  
-    rest.append("--rest " + haddock_restraints_file)    
+  if m.haddock_restraints_file:
+    rest.append("--rest " + haddock_restraints_file)
     aa_rest.append("--rest " + aa_haddock_restraints_file)
 
   if m.position_restraints_file:
-    rest.append("--rest " + position_restraints_file) 
+    rest.append("--rest " + position_restraints_file)
     aa_rest.append("--rest " + aa_position_restraints_file)
 
   if len(rest):
@@ -625,7 +625,7 @@ echo '**************************************************************'
       if m.use_iattract:
 	dist = 2.0
 	air_filenames = []
-        for pnr, p in enumerate(m.partners):        
+        for pnr, p in enumerate(m.partners):
           if p.haddock_restraints:
             f_act = "haddock-active-%s-partner%d.reslist" % (m.runname, pnr+1)
             actstr = "\n".join([str(r) for r in p.haddock_restraints.activereslist])
@@ -636,18 +636,18 @@ echo '**************************************************************'
             passtr = "\n".join([str(r) for r in p.haddock_restraints.passivereslist])
             open(f_pass, "w").write(passtr)
             air_filenames.append(f_pass)
-        
+
             air_filenames.append(aa_filenames[pnr])
             air_filenames.append(mappings[pnr])
             air_filenames.append("\\\n" + " " * 27)
-	
+
 	ret += "python $ATTRACTTOOLS/air.py %s %s %s %s > %s\n" % (" ".join(air_filenames), chance_removal, dist, k, aa_air_restraints_file)
 
   if m.harmonic_restraints_file or m.haddock_restraints_file or m.position_restraints_file:
     tbl_pdbs = " ".join(filenames)
     if m.use_iattract:
       tbl_aa_pdbs = " ".join(aa_filenames)
-      
+
     tbl_mappings = " ".join(mappings)
 
     axcopies = {}
@@ -673,7 +673,7 @@ echo '**************************************************************'
 """
     tbl = m.harmonic_restraints_file.name
     ret += "python $ATTRACTTOOLS/tbl2attract.py %s --mode harmonic --pdbs %s --mappings %s --k %s > %s\n" % \
-      (tbl, tbl_pdbs, tbl_mappings, m.rstk_harmonic, harmonic_restraints_file)   
+      (tbl, tbl_pdbs, tbl_mappings, m.rstk_harmonic, harmonic_restraints_file)
     if m.use_iattract:
       ret += "python $ATTRACTTOOLS/tbl2attract.py %s --mode harmonic --pdbs %s --mappings %s --k %s > %s\n" % \
       (tbl, tbl_aa_pdbs, tbl_mappings, m.rstk_harmonic, aa_harmonic_restraints_file)
@@ -687,7 +687,7 @@ echo '**************************************************************'
 """
     tbl = m.haddock_restraints_file.name
     ret += "python $ATTRACTTOOLS/tbl2attract.py %s --mode haddock --pdbs %s --mappings %s --k %s --softsquare %s --chance_removal %s > %s\n" % \
-      (tbl, tbl_pdbs, tbl_mappings, m.rstk_haddock, m.haddock_softsquare, m.haddock_random_removal,haddock_restraints_file)    
+      (tbl, tbl_pdbs, tbl_mappings, m.rstk_haddock, m.haddock_softsquare, m.haddock_random_removal,haddock_restraints_file)
     if m.use_iattract:
       ret += "python $ATTRACTTOOLS/tbl2attract.py %s --mode haddock --pdbs %s --mappings %s --k %s --softsquare %s --chance_removal %s > %s\n" % \
       (tbl, tbl_aa_pdbs, tbl_mappings, m.rstk_haddock, m.haddock_softsquare, m.haddock_random_removal,aa_haddock_restraints_file)
@@ -700,7 +700,7 @@ echo '**************************************************************'
 """
     tbl = m.position_restraints_file.name
     ret += "python $ATTRACTTOOLS/tbl2attract.py %s --mode position --pdbs %s --mappings %s --k %s > %s\n" % \
-      (tbl, tbl_pdbs, tbl_mappings, m.rstk_position, position_restraints_file)    
+      (tbl, tbl_pdbs, tbl_mappings, m.rstk_position, position_restraints_file)
     if m.use_iattract:
       ret += "python $ATTRACTTOOLS/tbl2attract.py %s --mode position --pdbs %s --mappings %s --k %s > %s\n" % \
       (tbl, tbl_aa_pdbs, tbl_mappings, m.rstk_position, aa_position_restraints_file)
@@ -972,6 +972,9 @@ echo '**************************************************************'
     ret += "$PYPY $ATTRACTTOOLS/sort.py %s > out_$name-sorted.dat\n" % result
     ret += "\n"
     result = "out_$name-sorted.dat"
+    if m.max_analysis:
+      ret += "$ATTRACTTOOLS/top %s %d > out_$name-top.dat\n" % (result, m.max_analysis)
+      result = "out_$name-top.dat"
 
   if m.deredundant or m.use_iattract:
 

@@ -4,7 +4,7 @@ Type Data_ATTRACT_Translations:Data{}
 Type Data_CNS_Restraints:Data{}
 
 Type DCoordinate:Coordinate {
-  """Class for 3D (x,y,z) coordinates. 
+  """Class for 3D (x,y,z) coordinates.
      x, y, z are optional and default to zero
   """
   Delete x
@@ -13,7 +13,7 @@ Type DCoordinate:Coordinate {
   Float x = 0
   Float y = 0
   Float z = 0
-}  
+}
 
 Type DVector:DCoordinate {
   """Fork of Coordinate that ensures a length of 1
@@ -27,17 +27,17 @@ Type DVector:DCoordinate {
     x.digits = 5
     y.min = -1
     y.max = 1
-    y.default = 0    
+    y.default = 0
     y.digits = 5
     z.min = -1
     z.max = 1
-    z.default = 0  
+    z.default = 0
     z.digits = 5
-  }    
+  }
   validate {
     assert abs(x**2+y**2+z**2 - 1) < 0.001
-  }  
-}  
+  }
+}
 
 Type AttractSymmetry {
   *DVector symmetry_axis
@@ -45,13 +45,13 @@ Type AttractSymmetry {
   form {
     symmetry_axis.add_header("You can use generative symmetry or distance-restrained symmetry")
     symmetry_axis.add_header("If you want to use generative symmetry:")
-    symmetry_axis.add_header(" - Provide an explicit symmetry axis and origin")    
-    symmetry_axis.add_header(" - Provide an explicit symmetry fold")    
+    symmetry_axis.add_header(" - Provide an explicit symmetry axis and origin")
+    symmetry_axis.add_header(" - Provide an explicit symmetry fold")
     symmetry_axis.add_header(" - Specify a single reference symmetry partner")
-    symmetry_axis.add_header(" - In the Docking Partner section, only define the reference partner structure")    
+    symmetry_axis.add_header(" - In the Docking Partner section, only define the reference partner structure")
     symmetry_axis.add_header("If you want to use distance-restrained symmetry:")
-    symmetry_axis.add_header(" - Do not provide explicit symmetry axis and origin")    
-    symmetry_axis.add_header(" - Specify all symmetry partners that are to be restrained")    
+    symmetry_axis.add_header(" - Do not provide explicit symmetry axis and origin")
+    symmetry_axis.add_header(" - Specify all symmetry partners that are to be restrained")
     symmetry_axis.add_header(" - In the Docking Partner section, specify all partner structures, which must be identical")
     symmetry_axis.name = "Generative symmetry axis"
     symmetry_origin.name = "Origin for generative symmetry axis"
@@ -70,9 +70,9 @@ Type AttractSymmetry {
   IntegerArray partners = []
   form {
     partners.form = "soft"
-  }  
+  }
   validate {
-    if symmetry_axis is not None: 
+    if symmetry_axis is not None:
       assert len(partners) == 1
       assert symmetry_fold is not None
       assert symmetry == "Cx"
@@ -89,7 +89,7 @@ Type AttractSymmetry {
     'if symmetry_origin is not None: assert symmetry_axis is not None'
     =>
     'If you specify a symmetry origin, you must also supply a symmetry axis'
-    
+
     'if symmetry == "Dx": assert len(partners) == 4'
     =>
     'With Dx-symmetry and no symmetry axis, the number of partners must be 4, not {len(partners)}'
@@ -101,23 +101,23 @@ Type AttractSymmetry {
     'assert len(partners) > 1'
     =>
     "If you don't define a symmetry axis, you have define at least 2 symmetry partners, not {len(partners)}"
-  }  
+  }
 }
 
 Type HaddockRestraintsInterface {
   """
   Definition of HADDOCK Ambiguous Interaction Restraints (AIRs)
   Lists of active and passive residues must be provided
-  """  
+  """
   ## form activereslist.add_header("Please supply residues as comma-separated lists of residue numbers")
   ## form activereslist.name = "Active residues (directly involved in the interaction)"
-  ## form passivereslist.name = "Passive residues (surrounding surface residues)"  
+  ## form passivereslist.name = "Passive residues (surrounding surface residues)"
   ## form auto_passive.name = "Define passive residues automatically around the active residues"
   ## form activereslist.type = "text"
   ## form passivereslist.type = "text"
   HaddockResidueList activereslist = []
   HaddockResidueList passivereslist = []
-  Bool auto_passive = False  
+  Bool auto_passive = False
   validate {
     assert not (auto_passive and len(passivereslist))
   }
@@ -132,22 +132,22 @@ Type AttractPartnerInterface {
   ## form pdbfile.type = "file"
   ## form pdbfile.name = "Structure file"
   *ResourceData_PDB pdbfile
-  
+
   *String gridname
   ## form gridname.name = "Name of the grid to use for this molecule"
-  
+
   ## form chain.name = "Which chain of the structure must be used?"
   ## form chain.options = "All", "A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"
   String chain = "All"
-        
+
   *HaddockRestraintsInterface haddock_restraints
   ## form haddock_restraints.name = "Definition of residues for HADDOCK AIR restraints (optional)"
   ## form haddock_restraints.auto_passive.type = None #TODO: disabled for now
-      
+
   Enum moleculetype("Protein", "DNA", "RNA") = "Protein"
   ## form moleculetype.name = "What kind of molecule are you docking?"
   ## form moleculetype.optiontitles = "Protein/peptide", "DNA", "RNA"
-    
+
   Bool generate_modes = False
   ## form generate_modes.name = "Generate harmonic modes"
   Bool aacontact_modes = False
@@ -162,7 +162,7 @@ Type AttractPartnerInterface {
   ## validate if nr_modes != 0: assert nr_modes >= 1 and nr_modes <= 10
   ## validate if generate_modes: assert nr_modes != 0
   ## validate if nr_modes != 0: assert generate_modes
-    
+
   Bool ensemble = False
   ## form ensemble.name = "The PDB is a multi-model ensemble"
   Integer ensemble_size = 0
@@ -171,12 +171,12 @@ Type AttractPartnerInterface {
   *Enum ensemblize("random","all","custom")
   ## form ensemblize.name = "Ensemble search"
   ## form ensemblize.optiontitles = "Random", "All", "Custom (none)"
-  
+
   Bool has_hydrogens = False
-  ## form has_hydrogens.name = "The PDB file contains all necessary atoms, including polar hydrogens"  
-  Bool charged_termini = False 
-  ## form charged_termini.name = "Add charged termini to each chain"  
-    
+  ## form has_hydrogens.name = "The PDB file contains all necessary atoms, including polar hydrogens"
+  Bool charged_termini = False
+  ## form charged_termini.name = "Add charged termini to each chain"
+
   *ResourceData_PDB rmsd_pdb
   ## form rmsd_pdb.add_header("You can specify a PDB file to use as reference in RMSD calculations")
   ## form rmsd_pdb.add_header("Leave blank to use the docked PDB instead (bound conformation = unbound conformation)")
@@ -185,10 +185,10 @@ Type AttractPartnerInterface {
   *ResourceData_PDB rmsd_pdb_alt
   ## form rmsd_pdb_alt.add_header("It is possible to specify alternative references ")
   ## form rmsd_pdb_alt.name = "Alternative RMSD PDB file"
-  ## form rmsd_pdb_alt.type = "file"  
+  ## form rmsd_pdb_alt.type = "file"
   *ResourceData_PDB rmsd_pdb_alt2
   ## form rmsd_pdb_alt2.name = "Alternative RMSD PDB file 2"
-  ## form rmsd_pdb_alt2.type = "file"    
+  ## form rmsd_pdb_alt2.type = "file"
   validate {
     if rmsd_pdb_alt is not None: assert rmsd_pdb is not None
     if rmsd_pdb_alt2 is not None: assert rmsd_pdb_alt is not None
@@ -200,11 +200,11 @@ Type AttractPartnerInterface {
 
     'if rmsd_pdb_alt2 is not None: assert rmsd_pdb_alt is not None'
     =>
-    'You specified a second alternative RMSD reference, but not a first alternative'    
+    'You specified a second alternative RMSD reference, but not a first alternative'
   }
   validate {
     if chain not in ("All", "A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"):
-       raise spyder.core.ValidationError("Please provide a chain")  
+       raise spyder.core.ValidationError("Please provide a chain")
     if ensemble:
       assert ensemble_size > 1
       assert ensemblize is not None
@@ -263,7 +263,7 @@ Type AttractGrid:Degenerate {
     assert len(gridname) > 0
     self.gridname = gridname
     if not gridname.replace("_","").replace("-","").isalnum():
-      raise ValueError("The name of the grid may contain only letters, digits, _ and -")  
+      raise ValueError("The name of the grid may contain only letters, digits, _ and -")
   }
 
   ## form omp.add_header("Do you want to calculate the grid on multiple cores using OpenMP?")
@@ -272,7 +272,7 @@ Type AttractGrid:Degenerate {
   Bool torque = False
   Float plateau_distance = 10.0
   ## form plateau_distance.name = "Plateau distance (A) for grid calculation"
-  Float neighbour_distance = 12.0 
+  Float neighbour_distance = 12.0
   ## form neighbour_distance.name = "Neighbor list cutoff (A) for grid calculation"
   Bool calc_potentials = True
   ## form calc_potentials.name = "Calculate long-range potentials on the grid"
@@ -290,7 +290,7 @@ Type AttractGrid:Degenerate {
 Type AttractIteration {
   ## form rcut.add_header("The nonbonded pairlist distance cutoff (rcut) (in A**2) during this iteration")
   Float rcut = 1500
-  ## form vmax.add_header("The maximum number of energy minimization or Monte Carlo steps (vmax)") 
+  ## form vmax.add_header("The maximum number of energy minimization or Monte Carlo steps (vmax)")
   Integer vmax = 100
   ## form traj.add_header("Trajectory mode: only minimize the first structure, and output the structure after every minimization step")
   ## form traj.name = "Trajectory mode"
@@ -298,8 +298,8 @@ Type AttractIteration {
   validate {
     assert rcut > 0
     assert vmax > 0
-  }  
-  Bool prep = False  
+  }
+  Bool prep = False
   ## form prep.add_header("Preparation mode: only minimizes the orientation of the molecules, without forcefield")
   ## form prep.name = "Preparation mode"
   Float restweight = 1
@@ -365,7 +365,7 @@ Type AttractAtomDensityGrid {
 
 Type IAttractParameters {
   Integer nstruc
-  Float icut = 3.0  
+  Float icut = 3.0
   form {
     nstruc.name = "Number of structures to refine"
     icut.name = "Distance cutoff for flexible residues"
@@ -390,15 +390,15 @@ Type AttractModel {
   form {
     runname.add_header("Please supply a name for your docking run (one word)")
     runname.name = "Name of the docking run"
-  }  
+  }
   validate {
     if runname is not None:
       runname = runname.strip()
       self.runname = runname
       if not runname.replace("_","").replace("-","").isalnum():
-        raise ValueError("The name of your run may contain only letters, digits, _ and -")  
+        raise ValueError("The name of your run may contain only letters, digits, _ and -")
   }
-  
+
   AttractPartnerInterfaceArray partners
   form {
     partners.length = 10
@@ -414,11 +414,11 @@ Type AttractModel {
     if has_haddock: assert nr_has_haddock > 1
     has_active = any([p.haddock_restraints.activereslist for p in partners if p.haddock_restraints])
     if has_haddock: assert has_active
-  
+
     if len(partners) > 2:
       for p in partners: assert p.haddock_restraints is None
   }
-  
+
   AttractGridArray grids = []
   form {
     grids.length = 10
@@ -426,12 +426,12 @@ Type AttractModel {
     grids.name = "Grid"
     grids.form = "soft"
     grids.count_from_one = True
-  }  
-  
-  #***Iteration parameters***  
+  }
+
+  #***Iteration parameters***
   *Integer nr_iterations
   AttractIterationArray iterations = []
-  form {      
+  form {
     nr_iterations.default = 1
     nr_iterations.group = "Iteration parameters"
     nr_iterations.name = "Number of iterations"
@@ -443,7 +443,7 @@ Type AttractModel {
     iterations[2].name = "Third iteration"
     iterations[3].name = "Fourth iteration"
     iterations[4].name = "Fifth iteration"
-  }  
+  }
   validate {
     if nr_iterations is not None:
       assert nr_iterations > 0 or search == "custom"
@@ -453,19 +453,19 @@ Type AttractModel {
   }
   #***Sampling parameters***
   Bool fix_receptor = False
-  ## form fix_receptor.name = "Fix the receptor during docking"    
+  ## form fix_receptor.name = "Fix the receptor during docking"
   Enum search("syst","random", "custom")
   ## form search.name = "Docking search"
   ## form search.optiontitles = "Systematic","Random", "Custom"
   validate {
     for p in partners:
       if p.ensemblize == "custom": assert search == "custom"
-  }  
+  }
   Integer structures = 10000
   ## form structures.name = "Number of structures for random search"
   Float randsearch_radius = 35
   ## form randsearch_radius.name = "Initial distance from center (radius) for random search"
-  
+
   *ResourceData_ATTRACT_Structures start_structures_file
   ## form start_structures_file.type = "file"
   *ResourceData_ATTRACT_Rotations rotations_file
@@ -473,11 +473,11 @@ Type AttractModel {
   *ResourceData_ATTRACT_Translations translations_file
   ## form translations_file.type = "file"
   *ResourceData_CNS_Restraints harmonic_restraints_file
-  ## form harmonic_restraints_file.type = "file"  
+  ## form harmonic_restraints_file.type = "file"
   *ResourceData_CNS_Restraints haddock_restraints_file
-  ## form haddock_restraints_file.type = "file"  
-  *ResourceData_CNS_Restraints position_restraints_file  
-  ## form position_restraints_file.type = "file"  
+  ## form haddock_restraints_file.type = "file"
+  *ResourceData_CNS_Restraints position_restraints_file
+  ## form position_restraints_file.type = "file"
   Float restraints_score_weight = 0.01
   form {
     start_structures_file.add_header("Custom search files")
@@ -502,14 +502,14 @@ Type AttractModel {
       assert translations_file is None
     else:
       assert rotations_file is not None or translations_file is not None
-      assert len(partners) == 2          
+      assert len(partners) == 2
   }
   Bool demode = False
   ## form demode.add_header("If you used flexibility in the form of normal modes or iATTRACT, you may choose remove the deformations (de-mode) after the docking")
-  ## form demode.name = "De-mode" 
-  
+  ## form demode.name = "De-mode"
+
   Bool use_iattract = True
-  ## form use_iattract.name = "Perform iATTRACT refinement after the docking"  
+  ## form use_iattract.name = "Perform iATTRACT refinement after the docking"
   *IAttractParameters iattract
   form {
     iattract.nstruc.default = 50
@@ -530,7 +530,7 @@ Type AttractModel {
     iattract.group = "Sampling parameters"
     demode.group = "Sampling parameters"
   }
-  #*** 
+  #***
 
   #***Energy and interaction parameters***
   Integer gravity
@@ -539,20 +539,20 @@ Type AttractModel {
     gravity.type = "option"
     gravity.options = (0,1,2,3,4,5)
     gravity.optiontitles = ("No gravity", "To global origin", "To receptor", "Between all ligands", "Cryo-EM pre-assembly stage gravity", "Cryo-EM assembly stage gravity")
-  }  
-  
+  }
+
   Enum completion_tool("whatif", "pdb2pqr_whatif") = "pdb2pqr_whatif"
   form {
     completion_tool.add_header("External tool for PDB completion and hydrogens")
     completion_tool.add_header("NOTE: PDB2PQR requires a local installation")
-    completion_tool.add_header("NOTE: PDB2PQR only completes proteins; WHATIF is used for nucleic acids")  
+    completion_tool.add_header("NOTE: PDB2PQR only completes proteins; WHATIF is used for nucleic acids")
     completion_tool.name = "PDB completion method"
     completion_tool.optiontitles = (
       "WHATIF web server",
       "PDB2PQR",
     )
   }
-  
+
   Float rstk_dof = 0.01
   form {
     rstk_dof.name = "Restraining force constant for gravity and non-generative symmetry"
@@ -602,18 +602,18 @@ Type AttractModel {
   validate {
     if ghost: assert not ghost_ligands
   }
-  
+
   AttractAtomDensityGridArray atomdensitygrids = []
   ## form atomdensitygrids.length = 3
   ## form atomdensitygrids.count_from_one = True
   ## form atomdensitygrids.form = "soft"
   ## form atomdensitygrids.add_header("Instead of a forcefield, you can define an atom density grid to prevent clashes")
   ## form atomdensitygrids.name = "Atom density grid"
-  
+
   Float epsilon = 15
   ## form epsilon.add_header("Epsilon constant for the electrostatic energy term")
   ## form epsilon.name = "Epsilon"
-  
+
   Enum dielec("cdie", "rdie") = "rdie"
   ## form dielec.name = "Use constant (cdie) or distance-dependent (rdie) dielectric"
   form {
@@ -634,7 +634,7 @@ Type AttractModel {
     dielec.group = _g
   }
   #***
-    
+
   AttractSymmetryArray symmetries = []
   form {
     symmetries.length = 5
@@ -646,21 +646,22 @@ Type AttractModel {
     symmetries[None].partners.length = 12
     for n in range(12):
       symmetries[None].partners[n].name = n+1
-  }  
-  
-  #**Analysis***  
-  Bool rescoring = True  
-  Float rcut_rescoring = 50.0    
+  }
+
+  #**Analysis***
+  Bool rescoring = True
+  Float rcut_rescoring = 50.0
   Bool sort = True
   Bool deredundant = True
   Bool deredundant_ignorens = True
   Bool deflex = False
   ## form deflex.add_header("If you perform RMSD analysis, you may remove all flexibility (ensemble and modes) beforehand")
-  ## form deflex.name = "Remove flexibility"   
-  Bool calc_lrmsd = False  
+  ## form deflex.name = "Remove flexibility"
+  Bool calc_lrmsd = False
   Enum rmsd_atoms("all","backbone","trace") = "backbone"
   Bool calc_irmsd = False
   Bool calc_fnat = False
+  Integer max_analysis = 0
   Bool collect = True
   Integer nr_collect = 50
   form {
@@ -674,9 +675,10 @@ Type AttractModel {
     rmsd_atoms.group = "Analysis"
     calc_irmsd.group = "Analysis"
     calc_fnat.group = "Analysis"
+    max_analysis.group = "Analysis"
     collect.group = "Analysis"
     nr_collect.group = "Analysis"
-    
+
     rescoring.name = "Perform a rescoring step after docking"
     rcut_rescoring.add_header("The nonbonded pairlist distance cutoff (rcut) (in A**2) during rescoring")
     rcut_rescoring.name = "rcut (rescoring)"
@@ -692,21 +694,38 @@ Type AttractModel {
     )
     calc_irmsd.name = "Calculate interface RMSD after docking"
     calc_fnat.name = "Calculate fraction of native contacts after docking"
+    max_analysis.add_header("If the generated number of structures is large,")
+    max_analysis.add_header(" it is possible to restrict the number of structures to analyze")
+    max_analysis.add_header("A value of 0 means 'analyze all structures'")
+    max_analysis.name = "Maximum number of structures to analyze"
     collect.name = "Collect the structures as PDBs after docking"
     nr_collect.name = "Number of structures to collect"
   }
   validate {
+    if max_analysis: assert not use_iattract
+    if max_analysis: assert sort
+  }
+  error {
+    'if max_analysis: assert not use_iattract'
+    =>
+    'Maximum number of structures to analyze is not compatible with iATTRACT refinement'
+
+    'if max_analysis: assert sort'
+    =>
+    'Maximum number of structures to analyze requires sorting'
+  }
+  validate {
     if len(partners) and calc_lrmsd: assert partners[0].rmsd_pdb_alt is None
     for p in partners[1:]:
-      if calc_lrmsd and rmsd_atoms == "backbone": assert p.moleculetype == "Protein"      
+      if calc_lrmsd and rmsd_atoms == "backbone": assert p.moleculetype == "Protein"
     for p in partners[2:]:
       if calc_lrmsd and rmsd_atoms == "trace" and partners[1].moleculetype == "Protein": assert p.moleculetype == "Protein"
       if calc_lrmsd and rmsd_atoms == "trace" and partners[1].moleculetype in ("DNA", "RNA"): assert p.moleculetype in ("DNA", "RNA")
   }
   #***
-    
+
   #***Computing and parallelization parameters***
-  
+
   Enum use_gpu("never","if_available",  "always") = "never"
   form {
     use_gpu.group = "Computing and parallelization parameters"
@@ -720,10 +739,10 @@ Type AttractModel {
   validate {
     if use_gpu != "never":
       use_grids = any([p.gridname for p in partners])
-      assert use_grids #gpu    
+      assert use_grids #gpu
       assert len(partners) == 2 #gpu
       assert harmonic_restraints_file is None #gpu
-      assert position_restraints_file is None #gpu  
+      assert position_restraints_file is None #gpu
       assert haddock_restraints_file is None #gpu
       for g in grids:
         assert not g.torque #gpu
@@ -742,94 +761,94 @@ Type AttractModel {
       assert not ghost #gpu
       assert len(atomdensitygrids) == 0 #gpu
       assert len(symmetries) == 0 #gpu
-      
+
   }
   error {
     'assert use_grids #gpu'
     =>
     'GPU acceleration must be combined with grids'
-  
+
     'assert len(partners) == 2 #gpu'
     =>
     'GPU acceleration is not compatible with multi-body docking'
-    
+
     'assert not p.generate_modes #gpu'
     =>
     'GPU acceleration is not compatible with harmonic modes'
 
     'assert p.haddock_restraints is None #gpu'
     =>
-    'GPU acceleration is not compatible with HADDOCK restraints'    
+    'GPU acceleration is not compatible with HADDOCK restraints'
 
     'assert haddock_restraints_file is None #gpu'
     =>
-    'GPU acceleration is not compatible with a HADDOCK restraints file'    
+    'GPU acceleration is not compatible with a HADDOCK restraints file'
 
     'assert harmonic_restraints_file is None #gpu'
     =>
-    'GPU acceleration is not compatible with a harmonic restraints file'    
+    'GPU acceleration is not compatible with a harmonic restraints file'
 
     'assert position_restraints_file is None #gpu'
     =>
-    'GPU acceleration is not compatible with a position restraints'    
+    'GPU acceleration is not compatible with a position restraints'
 
     'assert partners[0].ensemble_size in (0,1) #gpu'
     =>
     'GPU acceleration is not compatible with receptor ensemble docking'
 
     'assert fix_receptor #gpu'
-    => 
+    =>
     'GPU acceleration requires the receptor to be fixed'
-     
+
     'assert not gravity #gpu'
-    => 
+    =>
     'GPU acceleration is incompatible with gravity'
-    
+
     'assert not ghost #gpu'
     =>
     'GPU acceleration is incompatible with ghost mode'
-    
+
     'assert len(atomdensitygrids) == 0 #gpu'
     =>
     'GPU acceleration does not support atom density grids'
-    
+
     'assert len(symmetries) == 0 #gpu'
     =>
     'GPU acceleration does not support symmetries'
-    
+
     'assert not g.torque #gpu'
     =>
     'GPU acceleration does not support torque grids'
-      
-   
+
+
     'assert g.calc_potentials #gpu'
     =>
     'GPU acceleration does not support neighbourlist-only grids'
-   
+
     'assert not it.traj #gpu'
     =>
     'GPU acceleration is incompatible with trajectory mode'
-    
+
     'assert not it.prep #gpu'
     =>
     'GPU acceleration is incompatible with preparation mode'
-    
+
     'assert not it.mc #gpu'
     =>
     'GPU acceleration + Monte Carlo has not yet been implemented in the protocol generator'
-   
+
     'assert partners[1].gridname is None #gpu'
     =>
     'GPU acceleration cannot be combined with a grid on the second partner (ligand)'
   }
-  
+
   Integer np = 4
   ## form np.group = "Computing and parallelization parameters"
   ## form np.name = "Number of processor cores"
   Integer jobsize = 0
   ## form jobsize.group = "Computing and parallelization parameters"
   ## form jobsize.name = "Number of structures in a single job (leave blank to divide all structures equally over the cores)"
-  
+
   *String header = ""
   ## form header.group = "Computing and parallelization parameters"
   ## form header.name = "Header for docking protocol script"
@@ -843,21 +862,21 @@ Type AttractModel {
   ## form footer.type = "textarea"
   ## form footer.cols = 80
   ## form footer.rows = 5
-  
+
   #***
 
   *String annotation
   ## form annotation.type = None
-  
+
   validate {
     gridnames = set([g.gridname for g in grids])
     for pnr, partner in enumerate(partners):
       if partner.gridname is not None:
-        assert partner.gridname in gridnames, partner.gridname     
-    
+        assert partner.gridname in gridnames, partner.gridname
+
     assert len(partners) > 0
   }
-  
+
   error {
     'assert nr_iterations > 0 or search == "custom"'
     =>
@@ -878,7 +897,7 @@ Type AttractModel {
     'assert rotations_file is None #2'
     =>
     'You supplied a starting structures file, you can't upload a rotations file'
-    
+
     'if forcefield is not None: assert forcefield in ("ATTRACT", "OPLSX")'
     =>
     ''
@@ -922,19 +941,19 @@ Type AttractModel {
     'raise ValueError("The name of your run may contain only letters, digits, _ and -")'
     =>
     ''
-    
+
     'assert len(partners) > 0'
     =>
     'Please define at least one docking partner'
-      
+
     'if ghost: assert not ghost_ligands'
     =>
     'ghost mode and ghost-ligands mode are mutually exclusive'
-    
+
     'for p in partners: assert p.haddock_restraints is None'
     =>
     'HADDOCK active/passive residues are not supported for multi-body docking'
-    
+
     'if completion_tool is not None: assert completion_tool in ("whatif", "pdb2pqr_whatif", "amber", "cns")'
     =>
     ''
@@ -946,11 +965,11 @@ Type AttractModel {
     'if has_haddock: assert nr_has_haddock > 1'
     =>
     'If you define HADDOCK AIR restraints, you must do so for both partners'
-    
+
     'if len(partners) and calc_lrmsd: assert partners[0].rmsd_pdb_alt is None'
     =>
     'When there are multiple receptor reference structures, ligand RMSD cannot be computed with ATTRACT'
-    
+
     'if calc_lrmsd and rmsd_atoms == "backbone": assert p.moleculetype == "Protein"'
     =>
     'If you use backbone atoms for ligand RMSD calculations, all your ligands must be proteins'
@@ -958,7 +977,7 @@ Type AttractModel {
     'if rmsd_atoms is not None: assert rmsd_atoms in ("all","backbone","trace")'
     =>
     ''
-    
+
     'if calc_lrmsd and rmsd_atoms == "trace" and partners[1].moleculetype in ("DNA", "RNA"): assert p.moleculetype in ("DNA", "RNA")'
     =>
     'If you want to use the P trace to calculate ligand RMSD, all ligands must be DNA/RNA, not just the first'
@@ -966,9 +985,9 @@ Type AttractModel {
     'if calc_lrmsd and rmsd_atoms == "trace" and partners[1].moleculetype == "Protein": assert p.moleculetype == "Protein"'
     =>
     'If you want to use the CA trace to calculate ligand RMSD, all ligands must be protein, not just the first'
-  
+
   }
-  
+
 }
 
 Method generate(AttractModel) generate
