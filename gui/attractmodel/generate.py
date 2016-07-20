@@ -844,7 +844,7 @@ function gpuconf {
   $PYPY $ATTRACTTOOLS/de-ensemblize.py $GPUTEMP-$inp-$conf-A 2 > $GPUTEMP-$inp-$conf-B
   conflig=`awk -v conf=$conf 'NR == conf{print $0; exit}' partner2-ensemble.list`
   $ATTRACTDIR/emATTRACT --dof $GPUTEMP-$inp-$conf-A $gpuparams0 -l $conflig $gpugridparams -a $alphabet > $GPUTEMP-$outp-$conf-A
-  $PYPY $ATTRACTTOOLS/depivotize.py $GPUTEMP-$outp-$conf-A > $GPUTEMP-$outp-$conf-B
+  python $ATTRACTTOOLS/depivotize.py $GPUTEMP-$outp-$conf-A > $GPUTEMP-$outp-$conf-B
   $PYPY $ATTRACTTOOLS/set-conformer.py $GPUTEMP-$outp-$conf-B 2 $conf > $GPUTEMP-$outp-$conf
 }
 """
