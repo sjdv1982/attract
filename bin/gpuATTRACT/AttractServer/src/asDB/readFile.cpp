@@ -42,19 +42,8 @@ static void errorDOFFormat(std::string filename) {
 static std::vector<std::string> line2Strings(std::string line) {
 	using namespace std;
 	istringstream iss(line);
-	/* char offset in file: X, Y, Z, type, charge */
-	const int idx[][2] = {{30,38},{38,46},{46,54},{54,59},{59,67}};
-	const int size = 5;
-	vector<string> tokens;
-
-	for (int i = 0; i < size; ++i) {
-		int len = idx[i][1]- idx[i][0];
-		string str(line.substr(idx[i][0], len));
-		// remove white spaces
-		str.erase(remove_if(str.begin(), str.end(), ::isspace),str.end());
-		tokens.push_back(str);
-	}
-	return tokens;
+	return vector<string> { istream_iterator<string> { iss },
+					istream_iterator<string> { } };
 }
 
 as::Protein* asDB::createProteinFromPDB(std::string filename) {
@@ -80,11 +69,6 @@ void asDB::readProteinFromPDB(as::Protein* prot, std::string filename) {
 		getline(file, line);
 		while (!file.eof()) {
 
-			if (line.empty()) {
-				getline(file, line);
-				continue;
-			}
-
 			/* split line to vector of strings */
 			vector<string> tokens = line2Strings(line);
 
@@ -93,16 +77,33 @@ void asDB::readProteinFromPDB(as::Protein* prot, std::string filename) {
 //			}
 //			cout << endl;
 
+			if (!(tokens.size() == 12 || tokens.size() == 13)
+					&& !line.empty()) { // 12: old reduced format, 13: new reduced format
+				errorPDBFormat(filename);
+				cerr << "Expected 12 or 13 columns." << endl;
+				exit(EXIT_FAILURE);
+			}
+			/* empty lines are acceptable, e.g. at the end */
+			if (line.compare(0, 4, "ATOM") != 0 && !line.empty()) { // does not match (0==equal)
+				errorPDBFormat(filename);
+				cerr << "Expected 'ATOM' to be in the first column." << endl;
+				exit(EXIT_FAILURE);
+			}
+
+			if (line.empty()) {
+				getline(file, line);
+				continue;
+			}
 			float x, y, z;
 			unsigned type;
 			float charge;
 
 			unsigned e = tokens.size();
-			stringstream(tokens[0]) >> x;
-			stringstream(tokens[1]) >> y;
-			stringstream(tokens[2]) >> z;
-			stringstream(tokens[3]) >> type;
-			stringstream(tokens[4]) >> charge;
+			stringstream(tokens[e - 7]) >> x;
+			stringstream(tokens[e - 6]) >> y;
+			stringstream(tokens[e - 5]) >> z;
+			stringstream(tokens[e - 4]) >> type;
+			stringstream(tokens[e - 3]) >> charge;
 
 			/* store values in container */
 			posX.push_back(x);
