@@ -112,6 +112,7 @@ def easy2model(emodel):
    rmsd_atoms=rmsd_atoms,
    calc_fnat=emodel.calc_fnat,
    max_analysis=emodel.max_analysis,
+   keep_perconf=emodel.keep_perconf,
    nr_collect=emodel.nr_collect,
    np=emodel.np,
    deredundant_ignorens = False,

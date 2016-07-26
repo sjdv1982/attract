@@ -114,6 +114,15 @@ Type AttractEasyModel {
   Bool use_grids = True
   ## form use_grids.name = "Perform grid-accelerated docking"
   Bool use_iattract = True
+  Integer keep_perconf = 0
+  form {
+    keep_perconf.add_header("During rigid-body docking, you may choose to keep a limited number of structures per conformer")
+    keep_perconf.add_header("When the number of structures is very large (e.g. 100 000 structures x 100 conformers),")
+    keep_perconf.add_header(" this option can save a large amount of disk space")
+    keep_perconf.add_header("Currently, this option is only implemented for GPU docking")
+    keep_perconf.add_header("A value of 0 means 'keep all structures per conformer'")
+    keep_perconf.name = "Maximum number of structures per conformer to keep"
+  }
   ## form use_iattract.name = "Perform iATTRACT refinement after the docking"
   Enum forcefield("ATTRACT", "OPLSX") = "ATTRACT"
   ## form forcefield.add_header("Which forcefield is to be used?")
@@ -133,10 +142,11 @@ Type AttractEasyModel {
   }
   form {
     _g = "Energy and interaction parameters"
-    use_grids.group = _g
-    use_iattract.group = _g
-    forcefield.group = _g
     completion_tool.group = _g
+    forcefield.group = _g
+    use_grids.group = _g
+    keep_perconf.group = _g
+    use_iattract.group = _g
   }
 
 

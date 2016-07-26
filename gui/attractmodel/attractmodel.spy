@@ -508,6 +508,16 @@ Type AttractModel {
   ## form demode.add_header("If you used flexibility in the form of normal modes or iATTRACT, you may choose remove the deformations (de-mode) after the docking")
   ## form demode.name = "De-mode"
 
+  Integer keep_perconf = 0
+  form {
+    keep_perconf.add_header("During rigid-body docking, you may choose to keep a limited number of structures per conformer")
+    keep_perconf.add_header("When the number of structures is very large (e.g. 100 000 structures x 100 conformers),")
+    keep_perconf.add_header(" this option can save a large amount of disk space")
+    keep_perconf.add_header("Currently, this option is only implemented for GPU docking")
+    keep_perconf.add_header("A value of 0 means 'keep all structures per conformer'")
+    keep_perconf.name = "Maximum number of structures per conformer to keep"
+  }
+
   Bool use_iattract = True
   ## form use_iattract.name = "Perform iATTRACT refinement after the docking"
   *IAttractParameters iattract
@@ -515,20 +525,22 @@ Type AttractModel {
     iattract.nstruc.default = 50
   }
   form {
-    fix_receptor.group = "Sampling parameters"
-    search.group = "Sampling parameters"
-    structures.group = "Sampling parameters"
-    randsearch_radius.group = "Sampling parameters"
-    start_structures_file.group = "Sampling parameters"
-    rotations_file.group = "Sampling parameters"
-    translations_file.group = "Sampling parameters"
-    harmonic_restraints_file.group = "Sampling parameters"
-    haddock_restraints_file.group = "Sampling parameters"
-    position_restraints_file.group = "Sampling parameters"
-    restraints_score_weight.group = "Sampling parameters"
-    use_iattract.group = "Sampling parameters"
-    iattract.group = "Sampling parameters"
-    demode.group = "Sampling parameters"
+    _g = "Sampling parameters"
+    fix_receptor.group = _g
+    search.group = _g
+    structures.group = _g
+    randsearch_radius.group = _g
+    start_structures_file.group = _g
+    rotations_file.group = _g
+    translations_file.group = _g
+    harmonic_restraints_file.group = _g
+    haddock_restraints_file.group = _g
+    position_restraints_file.group = _g
+    restraints_score_weight.group = _g
+    keep_perconf.group = _g
+    use_iattract.group = _g
+    iattract.group = _g
+    demode.group = _g
   }
   #***
 
@@ -848,6 +860,10 @@ Type AttractModel {
   Integer jobsize = 0
   ## form jobsize.group = "Computing and parallelization parameters"
   ## form jobsize.name = "Number of structures in a single job (leave blank to divide all structures equally over the cores)"
+  Enum gpu_temp("/dev/shm", "/tmp", "/scratch") = "/dev/shm"
+  ## form gpu_temp.group = "Computing and parallelization parameters"
+  ## form gpu_temp.name = "Temporary directory for multi-conformer GPU-based docking intermediate files"
+
 
   *String header = ""
   ## form header.group = "Computing and parallelization parameters"

@@ -3,7 +3,7 @@ import os, itertools
 #TODO: fix ATTRACT-EM interface
 #TODO: Symmetry help in full interface is too small
 
-generator_version = "0.6"
+generator_version = "0.7"
 req_attract2_version = "0.3"
 
 parameterfiledict = {
@@ -18,7 +18,6 @@ completion_opt = {
   ("pdb2pqr_whatif", "Protein"): "--pdb2pqr",
   ("pdb2pqr_whatif", "DNA"): "--pdb2pqr --whatif",
   ("pdb2pqr_whatif", "RNA"): "--whatif",
-  #TODO: amber, cns
 }
 
 supported_moleculetype_interactions = (
@@ -490,7 +489,7 @@ name=%s
     ret += "gpuparams=\"$gpuparams0 -l %s\"\n" % filenames[1]
     if ensemble_lists[1] is not None:
         ret += 'tempnam=`mktemp | sed \'s/\//-/g\'`\n'
-        ret += 'GPUTEMP="/dev/shm/GPUTEMP-$name-$tempnam"\n'
+        ret += 'GPUTEMP="%s/GPUTEMP-$name-$tempnam"\n' % m.gpu_temp
   if len(gridparams):
     ret += """
 #grid parameters
@@ -833,7 +832,26 @@ echo 'Docking'
 echo '**************************************************************'
 """
   if use_gpu and ensemble_lists[1] is not None:
-    gpuconf = """
+    gpu_sortstring = ""
+    if m.keep_perconf > 0:
+        gpu_sortstring = "| $PYPY $ATTRACTTOOLS/sort.py /dev/stdin | $ATTRACTTOOLS/top /dev/stdin %d" % m.keep_perconf
+    if len(m.iterations) == 1 and m.partners[1].ensemblize == "all":
+      gpuconf = """
+function gpuconf {
+  inp=$1
+  outp=$2
+  conf=$3
+  alphabet=$4
+  echo "running GPU-accelerated ATTRACT on conformer $conf ..."
+  conflig=`awk -v conf=$conf 'NR == conf{print $0; exit}' partner2-ensemble.list`
+  $ATTRACTDIR/emATTRACT --dof $inp $gpuparams0 -l $conflig $gpugridparams -a $alphabet > $GPUTEMP-$outp-$conf-A
+  python $ATTRACTTOOLS/depivotize.py $GPUTEMP-$outp-$conf-A > $GPUTEMP-$outp-$conf-B
+  $PYPY $ATTRACTTOOLS/set-conformer.py $GPUTEMP-$outp-$conf-B 2 $conf %s > $GPUTEMP-$outp-$conf
+  \\rm $GPUTEMP-$outp-$conf-A $GPUTEMP-$outp-$conf-B
+}
+""" % gpu_sortstring
+    else:
+      gpuconf = """
 function gpuconf {
   inp=$1
   outp=$2
@@ -843,11 +861,12 @@ function gpuconf {
   $PYPY $ATTRACTTOOLS/select-conformer.py $inp 2 $conf > $GPUTEMP-$inp-$conf-A
   $PYPY $ATTRACTTOOLS/de-ensemblize.py $GPUTEMP-$inp-$conf-A 2 > $GPUTEMP-$inp-$conf-B
   conflig=`awk -v conf=$conf 'NR == conf{print $0; exit}' partner2-ensemble.list`
-  $ATTRACTDIR/emATTRACT --dof $GPUTEMP-$inp-$conf-A $gpuparams0 -l $conflig $gpugridparams -a $alphabet > $GPUTEMP-$outp-$conf-A
+  $ATTRACTDIR/emATTRACT --dof $GPUTEMP-$inp-$conf-B $gpuparams0 -l $conflig $gpugridparams -a $alphabet > $GPUTEMP-$outp-$conf-A
   python $ATTRACTTOOLS/depivotize.py $GPUTEMP-$outp-$conf-A > $GPUTEMP-$outp-$conf-B
-  $PYPY $ATTRACTTOOLS/set-conformer.py $GPUTEMP-$outp-$conf-B 2 $conf > $GPUTEMP-$outp-$conf
+  $PYPY $ATTRACTTOOLS/set-conformer.py $GPUTEMP-$outp-$conf-B 2 $conf %s > $GPUTEMP-$outp-$conf
+  \\rm $GPUTEMP-$inp-$conf-A $GPUTEMP-$inp-$conf-B $GPUTEMP-$outp-$conf-A $GPUTEMP-$outp-$conf-B
 }
-"""
+""" % gpu_sortstring
     ret += gpuconf
     attractclean.append("rm -f $GPUTEMP-*")
 
@@ -915,11 +934,15 @@ echo '**************************************************************'
       assert ensemble_lists[0] is None #should be guaranteed by the data model
       alphabet = m.grids[0].gridname + ".alphabet"
       if ensemble_lists[1] is not None:
+        if i == 0 and m.partners[1].ensemblize == "all":
+          inp2 = "randsearch.dat"
+        else:
+          inp2 = inp
         cmd_gpu_attract = ""
         nconfs = m.partners[1].ensemble_size
-        outp_confs = ["$GPUTEMP-$outp-$conf $GPUTEMP-%s-%d" % (outp0, c+1) for c in range(nconfs)]
+        outp_confs = ["$GPUTEMP-%s-%d" % (outp0, c+1) for c in range(nconfs)]
         for conf in range(nconfs):
-          cmd_gpu_attract += "gpuconf %s %s %d %s\n" % (inp, outp0, conf+1, alphabet)
+          cmd_gpu_attract += "gpuconf %s %s %d %s\n" % (inp2, outp0, conf+1, alphabet)
         cmd_gpu_attract += "$ATTRACTTOOLS/add %s > %s\n" % (" ".join(outp_confs), outp0)
       else:
         cmd_gpu_attract = "$ATTRACTDIR/emATTRACT --dof %s $gpuparams $gpugridparams -a %s > %s\n" % (inp,alphabet, outp0)
