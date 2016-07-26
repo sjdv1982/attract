@@ -11,7 +11,7 @@ nrsplit = int(sys.argv[3])
 pattern = sys.argv[2]
 
 #determine number of structures
-for l in reversed(open(datfile).readlines()):  
+for l in reversed(open(datfile).readlines()):
   if not l.startswith("#"): continue
   if l.startswith("##"): continue
   nrstruc = int(l[1:])
@@ -23,7 +23,9 @@ stnr = 0
 totnr = 0
 currsplit = 1
 
-f = open("%s-%d" % (pattern,currsplit), "w")
+filename = "%s-%d" % (pattern,currsplit)
+print filename
+f = open(filename, "w")
 for h in header: print >> f, h
 for s in structures:
   totnr += 1
@@ -31,12 +33,13 @@ for s in structures:
   if stnr > splitsize:
     f.close()
     currsplit += 1
-    f = open("%s-%d" % (pattern,currsplit), "w")
+    filename = "%s-%d" % (pattern,currsplit)
+    print filename
+    f = open(filename, "w")
     for h in header: print >> f, h
-    stnr = 1    
+    stnr = 1
   l1,l2 = s
   print >> f, "#"+str(stnr)
   print >> f, "### SPLIT "+str(totnr)
-  for l in l1: print >>f, l  
+  for l in l1: print >>f, l
   for l in l2: print >>f, l
-
