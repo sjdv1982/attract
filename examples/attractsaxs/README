@@ -19,9 +19,12 @@ You need to have the ATTRACT software installed. Follow the instructions in INST
 In addition to the normal requirements for ATTRACT, you need to have the following software/packages installed:
 
 CUDA
-pycuda, itertools
 ATSAS
 
+sudo apt-get install python-dev libxml2-dev libxslt-dev
+sudo pip install pyconfig
+sudo pip install pycuda
+sudo pip install itertools
 
 then add to your .bashrc
 

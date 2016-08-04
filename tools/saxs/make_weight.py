@@ -31,8 +31,8 @@ for i in range(len(q)):
     continue
     ##print q[i], I[i],error[i]
    
-  if weight[i] < error[i]:
-    weight[i] = error[i]
+  #if weight[i] < error[i]:
+    #weight[i] = error[i]
   newq.append(q[i])
   newI.append(I[i])
   newerror.append(weight[i])

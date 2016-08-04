@@ -58,7 +58,7 @@ if [ ! -s $outp-filtered ]; then
  python $ATTRACTTOOLS/filter-energy.py $outp $energy_threshold > $outp-filtered
 fi
 if [ ! -s $topstruc ]; then
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb $outp-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb $outp-gvm1
  python $ATTRACTTOOLS/fill-energies.py $outp-filtered $outp-gvm1 > $outp-gvm2
  python $ATTRACTTOOLS/sort.py $outp-gvm2 > $sorted
   $ATTRACTTOOLS/top $sorted $ntop > $topstruc
@@ -66,7 +66,7 @@ fi
 newinp=dock-run1-preit2.dat
 if [ ! -s $newinp ]; then
  python $ATTRACTTOOLS/swapcombine.py $topstruc > $topstruc-combined
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
  python $ATTRACTTOOLS/fill-energies.py $topstruc-combined $topstruc-gvm1 > $topstruc-gvm2
  python $ATTRACTTOOLS/topcombined.py $topstruc-gvm2 $nstruc > $topstruc-topcombined
  python $ATTRACTTOOLS/monte.py $topstruc-topcombined $noclone > $newinp
@@ -82,7 +82,7 @@ if [ ! -s $outp-filtered ]; then
  python $ATTRACTTOOLS/filter-energy.py $outp-min $energy_threshold > $outp-filtered
 fi
 if [ ! -s $topstruc ]; then
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb $outp-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb $outp-gvm1
  python $ATTRACTTOOLS/fill-energies.py $outp-filtered $outp-gvm1 > $outp-gvm2 
  python $ATTRACTTOOLS/sort.py $outp-gvm2 > $sorted
   $ATTRACTTOOLS/top $sorted $ntop > $topstruc
@@ -90,7 +90,7 @@ fi
 newinp=dock-run1-preit3.dat
 if [ ! -s $newinp ]; then
  python $ATTRACTTOOLS/swapcombine.py $topstruc > $topstruc-combined
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
  python $ATTRACTTOOLS/fill-energies.py $topstruc-combined $topstruc-gvm1 > $topstruc-gvm2
  python $ATTRACTTOOLS/topcombined.py $topstruc-gvm2 $nstruc > $topstruc-topcombined
  python $ATTRACTTOOLS/monte.py $topstruc-topcombined $noclone > $newinp
@@ -106,7 +106,7 @@ if [ ! -s $outp-filtered ]; then
  python $ATTRACTTOOLS/filter-energy.py $outp-min $energy_threshold > $outp-filtered
 fi
 if [ ! -s $topstruc ]; then
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb $outp-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb $outp-gvm1
  python $ATTRACTTOOLS/fill-energies.py $outp-filtered $outp-gvm1 > $outp-gvm2 
  python $ATTRACTTOOLS/sort.py $outp-gvm2 > $sorted
   $ATTRACTTOOLS/top $sorted $ntop > $topstruc
@@ -114,7 +114,7 @@ fi
 newinp=dock-run1-preit4.dat
 if [ ! -s $newinp ]; then
  python $ATTRACTTOOLS/swapcombine.py $topstruc > $topstruc-combined
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
  python $ATTRACTTOOLS/fill-energies.py $topstruc-combined $topstruc-gvm1 > $topstruc-gvm2
  python $ATTRACTTOOLS/topcombined.py $topstruc-gvm2 $nstruc > $topstruc-topcombined
  python $ATTRACTTOOLS/monte.py $topstruc-topcombined $noclone > $newinp
@@ -130,7 +130,7 @@ if [ ! -s $outp-filtered ]; then
  python $ATTRACTTOOLS/filter-energy.py $outp-min $energy_threshold > $outp-filtered
 fi
 if [ ! -s $topstruc ]; then
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb $outp-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb $outp-gvm1
  python $ATTRACTTOOLS/fill-energies.py $outp-filtered $outp-gvm1 > $outp-gvm2
  python $ATTRACTTOOLS/sort.py $outp-gvm2 > $sorted
   $ATTRACTTOOLS/top $sorted $ntop > $topstruc
@@ -138,7 +138,7 @@ fi
 newinp=dock-run1-preit5.dat
 if [ ! -s $newinp ]; then
  python $ATTRACTTOOLS/swapcombine.py $topstruc > $topstruc-combined
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
  python $ATTRACTTOOLS/fill-energies.py $topstruc-combined $topstruc-gvm1 > $topstruc-gvm2
  python $ATTRACTTOOLS/topcombined.py $topstruc-gvm2 $nstruc > $topstruc-topcombined
  python $ATTRACTTOOLS/monte.py $topstruc-topcombined $noclone > $newinp
@@ -155,7 +155,7 @@ if [ ! -s $outp-filtered ]; then
  
 fi
 if [ ! -s $topstruc ]; then
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
  python $ATTRACTTOOLS/fill-energies.py $outp-filtered $outp-gvm1 > $outp-gvm2
  python $ATTRACTTOOLS/sort.py $outp-gvm2 > $sorted 
  $ATTRACTDIR/fix_receptor $sorted 2 | python $ATTRACTTOOLS/fill.py /dev/stdin $sorted > $sorted-fixre  
@@ -173,7 +173,7 @@ fi
 newinp=dock-run1-preit6.dat
 if [ ! -s $newinp ]; then
  python $ATTRACTTOOLS/swapcombine.py $topstruc > $topstruc-combined
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
  python $ATTRACTTOOLS/fill-energies.py $topstruc-combined $topstruc-gvm1 > $topstruc-gvm2
  python $ATTRACTTOOLS/topcombined.py $topstruc-gvm2 $nstruc > $topstruc-topcombined
  python $ATTRACTTOOLS/monte.py $topstruc-topcombined $noclone > $newinp
@@ -192,7 +192,7 @@ if [ ! -s $outp-filtered ]; then
  
 fi
 if [ ! -s $topstruc ]; then
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
  python $ATTRACTTOOLS/fill-energies.py $outp-filtered $outp-gvm1 > $outp-gvm2
  python $ATTRACTTOOLS/sort.py $outp-gvm2 > $sorted 
  $ATTRACTDIR/fix_receptor $sorted 2 | python $ATTRACTTOOLS/fill.py /dev/stdin $sorted > $sorted-fixre 
@@ -208,7 +208,7 @@ fi
 newinp=dock-run1-preit7.dat
 if [ ! -s $newinp ]; then
  python $ATTRACTTOOLS/swapcombine.py $topstruc > $topstruc-combined
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
  python $ATTRACTTOOLS/fill-energies.py $topstruc-combined $topstruc-gvm1 > $topstruc-gvm2
  python $ATTRACTTOOLS/topcombined.py $topstruc-gvm2 $nstruc > $topstruc-topcombined
  python $ATTRACTTOOLS/monte.py $topstruc-topcombined $noclone > $newinp
@@ -227,7 +227,7 @@ if [ ! -s $outp-filtered ]; then
  
 fi
 if [ ! -s $topstruc ]; then
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
  python $ATTRACTTOOLS/fill-energies.py $outp-filtered $outp-gvm1 > $outp-gvm2
  python $ATTRACTTOOLS/sort.py $outp-gvm2 > $sorted 
  $ATTRACTDIR/fix_receptor $sorted 2 | python $ATTRACTTOOLS/fill.py /dev/stdin $sorted > $sorted-fixre 
@@ -243,7 +243,7 @@ fi
 newinp=dock-run1-preit8.dat
 if [ ! -s $newinp ]; then
  python $ATTRACTTOOLS/swapcombine.py $topstruc > $topstruc-combined
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
  python $ATTRACTTOOLS/fill-energies.py $topstruc-combined $topstruc-gvm1 > $topstruc-gvm2
  python $ATTRACTTOOLS/topcombined.py $topstruc-gvm2 $nstruc > $topstruc-topcombined
  python $ATTRACTTOOLS/monte.py $topstruc-topcombined $noclone > $newinp
@@ -262,7 +262,7 @@ if [ ! -s $outp-filtered ]; then
  
 fi
 if [ ! -s $topstruc ]; then
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
  python $ATTRACTTOOLS/fill-energies.py $outp-filtered $outp-gvm1 > $outp-gvm2
  python $ATTRACTTOOLS/sort.py $outp-gvm2 > $sorted 
  $ATTRACTDIR/fix_receptor $sorted 2 | python $ATTRACTTOOLS/fill.py /dev/stdin $sorted > $sorted-fixre 
@@ -278,7 +278,7 @@ fi
 newinp=dock-run1-preit9.dat
 if [ ! -s $newinp ]; then
  python $ATTRACTTOOLS/swapcombine.py $topstruc > $topstruc-combined
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
  python $ATTRACTTOOLS/fill-energies.py $topstruc-combined $topstruc-gvm1 > $topstruc-gvm2
  python $ATTRACTTOOLS/topcombined.py $topstruc-gvm2 $nstruc > $topstruc-topcombined
  python $ATTRACTTOOLS/monte.py $topstruc-topcombined $noclone > $newinp
@@ -297,7 +297,7 @@ if [ ! -s $outp-filtered ]; then
  
 fi
 if [ ! -s $topstruc ]; then
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
  python $ATTRACTTOOLS/fill-energies.py $outp-filtered $outp-gvm1 > $outp-gvm2
  python $ATTRACTTOOLS/sort.py $outp-gvm2 > $sorted 
  $ATTRACTDIR/fix_receptor $sorted 2 | python $ATTRACTTOOLS/fill.py /dev/stdin $sorted > $sorted-fixre 
@@ -313,7 +313,7 @@ fi
 newinp=dock-run1-preit10.dat
 if [ ! -s $newinp ]; then
  python $ATTRACTTOOLS/swapcombine.py $topstruc > $topstruc-combined
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
  python $ATTRACTTOOLS/fill-energies.py $topstruc-combined $topstruc-gvm1 > $topstruc-gvm2
  python $ATTRACTTOOLS/topcombined.py $topstruc-gvm2 $nstruc > $topstruc-topcombined
  python $ATTRACTTOOLS/monte.py $topstruc-topcombined $noclone > $newinp
@@ -330,7 +330,7 @@ if [ ! -s $outp-filtered ]; then
  
 fi
 if [ ! -s $topstruc ]; then
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
  python $ATTRACTTOOLS/fill-energies.py $outp-filtered $outp-gvm1 > $outp-gvm2
  python $ATTRACTTOOLS/sort.py $outp-gvm2 > $sorted 
  $ATTRACTDIR/fix_receptor $sorted 2 | python $ATTRACTTOOLS/fill.py /dev/stdin $sorted > $sorted-fixre 
@@ -346,7 +346,7 @@ fi
 newinp=dock-run1-preit11.dat
 if [ ! -s $newinp ]; then
  python $ATTRACTTOOLS/swapcombine.py $topstruc > $topstruc-combined
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
  python $ATTRACTTOOLS/fill-energies.py $topstruc-combined $topstruc-gvm1 > $topstruc-gvm2
  python $ATTRACTTOOLS/topcombined.py $topstruc-gvm2 $nstruc > $topstruc-topcombined
  python $ATTRACTTOOLS/monte.py $topstruc-topcombined $noclone > $newinp
@@ -397,7 +397,7 @@ if [ ! -s $outp-filtered ]; then
  
 fi
 if [ ! -s $topstruc ]; then
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
  python $ATTRACTTOOLS/fill-energies.py $outp-filtered $outp-gvm1 > $outp-gvm2
  python $ATTRACTTOOLS/sort.py $outp-gvm2 > $sorted 
  $ATTRACTDIR/fix_receptor $sorted 2 | python $ATTRACTTOOLS/fill.py /dev/stdin $sorted > $sorted-fixre 
@@ -413,7 +413,7 @@ fi
 newinp=dock-run1-preit12.dat
 if [ ! -s $newinp ]; then
  python $ATTRACTTOOLS/swapcombine.py $topstruc > $topstruc-combined
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
  python $ATTRACTTOOLS/fill-energies.py $topstruc-combined $topstruc-gvm1 > $topstruc-gvm2
  python $ATTRACTTOOLS/topcombined.py $topstruc-gvm2 $nstruc > $topstruc-topcombined
  python $ATTRACTTOOLS/monte.py $topstruc-topcombined $noclone > $newinp
@@ -430,7 +430,7 @@ if [ ! -s $outp-filtered ]; then
  
 fi
 if [ ! -s $topstruc ]; then
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
  python $ATTRACTTOOLS/fill-energies.py $outp-filtered $outp-gvm1 > $outp-gvm2
  python $ATTRACTTOOLS/sort.py $outp-gvm2 > $sorted 
  $ATTRACTDIR/fix_receptor $sorted 2 | python $ATTRACTTOOLS/fill.py /dev/stdin $sorted > $sorted-fixre 
@@ -446,7 +446,7 @@ fi
 newinp=dock-run1-preit13.dat
 if [ ! -s $newinp ]; then
  python $ATTRACTTOOLS/swapcombine.py $topstruc > $topstruc-combined
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
  python $ATTRACTTOOLS/fill-energies.py $topstruc-combined $topstruc-gvm1 > $topstruc-gvm2
  python $ATTRACTTOOLS/topcombined.py $topstruc-gvm2 $nstruc > $topstruc-topcombined
  python $ATTRACTTOOLS/monte.py $topstruc-topcombined $noclone > $newinp
@@ -463,7 +463,7 @@ if [ ! -s $outp-filtered ]; then
  
 fi
 if [ ! -s $topstruc ]; then
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
  python $ATTRACTTOOLS/fill-energies.py $outp-filtered $outp-gvm1 > $outp-gvm2
  python $ATTRACTTOOLS/sort.py $outp-gvm2 > $sorted 
  $ATTRACTDIR/fix_receptor $sorted 2 | python $ATTRACTTOOLS/fill.py /dev/stdin $sorted > $sorted-fixre 
@@ -479,7 +479,7 @@ fi
 newinp=dock-run1-preit14.dat
 if [ ! -s $newinp ]; then
  python $ATTRACTTOOLS/swapcombine.py $topstruc > $topstruc-combined
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
  python $ATTRACTTOOLS/fill-energies.py $topstruc-combined $topstruc-gvm1 > $topstruc-gvm2
  python $ATTRACTTOOLS/topcombined.py $topstruc-gvm2 $nstruc > $topstruc-topcombined
  python $ATTRACTTOOLS/monte.py $topstruc-topcombined $noclone > $newinp
@@ -496,7 +496,7 @@ if [ ! -s $outp-filtered ]; then
  
 fi
 if [ ! -s $topstruc ]; then
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
  python $ATTRACTTOOLS/fill-energies.py $outp-filtered $outp-gvm1 > $outp-gvm2
  python $ATTRACTTOOLS/sort.py $outp-gvm2 > $sorted 
  $ATTRACTDIR/fix_receptor $sorted 2 | python $ATTRACTTOOLS/fill.py /dev/stdin $sorted > $sorted-fixre 
@@ -512,7 +512,7 @@ fi
 newinp=dock-run1-preit15.dat
 if [ ! -s $newinp ]; then
  python $ATTRACTTOOLS/swapcombine.py $topstruc > $topstruc-combined
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
  python $ATTRACTTOOLS/fill-energies.py $topstruc-combined $topstruc-gvm1 > $topstruc-gvm2
  python $ATTRACTTOOLS/topcombined.py $topstruc-gvm2 $nstruc > $topstruc-topcombined
  python $ATTRACTTOOLS/monte.py $topstruc-topcombined $noclone > $newinp
@@ -529,7 +529,7 @@ if [ ! -s $outp-filtered ]; then
  
 fi
 if [ ! -s $topstruc ]; then
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
  python $ATTRACTTOOLS/fill-energies.py $outp-filtered $outp-gvm1 > $outp-gvm2
  python $ATTRACTTOOLS/sort.py $outp-gvm2 > $sorted 
  $ATTRACTDIR/fix_receptor $sorted 2 | python $ATTRACTTOOLS/fill.py /dev/stdin $sorted > $sorted-fixre 
@@ -545,7 +545,7 @@ fi
 newinp=dock-run1-preit16.dat
 if [ ! -s $newinp ]; then
  python $ATTRACTTOOLS/swapcombine.py $topstruc > $topstruc-combined
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
  python $ATTRACTTOOLS/fill-energies.py $topstruc-combined $topstruc-gvm1 > $topstruc-gvm2
  python $ATTRACTTOOLS/topcombined.py $topstruc-gvm2 $nstruc > $topstruc-topcombined
  python $ATTRACTTOOLS/monte.py $topstruc-topcombined $noclone > $newinp
@@ -595,7 +595,7 @@ if [ ! -s $outp-filtered ]; then
  
 fi
 if [ ! -s $topstruc ]; then
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
  python $ATTRACTTOOLS/fill-energies.py $outp-filtered $outp-gvm1 > $outp-gvm2
  python $ATTRACTTOOLS/sort.py $outp-gvm2 > $sorted 
  $ATTRACTDIR/fix_receptor $sorted 2 | python $ATTRACTTOOLS/fill.py /dev/stdin $sorted > $sorted-fixre 
@@ -611,7 +611,7 @@ fi
 newinp=dock-run1-preit17.dat
 if [ ! -s $newinp ]; then
  python $ATTRACTTOOLS/swapcombine.py $topstruc > $topstruc-combined
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
  python $ATTRACTTOOLS/fill-energies.py $topstruc-combined $topstruc-gvm1 > $topstruc-gvm2
  python $ATTRACTTOOLS/topcombined.py $topstruc-gvm2 $nstruc > $topstruc-topcombined
  python $ATTRACTTOOLS/monte.py $topstruc-topcombined $noclone > $newinp
@@ -628,7 +628,7 @@ if [ ! -s $outp-filtered ]; then
  
 fi
 if [ ! -s $topstruc ]; then
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
  python $ATTRACTTOOLS/fill-energies.py $outp-filtered $outp-gvm1 > $outp-gvm2
  python $ATTRACTTOOLS/sort.py $outp-gvm2 > $sorted 
  $ATTRACTDIR/fix_receptor $sorted 2 | python $ATTRACTTOOLS/fill.py /dev/stdin $sorted > $sorted-fixre 
@@ -644,7 +644,7 @@ fi
 newinp=dock-run1-preit18.dat
 if [ ! -s $newinp ]; then
  python $ATTRACTTOOLS/swapcombine.py $topstruc > $topstruc-combined
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
  python $ATTRACTTOOLS/fill-energies.py $topstruc-combined $topstruc-gvm1 > $topstruc-gvm2
  python $ATTRACTTOOLS/topcombined.py $topstruc-gvm2 $nstruc > $topstruc-topcombined
  python $ATTRACTTOOLS/monte.py $topstruc-topcombined $noclone > $newinp
@@ -661,7 +661,7 @@ if [ ! -s $outp-filtered ]; then
  
 fi
 if [ ! -s $topstruc ]; then
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
  python $ATTRACTTOOLS/fill-energies.py $outp-filtered $outp-gvm1 > $outp-gvm2
  python $ATTRACTTOOLS/sort.py $outp-gvm2 > $sorted 
  $ATTRACTDIR/fix_receptor $sorted 2 | python $ATTRACTTOOLS/fill.py /dev/stdin $sorted > $sorted-fixre 
@@ -677,7 +677,7 @@ fi
 newinp=dock-run1-preit19.dat
 if [ ! -s $newinp ]; then
  python $ATTRACTTOOLS/swapcombine.py $topstruc > $topstruc-combined
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
  python $ATTRACTTOOLS/fill-energies.py $topstruc-combined $topstruc-gvm1 > $topstruc-gvm2
  python $ATTRACTTOOLS/topcombined.py $topstruc-gvm2 $nstruc > $topstruc-topcombined
  python $ATTRACTTOOLS/monte.py $topstruc-topcombined $noclone > $newinp
@@ -694,7 +694,7 @@ if [ ! -s $outp-filtered ]; then
  
 fi
 if [ ! -s $topstruc ]; then
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
  python $ATTRACTTOOLS/fill-energies.py $outp-filtered $outp-gvm1 > $outp-gvm2
  python $ATTRACTTOOLS/sort.py $outp-gvm2 > $sorted 
  $ATTRACTDIR/fix_receptor $sorted 2 | python $ATTRACTTOOLS/fill.py /dev/stdin $sorted > $sorted-fixre 
@@ -710,7 +710,7 @@ fi
 newinp=dock-run1-preit20.dat
 if [ ! -s $newinp ]; then
  python $ATTRACTTOOLS/swapcombine.py $topstruc > $topstruc-combined
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
  python $ATTRACTTOOLS/fill-energies.py $topstruc-combined $topstruc-gvm1 > $topstruc-gvm2
  python $ATTRACTTOOLS/topcombined.py $topstruc-gvm2 $nstruc > $topstruc-topcombined
  python $ATTRACTTOOLS/monte.py $topstruc-topcombined $noclone > $newinp
@@ -727,7 +727,7 @@ if [ ! -s $outp-filtered ]; then
  
 fi
 if [ ! -s $topstruc ]; then
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
  python $ATTRACTTOOLS/fill-energies.py $outp-filtered $outp-gvm1 > $outp-gvm2
  python $ATTRACTTOOLS/sort.py $outp-gvm2 > $sorted 
  $ATTRACTDIR/fix_receptor $sorted 2 | python $ATTRACTTOOLS/fill.py /dev/stdin $sorted > $sorted-fixre 
@@ -743,7 +743,7 @@ fi
 newinp=dock-run1-preit21.dat
 if [ ! -s $newinp ]; then
  python $ATTRACTTOOLS/swapcombine.py $topstruc > $topstruc-combined
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
  python $ATTRACTTOOLS/fill-energies.py $topstruc-combined $topstruc-gvm1 > $topstruc-gvm2
  python $ATTRACTTOOLS/topcombined.py $topstruc-gvm2 $nstruc > $topstruc-topcombined
  python $ATTRACTTOOLS/monte.py $topstruc-topcombined $noclone > $newinp
@@ -793,7 +793,7 @@ if [ ! -s $outp-filtered ]; then
  
 fi
 if [ ! -s $topstruc ]; then
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
  python $ATTRACTTOOLS/fill-energies.py $outp-filtered $outp-gvm1 > $outp-gvm2
  python $ATTRACTTOOLS/sort.py $outp-gvm2 > $sorted 
  $ATTRACTDIR/fix_receptor $sorted 2 | python $ATTRACTTOOLS/fill.py /dev/stdin $sorted > $sorted-fixre 
@@ -809,7 +809,7 @@ fi
 newinp=dock-run1-preit22.dat
 if [ ! -s $newinp ]; then
  python $ATTRACTTOOLS/swapcombine.py $topstruc > $topstruc-combined
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
  python $ATTRACTTOOLS/fill-energies.py $topstruc-combined $topstruc-gvm1 > $topstruc-gvm2
  python $ATTRACTTOOLS/topcombined.py $topstruc-gvm2 $nstruc > $topstruc-topcombined
  python $ATTRACTTOOLS/monte.py $topstruc-topcombined $noclone > $newinp
@@ -826,7 +826,7 @@ if [ ! -s $outp-filtered ]; then
  
 fi
 if [ ! -s $topstruc ]; then
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
  python $ATTRACTTOOLS/fill-energies.py $outp-filtered $outp-gvm1 > $outp-gvm2
  python $ATTRACTTOOLS/sort.py $outp-gvm2 > $sorted 
  $ATTRACTDIR/fix_receptor $sorted 2 | python $ATTRACTTOOLS/fill.py /dev/stdin $sorted > $sorted-fixre 
@@ -842,7 +842,7 @@ fi
 newinp=dock-run1-preit23.dat
 if [ ! -s $newinp ]; then
  python $ATTRACTTOOLS/swapcombine.py $topstruc > $topstruc-combined
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
  python $ATTRACTTOOLS/fill-energies.py $topstruc-combined $topstruc-gvm1 > $topstruc-gvm2
  python $ATTRACTTOOLS/topcombined.py $topstruc-gvm2 $nstruc > $topstruc-topcombined
  python $ATTRACTTOOLS/monte.py $topstruc-topcombined $noclone > $newinp
@@ -859,7 +859,7 @@ if [ ! -s $outp-filtered ]; then
  
 fi
 if [ ! -s $topstruc ]; then
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
  python $ATTRACTTOOLS/fill-energies.py $outp-filtered $outp-gvm1 > $outp-gvm2
  python $ATTRACTTOOLS/sort.py $outp-gvm2 > $sorted 
  $ATTRACTDIR/fix_receptor $sorted 2 | python $ATTRACTTOOLS/fill.py /dev/stdin $sorted > $sorted-fixre 
@@ -875,7 +875,7 @@ fi
 newinp=dock-run1-preit24.dat
 if [ ! -s $newinp ]; then
  python $ATTRACTTOOLS/swapcombine.py $topstruc > $topstruc-combined
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
  python $ATTRACTTOOLS/fill-energies.py $topstruc-combined $topstruc-gvm1 > $topstruc-gvm2
  python $ATTRACTTOOLS/topcombined.py $topstruc-gvm2 $nstruc > $topstruc-topcombined
  python $ATTRACTTOOLS/monte.py $topstruc-topcombined $noclone > $newinp
@@ -892,7 +892,7 @@ if [ ! -s $outp-filtered ]; then
  
 fi
 if [ ! -s $topstruc ]; then
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
  python $ATTRACTTOOLS/fill-energies.py $outp-filtered $outp-gvm1 > $outp-gvm2
  python $ATTRACTTOOLS/sort.py $outp-gvm2 > $sorted 
  $ATTRACTDIR/fix_receptor $sorted 2 | python $ATTRACTTOOLS/fill.py /dev/stdin $sorted > $sorted-fixre 
@@ -908,7 +908,7 @@ fi
 newinp=dock-run1-preit25.dat
 if [ ! -s $newinp ]; then
  python $ATTRACTTOOLS/swapcombine.py $topstruc > $topstruc-combined
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
  python $ATTRACTTOOLS/fill-energies.py $topstruc-combined $topstruc-gvm1 > $topstruc-gvm2
  python $ATTRACTTOOLS/topcombined.py $topstruc-gvm2 $nstruc > $topstruc-topcombined
  python $ATTRACTTOOLS/monte.py $topstruc-topcombined $noclone > $newinp
@@ -925,7 +925,7 @@ if [ ! -s $outp-filtered ]; then
  
 fi
 if [ ! -s $topstruc ]; then
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
  python $ATTRACTTOOLS/fill-energies.py $outp-filtered $outp-gvm1 > $outp-gvm2
  python $ATTRACTTOOLS/sort.py $outp-gvm2 > $sorted 
  $ATTRACTDIR/fix_receptor $sorted 2 | python $ATTRACTTOOLS/fill.py /dev/stdin $sorted > $sorted-fixre 
@@ -941,7 +941,7 @@ fi
 newinp=dock-run1-preit26.dat
 if [ ! -s $newinp ]; then
  python $ATTRACTTOOLS/swapcombine.py $topstruc > $topstruc-combined
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
  python $ATTRACTTOOLS/fill-energies.py $topstruc-combined $topstruc-gvm1 > $topstruc-gvm2
  python $ATTRACTTOOLS/topcombined.py $topstruc-gvm2 $nstruc > $topstruc-topcombined
  python $ATTRACTTOOLS/monte.py $topstruc-topcombined $noclone > $newinp
@@ -991,7 +991,7 @@ if [ ! -s $outp-filtered ]; then
  
 fi
 if [ ! -s $topstruc ]; then
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
  python $ATTRACTTOOLS/fill-energies.py $outp-filtered $outp-gvm1 > $outp-gvm2
  python $ATTRACTTOOLS/sort.py $outp-gvm2 > $sorted 
  $ATTRACTDIR/fix_receptor $sorted 2 | python $ATTRACTTOOLS/fill.py /dev/stdin $sorted > $sorted-fixre 
@@ -1007,7 +1007,7 @@ fi
 newinp=dock-run1-preit27.dat
 if [ ! -s $newinp ]; then
  python $ATTRACTTOOLS/swapcombine.py $topstruc > $topstruc-combined
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
  python $ATTRACTTOOLS/fill-energies.py $topstruc-combined $topstruc-gvm1 > $topstruc-gvm2
  python $ATTRACTTOOLS/topcombined.py $topstruc-gvm2 $nstruc > $topstruc-topcombined
  python $ATTRACTTOOLS/monte.py $topstruc-topcombined $noclone > $newinp
@@ -1024,7 +1024,7 @@ if [ ! -s $outp-filtered ]; then
  
 fi
 if [ ! -s $topstruc ]; then
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
  python $ATTRACTTOOLS/fill-energies.py $outp-filtered $outp-gvm1 > $outp-gvm2
  python $ATTRACTTOOLS/sort.py $outp-gvm2 > $sorted 
  $ATTRACTDIR/fix_receptor $sorted 2 | python $ATTRACTTOOLS/fill.py /dev/stdin $sorted > $sorted-fixre 
@@ -1040,7 +1040,7 @@ fi
 newinp=dock-run1-preit28.dat
 if [ ! -s $newinp ]; then
  python $ATTRACTTOOLS/swapcombine.py $topstruc > $topstruc-combined
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
  python $ATTRACTTOOLS/fill-energies.py $topstruc-combined $topstruc-gvm1 > $topstruc-gvm2
  python $ATTRACTTOOLS/topcombined.py $topstruc-gvm2 $nstruc > $topstruc-topcombined
  python $ATTRACTTOOLS/monte.py $topstruc-topcombined $noclone > $newinp
@@ -1057,7 +1057,7 @@ if [ ! -s $outp-filtered ]; then
  
 fi
 if [ ! -s $topstruc ]; then
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
  python $ATTRACTTOOLS/fill-energies.py $outp-filtered $outp-gvm1 > $outp-gvm2
  python $ATTRACTTOOLS/sort.py $outp-gvm2 > $sorted 
  $ATTRACTDIR/fix_receptor $sorted 2 | python $ATTRACTTOOLS/fill.py /dev/stdin $sorted > $sorted-fixre 
@@ -1073,7 +1073,7 @@ fi
 newinp=dock-run1-preit29.dat
 if [ ! -s $newinp ]; then
  python $ATTRACTTOOLS/swapcombine.py $topstruc > $topstruc-combined
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
  python $ATTRACTTOOLS/fill-energies.py $topstruc-combined $topstruc-gvm1 > $topstruc-gvm2
  python $ATTRACTTOOLS/topcombined.py $topstruc-gvm2 $nstruc > $topstruc-topcombined
  python $ATTRACTTOOLS/monte.py $topstruc-topcombined $noclone > $newinp
@@ -1090,7 +1090,7 @@ if [ ! -s $outp-filtered ]; then
  
 fi
 if [ ! -s $topstruc ]; then
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
  python $ATTRACTTOOLS/fill-energies.py $outp-filtered $outp-gvm1 > $outp-gvm2
  python $ATTRACTTOOLS/sort.py $outp-gvm2 > $sorted 
  $ATTRACTDIR/fix_receptor $sorted 2 | python $ATTRACTTOOLS/fill.py /dev/stdin $sorted > $sorted-fixre 
@@ -1106,7 +1106,7 @@ fi
 newinp=dock-run1-preit30.dat
 if [ ! -s $newinp ]; then
  python $ATTRACTTOOLS/swapcombine.py $topstruc > $topstruc-combined
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
  python $ATTRACTTOOLS/fill-energies.py $topstruc-combined $topstruc-gvm1 > $topstruc-gvm2
  python $ATTRACTTOOLS/topcombined.py $topstruc-gvm2 $nstruc > $topstruc-topcombined
  python $ATTRACTTOOLS/monte.py $topstruc-topcombined $noclone > $newinp
@@ -1123,7 +1123,7 @@ if [ ! -s $outp-filtered ]; then
  
 fi
 if [ ! -s $topstruc ]; then
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
  python $ATTRACTTOOLS/fill-energies.py $outp-filtered $outp-gvm1 > $outp-gvm2
  python $ATTRACTTOOLS/sort.py $outp-gvm2 > $sorted 
  $ATTRACTDIR/fix_receptor $sorted 2 | python $ATTRACTTOOLS/fill.py /dev/stdin $sorted > $sorted-fixre 
@@ -1139,7 +1139,7 @@ fi
 newinp=dock-run1-preit31.dat
 if [ ! -s $newinp ]; then
  python $ATTRACTTOOLS/swapcombine.py $topstruc > $topstruc-combined
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
  python $ATTRACTTOOLS/fill-energies.py $topstruc-combined $topstruc-gvm1 > $topstruc-gvm2
  python $ATTRACTTOOLS/topcombined.py $topstruc-gvm2 $nstruc > $topstruc-topcombined
  python $ATTRACTTOOLS/monte.py $topstruc-topcombined $noclone > $newinp
@@ -1189,7 +1189,7 @@ if [ ! -s $outp-filtered ]; then
  
 fi
 if [ ! -s $topstruc ]; then
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
  python $ATTRACTTOOLS/fill-energies.py $outp-filtered $outp-gvm1 > $outp-gvm2
  python $ATTRACTTOOLS/sort.py $outp-gvm2 > $sorted 
  $ATTRACTDIR/fix_receptor $sorted 2 | python $ATTRACTTOOLS/fill.py /dev/stdin $sorted > $sorted-fixre 
@@ -1205,7 +1205,7 @@ fi
 newinp=dock-run1-preit32.dat
 if [ ! -s $newinp ]; then
  python $ATTRACTTOOLS/swapcombine.py $topstruc > $topstruc-combined
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
  python $ATTRACTTOOLS/fill-energies.py $topstruc-combined $topstruc-gvm1 > $topstruc-gvm2
  python $ATTRACTTOOLS/topcombined.py $topstruc-gvm2 $nstruc > $topstruc-topcombined
  python $ATTRACTTOOLS/monte.py $topstruc-topcombined $noclone > $newinp
@@ -1222,7 +1222,7 @@ if [ ! -s $outp-filtered ]; then
  
 fi
 if [ ! -s $topstruc ]; then
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
  python $ATTRACTTOOLS/fill-energies.py $outp-filtered $outp-gvm1 > $outp-gvm2
  python $ATTRACTTOOLS/sort.py $outp-gvm2 > $sorted 
  $ATTRACTDIR/fix_receptor $sorted 2 | python $ATTRACTTOOLS/fill.py /dev/stdin $sorted > $sorted-fixre 
@@ -1238,7 +1238,7 @@ fi
 newinp=dock-run1-preit33.dat
 if [ ! -s $newinp ]; then
  python $ATTRACTTOOLS/swapcombine.py $topstruc > $topstruc-combined
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
  python $ATTRACTTOOLS/fill-energies.py $topstruc-combined $topstruc-gvm1 > $topstruc-gvm2
  python $ATTRACTTOOLS/topcombined.py $topstruc-gvm2 $nstruc > $topstruc-topcombined
  python $ATTRACTTOOLS/monte.py $topstruc-topcombined $noclone > $newinp
@@ -1255,7 +1255,7 @@ if [ ! -s $outp-filtered ]; then
  
 fi
 if [ ! -s $topstruc ]; then
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
  python $ATTRACTTOOLS/fill-energies.py $outp-filtered $outp-gvm1 > $outp-gvm2
  python $ATTRACTTOOLS/sort.py $outp-gvm2 > $sorted 
  $ATTRACTDIR/fix_receptor $sorted 2 | python $ATTRACTTOOLS/fill.py /dev/stdin $sorted > $sorted-fixre 
@@ -1271,7 +1271,7 @@ fi
 newinp=dock-run1-preit34.dat
 if [ ! -s $newinp ]; then
  python $ATTRACTTOOLS/swapcombine.py $topstruc > $topstruc-combined
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
  python $ATTRACTTOOLS/fill-energies.py $topstruc-combined $topstruc-gvm1 > $topstruc-gvm2
  python $ATTRACTTOOLS/topcombined.py $topstruc-gvm2 $nstruc > $topstruc-topcombined
  python $ATTRACTTOOLS/monte.py $topstruc-topcombined $noclone > $newinp
@@ -1288,7 +1288,7 @@ if [ ! -s $outp-filtered ]; then
  
 fi
 if [ ! -s $topstruc ]; then
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
  python $ATTRACTTOOLS/fill-energies.py $outp-filtered $outp-gvm1 > $outp-gvm2
  python $ATTRACTTOOLS/sort.py $outp-gvm2 > $sorted 
  $ATTRACTDIR/fix_receptor $sorted 2 | python $ATTRACTTOOLS/fill.py /dev/stdin $sorted > $sorted-fixre 
@@ -1304,7 +1304,7 @@ fi
 newinp=dock-run1-preit35.dat
 if [ ! -s $newinp ]; then
  python $ATTRACTTOOLS/swapcombine.py $topstruc > $topstruc-combined
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
  python $ATTRACTTOOLS/fill-energies.py $topstruc-combined $topstruc-gvm1 > $topstruc-gvm2
  python $ATTRACTTOOLS/topcombined.py $topstruc-gvm2 $nstruc > $topstruc-topcombined
  python $ATTRACTTOOLS/monte.py $topstruc-topcombined $noclone > $newinp
@@ -1321,7 +1321,7 @@ if [ ! -s $outp-filtered ]; then
  
 fi
 if [ ! -s $topstruc ]; then
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
  python $ATTRACTTOOLS/fill-energies.py $outp-filtered $outp-gvm1 > $outp-gvm2
  python $ATTRACTTOOLS/sort.py $outp-gvm2 > $sorted 
  $ATTRACTDIR/fix_receptor $sorted 2 | python $ATTRACTTOOLS/fill.py /dev/stdin $sorted > $sorted-fixre 
@@ -1337,7 +1337,7 @@ fi
 newinp=dock-run1-preit36.dat
 if [ ! -s $newinp ]; then
  python $ATTRACTTOOLS/swapcombine.py $topstruc > $topstruc-combined
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
  python $ATTRACTTOOLS/fill-energies.py $topstruc-combined $topstruc-gvm1 > $topstruc-gvm2
  python $ATTRACTTOOLS/topcombined.py $topstruc-gvm2 $nstruc > $topstruc-topcombined
  python $ATTRACTTOOLS/monte.py $topstruc-topcombined $noclone > $newinp
@@ -1387,7 +1387,7 @@ if [ ! -s $outp-filtered ]; then
  
 fi
 if [ ! -s $topstruc ]; then
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
  python $ATTRACTTOOLS/fill-energies.py $outp-filtered $outp-gvm1 > $outp-gvm2
  python $ATTRACTTOOLS/sort.py $outp-gvm2 > $sorted 
  $ATTRACTDIR/fix_receptor $sorted 2 | python $ATTRACTTOOLS/fill.py /dev/stdin $sorted > $sorted-fixre 
@@ -1403,7 +1403,7 @@ fi
 newinp=dock-run1-preit37.dat
 if [ ! -s $newinp ]; then
  python $ATTRACTTOOLS/swapcombine.py $topstruc > $topstruc-combined
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
  python $ATTRACTTOOLS/fill-energies.py $topstruc-combined $topstruc-gvm1 > $topstruc-gvm2
  python $ATTRACTTOOLS/topcombined.py $topstruc-gvm2 $nstruc > $topstruc-topcombined
  python $ATTRACTTOOLS/monte.py $topstruc-topcombined $noclone > $newinp
@@ -1421,7 +1421,7 @@ if [ ! -s $outp-filtered ]; then
  
 fi
 if [ ! -s $topstruc ]; then
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
  python $ATTRACTTOOLS/fill-energies.py $outp-filtered $outp-gvm1 > $outp-gvm2
  python $ATTRACTTOOLS/sort.py $outp-gvm2 > $sorted 
  $ATTRACTDIR/fix_receptor $sorted 2 | python $ATTRACTTOOLS/fill.py /dev/stdin $sorted > $sorted-fixre 
@@ -1437,7 +1437,7 @@ fi
 newinp=dock-run1-preit38.dat
 if [ ! -s $newinp ]; then
  python $ATTRACTTOOLS/swapcombine.py $topstruc > $topstruc-combined
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
  python $ATTRACTTOOLS/fill-energies.py $topstruc-combined $topstruc-gvm1 > $topstruc-gvm2
  python $ATTRACTTOOLS/topcombined.py $topstruc-gvm2 $nstruc > $topstruc-topcombined
  python $ATTRACTTOOLS/monte.py $topstruc-topcombined $noclone > $newinp
@@ -1454,7 +1454,7 @@ if [ ! -s $outp-filtered ]; then
  
 fi
 if [ ! -s $topstruc ]; then
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
  python $ATTRACTTOOLS/fill-energies.py $outp-filtered $outp-gvm1 > $outp-gvm2
  python $ATTRACTTOOLS/sort.py $outp-gvm2 > $sorted 
  $ATTRACTDIR/fix_receptor $sorted 2 | python $ATTRACTTOOLS/fill.py /dev/stdin $sorted > $sorted-fixre 
@@ -1470,7 +1470,7 @@ fi
 newinp=dock-run1-preit39.dat
 if [ ! -s $newinp ]; then
  python $ATTRACTTOOLS/swapcombine.py $topstruc > $topstruc-combined
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
  python $ATTRACTTOOLS/fill-energies.py $topstruc-combined $topstruc-gvm1 > $topstruc-gvm2
  python $ATTRACTTOOLS/topcombined.py $topstruc-gvm2 $nstruc > $topstruc-topcombined
  python $ATTRACTTOOLS/monte.py $topstruc-topcombined $noclone > $newinp
@@ -1487,7 +1487,7 @@ if [ ! -s $outp-filtered ]; then
  
 fi
 if [ ! -s $topstruc ]; then
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
  python $ATTRACTTOOLS/fill-energies.py $outp-filtered $outp-gvm1 > $outp-gvm2
  python $ATTRACTTOOLS/sort.py $outp-gvm2 > $sorted 
  $ATTRACTDIR/fix_receptor $sorted 2 | python $ATTRACTTOOLS/fill.py /dev/stdin $sorted > $sorted-fixre 
@@ -1503,7 +1503,7 @@ fi
 newinp=dock-run1-preit40.dat
 if [ ! -s $newinp ]; then
  python $ATTRACTTOOLS/swapcombine.py $topstruc > $topstruc-combined
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
  python $ATTRACTTOOLS/fill-energies.py $topstruc-combined $topstruc-gvm1 > $topstruc-gvm2
  python $ATTRACTTOOLS/topcombined.py $topstruc-gvm2 $nstruc > $topstruc-topcombined
  python $ATTRACTTOOLS/monte.py $topstruc-topcombined $noclone > $newinp
@@ -1520,7 +1520,7 @@ if [ ! -s $outp-filtered ]; then
  
 fi
 if [ ! -s $topstruc ]; then
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
  python $ATTRACTTOOLS/fill-energies.py $outp-filtered $outp-gvm1 > $outp-gvm2
  python $ATTRACTTOOLS/sort.py $outp-gvm2 > $sorted 
  $ATTRACTDIR/fix_receptor $sorted 2 | python $ATTRACTTOOLS/fill.py /dev/stdin $sorted > $sorted-fixre 
@@ -1536,7 +1536,7 @@ fi
 newinp=dock-run1-preit41.dat
 if [ ! -s $newinp ]; then
  python $ATTRACTTOOLS/swapcombine.py $topstruc > $topstruc-combined
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
  python $ATTRACTTOOLS/fill-energies.py $topstruc-combined $topstruc-gvm1 > $topstruc-gvm2
  python $ATTRACTTOOLS/topcombined.py $topstruc-gvm2 $nstruc > $topstruc-topcombined
  python $ATTRACTTOOLS/monte.py $topstruc-topcombined $noclone > $newinp
@@ -1586,7 +1586,7 @@ if [ ! -s $outp-filtered ]; then
  
 fi
 if [ ! -s $topstruc ]; then
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
  python $ATTRACTTOOLS/fill-energies.py $outp-filtered $outp-gvm1 > $outp-gvm2
  python $ATTRACTTOOLS/sort.py $outp-gvm2 > $sorted 
  $ATTRACTDIR/fix_receptor $sorted 2 | python $ATTRACTTOOLS/fill.py /dev/stdin $sorted > $sorted-fixre 
@@ -1602,7 +1602,7 @@ fi
 newinp=dock-run1-preit42.dat
 if [ ! -s $newinp ]; then
  python $ATTRACTTOOLS/swapcombine.py $topstruc > $topstruc-combined
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
  python $ATTRACTTOOLS/fill-energies.py $topstruc-combined $topstruc-gvm1 > $topstruc-gvm2
  python $ATTRACTTOOLS/topcombined.py $topstruc-gvm2 $nstruc > $topstruc-topcombined
  python $ATTRACTTOOLS/monte.py $topstruc-topcombined $noclone > $newinp
@@ -1619,7 +1619,7 @@ if [ ! -s $outp-filtered ]; then
  
 fi
 if [ ! -s $topstruc ]; then
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
  python $ATTRACTTOOLS/fill-energies.py $outp-filtered $outp-gvm1 > $outp-gvm2
  python $ATTRACTTOOLS/sort.py $outp-gvm2 > $sorted 
  $ATTRACTDIR/fix_receptor $sorted 2 | python $ATTRACTTOOLS/fill.py /dev/stdin $sorted > $sorted-fixre 
@@ -1635,7 +1635,7 @@ fi
 newinp=dock-run1-preit43.dat
 if [ ! -s $newinp ]; then
  python $ATTRACTTOOLS/swapcombine.py $topstruc > $topstruc-combined
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
  python $ATTRACTTOOLS/fill-energies.py $topstruc-combined $topstruc-gvm1 > $topstruc-gvm2
  python $ATTRACTTOOLS/topcombined.py $topstruc-gvm2 $nstruc > $topstruc-topcombined
  python $ATTRACTTOOLS/monte.py $topstruc-topcombined $noclone > $newinp
@@ -1652,7 +1652,7 @@ if [ ! -s $outp-filtered ]; then
  
 fi
 if [ ! -s $topstruc ]; then
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
  python $ATTRACTTOOLS/fill-energies.py $outp-filtered $outp-gvm1 > $outp-gvm2
  python $ATTRACTTOOLS/sort.py $outp-gvm2 > $sorted 
  $ATTRACTDIR/fix_receptor $sorted 2 | python $ATTRACTTOOLS/fill.py /dev/stdin $sorted > $sorted-fixre 
@@ -1668,7 +1668,7 @@ fi
 newinp=dock-run1-preit44.dat
 if [ ! -s $newinp ]; then
  python $ATTRACTTOOLS/swapcombine.py $topstruc > $topstruc-combined
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
  python $ATTRACTTOOLS/fill-energies.py $topstruc-combined $topstruc-gvm1 > $topstruc-gvm2
  python $ATTRACTTOOLS/topcombined.py $topstruc-gvm2 $nstruc > $topstruc-topcombined
  python $ATTRACTTOOLS/monte.py $topstruc-topcombined $noclone > $newinp
@@ -1685,7 +1685,7 @@ if [ ! -s $outp-filtered ]; then
  
 fi
 if [ ! -s $topstruc ]; then
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
  python $ATTRACTTOOLS/fill-energies.py $outp-filtered $outp-gvm1 > $outp-gvm2
  python $ATTRACTTOOLS/sort.py $outp-gvm2 > $sorted 
  $ATTRACTDIR/fix_receptor $sorted 2 | python $ATTRACTTOOLS/fill.py /dev/stdin $sorted > $sorted-fixre 
@@ -1701,7 +1701,7 @@ fi
 newinp=dock-run1-preit45.dat
 if [ ! -s $newinp ]; then
  python $ATTRACTTOOLS/swapcombine.py $topstruc > $topstruc-combined
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
  python $ATTRACTTOOLS/fill-energies.py $topstruc-combined $topstruc-gvm1 > $topstruc-gvm2
  python $ATTRACTTOOLS/topcombined.py $topstruc-gvm2 $nstruc > $topstruc-topcombined
  python $ATTRACTTOOLS/monte.py $topstruc-topcombined $noclone > $newinp
@@ -1748,7 +1748,7 @@ if [ ! -s $outp-filtered ]; then
  python $ATTRACTTOOLS/filter-energy.py $outp-min $energy_threshold > $outp-filtered
 fi
 if [ ! -s $topstruc ]; then
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
  python $ATTRACTTOOLS/fill-energies.py $outp-filtered $outp-gvm1 > $outp-gvm2
  python $ATTRACTTOOLS/sort.py $outp-gvm2 > $sorted 
  $ATTRACTDIR/fix_receptor $sorted 2 | python $ATTRACTTOOLS/fill.py /dev/stdin $sorted > $sorted-fixre 
@@ -1764,7 +1764,7 @@ fi
 newinp=dock-run1-preit47.dat
 if [ ! -s $newinp ]; then
  python $ATTRACTTOOLS/swapcombine.py $topstruc > $topstruc-combined
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
  python $ATTRACTTOOLS/fill-energies.py $topstruc-combined $topstruc-gvm1 > $topstruc-gvm2
  python $ATTRACTTOOLS/topcombined.py $topstruc-gvm2 $nstruc > $topstruc-topcombined
  python $ATTRACTTOOLS/monte.py $topstruc-topcombined $noclone > $newinp
@@ -1781,7 +1781,7 @@ if [ ! -s $outp-filtered ]; then
  
 fi
 if [ ! -s $topstruc ]; then
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
  python $ATTRACTTOOLS/fill-energies.py $outp-filtered $outp-gvm1 > $outp-gvm2
  python $ATTRACTTOOLS/sort.py $outp-gvm2 > $sorted 
  $ATTRACTDIR/fix_receptor $sorted 2 | python $ATTRACTTOOLS/fill.py /dev/stdin $sorted > $sorted-fixre 
@@ -1797,7 +1797,7 @@ fi
 newinp=dock-run1-preit48.dat
 if [ ! -s $newinp ]; then
  python $ATTRACTTOOLS/swapcombine.py $topstruc > $topstruc-combined
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
  python $ATTRACTTOOLS/fill-energies.py $topstruc-combined $topstruc-gvm1 > $topstruc-gvm2
  python $ATTRACTTOOLS/topcombined.py $topstruc-gvm2 $nstruc > $topstruc-topcombined
  python $ATTRACTTOOLS/monte.py $topstruc-topcombined $noclone > $newinp
@@ -1814,7 +1814,7 @@ if [ ! -s $outp-filtered ]; then
  
 fi
 if [ ! -s $topstruc ]; then
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
  python $ATTRACTTOOLS/fill-energies.py $outp-filtered $outp-gvm1 > $outp-gvm2
  python $ATTRACTTOOLS/sort.py $outp-gvm2 > $sorted 
  $ATTRACTDIR/fix_receptor $sorted 2 | python $ATTRACTTOOLS/fill.py /dev/stdin $sorted > $sorted-fixre 
@@ -1830,7 +1830,7 @@ fi
 newinp=dock-run1-preit49.dat
 if [ ! -s $newinp ]; then
  python $ATTRACTTOOLS/swapcombine.py $topstruc > $topstruc-combined
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
  python $ATTRACTTOOLS/fill-energies.py $topstruc-combined $topstruc-gvm1 > $topstruc-gvm2
  python $ATTRACTTOOLS/topcombined.py $topstruc-gvm2 $nstruc > $topstruc-topcombined
  python $ATTRACTTOOLS/monte.py $topstruc-topcombined $noclone > $newinp
@@ -1847,7 +1847,7 @@ if [ ! -s $outp-filtered ]; then
  
 fi
 if [ ! -s $topstruc ]; then
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
  python $ATTRACTTOOLS/fill-energies.py $outp-filtered $outp-gvm1 > $outp-gvm2
  python $ATTRACTTOOLS/sort.py $outp-gvm2 > $sorted 
  $ATTRACTDIR/fix_receptor $sorted 2 | python $ATTRACTTOOLS/fill.py /dev/stdin $sorted > $sorted-fixre 
@@ -1863,7 +1863,7 @@ fi
 newinp=dock-run1-preit50.dat
 if [ ! -s $newinp ]; then
  python $ATTRACTTOOLS/swapcombine.py $topstruc > $topstruc-combined
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $topstruc-combined --pdb proteinA.pdb proteinB.pdb $topstruc-gvm1
  python $ATTRACTTOOLS/fill-energies.py $topstruc-combined $topstruc-gvm1 > $topstruc-gvm2
  python $ATTRACTTOOLS/topcombined.py $topstruc-gvm2 $nstruc > $topstruc-topcombined
  python $ATTRACTTOOLS/monte.py $topstruc-topcombined $noclone > $newinp
@@ -1880,7 +1880,7 @@ if [ ! -s $outp-filtered ]; then
  
 fi
 if [ ! -s $topstruc ]; then
- python /home/cschindler/software/attract/tools/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
+ python $ATTRACTTOOLS/saxs/saxs-score-wrapper.py exp-processed.dat $outp-filtered --pdb proteinA.pdb proteinB.pdb  $outp-gvm1
  python $ATTRACTTOOLS/fill-energies.py $outp-filtered $outp-gvm1 > $outp-gvm2
  python $ATTRACTTOOLS/sort.py $outp-gvm2 > $sorted 
  $ATTRACTDIR/fix_receptor $sorted 2 | python $ATTRACTTOOLS/fill.py /dev/stdin $sorted > $sorted-fixre 
