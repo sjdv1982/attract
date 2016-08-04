@@ -1,3 +1,3 @@
-bash prepare.sh
-bash protocol.sh
-python final.py
+bash $ATTRACTDIR/../examples/attractsaxs/prepare.sh
+bash $ATTRACTDIR/../examples/attractsaxs/protocol.sh
+python $ATTRACTDUR/../examples/attractsaxs/final.py
