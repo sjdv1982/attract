@@ -24,12 +24,17 @@ ATSAS
 sudo apt-get install python-dev libxml2-dev libxslt-dev
 sudo pip install pyconfig
 sudo pip install pycuda
+sudo pip install jinja2
 sudo pip install itertools
 
 then add to your .bashrc
 
-export PYTHONPATH=$PYTHONPATH:$ATTRACTTOOLS/saxs
+export PYTHONPATH=$PYTHONPATH:$ATTRACTTOOLS/saxs:$ATTRACTDIR/../examples/attractsaxs/LX_Scoring/Rescoring
 export ATSASDIR=/yourpath/to/ATSAS/bin
+
+Change to the directory LX_Scoring/Rescoring and then type
+
+f2py -m scorelib -c scorelib.f
 
 
 ----------------------

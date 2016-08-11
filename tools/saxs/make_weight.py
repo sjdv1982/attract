@@ -26,13 +26,13 @@ weight = randnr*I*0.03*5.0*(q+0.001)
 #print np.mean(error/weight)
 newq, newI, newerror = [], [], []
 for i in range(len(q)):
-  if 10*weight[i] < error[i]:
+  if 2*weight[i] < error[i]:
     ##if error[i] > 0.05*I[i]:
     continue
     ##print q[i], I[i],error[i]
    
-  #if weight[i] < error[i]:
-    #weight[i] = error[i]
+  if weight[i] < error[i]:
+    weight[i] = error[i]
   newq.append(q[i])
   newI.append(I[i])
   newerror.append(weight[i])
