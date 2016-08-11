@@ -158,7 +158,7 @@ echo '**************************************************************'
         opts0 = " ".join(opts)
 
         if p.charged_termini: opts.append("--termini")
-        if use_aa and not p.has_hydrogens:
+        if (use_aa and not p.has_hydrogens) or m.use_iattract:
 	  opts.append("--dumppatch")
         if not use_aa:
           opts.append("--heavy")
@@ -1149,11 +1149,11 @@ echo '**************************************************************'
       ret += "$ATTRACTDIR/fix_receptor %s %d%s | $PYPY $ATTRACTTOOLS/fill.py /dev/stdin %s > %s\n" % (result, len(m.partners), flexpar2a, result, fixresult)
       result = fixresult
 
-    lrmsd_refenames = rmsd_refenames
-    lrmsd_filenames = rmsd_filenames
-    if m.rmsd_atoms == "all":
-      lrmsd_refenames = aa_rmsd_refenames
-      lrmsd_filenames = aa_rmsd_filenames
+    #lrmsd_refenames = rmsd_refenames
+    #lrmsd_filenames = rmsd_filenames
+    #if m.rmsd_atoms == "all":
+    lrmsd_refenames = aa_rmsd_refenames
+    lrmsd_filenames = aa_rmsd_filenames
 
     lrmsdpar = "--receptor %s" % lrmsd_filenames[0]
 
@@ -1170,7 +1170,7 @@ echo '**************************************************************'
 
     lrmsdresult = os.path.splitext(result0)[0] + ".lrmsd"
 
-    lrmsd_allfilenames_alts = list(generate_rmsdargs(rmsd_filenames[1:], lrmsd_refenames[1:]))
+    lrmsd_allfilenames_alts = list(generate_rmsdargs(lrmsd_filenames[1:], lrmsd_refenames[1:]))
     if len(lrmsd_allfilenames_alts) == 1:
       lrmsd_allfilenames = lrmsd_allfilenames_alts[0]
       ret += "python $ATTRACTDIR/lrmsd.py %s %s%s %s > %s\n" % (result, lrmsd_allfilenames, flexpar2a, lrmsdpar, lrmsdresult)

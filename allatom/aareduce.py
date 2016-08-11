@@ -144,6 +144,8 @@ def read_pdb(pdblines, add_termini=False,modbase=False,modres=False):
     if l[30:38] == " XXXXXXX": continue #missing atom from --manual mode
     resname = l[17:20].strip()
     if resname=="HIE" or resname=="HIP" :resname="HIS"
+    if resname=="HYP" and atomcode=='OD1':atomcode='OG1'
+    if resname=="HYP" and atomcode=='HD1':atomcode='HG1'
     if resname in mutations: resname = mutations[resname]
     if resname in mapnuc:
       if args.dna: 
