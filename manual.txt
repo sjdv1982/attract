@@ -490,7 +490,7 @@ Modified amino acids
 ATTRACT now supports docking with a limited number of modified amino acids during
 coarse-grained docking and atomistic refinement.
 Note: for docking with modified amino acids all polar hydrogen atoms must be present
-in the input PDB (PDB2PQR cannot deal with them). Use AddH in Chimera or another tool
+in the input PDB (PDB2PQR cannot deal with them). Use AddH in Chimera or another tool like CNS
 to add hydrogens and select the option "PDB contains all polar hydrogens" in the GUI.
 Also note that modified amino acids have to be labeled as ATOM so assure that HETATM
 entries are changed to ATOM in the input PDB file. Otherwise, these residues will be ignored
@@ -509,4 +509,6 @@ MLZ monomethyllysine
 MLY dimethyllysine
 M3L trimethyllysine
 
-
+TODO: add naming convention to the web-interface
+TODO: add hydrogen building by CNS
+TODO: make a phosphate atom type in the future?
