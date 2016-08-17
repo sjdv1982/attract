@@ -39,7 +39,7 @@ static void errorDOFFormat(std::string filename) {
 }
 
 
-static std::vector<std::string> line2Strings(std::string line) {
+static std::vector<std::string> pdbLine2Strings(std::string line) {
 	using namespace std;
 	istringstream iss(line);
 	/* char offset in file: X, Y, Z, type, charge */
@@ -55,6 +55,13 @@ static std::vector<std::string> line2Strings(std::string line) {
 		tokens.push_back(str);
 	}
 	return tokens;
+}
+
+static std::vector<std::string> line2Strings(std::string line) {
+	using namespace std;
+	istringstream iss(line);
+	return vector<string> { istream_iterator<string> { iss },
+					istream_iterator<string> { } };
 }
 
 as::Protein* asDB::createProteinFromPDB(std::string filename) {
@@ -86,7 +93,7 @@ void asDB::readProteinFromPDB(as::Protein* prot, std::string filename) {
 			}
 
 			/* split line to vector of strings */
-			vector<string> tokens = line2Strings(line);
+			vector<string> tokens = pdbLine2Strings(line);
 
 //			for(auto str : tokens) {
 //				cout << str << " ";
@@ -102,7 +109,7 @@ void asDB::readProteinFromPDB(as::Protein* prot, std::string filename) {
 			stringstream(tokens[1]) >> y;
 			stringstream(tokens[2]) >> z;
 			stringstream(tokens[3]) >> type;
-			stringstream(tokens[5]) >> charge;
+			stringstream(tokens[4]) >> charge;
 
 			/* store values in container */
 			posX.push_back(x);
