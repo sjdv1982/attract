@@ -4,21 +4,29 @@ from _read_struc import read_struc
 import random
 import itertools
 from math import *
-headers, strucs = [], []
+firstheader = []
 for f in sys.argv[1:]:
-  header,structures = read_struc(f)
-  headers.append(header)
-  if len(headers[0]) == 0 and len(header) > 0:
-    headers[0] = header
-  if header != headers[0]: raise Exception("Headers are not the same")
-  strucs.append(structures)
-  
+    header = read_struc(f)[0]
+    if len(header) > 0:
+        firstheader = header
+        break
+
 print "## add.py:"
-for h in header: print h
+for h in firstheader:
+    print h
+
 stnr = 0
-for s in itertools.chain(*strucs):
-  stnr += 1
-  l1,l2 = s
-  print "#"+str(stnr)
-  for l in l1: print l
-  for l in l2: print l
+for n in range(0,len(sys.argv)-1, 100):
+    headers, strucs = [], []
+    for f in sys.argv[n+1:n+101]:
+        header,structures = read_struc(f)
+        headers.append(header)
+        if header != firstheader: raise Exception("Headers are not the same")
+        strucs.append(structures)
+
+    for s in itertools.chain(*strucs):
+        stnr += 1
+        l1,l2 = s
+        print "#"+str(stnr)
+        for l in l1: print l
+        for l in l2: print l
