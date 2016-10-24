@@ -518,22 +518,6 @@ Type AttractModel {
     keep_perconf.name = "Maximum number of structures per conformer to keep"
   }
 
-  Bool rescore_step = False
-  ## form rescore_step.name = "Rescore the docking solutions by the GRADSCOPT step potential"
-  validate {
-    if rescore_step: assert rescoring
-    for p in partners:
-      assert p.moleculetype in ("Protein", "Peptide") #step
-  }
-  error {
-    'if rescore_step: assert rescoring'
-    =>
-    'Enable rescoring if you want to use the GRADSCOPT potential'
-
-    'assert p.moleculetype in ("Protein", "Peptide") #step'
-    =>
-    'The GRADSCOPT step potential is only defined for proteins and peptides'
-  }
   Bool use_iattract = True
   ## form use_iattract.name = "Perform iATTRACT refinement after the docking"
   *IAttractParameters iattract
@@ -554,7 +538,6 @@ Type AttractModel {
     position_restraints_file.group = _g
     restraints_score_weight.group = _g
     keep_perconf.group = _g
-    rescore_step.group = _g
     use_iattract.group = _g
     iattract.group = _g
     demode.group = _g
@@ -680,6 +663,22 @@ Type AttractModel {
   #**Analysis***
   Bool rescoring = True
   Float rcut_rescoring = 50.0
+  Bool rescore_step = False
+  ## form rescore_step.name = "Rescore the docking solutions by the GRADSCOPT step potential"
+  validate {
+    if rescore_step: assert rescoring
+    for p in partners:
+      assert p.moleculetype in ("Protein", "Peptide") #step
+  }
+  error {
+    'if rescore_step: assert rescoring'
+    =>
+    'Enable rescoring if you want to use the GRADSCOPT potential'
+
+    'assert p.moleculetype in ("Protein", "Peptide") #step'
+    =>
+    'The GRADSCOPT step potential is only defined for proteins and peptides'
+  }
   Bool sort = True
   Bool deredundant = True
   Bool deredundant_ignorens = True
@@ -694,19 +693,21 @@ Type AttractModel {
   Bool collect = True
   Integer nr_collect = 50
   form {
-    rescoring.group = "Analysis"
-    rcut_rescoring.group = "Analysis"
-    sort.group = "Analysis"
-    deredundant.group = "Analysis"
-    deredundant_ignorens.group = "Analysis"
-    deflex.group = "Analysis"
-    calc_lrmsd.group = "Analysis"
-    rmsd_atoms.group = "Analysis"
-    calc_irmsd.group = "Analysis"
-    calc_fnat.group = "Analysis"
-    max_analysis.group = "Analysis"
-    collect.group = "Analysis"
-    nr_collect.group = "Analysis"
+    _g = "Analysis"
+    rescoring.group = _g
+    rescore_step.group = _g
+    rcut_rescoring.group = _g
+    sort.group = _g
+    deredundant.group = _g
+    deredundant_ignorens.group = _g
+    deflex.group = _g
+    calc_lrmsd.group = _g
+    rmsd_atoms.group = _g
+    calc_irmsd.group = _g
+    calc_fnat.group = _g
+    max_analysis.group = _g
+    collect.group = _g
+    nr_collect.group = _g
 
     rescoring.name = "Perform a rescoring step after docking"
     rcut_rescoring.add_header("The nonbonded pairlist distance cutoff (rcut) (in A**2) during rescoring")
