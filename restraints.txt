@@ -24,6 +24,14 @@ restraint types:
     used for bond and angle restraints in flexible interface simulations
 5: double quadratic minimum distance restraint: <minimum distance> <force constant>
    used for steric repulsion in flexible interface simulations
+6: step potential, use only for scoring!
+7: positional restraint: <minimum distance> <maximum distance> <force constant>
+   <type> <refex> <refey> <refez> See below for explanation of type etc
+8: bump restraints: <minimum distance> <maximum distance> <slope> <force constant> 
+   double quadratic potential with flat potential between minimum distance and maximum distance
+    slope below minimum distance and above maximum distance. Goes smoothly to zero at 
+    minimum distance-slope and maximum distance-slope. Slope and force constant determine the
+    height of the potential well/bump. Attractive for negative force constant.
 
 The "chance of random removal" indicates the chance that a restraint is not used at all.
 This is determined by a random number generated from a structure's seed. Therefore, the same seed with the same restraint file causes the same restraints to be enabled or disabled within every docking stage.
@@ -54,3 +62,77 @@ At 2.5 A, the atoms experience an attractive force of 1 kcal/mol / A, and the en
 At 3.0 A, the atoms experience an attractive force of 2 kcal/mol / A, and the energy penalty is 1 kcal/mol.
 At 4.0 A, the atoms experience an attractive force of 2 kcal/mol / A, and the energy penalty is 3 kcal/mol.
 The restraint has a 60 % chance not to be in effect at all. 
+
+**************
+Tbl Format examples
+*****************
+
+Restraints can also be specified with the tbl syntax and converted to ATTRACT restraint format with tools/tbl2attract.py
+
+1. Harmonic restraints
+assign <selection1>
+       <selection2>
+       <distance> <dmin> <dmax>
+       
+       
+assign (segid A and resid 4 and name CA)
+       (segid B and resid 12 and name CA)
+       10.0 10.0 0.0
+       
+Use tbl2attract.py with --mode harmonic to define a maximum distance restraint of distance+dmax=10.0+0.0=10.0 A between the receptor protein's residue number 4 CA atom
+and the ligand protein's residue number 12 and CA atom. A mininum distance restraint would be defined for distance-dmin if that distance is larger than 0.
+
+2. Positional restraints
+
+Attract can also be given a restraints file in which for chosen residues of a ligand maximum and/or minimum coordinates can be defined. 
+Only those docking results which fullfill these area restraints get a good scoring and thus are part of the top results.
+
+format:
+ for each group of residues a new restraints selection can be defined: assign <selection> <distance> <dmin> <dmax> <type> <refe-x> <refe-y> <refe-z> 
+
+<selection> is built like this:
+ assign (
+  ( name CA and resid #1 and segid B) 
+  or ( name CA and resid #2 and segid B)
+  or ( name CA and resid #3 and segid B)
+  or ( name CA and resid #4 and segid B)
+                      .
+                      .
+                      .
+  or ( name CA and resid #N and segid B)
+ )
+ That means that Attract will make sure that the C-Alpha atom (CA) of the resid #N in the ligand (segid B) will fullfill the given restraints.
+ 
+<distance>: distance from the reference point
+
+<dmin> <dmax>: minimum and maximum distance relating to the coordinates defined by <distance>.
+
+<type> can be: x, y, z, xy, xz, yz or xyz
+               The type determines which coordinate(s) of the atom are used to compute <distance>
+               e.g. "x" defines a planar region, "xy" a cylindrical region and "xyz" a spherical region       
+               
+<refe-x> <refe-y> <refe-z>: defines the reference point
+
+!!!Important!!! 
+tbl2attract.py cannot handle the case if <distance> and <dmax> are both zero. So if no maximum distance restraint is required and <distance> is equal zero, 
+a large value for <dmax> should be given, like 1000.
+
+examples:
+assign ( 
+ ( name CA and resid 501 and segid B) 
+ or ( name CA and resid 656 and segid B) 
+ or ( name CA and resid 676 and segid B)
+)  0.0 0.0 10 xy 8 30 0
+
+assign ( 
+ ( name CA and resid 501 and segid B) 
+ or ( name CA and resid 676 and segid B)
+)  0.0 0.0 7 z 0 0 100
+
+assign ( ( name CA and resid 656 and segid B))  0.0 0.0 0.1 z 0 0 130
+
+
+assign ( 
+  ( name CA and resid 21 and segid B) 
+  or ( name CA and resid 22 and segid B)
+)  0.0

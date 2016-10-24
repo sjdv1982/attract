@@ -134,16 +134,20 @@ for unbounds in rmsdlib.read_multi_pdb(sys.argv[1]):
   rmsdlib.check_pdbs(unbounds, bounds)
   nstruc += 1
   fcoor = numpy.compress(selmask, coor, axis=0)
-  U = rmsdlib.fit(fboundatoms,fcoor)[0]
+  U,t,irmsd = rmsdlib.fit(fcoor,fboundatoms)
   rotfcoor = numpy.array([],ndmin=2)
+  L = len(fcoor)
+  COM1 = numpy.sum(fcoor,axis=0) / float(L)
+  COM2 = numpy.sum(fboundatoms,axis=0) / float(L)
   for c in fcoor:
-    rotfcoor = numpy.append(rotfcoor,U.dot(c))
+    rotfcoor = numpy.append(rotfcoor,U.dot(c-COM1))
   
   rotfcoor = numpy.reshape(rotfcoor,(-1,3))
   f1.write(str(nstruc))
   for start, end in ligandselmask:
-    sel1 = rotfcoor[start:end]
-    sel2 = fboundatoms[start:end]
+    sel1 = rotfcoor[start:end,:]
+    sel2 = fboundatoms[start:end,:]
+    sel2 = sel2-COM2
     irmsd = rmsdlib.rmsd(sel1,sel2)
     f1.write(" %.3f" % irmsd)
     

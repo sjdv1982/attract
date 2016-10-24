@@ -1,0 +1,28 @@
+ 1 $\mathrm{N}$
+ 2 $\mathrm{H}$
+ 3 $\mathrm{C}_{\alpha}$
+ 4 $\mathrm{C}$
+ 5 $\mathrm{O}$
+ 6 $\mathrm{CH}_3[\mathrm{nonpol}]$
+ 7 $\mathrm{CH}_2[\mathrm{nonpol}]$
+ 8 $\mathrm{CH}[\mathrm{nonpol}]$
+ 9 $\mathrm{S}[\mathrm{nonpol}]$
+10 $\mathrm{CH}_{(2)}[\mathrm{polar}]$
+11 $\mathrm{O}_\mathrm{H}[\mathrm{polar}]$
+12 $\mathrm{H}_\mathrm{O}[\mathrm{polar}]$
+13 $\mathrm{S}[\mathrm{polar}]$
+14 $\mathrm{O}_{=}[\mathrm{polar}]$
+15 $\mathrm{N}_\mathrm{H}[\mathrm{polar]}$
+16 $\mathrm{H}_{N}[\mathrm{polar}]$
+17 $\mathrm{C}_{=}[\mathrm{polar}]$
+18 $\mathrm{CH}_{2}[\mathrm{aro}]$
+19 $\mathrm{C}_\mathrm{ring}[\mathrm{aro}]$
+20 $\mathrm{C(H)}[+]$
+21 $\mathrm{CH}_2[+]$
+22 $\mathrm{N}[+]$
+23 $\mathrm{H}[+]$
+24 $\mathrm{O}[-]$
+25 $\mathrm{CH}_2[-]$
+26 $\mathrm{C}_\mathrm{acid}[-]$
+27 $\mathrm{C}[\mathrm{gly}]$
+ 
