@@ -114,7 +114,17 @@ Type AttractEasyModel {
   Bool use_grids = True
   ## form use_grids.name = "Perform grid-accelerated docking"
   Bool rescore_step = False
-  ## form rescore_step.name = "Rescore the docking solutions by the @-scoring step potential"
+  ## form rescore_step.name = "Rescore the docking solutions by the GRADSCOPT step potential"
+  validate {
+    if rescore_step:
+      for p in partners:
+        assert p.moleculetype in ("Protein", "Peptide") #step
+  }
+  error {
+    'assert p.moleculetype in ("Protein", "Peptide") #step'
+    =>
+    'The GRADSCOPT step potential is only defined for proteins and peptides'
+  }
   Bool use_iattract = True
   Integer keep_perconf = 0
   form {

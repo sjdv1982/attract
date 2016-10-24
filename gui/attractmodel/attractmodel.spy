@@ -518,6 +518,22 @@ Type AttractModel {
     keep_perconf.name = "Maximum number of structures per conformer to keep"
   }
 
+  Bool rescore_step = False
+  ## form rescore_step.name = "Rescore the docking solutions by the GRADSCOPT step potential"
+  validate {
+    if rescore_step: assert rescoring
+    for p in partners:
+      assert p.moleculetype in ("Protein", "Peptide") #step
+  }
+  error {
+    'if rescore_step: assert rescoring'
+    =>
+    'Enable rescoring if you want to use the GRADSCOPT potential'
+
+    'assert p.moleculetype in ("Protein", "Peptide") #step'
+    =>
+    'The GRADSCOPT step potential is only defined for proteins and peptides'
+  }
   Bool use_iattract = True
   ## form use_iattract.name = "Perform iATTRACT refinement after the docking"
   *IAttractParameters iattract
@@ -538,6 +554,7 @@ Type AttractModel {
     position_restraints_file.group = _g
     restraints_score_weight.group = _g
     keep_perconf.group = _g
+    rescore_step.group = _g
     use_iattract.group = _g
     iattract.group = _g
     demode.group = _g
@@ -712,6 +729,41 @@ Type AttractModel {
     max_analysis.name = "Maximum number of structures to analyze"
     collect.name = "Collect the structures as PDBs after docking"
     nr_collect.name = "Number of structures to collect"
+  }
+  validate {
+    has_axsym = any([sym.symmetry_axis is not None for sym in symmetries])
+    if has_axsym: assert not rescore_step
+    if has_axsym: assert not calc_lrmsd
+    if has_axsym: assert not calc_irmsd
+    if has_axsym: assert not calc_fnat
+    if has_axsym: assert not use_iattract
+    if has_axsym: assert not deredundant
+  }
+  error {
+    'if has_axsym: assert not rescore_step'
+    =>
+    'The GRADSCOPT step potential is not compatible with generative symmetry'
+
+    'if has_axsym: assert not calc_lrmsd'
+    =>
+    'Ligand RMSD calculation is not compatible with generative symmetry'
+
+    'if has_axsym: assert not calc_irmsd'
+    =>
+    'Interface RMSD calculation is not compatible with generative symmetry'
+
+    'if has_axsym: assert not calc_fnat'
+    =>
+    'Fnat calculation is not compatible with generative symmetry'
+
+    'if has_axsym: assert not use_iattract'
+    =>
+    'iATTRACT is not compatible with generative symmetry'
+
+    'if has_axsym: assert not deredundant'
+    =>
+    'Deredundant is not compatible with generative symmetry'
+
   }
   validate {
     if max_analysis: assert not use_iattract

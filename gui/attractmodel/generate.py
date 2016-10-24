@@ -3,8 +3,8 @@ import os, itertools
 #TODO: fix ATTRACT-EM interface
 #TODO: Symmetry help in full interface is too small
 
-generator_version = "0.7"
-req_attract2_version = "0.3"
+generator_version = "0.8"
+req_attract2_version = "0.4"
 
 parameterfiledict = {
   "ATTRACT" :  "$ATTRACTDIR/../attract.par",
@@ -382,12 +382,14 @@ name=%s
     assert len(filenames) > 1
     gpuparams0 = "\"" + "-d 0 -p " + ffpar + " -r " + filenames[0]
   scoreparams = params + " --score --fix-receptor"
+  stepscore_params = partnerfiles
   gridparams = ""
   if m.fix_receptor: params += " --fix-receptor"
   if modes_any:
     ps = " --modes hm-all.dat"
     params += ps
     scoreparams += ps
+    stepscore_params += ps
   gridfiles = {}
   ret_shm = ""
   for g in m.grids:
@@ -415,6 +417,7 @@ name=%s
       ps = " --ens %d %s" % (pnr+1, ensemble_lists[pnr])
       params += ps
       scoreparams += ps
+      stepscore_params += ps
   if m.ghost:
     params += " --ghost"
   if m.ghost_ligands:
@@ -460,6 +463,7 @@ name=%s
     ps_score = ps + " --restweight %s"  % (str(m.restraints_score_weight))
     scoreparams += ps_score
 
+  axsymparams = ""
   for sym in m.symmetries:
     if sym.symmetry_axis is None: #distance-restrained symmetry
       symcode = len(sym.partners)
@@ -476,10 +480,16 @@ name=%s
       s = sym.symmetry_origin
       if s is None: s = Coordinate(0,0,0)
       sym_origin = "%.3f %.3f %.3f" % (s.x, s.y, s.z)
-      p = " --axsym %d %d %s %s" % (partner, symcode, sym_axis, sym_origin)
+      axsymstr = " %d %d %s %s" % (partner, symcode, sym_axis, sym_origin)
+      p = " --axsym%s" % axsymstr
       params += p
       scoreparams += p
-  paramsprep = params.replace("--fix-receptor","").replace("--ghost-ligands","").replace("--ghost","").replace("--rest "+position_restraints_file,"").replace("  ", " ") + " --ghost"
+  paramsprep = params.replace("--fix-receptor","")\
+                     .replace("--ghost-ligands","")\
+                     .replace("--ghost","")\
+                     .replace("--rest "+position_restraints_file,"")\
+                     .replace("  ", " ")\
+                     + " --ghost"
 
   paramsprep += "\""
   params += "\""
@@ -989,8 +999,12 @@ echo 'Merge the scores with the structures'
 echo '**************************************************************'
 """
     ret += "$PYPY $ATTRACTTOOLS/fill-energies.py %s out_$name.score > out_$name-scored.dat\n" % (result)
-    ret += "\n"
     result = "out_$name-scored.dat"
+    if m.rescore_step:
+        result2 = "out_$name-scored-GRADSCOPT.dat"
+        ret += "python $ATTRACTDIR/stepscore.py %s $ATTRACTDIR/MC_gaa_step10.par %s > %s" % (result, stepscore_params, result2)
+        result = result2
+    ret += "\n"
 
   if m.sort:
     ret += """

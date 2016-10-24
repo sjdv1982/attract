@@ -1,7 +1,6 @@
 """
 Calculate Alex step score
-usage: python irmsd.py <DAT file> \
- <unbound PDB 1> <bound PDB 1> [<unbound PDB 2> <bound PDB 2>] [...]
+usage: python stepscore.py <DAT file> <unbound PDBs> 
 """
 
 import sys
