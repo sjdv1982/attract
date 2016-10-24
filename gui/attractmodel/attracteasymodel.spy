@@ -113,6 +113,8 @@ Type AttractEasyModel {
   #***Energy and interaction parameters***
   Bool use_grids = True
   ## form use_grids.name = "Perform grid-accelerated docking"
+  Bool rescore_step = False
+  ## form rescore_step.name = "Rescore the docking solutions by the @-scoring step potential"
   Bool use_iattract = True
   ## form use_iattract.name = "Perform iATTRACT refinement after the docking"
   Enum forcefield("ATTRACT", "OPLSX") = "ATTRACT"
@@ -134,6 +136,7 @@ Type AttractEasyModel {
   form {
     _g = "Energy and interaction parameters"
     use_grids.group = _g
+    rescore_step.group = _g
     use_iattract.group = _g
     forcefield.group = _g
     completion_tool.group = _g
