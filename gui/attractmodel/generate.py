@@ -56,6 +56,7 @@ fi
 
   partnercode = ""
   filenames = []
+  gaa_filenames = []
   ensemble_lists = []
   pdbnames = []
   mappings = []
@@ -103,6 +104,8 @@ fi
   if separate_aa_pdb:
     aa_filenames = []
     aa_ensemble_lists = []
+  if m.rescore_step:
+    gaa_ensemble_lists = []
 
   #do we use all-atom representation at all?
   use_aa = (m.forcefield == "OPLSX" or separate_aa_pdb == True)
@@ -143,6 +146,8 @@ echo '**************************************************************'
       ensemble_list_aa = None
     if aa_rmsd:
       ensemble_list_aa_rmsd = None
+    if m.rescore_step:
+      ensemble_list_gaa = None
     if not p.ensemble:
       if pdbname not in pdbnames:
         pdbname3_0 = pdbname3
@@ -177,10 +182,14 @@ echo '**************************************************************'
         mappings.append(mapping)
         partnercode += "python $ATTRACTDIR/../allatom/aareduce.py %s %s %s > %s\n" % (pdbname4, pdbname_aa, opts, mapping)
         if aa_rmsd:
-	  readpatch = ''
-	  if "--dumppatch" in opts:
-	    readpatch = " --readpatch "
+          readpatch = ''
+          if "--dumppatch" in opts:
+            readpatch = " --readpatch "
           partnercode += "python $ATTRACTDIR/../allatom/aareduce.py %s %s --heavy %s > /dev/null\n" % (pdbname_aa, pdbname_aa_rmsd, opts0+readpatch)
+        if m.rescore_step:
+          pdbname_gaa = pdbname3 + "-gaa.pdb"
+          partnercode += "grep -v OXT %s | python $ATTRACTTOOLS/redatom.py --pdb /dev/stdin --atomtypefile $ATTRACTDIR/../atomtypes_gaa.dat --output %s\n" % (pdbname_aa, pdbname_gaa)
+          gaa_filenames.append(pdbname_gaa)
         if m.forcefield == "ATTRACT":
           pdbname_reduced = pdbname3 + "r.pdb"
           partnercode += "python $ATTRACTTOOLS/reduce.py %s %s %s > /dev/null\n" % (pdbname_aa, pdbname_reduced, opts0)
@@ -207,15 +216,19 @@ echo '**************************************************************'
       partnercode += "cat /dev/null > %s\n" % listens
       if separate_aa_pdb:
         ensemble_list_aa = d + "-aa.list"
-	partnercode += "cat /dev/null > %s\n" % ensemble_list_aa
+        partnercode += "cat /dev/null > %s\n" % ensemble_list_aa
       if aa_rmsd:
         ensemble_list_aa_rmsd = d + "-aa-rmsd.list"
         partnercode += "cat /dev/null > %s\n" % ensemble_list_aa_rmsd
+      if m.rescore_step:
+        ensemble_list_gaa = d + "-gaa.list"
+        partnercode += "cat /dev/null > %s\n" % ensemble_list_gaa
       for mnr in range(p.ensemble_size):
         mname1 = dd + "-" + str(mnr+1) + ".pdb"
         mname2 = dd + "-" + str(mnr+1) + "r.pdb"
         mname2aa = dd + "-" + str(mnr+1) + "-aa.pdb"
         mname2aa_rmsd = dd + "-" + str(mnr+1) + "-heavy.pdb"
+        mname2_gaa = dd + "-" + str(mnr+1) + "-gaa.pdb"
 
         #all-atom reduce; we do this even if we never use it in the docking, just to add missing atoms etc.
         opts = ["--chain", pdbchains[pnr]]
@@ -223,7 +236,7 @@ echo '**************************************************************'
         opts0 = " ".join(opts)
         if p.charged_termini: opts.append("--termini")
         if use_aa and not p.has_hydrogens:
-	  opts.append("--dumppatch")
+          opts.append("--dumppatch")
         if not use_aa:
           opts.append("--heavy")
         elif mnr > 0:
@@ -239,10 +252,13 @@ echo '**************************************************************'
           mappings.append(mapping)
         partnercode += "python $ATTRACTDIR/../allatom/aareduce.py %s %s %s > %s\n" % (mname1, mname2aa, opts, mapping)
         if aa_rmsd:
-	  readpatch = ''
-	  if "--dumppatch" in opts:
-	    readpatch = " --readpatch "
+          readpatch = ''
+          if "--dumppatch" in opts:
+            readpatch = " --readpatch "
           partnercode += "python $ATTRACTDIR/../allatom/aareduce.py %s %s --heavy %s > /dev/null\n" % (mname2aa, mname2aa_rmsd,readpatch)
+        if m.rescore_step:
+          partnercode += "grep -v OXT %s | python $ATTRACTTOOLS/redatom.py --pdb /dev/stdin --atomtypefile $ATTRACTDIR/../atomtypes_gaa.dat --output %s\n" % (mname2aa, mname2_gaa)
+          partnercode += "echo %s >> %s\n" % (mname2_gaa, ensemble_list_gaa)
         if m.forcefield == "ATTRACT":
           partnercode += "python $ATTRACTTOOLS/reduce.py %s %s %s > /dev/null\n" % (mname2aa, mname2, opts0)
         elif m.forcefield == "OPLSX":
@@ -257,6 +273,8 @@ echo '**************************************************************'
           pdbname = mname2
           pdbname_reference = pdbname
           filenames.append(pdbname)
+          if m.rescore_step:
+            gaa_filenames.append(mname2_gaa)
           if separate_aa_pdb:
             pdbname_aa = mname2aa
             pdbname_reference = pdbname_aa
@@ -265,6 +283,8 @@ echo '**************************************************************'
             aa_rmsd_filenames.append(mname2aa_rmsd)
       ensemble_list = listens
     ensemble_lists.append(ensemble_list)
+    if m.rescore_step:
+      gaa_ensemble_lists.append(ensemble_list_gaa)
     if separate_aa_pdb:
       aa_ensemble_lists.append(ensemble_list_aa)
     if aa_rmsd:
@@ -349,6 +369,7 @@ cat /dev/null > hm-all.dat
 
     partnercode += "\n"
 
+  stepscore_partnerfiles  = " ".join(gaa_filenames)
   if len(m.partners) == 2:
     partnerfiles = " ".join(filenames)
   else:
@@ -382,14 +403,13 @@ name=%s
     assert len(filenames) > 1
     gpuparams0 = "\"" + "-d 0 -p " + ffpar + " -r " + filenames[0]
   scoreparams = params + " --score --fix-receptor"
-  stepscore_params = partnerfiles
+  stepscore_params = stepscore_partnerfiles
   gridparams = ""
   if m.fix_receptor: params += " --fix-receptor"
   if modes_any:
     ps = " --modes hm-all.dat"
     params += ps
     scoreparams += ps
-    stepscore_params += ps
   gridfiles = {}
   ret_shm = ""
   for g in m.grids:
@@ -417,6 +437,8 @@ name=%s
       ps = " --ens %d %s" % (pnr+1, ensemble_lists[pnr])
       params += ps
       scoreparams += ps
+    if gaa_ensemble_lists[pnr] is not None:
+      ps = " --ens %d %s" % (pnr+1, gaa_ensemble_lists[pnr])
       stepscore_params += ps
   if m.ghost:
     params += " --ghost"
@@ -563,10 +585,10 @@ echo '**************************************************************'
           filenames_aa = []
           opt = completion_opt[m.completion_tool, p.moleculetype]
           molcode = ""
-	  if p.moleculetype == "RNA": molcode = " --rna"
-	  elif p.moleculetype == "DNA": molcode = " --dna"
-	  if len(molcode):
-	    opt += molcode
+          if p.moleculetype == "RNA": molcode = " --rna"
+          elif p.moleculetype == "DNA": molcode = " --dna"
+          if len(molcode):
+            opt += molcode
           if p.charged_termini: opt +=" --termini"
 
           filename_aa = "refe-rmsd-%d.pdb" % (pnr+1)
@@ -638,8 +660,8 @@ echo '**************************************************************'
       ret += "python $ATTRACTTOOLS/air.py %s %s %s %s > %s\n" % (" ".join(air_filenames), chance_removal, dist, k, air_restraints_file)
       rest += "--rest %s" % air_restraints_file
       if m.use_iattract:
-	dist = 2.0
-	air_filenames = []
+        dist = 2.0
+        air_filenames = []
         for pnr, p in enumerate(m.partners):
           if p.haddock_restraints:
             f_act = "haddock-active-%s-partner%d.reslist" % (m.runname, pnr+1)
@@ -656,7 +678,7 @@ echo '**************************************************************'
             air_filenames.append(mappings[pnr])
             air_filenames.append("\\\n" + " " * 27)
 
-	ret += "python $ATTRACTTOOLS/air.py %s %s %s %s > %s\n" % (" ".join(air_filenames), chance_removal, dist, k, aa_air_restraints_file)
+        ret += "python $ATTRACTTOOLS/air.py %s %s %s %s > %s\n" % (" ".join(air_filenames), chance_removal, dist, k, aa_air_restraints_file)
 
   if m.harmonic_restraints_file or m.haddock_restraints_file or m.position_restraints_file:
     tbl_pdbs = " ".join(filenames)
@@ -993,17 +1015,14 @@ echo '**************************************************************'
     rcutsc = "--rcut %s" % str(m.rcut_rescoring)
     ret += "%s %s $scoreparams %s %s out_$name.score\n" \
      % (attract, result, rcutsc, tail)
-    ret += """
+    if not m.rescore_step:
+      ret += """
 echo '**************************************************************'
 echo 'Merge the scores with the structures'
 echo '**************************************************************'
 """
     ret += "$PYPY $ATTRACTTOOLS/fill-energies.py %s out_$name.score > out_$name-scored.dat\n" % (result)
     result = "out_$name-scored.dat"
-    if m.rescore_step:
-        result2 = "out_$name-scored-GRADSCOPT.dat"
-        ret += "python $ATTRACTDIR/stepscore.py %s $ATTRACTDIR/MC_gaa_step10.par %s > %s" % (result, stepscore_params, result2)
-        result = result2
     ret += "\n"
 
   if m.sort:
@@ -1040,6 +1059,30 @@ echo '**************************************************************'
     ret += "$ATTRACTDIR/deredundant %s %d%s | $PYPY $ATTRACTTOOLS/fill-deredundant.py /dev/stdin %s > %s\n" % (result, len(m.partners), flexpar1, result, outp)
     ret += "\n"
     result = outp
+
+  if m.rescore_step:
+    ret += """
+echo '**************************************************************'
+echo 'Calculating GRADSCOPT score'
+echo '**************************************************************'
+"""
+    outp = os.path.splitext(result)[0] +"-top.dat"
+    ret += "$ATTRACTTOOLS/top %s %d > %s\n" % (result, m.max_rescore_step, outp)
+    result = outp
+    outp = "out_$name-scored-GRADSCOPT.score"
+    ret += "cat /dev/null > %s\n" % outp
+    ret += "python $ATTRACTTOOLS/split.py %s %s %d\n" % (result, result, m.np)
+    ret += "for i in `seq %d`; do\n" % m.np
+    ret += " python $ATTRACTDIR/stepscore.py %s-$i %s | awk '{print \"Energy:\", $1}' > %s-$i &\n" % (result, stepscore_params, outp)
+    ret += "done\n"
+    ret += "wait\n"
+    ret += "for i in `seq %d`; do\n" % m.np
+    ret += " cat %s-$i >> %s; rm -f %s-$i\n" % (outp, outp, outp)
+    ret += "done\n"
+    result2 = "out_$name-scored-GRADSCOPT.dat"
+    ret += "$PYPY $ATTRACTTOOLS/fill-energies.py %s %s > %s\n" % (result, outp, result2)
+    ret += "\n"
+    result = result2
 
   if m.use_iattract:
     ret += """
@@ -1108,7 +1151,7 @@ echo '**************************************************************'
         demodestr = "-demode"
         ret += "$PYPY $ATTRACTTOOLS/demode.py out_$name-top%d.dat > out_$name-top%d.dat-demode\n" % (nr, nr)
     if m.use_iattract and not m.demode:
-	flexpar_collect += " --name %s" %iname
+        flexpar_collect += " --name %s" %iname
     for pnr,p in enumerate(m.partners):
       if aa_ensemble_lists[pnr] is not None:
         flexpar_collect += " --ens %d %s" % (pnr+1,aa_ensemble_lists[pnr])
@@ -1190,7 +1233,7 @@ echo 'calculate %s ligand RMSD'
 echo '**************************************************************'
 """ % bb_str
 
-    if m.fix_receptor == False and (not m.deredundant or m.use_iattract):
+    if m.fix_receptor == False and (not m.deredundant or m.use_iattract) and m.clustering is None:
       fixresult = result + "-fixre"
       ret += "$ATTRACTDIR/fix_receptor %s %d%s | $PYPY $ATTRACTTOOLS/fill.py /dev/stdin %s > %s\n" % (result, len(m.partners), flexpar2a, result, fixresult)
       result = fixresult

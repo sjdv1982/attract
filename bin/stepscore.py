@@ -1,11 +1,12 @@
 """
 Calculate Alex step score
-usage: python stepscore.py <DAT file> <unbound PDBs> 
+usage: python stepscore.py <DAT file> <unbound PDBs>
 """
 
 import sys
 import numpy as np
 import scipy.spatial
+from scipy.spatial import cKDTree as KDTree
 import collectlibpy as collectlib
 import os
 sys.path.insert(0, os.environ["ATTRACTTOOLS"])
@@ -107,12 +108,15 @@ while 1:
   eblock = 0
   for n1 in range(len(pdbs)):
     c1 = coors[n1]
+    tree1 = KDTree(c1)
     for n2 in range(n1+1, len(pdbs)):
       c2 = coors[n2]
+      tree2 = KDTree(c2)
       energyblock = energyblocks[eblock]
-      d = scipy.spatial.distance.cdist(c1, c2)
-      assert d.shape == energyblock.shape
-      energy += np.sum((d<10) * energyblock)
+      pairs = tree1.query_ball_tree(tree2, 10)
+      ene = sum([sum(e[p]) for e,p in zip(energyblock,pairs) if len(p)])
+      energy += ene
+
       eblock += 1
 
 

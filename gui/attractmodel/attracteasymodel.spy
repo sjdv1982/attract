@@ -119,11 +119,17 @@ Type AttractEasyModel {
     if rescore_step:
       for p in partners:
         assert p.moleculetype in ("Protein", "Peptide") #step
+        assert not p.generate_modes #step
   }
   error {
     'assert p.moleculetype in ("Protein", "Peptide") #step'
     =>
     'The GRADSCOPT step potential is only defined for proteins and peptides'
+
+    'assert not p.generate_modes #step'
+    =>
+    'The GRADSCOPT step potential is not compatible with harmonic modes'
+
   }
   Bool use_iattract = True
   Integer keep_perconf = 0

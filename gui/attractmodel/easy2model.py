@@ -120,6 +120,7 @@ def easy2model(emodel):
    demode=True,
    completion_tool=emodel.completion_tool,
    rescore_step=emodel.rescore_step,
+   max_rescore_step=(10000 if emodel.rescore_step else 0) ,
    use_iattract=emodel.use_iattract,
    use_gpu=emodel.use_gpu,
   )

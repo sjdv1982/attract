@@ -664,20 +664,37 @@ Type AttractModel {
   Bool rescoring = True
   Float rcut_rescoring = 50.0
   Bool rescore_step = False
+  Integer max_rescore_step = 0
   ## form rescore_step.name = "Rescore the docking solutions by the GRADSCOPT step potential"
   validate {
+    assert max_rescore_step >= 0
     if rescore_step: assert rescoring
+    if rescore_step: assert max_rescore_step > 0
+    if max_rescore_step > 0: assert rescore_step
     for p in partners:
       assert p.moleculetype in ("Protein", "Peptide") #step
+      assert not p.generate_modes #step
   }
   error {
     'if rescore_step: assert rescoring'
     =>
     'Enable rescoring if you want to use the GRADSCOPT potential'
 
+    'if rescore_step: assert max_rescore_step > 0'
+    =>
+    'Specify the number of top ATTRACT structures to apply the GRADSCOPT potential'
+
+    'if max_rescore_step > 0: assert rescore_step'
+    =>
+    'Enable the GRADSCOPT potential if you specify the number of top ATTRACT structures to apply it to'
+
     'assert p.moleculetype in ("Protein", "Peptide") #step'
     =>
     'The GRADSCOPT step potential is only defined for proteins and peptides'
+
+    'assert not p.generate_modes #step'
+    =>
+    'The GRADSCOPT step potential is not compatible with harmonic modes'    
   }
   Bool sort = True
   Bool deredundant = True
