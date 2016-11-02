@@ -6,15 +6,15 @@ class Atom(object):
     self.name = l[12:16].strip()
     self.x = float(l[30:38])
     self.y = float(l[38:46])
-    self.z = float(l[46:54])    
+    self.z = float(l[46:54])
     self.resid = l[21:27]
-    self.chain = l[21] #readonly    
+    self.chain = l[21] #readonly
     self.resnr = int(l[22:26]) #readonly
     self.resname = l[17:20].strip()
     self.line = l
   def write(self, filehandle):
     l = self.line
-    o = l[:12] 
+    o = l[:12]
     if len(self.name) == 4:
       o += "%4s" % self.name
     else:
@@ -22,13 +22,13 @@ class Atom(object):
     o += "%-3.3s" % self.resname
     o += l[20]
     o += self.resid
-    o += l[26:30]
+    o += l[27:30]
     o += "%8.3f" % self.x
     o += "%8.3f" % self.y
     o += "%8.3f" % self.z
     o += l[54:]
     filehandle.write(o)
-    
+
 class PDB(object):
   def __init__(self, filename):
     self.filename = filename
@@ -39,12 +39,12 @@ class PDB(object):
   def _add_atom(self, a):
     i = a.resid
     i2 = self._lastresid
-    if i != self._lastres: 
+    if i != self._lastres:
       if i not in self._residues:
         self._res.append(i)
         self._residues[i] = []
         i2 = i
-      else: #later residue with the same resid      
+      else: #later residue with the same resid
         count = 2
         while 1:
           i2 = (i, count)
@@ -52,7 +52,7 @@ class PDB(object):
           count += 1
         self._res.append(i2)
         self._residues[i2] = []
-    self._residues[i2].append(a)    
+    self._residues[i2].append(a)
     self._lastres = i
     self._lastresid = i2
   def residues(self):
@@ -68,7 +68,7 @@ class PDB(object):
       for a in self._residues[n]:
         coors.append((a.x,a.y,a.z))
     return coors
-  
+
   def remove_hydrogens(self):
     for n in list(self._res):
       res = []
@@ -77,7 +77,7 @@ class PDB(object):
       if not res:
         self._residues.pop(n)
         self._res.remove(n)
-      else:  
+      else:
         self._residues[n] = res
 
   def select_atoms(self, atomnames):
@@ -88,16 +88,16 @@ class PDB(object):
       if not res:
         self._residues.pop(n)
         self._res.remove(n)
-      else:  
+      else:
         self._residues[n] = res
-  
+
   def write(self, fil):
     filehandle = open(fil, "w")
     for n in self._res:
       for a in self._residues[n]:
         a.write(filehandle)
-    filehandle.close()    
-        
+    filehandle.close()
+
 def read_pdb(f):
   assert os.path.exists(f), f
   p = PDB(f)
@@ -105,16 +105,16 @@ def read_pdb(f):
     if not l.startswith("ATOM"): continue
     a = Atom(l)
     p._add_atom(a)
-  return p  
-    
-def read_multi_pdb(f):  
+  return p
+
+def read_multi_pdb(f):
   count = 1
   chain = 1
-  endmodel = False  
+  endmodel = False
   p = PDB("model %d chain %d" % (count, chain))
   pdbs = [p]
   for l in open(f):
-    if l.startswith("MODEL"):      
+    if l.startswith("MODEL"):
       chain = 1
       if endmodel:
         count += 1
@@ -124,19 +124,19 @@ def read_multi_pdb(f):
       chain += 1
       p = PDB("model %d chain %d" % (count, chain))
       pdbs.append(p)
-    elif l.startswith("ENDMDL") and not endmodel:      
-      endmodel = True      
+    elif l.startswith("ENDMDL") and not endmodel:
+      endmodel = True
       if not len(pdbs[-1]._res): pdbs = pdbs[:-1]
-      yield pdbs      
+      yield pdbs
     if not l.startswith("ATOM"): continue
-    endmodel = False  
+    endmodel = False
     a = Atom(l)
-    p._add_atom(a)      
-  if not endmodel: 
+    p._add_atom(a)
+  if not endmodel:
     if not len(pdbs[-1]._res): pdbs = pdbs[:-1]
     yield pdbs
 
-def read_multi_attract_pdb(f):  
+def read_multi_attract_pdb(f):
   partner = 1
   p = PDB("partner %d" % (partner))
   pdbs = [p]
@@ -147,18 +147,18 @@ def read_multi_attract_pdb(f):
       continue
     if l.startswith("TER"):
       if not len(p._res):
-        pdbs = pdbs[:-1]      
+        pdbs = pdbs[:-1]
       partner += 1
       p = PDB("partner %d" % (partner))
       pdbs.append(p)
     if not l.startswith("ATOM"): continue
     a = Atom(l)
-    p._add_atom(a)      
+    p._add_atom(a)
   if not len(p._res):
     pdbs = pdbs[:-1]
-  assert len(pdbs) == partners, (len(pdbs), partners)  
+  assert len(pdbs) == partners, (len(pdbs), partners)
   return pdbs
-    
+
 def check_pdbs(unbounds, bounds):
   for ub, b in zip(unbounds, bounds):
     ubha = [a for a in ub.atoms()]
@@ -177,23 +177,23 @@ def check_pdbs(unbounds, bounds):
         if aub.name != ab.name or aub.resname != ab.resname:
           raise Exception("Residue layout differs, heavy atom %d: %s, residue %s: %s; %s, residue %s: %s" % \
            (atomcount+1, ub.filename, rub[0].resid.strip(), aub.resname+" "+aub.name, b.filename, rb[0].resid.strip(), ab.resname+" "+ab.name))
-          
+
 def build_hydrogenmask(pdbs):
-  import numpy  
+  import numpy
   hmask = []
   for pdb in pdbs:
     for a in pdb.atoms():
       hmask.append(a.name[0] != "H")
   return numpy.array(hmask)
 
-def build_atommask(pdbs, atoms):      
-  import numpy  
+def build_atommask(pdbs, atoms):
+  import numpy
   amask = []
   for pdb in pdbs:
     for a in pdb.atoms():
       amask.append(a.name in atoms)
   return numpy.array(amask)
-  
+
 def _build_resfilters(pdbs):
   import numpy
   pp = []
@@ -201,29 +201,29 @@ def _build_resfilters(pdbs):
   offset = 0
   for p in pdbs:
     coor = numpy.array(p.coordinates())
-    resfilters = {}   
+    resfilters = {}
     for r in p._residues:
       resfilter = [anr for anr,a in enumerate(p.atoms()) if a.resid == r]
       resfilters[r] = numpy.array(resfilter)
     pp.append((coor, resfilters, offset))
     offset += len(coor)
-  return pp  
+  return pp
 
 def build_interfacemask(pdbs, cutoff):
   import numpy
   cutoff=float(cutoff)
   cutoffsq = cutoff*cutoff
-  
+
   pp = _build_resfilters(pdbs)
-  
+
   totlen = sum([len(list(p.atoms())) for p in pdbs])
   imask = [False] * totlen
-  
+
   from scipy.spatial.distance import cdist
   for partner1 in range(len(pdbs)):
     coor1, resfilters, offset = pp[partner1]
     for resfilter in resfilters.values():
-      coor1res = numpy.take(coor1,resfilter,axis=0)    
+      coor1res = numpy.take(coor1,resfilter,axis=0)
       for partner2 in range(len(pdbs)):
         if partner1 == partner2: continue
         coor2 = pp[partner2][0]
@@ -231,23 +231,23 @@ def build_interfacemask(pdbs, cutoff):
         mindistance = distances.min()
         if mindistance < cutoffsq:
           filter = resfilter+offset
-          for a in filter: 
+          for a in filter:
             imask[a] = True
-          break  
+          break
   return numpy.array(imask)
 
 def build_contactfilters(pdbs, cutoff):
   import numpy
   cutoffsq = cutoff*cutoff
-  
+
   pp = _build_resfilters(pdbs)
-  
+
   ret = []
   from scipy.spatial.distance import cdist
   for partner1 in range(len(pdbs)):
     coor1, resfilters1, offset1 = pp[partner1]
     for resfilter1 in resfilters1.values():
-      coor1res = numpy.take(coor1,resfilter1,axis=0)    
+      coor1res = numpy.take(coor1,resfilter1,axis=0)
       filter1 = resfilter1+offset1
       for partner2 in range(partner1+1, len(pdbs)):
         coor2, resfilters2, offset2 = pp[partner2]
@@ -259,13 +259,13 @@ def build_contactfilters(pdbs, cutoff):
             filter2 = resfilter2+offset2
             ret.append((filter1, filter2))
   return ret
-  
+
 def fit(atoms1, atoms2):
   import numpy
-  # adapted from QKabsch.py by Jason Vertrees. 
+  # adapted from QKabsch.py by Jason Vertrees.
   # further adapted from irmsd for fitting by Sjoerd de Vries
   assert len(atoms1) == len(atoms2)
-  assert len(atoms1) > 0 
+  assert len(atoms1) > 0
   L = len(atoms1)
 
   # must alway center the two proteins to avoid
@@ -294,10 +294,10 @@ def fit(atoms1, atoms2):
   if reflect == -1.0:
           S[-1] = -S[-1]
           V[:,-1] = -V[:,-1]
-  
+
   U = V.dot(Wt).transpose()
   RMSD = E0 - (2.0 * sum(S))
-  RMSD = numpy.sqrt(abs(RMSD / L))  
+  RMSD = numpy.sqrt(abs(RMSD / L))
   return U, COM1-COM2, RMSD
 
 
@@ -311,10 +311,10 @@ def multifit(array_atoms1, atoms2):
 
   assert len(array_atoms1.shape) == 3
   assert len(atoms2.shape) == 2
-  
-  assert len(atoms2) > 0 
+
+  assert len(atoms2) > 0
   assert array_atoms1.shape[2] == atoms2.shape[1] == 3
-  assert len(atoms2) == array_atoms1.shape[1]  
+  assert len(atoms2) == array_atoms1.shape[1]
   L = len(atoms2)
 
   # must alway center the two proteins to avoid
@@ -322,7 +322,7 @@ def multifit(array_atoms1, atoms2):
   # to their selections.
   COM1 = numpy.sum(array_atoms1,axis=1) / float(L)
   COM2 = numpy.sum(atoms2,axis=0) / float(L)
-  
+
   array_atoms1 = array_atoms1 - COM1[:,numpy.newaxis, :]
   atoms2 = atoms2 - COM2
 
@@ -346,16 +346,14 @@ def multifit(array_atoms1, atoms2):
   V[:,:,-1] *= reflect[:, numpy.newaxis]
   U = numpy.einsum('...ij,...jk->...ki', V, Wt)
   RMSD = E0 - (2.0 * S.sum(axis=1))
-  RMSD = numpy.sqrt(abs(RMSD / L))  
+  RMSD = numpy.sqrt(abs(RMSD / L))
   return U, COM1-COM2, RMSD
-  
+
 def rmsd(atoms1, atoms2):
   assert len(atoms1) == len(atoms2)
-  assert len(atoms1) > 0 
+  assert len(atoms1) > 0
   import numpy
   d = atoms1 - atoms2
   d2 = d * d
   sd = d2.sum(axis=1)
   return numpy.sqrt(sd.mean())
-  
-  

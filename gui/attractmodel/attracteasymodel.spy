@@ -113,6 +113,24 @@ Type AttractEasyModel {
   #***Energy and interaction parameters***
   Bool use_grids = True
   ## form use_grids.name = "Perform grid-accelerated docking"
+  Bool rescore_step = False
+  ## form rescore_step.name = "Rescore the docking solutions by the GRADSCOPT step potential"
+  validate {
+    if rescore_step:
+      for p in partners:
+        assert p.moleculetype in ("Protein", "Peptide") #step
+        assert not p.generate_modes #step
+  }
+  error {
+    'assert p.moleculetype in ("Protein", "Peptide") #step'
+    =>
+    'The GRADSCOPT step potential is only defined for proteins and peptides'
+
+    'assert not p.generate_modes #step'
+    =>
+    'The GRADSCOPT step potential is not compatible with harmonic modes'
+
+  }
   Bool use_iattract = True
   Integer keep_perconf = 0
   form {
@@ -123,7 +141,7 @@ Type AttractEasyModel {
     keep_perconf.add_header("A value of 0 means 'keep all structures per conformer'")
     keep_perconf.name = "Maximum number of structures per conformer to keep"
   }
-  ## form use_iattract.name = "Perform iATTRACT refinement after the docking"
+  ## form use_iattract.name = "Perform iATTRACT refinement after the docking"  
   Enum forcefield("ATTRACT", "OPLSX") = "ATTRACT"
   ## form forcefield.add_header("Which forcefield is to be used?")
   ## form forcefield.name = "Forcefield"
@@ -145,6 +163,7 @@ Type AttractEasyModel {
     completion_tool.group = _g
     forcefield.group = _g
     use_grids.group = _g
+    rescore_step.group = _g
     keep_perconf.group = _g
     use_iattract.group = _g
   }

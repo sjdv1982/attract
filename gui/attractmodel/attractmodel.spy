@@ -521,6 +521,7 @@ Type AttractModel {
   Bool use_iattract = True
   ## form use_iattract.name = "Perform iATTRACT refinement after the docking"
   *IAttractParameters iattract
+  ## form iattract.name = "iATTRACT refinement"
   form {
     iattract.nstruc.default = 50
   }
@@ -664,8 +665,71 @@ Type AttractModel {
   Bool rescoring = True
   Float rcut_rescoring = 50.0
   Bool sort = True
+  Bool rescore_step = False
+  Integer max_rescore_step = 0
+  validate {
+    assert max_rescore_step >= 0
+    if rescore_step: assert rescoring
+    if rescore_step: assert max_rescore_step > 0
+    if max_rescore_step > 0: assert rescore_step
+    for p in partners:
+      assert p.moleculetype in ("Protein", "Peptide") #step
+      assert not p.generate_modes #step
+  }
+  error {
+    'if rescore_step: assert rescoring'
+    =>
+    'Enable rescoring if you want to use the GRADSCOPT potential'
+
+    'if rescore_step: assert max_rescore_step > 0'
+    =>
+    'Specify the number of top ATTRACT structures to apply the GRADSCOPT potential'
+
+    'if max_rescore_step > 0: assert rescore_step'
+    =>
+    'Enable the GRADSCOPT potential if you specify the number of top ATTRACT structures to apply it to'
+
+    'assert p.moleculetype in ("Protein", "Peptide") #step'
+    =>
+    'The GRADSCOPT step potential is only defined for proteins and peptides'
+
+    'assert not p.generate_modes #step'
+    =>
+    'The GRADSCOPT step potential is not compatible with harmonic modes'
+  }
   Bool deredundant = True
   Bool deredundant_ignorens = True
+  Integer max_filt_analysis = 0
+  Bool analyze_interface = False
+  Integer nstruc_analyze_interface = 100
+  Float analyze_interface_cutoff = 5
+  Bool clustering = False
+  Enum clustering_method("lrmsd") = "lrmsd"
+  Float clustering_cutoff = 10
+  Integer min_cluster_size = 1
+  validate {
+    assert clustering_cutoff > 0
+    assert min_cluster_size > 0
+    if clustering: assert max_rescore_step or max_filt_analysis or use_iattract
+    max_clust = 999999999
+    if max_filt_analysis:
+      max_clust = max_filt_analysis
+    if rescore_step is not None and max_rescore_step:
+      max_clust = min(max_clust, max_rescore_step)
+    if use_iattract:
+      max_clust = min(max_clust, iattract.nstruc)
+    if clustering: assert max_clust <= 10000
+    if clustering: assert min_cluster_size <= max_clust, max_clust
+  }
+  error {
+    'if clustering: assert max_rescore_step or max_filt_analysis or use_iattract'
+    =>
+    'ATTRACT cannot cluster arbitrary numbers of structures. With clustering, you need to specify max_filt_analysis or enable iATTRACT or enable GRADSCOPT rescoring'
+
+    'if clustering: assert max_clust <= 10000'
+    =>
+    'ATTRACT cannot cluster arbitrary numbers of structures. You asked it to cluster {max_struc} structures, which is more than the limit of 10000. Manually use fastcluster.py to cluster more structures'
+  }
   Bool deflex = False
   ## form deflex.add_header("If you perform RMSD analysis, you may remove all flexibility (ensemble and modes) beforehand")
   ## form deflex.name = "Remove flexibility"
@@ -673,30 +737,37 @@ Type AttractModel {
   Enum rmsd_atoms("all","backbone","trace") = "backbone"
   Bool calc_irmsd = False
   Bool calc_fnat = False
-  Integer max_analysis = 0
   Bool collect = True
   Integer nr_collect = 50
   form {
-    rescoring.group = "Analysis"
-    rcut_rescoring.group = "Analysis"
-    sort.group = "Analysis"
-    deredundant.group = "Analysis"
-    deredundant_ignorens.group = "Analysis"
-    deflex.group = "Analysis"
-    calc_lrmsd.group = "Analysis"
-    rmsd_atoms.group = "Analysis"
-    calc_irmsd.group = "Analysis"
-    calc_fnat.group = "Analysis"
-    max_analysis.group = "Analysis"
-    collect.group = "Analysis"
-    nr_collect.group = "Analysis"
-
+    rescoring.add_header("RESCORING")
     rescoring.name = "Perform a rescoring step after docking"
     rcut_rescoring.add_header("The nonbonded pairlist distance cutoff (rcut) (in A**2) during rescoring")
     rcut_rescoring.name = "rcut (rescoring)"
     sort.name = "Sort the final structures according to forcefield energy"
+    rescore_step.name = "Rescore the top docking solutions by the GRADSCOPT step potential"
+    max_rescore_step.name = "Number of top ATTRACT structures to keep and then re-score with GRADSCOPT"
+    max_filt_analysis.add_header("FILTERING")
+    max_filt_analysis.add_header("If the generated number of structures is large,")
+    max_filt_analysis.add_header(" it is possible to restrict the number of structures to filter/analyze")
+    max_filt_analysis.add_header("A value of 0 means 'filter/analyze all structures'")
+    max_filt_analysis.name = "Maximum number of structures to filter/analyze"
     deredundant.name = "Remove redundant structures after docking"
     deredundant_ignorens.name = "Ignore ensemble conformers for redundancy"
+    analyze_interface.name = "Analyze the most frequent interface residues from the top docking solutions (before clustering)"
+    nstruc_analyze_interface.name = "How many structures to select for interface analysis"
+    analyze_interface_cutoff.name = "Minimum interface distance cutoff (A) for interface analysis"
+  }
+  form {
+    clustering.add_header("It is possible to cluster the results")
+    clustering.name = "Perform clustering"
+    clustering_method.name = "Clustering method"
+    clustering_method.optiontitles = ("Pairwise all-atom ligand RMSD",)
+    clustering_cutoff.name = "Clustering cutoff (in A)"
+    min_cluster_size.name = "Minimum cluster size"
+  }
+  form {
+    calc_lrmsd.add_header("ANALYSIS")
     calc_lrmsd.name = "Calculate ligand RMSD after docking"
     rmsd_atoms.name = "Which atoms to use in RMSD calculation"
     rmsd_atoms.optiontitles = (
@@ -706,23 +777,79 @@ Type AttractModel {
     )
     calc_irmsd.name = "Calculate interface RMSD after docking"
     calc_fnat.name = "Calculate fraction of native contacts after docking"
-    max_analysis.add_header("If the generated number of structures is large,")
-    max_analysis.add_header(" it is possible to restrict the number of structures to analyze")
-    max_analysis.add_header("A value of 0 means 'analyze all structures'")
-    max_analysis.name = "Maximum number of structures to analyze"
     collect.name = "Collect the structures as PDBs after docking"
     nr_collect.name = "Number of structures to collect"
   }
+  form {
+    _g = "Rescoring and analysis"
+    rescoring.group = _g
+    sort.group = _g
+    rescore_step.group = _g
+    max_rescore_step.group = _g
+    rcut_rescoring.group = _g
+    deredundant.group = _g
+    deredundant_ignorens.group = _g
+    analyze_interface.group = _g
+    nstruc_analyze_interface.group = _g
+    analyze_interface_cutoff.group = _g
+    clustering.group = _g
+    clustering_method.group = _g
+    clustering_cutoff.group = _g
+    min_cluster_size.group = _g
+    deflex.group = _g
+    max_filt_analysis.group = _g
+    calc_lrmsd.group = _g
+    rmsd_atoms.group = _g
+    calc_irmsd.group = _g
+    calc_fnat.group = _g
+    collect.group = _g
+    nr_collect.group = _g
+  }
   validate {
-    if max_analysis: assert not use_iattract
-    if max_analysis: assert sort
+    has_axsym = any([sym.symmetry_axis is not None for sym in symmetries])
+    if has_axsym: assert not rescore_step
+    if has_axsym: assert not calc_lrmsd
+    if has_axsym: assert not calc_irmsd
+    if has_axsym: assert not calc_fnat
+    if has_axsym: assert not use_iattract
+    if has_axsym: assert not deredundant
   }
   error {
-    'if max_analysis: assert not use_iattract'
+    'if has_axsym: assert not rescore_step'
+    =>
+    'The GRADSCOPT step potential is not compatible with generative symmetry'
+
+    'if has_axsym: assert not calc_lrmsd'
+    =>
+    'Ligand RMSD calculation is not compatible with generative symmetry'
+
+    'if has_axsym: assert not calc_irmsd'
+    =>
+    'Interface RMSD calculation is not compatible with generative symmetry'
+
+    'if has_axsym: assert not calc_fnat'
+    =>
+    'Fnat calculation is not compatible with generative symmetry'
+
+    'if has_axsym: assert not use_iattract'
+    =>
+    'iATTRACT is not compatible with generative symmetry'
+
+    'if has_axsym: assert not deredundant'
+    =>
+    'Deredundant is not compatible with generative symmetry'
+
+  }
+  validate {
+    if max_filt_analysis: assert not use_iattract
+    if max_filt_analysis: assert sort
+  }
+  error {
+    'if max_filt_analysis: assert not use_iattract'
     =>
     'Maximum number of structures to analyze is not compatible with iATTRACT refinement'
 
-    'if max_analysis: assert sort'
+    'if max_filt_analysis: assert sort'
     =>
     'Maximum number of structures to analyze requires sorting'
   }

@@ -97,6 +97,7 @@ def easy2model(emodel):
   epsilon = 15.0
   if emodel.forcefield == "OPLSX": epsilon = 10.0
   newmodel = AttractModel (
+   annotation=easy2model_version,
    runname=emodel.runname,
    partners=partners,
    grids=rgrid,
@@ -111,14 +112,15 @@ def easy2model(emodel):
    calc_irmsd=emodel.calc_irmsd,
    rmsd_atoms=rmsd_atoms,
    calc_fnat=emodel.calc_fnat,
-   max_analysis=emodel.max_analysis,
+   max_filt_analysis=emodel.max_analysis,
    keep_perconf=emodel.keep_perconf,
    nr_collect=emodel.nr_collect,
    np=emodel.np,
    deredundant_ignorens = False,
    demode=True,
    completion_tool=emodel.completion_tool,
-   annotation = easy2model_version,
+   rescore_step=emodel.rescore_step,
+   max_rescore_step=(10000 if emodel.rescore_step else 0) ,
    use_iattract=emodel.use_iattract,
    use_gpu=emodel.use_gpu,
   )

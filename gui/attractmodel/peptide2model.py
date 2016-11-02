@@ -26,10 +26,11 @@ def peptide2model(pmodel):
   pp = AttractEasyPartnerInterface(pp)
   partners.append(pp)
 
-  newmodel = AttractEasyModel (
+  newmodel = AttractEasyModel(
    runname=pmodel.runname,
    partners=partners,
    use_grids=pmodel.use_grids,
+   rescore_step=pmodel.rescore_step,
    use_iattract=pmodel.use_iattract,
    calc_lrmsd=pmodel.calc_lrmsd,
    calc_irmsd=pmodel.calc_irmsd,
@@ -40,7 +41,7 @@ def peptide2model(pmodel):
    use_gpu=pmodel.use_gpu,
   )
   if not pmodel.use_iattract:
-      newmodel.max_analysis = 1000000    
+      newmodel.max_filt_analysis = 1000000
 
   return newmodel
 

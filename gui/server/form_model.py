@@ -39,7 +39,7 @@ header = """<!DOCTYPE html>
                 <li id="view-page5"><a id="nav-block-energy" class="energy-icon">Energy and Interaction</a></li>
                 <li id="view-page6"><a id="nav-block-atomdensitygrid" class="cryo-icon">Atom density grids</a></li>
                 <li id="view-page7"><a id="nav-block-symmetry" class="symmetry-icon">Symmetry</a></li>
-                <li id="view-page8"><a id="nav-block-analysis" class="analysis-icon">Analysis</a></li>
+                <li id="view-page8"><a id="nav-block-analysis" class="analysis-icon">Rescoring and analysis</a></li>
                 <li id="view-page9"><a id="nav-block-computation" class="computation-icon">Computation</a></li>
               </ul>
             </nav>
@@ -377,12 +377,10 @@ def webform(f, model=None,
   c = f.new_group("c_analysis", "category")
   c.page = 8
   c.icon = "analysis-icon"
-  c.title = "Analysis"
+  c.title = "Rescoring and analysis"
   c.categoryname = "analysis"
   c.description = ""
-  _assign_category(f, c, "Analysis")
-  c.members.remove("rcut_rescoring")
-  c.members.insert(c.members.index("nr_collect"), "rcut_rescoring")
+  _assign_category(f, c, "Rescoring and analysis")
   ff = f.rcut_rescoring
   ff.span = True
   ff = f.nr_collect
