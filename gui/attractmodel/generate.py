@@ -50,7 +50,7 @@ fi
   attractclean = ["$ATTRACTDIR/shm-clean"]
   ret0 += 'trap "kill -- -$BASHPID; attractclean" ERR EXIT\n'
   ret0 += "$ATTRACTDIR/shm-clean\n\n"
-  results = "result.dat result.pdb result.lrmsd result.irmsd result.fnat"
+  results = "result.dat result.pdb result.lrmsd result.irmsd result.fnat result.interface"
   ret0 += "rm -rf %s >& /dev/null\n" % results
   ret = ""
 
@@ -79,7 +79,7 @@ fi
     raise ValueError("Unsupported molecule type interaction: %s - %s" % moleculetype_interaction)
 
   #do we need all-atom representation for RMSD calculation?
-  if m.calc_irmsd or m.calc_fnat:
+  if m.calc_irmsd or m.calc_fnat or m.analyze_interface:
     aa_rmsd = True
   elif m.calc_lrmsd and m.rmsd_atoms == "all":
     aa_rmsd = True
@@ -1034,8 +1034,8 @@ echo '**************************************************************'
     ret += "$PYPY $ATTRACTTOOLS/sort.py %s > out_$name-sorted.dat\n" % result
     ret += "\n"
     result = "out_$name-sorted.dat"
-    if m.max_analysis:
-      ret += "$ATTRACTTOOLS/top %s %d > out_$name-top.dat\n" % (result, m.max_analysis)
+    if m.max_filt_analysis:
+      ret += "$ATTRACTTOOLS/top %s %d > out_$name-top.dat\n" % (result, m.max_filt_analysis)
       result = "out_$name-top.dat"
 
   if m.deredundant or m.use_iattract:
@@ -1081,8 +1081,10 @@ echo '**************************************************************'
     ret += "done\n"
     result2 = "out_$name-scored-GRADSCOPT.dat"
     ret += "$PYPY $ATTRACTTOOLS/fill-energies.py %s %s > %s\n" % (result, outp, result2)
+    result3 = "out_$name-scored-GRADSCOPT-sorted.dat"
+    ret += "$PYPY $ATTRACTTOOLS/sort.py %s > %s\n" % (result2, result3)
     ret += "\n"
-    result = result2
+    result = result3
 
   if m.use_iattract:
     ret += """
@@ -1124,6 +1126,64 @@ echo '**************************************************************'
     if m.demode:
       ret += "$PYPY $ATTRACTTOOLS/demode.py %s %s > %s\n" % (iattract_output, iattract_params_demode, iattract_output_demode)
       result = iattract_output_demode
+
+  if m.analyze_interface:
+    ret += """
+echo '**************************************************************'
+echo 'Analyze most frequent interface from top %d docking structures'
+echo '**************************************************************'
+"""  % m.nstruc_analyze_interface
+    if_params = " ".join(aa_rmsd_filenames)
+    if modes_any and not (m.use_iattract and m.demode):
+      if_params += " --modes hm-all-heavy.dat"
+    if ens_any:
+      for pnr,p in enumerate(m.partners):
+        f = aa_rmsd_ensemble_lists[pnr]
+        if f is not None:
+          if_params += " --ens %d %s" % (pnr+1, f)
+    interface = os.path.splitext(result)[0] +".interface"
+    result0 = os.path.splitext(result)[0] +"-top-interface.dat"
+    ret += "$ATTRACTTOOLS/top %s %d > %s\n" % (result, m.nstruc_analyze_interface, result0)
+    ret += "python $ATTRACTDIR/analyze_interface.py %s %s %s > %s\n" % (result0, m.analyze_interface_cutoff, if_params, interface)
+    ret += "ln -s %s result.interface\n" % interface
+    for n in range(len(m.partners)):
+      inp = aa_rmsd_filenames[n]
+      outp = "partner-%d-interface.pdb" % (n+1)
+      ret += "awk '$1==%d{print substr($0,3)}' %s | python $ATTRACTTOOLS/fill-bfactor.py %s /dev/stdin > %s\n" % (n+1,interface,inp,outp)        
+    ret += "\n"
+
+  if m.clustering:
+    ret += """
+echo '**************************************************************'
+echo 'Clustering'
+echo '**************************************************************'
+"""
+    assert m.clustering_method == "lrmsd"
+    mclustering_params = " ".join(filenames)
+    if modes_any and not (m.use_iattract and m.demode):
+      mclustering_params += " --modes hm-all.dat"
+    if ens_any:
+      for pnr,p in enumerate(m.partners):
+        f = ensemble_lists[pnr]
+        if f is not None:
+          mclustering_params += " --ens %d %s" % (pnr+1, f)
+    ret += "$ATTRACTDIR/matrix-lrmsd %s %s > %s-matrix-lrmsd\n" % (result, mclustering_params, result)
+    ret += "$ATTRACTDIR/cluster_struc %s-matrix-lrmsd %s %d > %s-clusters\n" % \
+      (result, m.clustering_cutoff, m.min_cluster_size, result)
+    result0 = "out_$name-clustered.dat"
+    ret += "python $ATTRACTTOOLS/cluster2dat.py %s-clusters %s --best > %s\n" % (result, result, result0)
+    result = result0
+
+  if m.sort:
+    ret += """
+echo '**************************************************************'
+echo 'Sort structures'
+echo '**************************************************************'
+"""
+    result0 = "out_$name-clustered-sorted.dat"
+    ret += "$PYPY $ATTRACTTOOLS/sort.py %s > %s\n" % (result, result0)
+    result = result0
+    ret += "\n"
 
   ret += """
 echo '**************************************************************'
@@ -1254,7 +1314,7 @@ echo '**************************************************************'
       elif mt in ("DNA", "RNA"): lrmsdpar += " --p"
 
     if '--name' in flexpar2a:
-      lrmsd_filenames = aa_filenames
+      lrmsd_filenames = aa_rmsd_filenames
       lrmsd_refenames = aa_rmsd_refenames
 
     lrmsdresult = os.path.splitext(result0)[0] + ".lrmsd"
@@ -1262,13 +1322,13 @@ echo '**************************************************************'
     lrmsd_allfilenames_alts = list(generate_rmsdargs(lrmsd_filenames[1:], lrmsd_refenames[1:]))
     if len(lrmsd_allfilenames_alts) == 1:
       lrmsd_allfilenames = lrmsd_allfilenames_alts[0]
-      ret += "python $ATTRACTDIR/lrmsd.py %s %s%s %s > %s\n" % (result, lrmsd_allfilenames, flexpar2a, lrmsdpar, lrmsdresult)
+      ret += "python $ATTRACTDIR/lrmsd.py %s %s%s %s > %s\n" % (result, lrmsd_allfilenames, flexpar2, lrmsdpar, lrmsdresult)
     else:
       lrmsdresult_alts = []
       for altnr, lrmsd_allfilenames in enumerate(lrmsd_allfilenames_alts):
         lrmsdresult_alt = os.path.splitext(result0)[0] + "-refe%d.lrmsd" % (altnr+1)
         lrmsdresult_alts.append(lrmsdresult_alt)
-        ret += "python $ATTRACTDIR/lrmsd.py %s %s%s %s > %s\n" % (result, lrmsd_allfilenames, flexpar2a, lrmsdpar, lrmsdresult_alt)
+        ret += "python $ATTRACTDIR/lrmsd.py %s %s%s %s > %s\n" % (result, lrmsd_allfilenames, flexpar2, lrmsdpar, lrmsdresult_alt)
       ret += "$ATTRACTTOOLS/best-lrmsd %s > %s\n" % (" ".join(lrmsdresult_alts), lrmsdresult)
     ret += "ln -s %s result.lrmsd\n" % lrmsdresult
     ret += "\n"

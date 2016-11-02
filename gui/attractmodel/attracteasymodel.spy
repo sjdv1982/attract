@@ -141,7 +141,7 @@ Type AttractEasyModel {
     keep_perconf.add_header("A value of 0 means 'keep all structures per conformer'")
     keep_perconf.name = "Maximum number of structures per conformer to keep"
   }
-  ## form use_iattract.name = "Perform iATTRACT refinement after the docking"
+  ## form use_iattract.name = "Perform iATTRACT refinement after the docking"  
   Enum forcefield("ATTRACT", "OPLSX") = "ATTRACT"
   ## form forcefield.add_header("Which forcefield is to be used?")
   ## form forcefield.name = "Forcefield"

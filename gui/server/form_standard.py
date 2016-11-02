@@ -5,7 +5,7 @@ header = """<!DOCTYPE html>
 <!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
     
     <head>
-        <title>ATTRACT Easy Online</title>
+        <title>%s</title>
         
         <meta charset="utf-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
@@ -225,7 +225,11 @@ def webserverform_easy(webdict, form=None, spydertype=None):
   if spydertype is not None: form = spydertype._form()
   f = webform_easy(form)
   return f
-  
-def html(form, cgi, spyderobj, newtab=False):
+ 
+def html_easy(form, cgi, spyderobj, newtab=False):
   from form_model import html
-  return html(form, cgi, spyderobj, newtab, header=header)
+  return html(form, cgi, spyderobj, newtab, header=header % "ATTRACT Easy Web Interface")
+ 
+def html_standard(form, cgi, spyderobj, newtab=False):
+  from form_model import html
+  return html(form, cgi, spyderobj, newtab, header=header % "ATTRACT Standard Web Interface")
