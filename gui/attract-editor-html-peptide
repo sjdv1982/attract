@@ -1,0 +1,3 @@
+#!/bin/sh
+silk --default-output attract.web AttractPeptideModel -m attractmodel -I $ATTRACTGUI --gui html \
+-I $ATTRACTGUI/server --form form_peptide webform --view form_peptide html --webdir $ATTRACTGUI/server/html --webserver-pre form_peptide webserverform $@
