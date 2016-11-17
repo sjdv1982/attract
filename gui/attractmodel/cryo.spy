@@ -4,8 +4,8 @@ Type CryoPartnerInterface {
   ## form pdbfile.type = "file"
   ## form pdbfile.name = "Structure file"
   *ResourceData_PDB pdbfile
-  
-  ## form code.length = 4  
+
+  ## form code.length = 4
   ## form code.name = "Or define?"
   *PDBCode code
 
@@ -29,7 +29,7 @@ Type AxSymmetry {
 }
 
 Type CryoInterface {
-  
+
   CryoPartnerInterfaceArray partners = []
   ## form partners.length = 6
   ## form partners.form = "soft"
@@ -37,13 +37,14 @@ Type CryoInterface {
   AxSymmetryArray axsymmetry = []
   ## form axsymmetry.length = 3
   ## form axsymmetry.form = "soft"
+  ## form axsymmetry.count_from_one = True
   validate {
     if len(axsymmetry): assert tabu == 0 ##TODO: rearrange-monomers
     for a in axsymmetry: assert a.molecule <= len(partners)
   }
-  
-  *ResourceData_CryoEM_SITUS mapfile  
-  ## form mapfile.type = "file"    
+
+  *ResourceData_CryoEM_SITUS mapfile
+  ## form mapfile.type = "file"
   *String mapfilename
   validate {
     assert not (mapfile is None and mapfilename is None)
@@ -51,11 +52,11 @@ Type CryoInterface {
   }
   *Float mapmass
   Float energy_threshold = 10000
-  Float mapmask_threshold = 10.0  
+  Float mapmask_threshold = 10.0
   Float mapmask1_voxelsize = 10
   Float mapmask1_dimension = 500
   Float mapmask2_voxelsize = 5
-  Float mapmask2_dimension = 250    
+  Float mapmask2_dimension = 250
   FloatArray maskweight[5] = (8000, 300, 600, 1000, 1000)
   form {
     g = "Cryo-EM data"
@@ -70,12 +71,12 @@ Type CryoInterface {
     mapmask2_voxelsize.group = g
     maskweight.group = g
   }
-  
+
   *ResourceData_CNS_Restraints harmonic_restraints_file
   ##form harmonic_restraints_file.type = "file"
   Integer tabu = 0
   Enum score_method("gvm", "corr") = "gvm"
-  Float score_threshold = 10.0  
+  Float score_threshold = 10.0
   Integer nstruc = 1000
   Integer ntop = 50
   IntegerArray iterations[5] = (1,1,1,1,8)
@@ -90,42 +91,43 @@ Type CryoInterface {
   Bool gravity = False #only in first stage
   Float rstk = 0.1 #only in first stage
   form {
-    g = "Sampling"
-    harmonic_restraints_file.group = g
-    score_method.group = g
-    score_threshold.group = g
-    nstruc.group = g
-    ntop.group = g
-    iterations.group = g
-    global_scale_rot.group = g
-    global_scale_trans.group = g
-    clone_rot.group = g
-    clone_center.group = g
-    mcscalerot.group = g
-    mcscalecenter.group = g
-    mcmax.group = g
-    randsearch_radius.group = g
-    gravity.group = g
-    rstk.group = g
+    _g = "Sampling"
+    harmonic_restraints_file.group = _g
+    tabu.group = _g
+    score_method.group = _g
+    score_threshold.group = _g
+    nstruc.group = _g
+    ntop.group = _g
+    iterations.group = _g
+    global_scale_rot.group = _g
+    global_scale_trans.group = _g
+    clone_rot.group = _g
+    clone_center.group = _g
+    mcscalerot.group = _g
+    mcscalecenter.group = _g
+    mcmax.group = _g
+    randsearch_radius.group = _g
+    gravity.group = _g
+    rstk.group = _g
   }
 
   String runname = "attract-em"
   form {
     runname.add_header("Please supply a name for your docking run (one word)")
     runname.name = "Name of the docking run"
-  }  
+  }
   validate {
     runname = runname.strip()
     self.runname = runname
     if not runname.replace("_","").replace("-","").isalnum():
-      raise ValueError("The name of your run may contain only letters, digits, _ and -")  
-  }  
+      raise ValueError("The name of your run may contain only letters, digits, _ and -")
+  }
   Integer threads = 8
   form {
     runname.group = "Computation"
     threads.group = "Computation"
   }
-  
+
   validate {
     assert len(partners) > 0
     assert nstruc > 0
@@ -142,30 +144,31 @@ Type CryoEasyInterface {
   AxSymmetryArray axsymmetry = []
   ## form axsymmetry.length = 3
   ## form axsymmetry.form = "soft"
+  ## form axsymmetry.count_from_one = True
   validate {
     for a in axsymmetry: assert a.molecule <= len(partners)
   }
-  
+
   *ResourceData_CryoEM_SITUS mapfile
-  ## form mapfile.type = "file"    
+  ## form mapfile.type = "file"
   *String mapfilename
   validate {
     assert not (mapfile is None and mapfilename is None)
     assert mapfile is not None or mapfilename is not None
   }
-  
+
   String runname = "attract-em"
   form {
     runname.add_header("Please supply a name for your docking run (one word)")
     runname.name = "Name of the docking run"
-  }  
+  }
   validate {
     runname = runname.strip()
     self.runname = runname
     if not runname.replace("_","").replace("-","").isalnum():
-      raise ValueError("The name of your run may contain only letters, digits, _ and -")  
+      raise ValueError("The name of your run may contain only letters, digits, _ and -")
   }
-      
+
   Integer threads = 8
   validate {
     assert len(partners) > 0
@@ -176,17 +179,17 @@ Define CryoInterface(CryoEasyInterface m) {
   ret = CryoInterface(m)
   if not len(m.axsymmetry):
     ret.gravity = True
-  
+
   mp1 = len(m.partners)
   if mp1 > 3: mp1 = 3
-  dof_factor = 3 ** (mp1 - 1)  
+  dof_factor = 3 ** (mp1 - 1)
   ret.nstruc *= dof_factor * mp1
   ret.ntop *=  dof_factor
-  
+
   rotscalefactor = 1.0/len(m.partners)
   ret.global_scale_rot *= rotscalefactor
   ret.global_scale_trans *= rotscalefactor
-  
+
   mp2 = len(m.partners)
   ret.mcmax[0] *= mp2
   ret.mcmax[1] *= mp2
@@ -194,9 +197,9 @@ Define CryoInterface(CryoEasyInterface m) {
   ret.iterations[2] = 2 * (mp2-1) + 1
   ret.iterations[3] = 2 * (mp2-1) + 1
   ret.iterations[4] = 12 * (mp2-1) + 8
-  
+
   if mp2 > 1: ret.tabu = 3
-    
+
   ret.validate()
   return ret
 }
