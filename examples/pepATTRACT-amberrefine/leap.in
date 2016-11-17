@@ -1,0 +1,7 @@
+source leaprc.ff14SB
+set default pbradii mbondi3
+set default  disulfide auto
+exp = loadpdb murks.pdb
+charge exp
+saveamberparm exp exp.top exp.crd
+quit

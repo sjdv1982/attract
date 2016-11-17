@@ -1,0 +1,13 @@
+# refinement
+ &cntrl
+ imin=0,ntx=1,irest=0,nsnb=5,igb=8,cut=9999.0d0,
+  dielc=1.0,rgbmax=12.0,
+  ntf=2,ntb=0,ntpr=2500,ntc=2,nstlim=10000,dt=0.002,
+  ntt=3,tempi=400.0,temp0=400.0,gamma_ln=0.05,
+  nmropt=1,
+ &end
+ &wt type='REST', istep1=0, istep2=1,value1=1.0,value2=1.0,/
+ &wt type='END',/
+DISANG= dist.in
+&end
+eof

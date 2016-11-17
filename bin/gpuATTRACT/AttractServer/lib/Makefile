@@ -35,7 +35,7 @@ CXX = nvcc
 ARCHFLAGS = -gencode arch=compute_30,code=sm_30 -gencode arch=compute_35,code=sm_35 -gencode arch=compute_50,code=sm_50
 ARCHFLAGS2 = -gencode arch=compute_30,code=compute_30 -gencode arch=compute_35,code=compute_35 -gencode arch=compute_50,code=compute_50
 ifeq ($(TARGET), RELEASE)
-	OFLAGS = -O3 -DNDEBUG
+	OFLAGS = -O3 -DNDEBUG -D_FORCE_INLINES -D_MWAITXINTRIN_H_INCLUDED
 else ifeq ($(TARGET), DEBUG) 
 	OFLAGS = -O0 -G -g -Xcompiler -Wall -Xcompiler -Wextra
 else

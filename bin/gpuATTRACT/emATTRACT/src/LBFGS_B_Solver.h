@@ -70,7 +70,7 @@ public:
 
 private:
 
-	void run(coro_t::caller_type& ca) override;
+	void run(coro_t_push & ca) override;
 
 	/* solver options */
 	static Options settings;

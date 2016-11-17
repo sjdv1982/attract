@@ -1,0 +1,63 @@
+------------------------------------------------------------------
+symetry (RMSD of interface between refeX.pdb and refeX-sym.pdb)
+-------------------------------------------------------------------
+Sa: perfect (0.0 A)
+Sb: < 1A
+Sc: > 1A but symetric still closer than ubX.pdb
+Sd: > 1A and > than toward bound form
+Se: side-chains clash
+---------------------------------------------
+Coverage
+---------------------------------------------
+Ca: all residus
+Cb: 90% residus aligned
+Cc: partial
+C(b/c)i: all residus at the interface
+---------------------------------------------
+sequence Id
+--------------------------------------------
+Ia: 100%
+Ib: > 90% at interface
+Ic: 50% to 90% at interface
+---------------------------------------------
+multi-body docking should works better {linker in uA/B.pdb}
+--------------------------------------------
+My: should works better {linker in uA/B.pdb}
+Mn: nop
+---------------------------------------------
+others
+--------------------------------------------
+[](): rmsd of interface of refeX/refeX-sym,
+      with [] or without () multi-body docking
+***********************************************************
+
+1A2K: A-sym1 Sb Cb  Ia 
+1AKJ: B-sym1 Sb Ca  Ia 
+1BJ1: B-sym1 Sb Ca  Ia 
+1D6R: B-sym1 Sc Cb  Ia
+1E4K: A-sym1 Sa Cb  Ib 
+1EZU: A-sym1 Sa Ca  Ia 
+1F51: A-sym1 Sb Cb  Ia 
+1FCC: A-sym1 Sa Ca  Ia 
+1HCF: A-sym1 Sb Cb  Ia 
+1I4D: A-sym1 Sb Cbi Ia 
+1JWH: A-sym1 Sb Ca  Ia 
+1JZD: A-sym1 Sb Cbi Ia 
+1KKL: A-sym1 Sb Ca  Ia 
+      A-sym2 Sb Ca  Ia 
+1ML0: A-sym1 Sa Ca Ia 
+1OFU: B-sym1 Sb Cbi Ia 
+1OYV: B-sym1 Sc Cc  Ic 
+1RLB: A-sym1 Sc Ca  Ia 
+      A-sym2 Sc Ca  Ia 
+      A-sym3 Sc Ca  Ia 
+1RV6: A-sym1 Sc Cbi Ia 
+1WDW: A-sym1 Sa Ca  Ia 
+1XU1: A-sym1 Sb Cb  Ia 
+      A-sym2 Sb Ca  Ia 
+2B4J: A-sym1 Sa Cbi Ia 
+2HMI: A-sym1 Se Cci Ia 
+2HQS: A-sym1 sym2 sym3 sym4 sym5
+2OOR: A-sym1 Sb Cbi Ib
+2VDB: A-sym1
+3BP8: A-sym1

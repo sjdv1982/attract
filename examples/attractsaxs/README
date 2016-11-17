@@ -1,0 +1,57 @@
+These are example files for running ATTRACT-SAXS on a binary complex
+as described in
+
+Schindler, de Vries, Sasse, Zacharias. SAXS data alone can generate
+high-quality models of protein-protein complexes. Structure (2016).
+
+-----------------
+*** Input ***
+-----------------
+
+1) Experimental SAXS profile in inverse Angstrom with error column
+2) PDB structures of the two proteins of interest
+
+---------------------
+**** Requirements ****
+---------------------
+You need to have the ATTRACT software installed. Follow the instructions in INSTALLATION.txt
+
+In addition to the normal requirements for ATTRACT, you need to have the following software/packages installed:
+
+CUDA
+ATSAS
+
+sudo apt-get install python-dev libxml2-dev libxslt-dev
+sudo pip install pyconfig
+sudo pip install pycuda
+sudo pip install jinja2
+sudo pip install itertools
+
+then add to your .bashrc
+
+export PYTHONPATH=$PYTHONPATH:$ATTRACTTOOLS/saxs:$ATTRACTDIR/../examples/attractsaxs/LX_Scoring/Rescoring
+export ATSASDIR=/yourpath/to/ATSAS/bin
+
+Change to the directory LX_Scoring/Rescoring and then type
+
+f2py -m scorelib -c scorelib.f
+
+
+----------------------
+**** ATTRACT-SAXS ***
+---------------------
+
+The run-all.sh script contains all steps that are necessary for ATTRACT-SAXS. 
+It expects an experimental SAXS profile (exp-ori.dat) and structures of 
+two proteins (ubA.pdb, ubB.pdb).
+
+protocol.sh runs ATTRACT-SAXS sampling without C1 fitting during SAXS scoring. 
+protocol-fit.sh contains the same steps with additional C1 fitting.
+
+------------------------
+***** Example ********
+------------------------
+
+To test ATTRACT-SAXS, change to the 2GTP directory and type
+
+bash ../run-all.sh

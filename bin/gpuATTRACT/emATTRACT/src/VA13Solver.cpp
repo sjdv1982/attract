@@ -30,7 +30,7 @@ extern "C" void minfor_(void* FortranSmuggler_ptr, int const& maxFunEval,
 		double const* state);
 
 
-void ema::VA13Solver::run(coro_t::caller_type& ca) {
+void ema::VA13Solver::run(coro_t_push & ca) {
 	/* Create Smuggler */
 	VA13Solver::FortranSmuggler smuggler(ca, state, objective);
 

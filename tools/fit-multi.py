@@ -70,7 +70,6 @@ def select_ca(lines, atoms):
   return ret
     
 def write_pdb(outputfile, lines, atoms, extralines):
-  print outputfile
   outp = open(outputfile, "w")
   count = 0
   pos = 0
@@ -148,6 +147,7 @@ def run(runarg):
     pivot = numpy.sum(atoms2_fit,axis=0) / float(len(atoms2_fit))
     fitted_atoms = apply_matrix(atoms2, pivot, rotmat, offset)
     write_pdb(outputfile, lines2, fitted_atoms, extralines2)
+    return outputfile
 
 if args.rmsd:
   runargs = [(m,None) for m in mobiles]
@@ -163,3 +163,6 @@ except KeyboardInterrupt:
 if args.rmsd:
   for n in range(len(mobiles)):
     print "%.3f" % result[n]
+else:
+  for n in range(len(mobiles)):
+    print result[n]

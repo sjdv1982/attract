@@ -30,8 +30,9 @@ def make(pdb,nlistcut=30):
     Y = scipy.spatial.cKDTree(coor)
     nlist = []
     #search for neighbors and bonds
+    k=min(nlistcut+1, len(atomlist))
     for atom in atomlist:
-      dist, neighbor = Y.query(coor[atom-1:atom],k=nlistcut+1)
+      dist, neighbor = Y.query(coor[atom-1:atom],k=k)
       dist = dist[0]
       neighbor = neighbor[0]
       rc = float(int(max(dist)+0.99999999))

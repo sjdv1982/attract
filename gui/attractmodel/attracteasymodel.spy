@@ -4,18 +4,18 @@ Type AttractEasyPartnerInterface {
   ## form pdbfile.name = "Structure file"
   ResourceData_PDB pdbfile
   Enum moleculetype("Protein", "Peptide","DNA", "RNA") = "Protein"
-  ## form moleculetype.name = "What kind of molecule are you docking?"   
+  ## form moleculetype.name = "What kind of molecule are you docking?"
   Bool has_hydrogens = False
-  ## form has_hydrogens.name = "The PDB file contains all necessary atoms, including polar hydrogens"  
-  
+  ## form has_hydrogens.name = "The PDB file contains all necessary atoms, including polar hydrogens"
+
   *HaddockRestraintsInterface haddock_restraints
   ## form haddock_restraints.name = "Definition of residues for HADDOCK-type distance restraints (optional)"
   ## form haddock_restraints.auto_passive.type = None #TODO: disabled for now
-  
+
   Integer ensemble_size = 0
   ## form ensemble_size.name = "If the PDB is a multi-model ensemble, specify the number of conformers"
   ## validate if ensemble_size != 0: assert ensemble_size >= 1
-   
+
   Bool generate_modes = False
   Integer nr_modes = 5
   form {
@@ -28,13 +28,13 @@ Type AttractEasyPartnerInterface {
   }
 
   ## validate if generate_modes: assert nr_modes >= 1 and nr_modes <= 10
-    
+
   Bool use_rmsd = False
   *ResourceData_PDB rmsd_pdb
   ## form rmsd_pdb.add_header("You can specify a PDB file to use as reference in RMSD calculations")
   ## form rmsd_pdb.name = "RMSD PDB file"
   ## form rmsd_pdb.type = "file"
-  validate {    
+  validate {
     if ensemble_size > 1: assert generate_modes == False
     if not use_rmsd:
       assert rmsd_pdb is None
@@ -60,8 +60,8 @@ Type AttractEasyPartnerInterface {
 
     'if ensemble_size > 1: assert generate_modes == False'
     =>
-    'You can upload an ensemble of conformations, or generate harmonic modes, but not both'    
-  } 
+    'You can upload an ensemble of conformations, or generate harmonic modes, but not both'
+  }
 }
 
 
@@ -70,7 +70,7 @@ Type AttractEasyModel {
   form {
     runname.add_header("Please supply a name for your docking run (one word)")
     runname.name = "Name of the docking run"
-  }    
+  }
   AttractEasyPartnerInterfaceArray partners[2]
   form {
     partners.name = "Docking partners"
@@ -84,7 +84,7 @@ Type AttractEasyModel {
     nr_has_haddock = len([1 for p in partners if p.haddock_restraints])
     if has_haddock: assert nr_has_haddock == 2
     has_active = any([p.haddock_restraints.activereslist for p in partners if p.haddock_restraints])
-    if has_haddock: assert has_active  
+    if has_haddock: assert has_active
   }
   error {
     'if has_haddock: assert has_active'
@@ -93,14 +93,14 @@ Type AttractEasyModel {
 
     'if has_haddock: assert nr_has_haddock == 2'
     =>
-    'If you define HADDOCK restraints, you must do so for both two partners'  
+    'If you define HADDOCK restraints, you must do so for both two partners'
   }
-  
+
   #***Custom distance restraints***
   *ResourceData_CNS_Restraints harmonic_restraints_file
-  ## form harmonic_restraints_file.type = "file"  
-  *ResourceData_CNS_Restraints position_restraints_file  
-  ## form position_restraints_file.type = "file"  
+  ## form harmonic_restraints_file.type = "file"
+  *ResourceData_CNS_Restraints position_restraints_file
+  ## form position_restraints_file.type = "file"
   form {
     harmonic_restraints_file.group = "Custom distance restraints"
     position_restraints_file.group = "Custom distance restraints"
@@ -113,16 +113,43 @@ Type AttractEasyModel {
   #***Energy and interaction parameters***
   Bool use_grids = True
   ## form use_grids.name = "Perform grid-accelerated docking"
-  Bool use_iattract = True
+  Bool rescore_step = False
+  ## form rescore_step.name = "Rescore the docking solutions by the GRADSCOPT step potential"
+  validate {
+    if rescore_step:
+      for p in partners:
+        assert p.moleculetype in ("Protein", "Peptide") #step
+        assert not p.generate_modes #step
+  }
+  error {
+    'assert p.moleculetype in ("Protein", "Peptide") #step'
+    =>
+    'The GRADSCOPT step potential is only defined for proteins and peptides'
+
+    'assert not p.generate_modes #step'
+    =>
+    'The GRADSCOPT step potential is not compatible with harmonic modes'
+
+  }
+  Bool use_iattract = False
+  Integer keep_perconf = 0
+  form {
+    keep_perconf.add_header("During rigid-body docking, you may choose to keep a limited number of structures per conformer")
+    keep_perconf.add_header("When the number of structures is very large (e.g. 100 000 structures x 100 conformers),")
+    keep_perconf.add_header(" this option can save a large amount of disk space")
+    keep_perconf.add_header("Currently, this option is only implemented for GPU docking")
+    keep_perconf.add_header("A value of 0 means 'keep all structures per conformer'")
+    keep_perconf.name = "Maximum number of structures per conformer to keep"
+  }
   ## form use_iattract.name = "Perform iATTRACT refinement after the docking"
   Enum forcefield("ATTRACT", "OPLSX") = "ATTRACT"
   ## form forcefield.add_header("Which forcefield is to be used?")
-  ## form forcefield.name = "Forcefield"  
+  ## form forcefield.name = "Forcefield"
   Enum completion_tool("whatif", "pdb2pqr_whatif", "amber", "cns") = "pdb2pqr_whatif"
   form {
     completion_tool.add_header("External tool for PDB completion and hydrogens")
     completion_tool.add_header("NOTE: PDB2PQR, AMBER and CNS require a local installation")
-    completion_tool.add_header("NOTE: PDB2PQR only completes proteins; WHATIF is used for nucleic acids")  
+    completion_tool.add_header("NOTE: PDB2PQR only completes proteins; WHATIF is used for nucleic acids")
     completion_tool.name = "PDB completion method"
     completion_tool.optiontitles = (
       "WHATIF web server",
@@ -133,33 +160,93 @@ Type AttractEasyModel {
   }
   form {
     _g = "Energy and interaction parameters"
-    use_grids.group = _g
-    use_iattract.group = _g
-    forcefield.group = _g
     completion_tool.group = _g
+    forcefield.group = _g
+    use_grids.group = _g
+    rescore_step.group = _g
+    keep_perconf.group = _g
+    use_iattract.group = _g
   }
 
-  
-  #***Analysis***  
-  Bool calc_lrmsd = False  
+
+  #***Analysis***
+  Bool analyze_interface = False
+  Integer nstruc_analyze_interface = 100
+  validate {
+    if analyze_interface: assert nstruc_analyze_interface > 0
+    if analyze_interface: assert nstruc_analyze_interface <= 400
+  }
+  error {
+    'if analyze_interface: assert nstruc_analyze_interface > 0'
+    =>
+    'The number of structures to analyze the interface must be positive'
+
+    'if analyze_interface: assert nstruc_analyze_interface <= 400'
+    =>
+    'The number of structures to analyze the interface must be at most 400'
+  }
+  form {
+    analyze_interface.name = "Analyze the most frequent interface residues from the top docking solutions (before clustering)"
+    nstruc_analyze_interface.name = "How many structures to select for interface analysis"
+  }
+  Bool clustering = False
+  Integer min_cluster_size = 1
+  Float clustering_cutoff = 10
+  validate {
+    assert clustering_cutoff > 0
+    assert min_cluster_size > 0 and min_cluster_size <= 10
+  }
+  error {
+    'assert clustering_cutoff > 0'
+    =>
+    'The clustering cutoff size must be positive'
+
+    'assert min_cluster_size > 0 and min_cluster_size <= 10'
+    =>
+    'Please set the minimum cluster size to between 1 and 10'
+  }
+  form {
+    clustering.name = "Perform clustering"
+    clustering_cutoff.name = "Clustering cutoff (in A)"
+    min_cluster_size.name = "Minimum cluster size"
+  }
+  Bool calc_lrmsd = False
   Bool calc_irmsd = False
   Bool calc_fnat = False
+  Integer max_analysis = 0
   Integer nr_collect = 50
   form {
+    _g = "Analysis"
+    analyze_interface.group = _g
+    nstruc_analyze_interface.group = _g
+    clustering.group = _g
+    min_cluster_size.group = _g
+    clustering_cutoff.group = _g
+    calc_lrmsd.group = _g
+    calc_irmsd.group = _g
+    calc_fnat.group = _g
+    max_analysis.group = _g
+    nr_collect.group = _g
 
-    calc_lrmsd.group = "Analysis"
-    calc_irmsd.group = "Analysis"
-    calc_fnat.group = "Analysis"
-    nr_collect.group = "Analysis"
-    
     calc_lrmsd.name = "Calculate ligand RMSD after docking"
     calc_irmsd.name = "Calculate interface RMSD after docking"
     calc_fnat.name = "Calculate fraction of native contacts after docking"
-
+    max_analysis.add_header("If the generated number of structures is large,")
+    max_analysis.add_header(" it is possible to restrict the number of structures to analyze")
+    max_analysis.add_header("A value of 0 means 'analyze all structures'")
+    max_analysis.name = "Maximum number of structures to analyze"
     nr_collect.name = "Number of structures to collect as PDB file"
   }
+  validate {
+    if max_analysis: assert not use_iattract
+  }
+  error {
+    'if max_analysis: assert not use_iattract'
+    =>
+    'Maximum number of structures to analyze is not compatible with iATTRACT refinement'
+  }
   #***
-    
+
   #***Computing and parallelization parameters***
   Enum use_gpu("never","if_available",  "always") = "never"
   form {
@@ -173,10 +260,10 @@ Type AttractEasyModel {
   }
   validate {
     if use_gpu != "never":
-      assert use_grids #gpu    
+      assert use_grids #gpu
       assert len(partners) == 2 #gpu
       assert harmonic_restraints_file is None #gpu
-      assert position_restraints_file is None #gpu      
+      assert position_restraints_file is None #gpu
       for p in partners:
         assert not p.generate_modes #gpu
         assert p.haddock_restraints is None #gpu
@@ -186,44 +273,44 @@ Type AttractEasyModel {
     'assert use_grids #gpu'
     =>
     'GPU acceleration must be combined with grids'
-  
+
     'assert len(partners) == 2 #gpu'
     =>
     'GPU acceleration is not compatible with multi-body docking'
-    
+
     'assert not p.generate_modes #gpu'
     =>
     'GPU acceleration is not compatible with harmonic modes'
 
     'assert p.haddock_restraints is None #gpu'
     =>
-    'GPU acceleration is not compatible with HADDOCK restraints'    
-    
+    'GPU acceleration is not compatible with HADDOCK restraints'
+
     'assert harmonic_restraints_file is None #gpu'
     =>
-    'GPU acceleration is not compatible with a harmonic restraints file'    
+    'GPU acceleration is not compatible with a harmonic restraints file'
 
     'assert position_restraints_file is None #gpu'
     =>
-    'GPU acceleration is not compatible with a position restraints file'    
+    'GPU acceleration is not compatible with a position restraints file'
 
     'assert partners[0].ensemble_size in (0,1) #gpu'
     =>
     'GPU acceleration is not compatible with receptor ensemble docking'
 
   }
-  
+
 
   Integer np = 4
   ## form np.group = "Computing and parallelization parameters"
   ## form np.name = "Number of processor cores"
-  
-  
+
+
   #***
   validate {
     assert nr_collect > 0
     assert np > 0
-    
+
     p1, p2 = partners
     assert p1.use_rmsd == p2.use_rmsd
     if p1.use_rmsd:
@@ -265,16 +352,16 @@ Type AttractEasyModel {
     'assert np > 0'
     =>
     'Please use at least one core (np=1)for running the docking.'
-        
+
     'if forcefield is not None: assert forcefield in ("ATTRACT", "OPLSX")'
     =>
     ''
 
     'if completion_tool is not None: assert completion_tool in ("whatif", "pdb2pqr_whatif", "amber", "cns")'
     =>
-    ''        
+    ''
   }
-  
+
 }
-  
+
 Define AttractModel(AttractEasyModel) easy2model

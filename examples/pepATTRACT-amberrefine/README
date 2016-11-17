@@ -1,0 +1,22 @@
+Instructions for running the pepATTRACT AMBER refinement (Ubuntu 14.04)
+
+1. Make sure you have AMBER installed with MPI AND GPU support and that $AMBERHOME is in your path. Type "which sander.MPI" and "which pmemd.cuda" to check this.
+
+2. Make sure you have gawk and csh installed (sudo apt-get install gawk csh).
+
+3. Copy the pepATTRACT-amberrefine folder to your desired location and change into the /yourlocation/pepATTRACT-amberrefine.
+
+4. Copy the output models from pepATTRACT you want to refine ("result.pdb") into the pepATTRACT-amberrefine folder and rename the file to "start.pdb".
+
+5. Run the AMBER refinement ("python run.py").
+
+6. The refined models will be in "result-amber.pdb" (ranked according to ATTRACT score) and "result-amber-sorted.pdb" (ranked according to AMBER score).
+
+7. Clustering by fraction of common contacts (fcc) can be performed with "python fcc-amber.py". Make sure that you have fcc installed (https://github.com/haddocking/fcc),
+   sed installed (sudo apt-get install sed) and set up the environment variable (export FCCHOME=/your-fccpath) accordingly. The cluster representatives
+   can be found in the file "result-amber-sorted-fcc.pdb" and the cluster energies in "result-amber-sorted-fcc.score". The clustering results can be
+   found in "result-amber-sorted.fcc_cluster".
+
+8. Optional: for benchmarking purposes copy the protein reference structure and the peptide reference structure into the pepATTRACT-amberrefine directory
+   as "receptor-refe.pdb" (protein) and "ligand-refe.pdb" (peptide). Then run "bash eval.sh". Your results will be in "result-amber-sorted.irmsd" and "result-amber-sorted.fnat".
+   The "fcc-amber.py" script also provides a benchmarking option ("--benchmark"). Then the IRMSD of the clusters will also be determined "result-amber-sorted-fcc.irmsd".

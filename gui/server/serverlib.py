@@ -93,6 +93,13 @@ Delta files contain embedded resources (PDB files etc.): if you want to generate
 [/ADVANCED]
 """
 
+response_rpbs = """<B>Perform the docking at the RPBS Mobyle platform</B>
+The Mobyle platform at the RPBS provides a service to perform ATTRACT docking via the platform computers
+It is possible to perform the docking at the RPBS. 
+<a href='%s/portal.py?load::attract::parameter_dir=%s&load::attract::parameter_file=%s'>Click here to run ATTRACT at the RPBS (a link to your docking protocol is automatically filled-in)</a>
+
+""" 
+
 class AttractServerError(Exception):
   def __init__(self, status, delta):
     Exception.__init__(self)
@@ -218,6 +225,7 @@ def serve_attract(spydertype, formlib, deploy, **kwargs):
   response = response_success
   response += response_directory % (shname, webresultdir+mydir+"/"+aname, aname, fname)
   response += response_embedded % (webresultdir+mydir+"/"+fname_embedded, fname_embedded)
+  response += response_rpbs % (rpbs_website, mydir, fname_embedded)
   response += deltamessage
   return response
     

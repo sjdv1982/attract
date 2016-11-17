@@ -4,19 +4,19 @@ Type AttractPeptideProteinPartner {
   ResourceData_PDB pdbfile
   Bool has_hydrogens = False
   ## form has_hydrogens.name = "The PDB file contains all necessary atoms, including polar hydrogens"
-    
+
   *HaddockRestraintsInterface haddock_restraints
   ## form haddock_restraints.name = "Definition of residues for HADDOCK-type distance restraints (optional)"
   form {
     #peptide will be passive, so disable passive residues on the protein
-    haddock_restraints.auto_passive.type = None 
+    haddock_restraints.auto_passive.type = None
     haddock_restraints.passivereslist.type = None
-  }  
+  }
 
   Integer ensemble_size = 0
   ## form ensemble_size.name = "If the PDB is a multi-model ensemble, specify the number of conformers"
   ## validate if ensemble_size != 0: assert ensemble_size >= 1
-        
+
   form {
     use_rmsd.name = "Perform RMSD analysis"
   }
@@ -26,7 +26,7 @@ Type AttractPeptideProteinPartner {
   ## form rmsd_pdb.add_header("You can specify a PDB file to use as reference in RMSD calculations")
   ## form rmsd_pdb.name = "RMSD PDB file"
   ## form rmsd_pdb.type = "file"
-  validate {  
+  validate {
     if not use_rmsd:
       assert rmsd_pdb is None
     else:
@@ -45,33 +45,35 @@ Type AttractPeptideProteinPartner {
     =>
     'You need to define a PDB for RMSD calculation, or disable it'
 
-  } 
+  }
 }
 
 
 Type AttractPeptidePartner:Degenerate {
   String sequence
   ## form sequence.name = "Peptide sequence"
-  
+
   form {
     use_rmsd.name = "Perform RMSD analysis"
   }
-  
+
   Bool use_rmsd = False
   *ResourceData_PDB rmsd_pdb
   ## form rmsd_pdb.add_header("You can specify a PDB file to use as reference in RMSD calculations")
   ## form rmsd_pdb.name = "RMSD PDB file"
   ## form rmsd_pdb.type = "file"
-  validate {  
+  validate {
     for c in sequence:
-      if c not in "ACDEFGHIKLMNPQRSTVWY":
-        raise spyder.core.ValidationError("Please provide a peptide sequence in single letter code")
+      assert c in "ACDEFGHIKLMNPQRSTVWY"
     if not use_rmsd:
       assert rmsd_pdb is None
     else:
       assert rmsd_pdb is not None
   }
   error {
+    'assert c in "ACDEFGHIKLMNPQRSTVWY"'
+    =>
+    'Please provide a canonical peptide sequence in single letter code'
 
     'assert rmsd_pdb is None'
     =>
@@ -81,7 +83,7 @@ Type AttractPeptidePartner:Degenerate {
     =>
     'You need to define a PDB for RMSD calculation, or disable it'
 
-  } 
+  }
   }
 
 Type AttractPeptideModel {
@@ -89,7 +91,7 @@ Type AttractPeptideModel {
   form {
     runname.add_header("Please supply a name for your docking run (one word)")
     runname.name = "Name of the docking run"
-  }    
+  }
   AttractPeptideProteinPartner p1
   form {
     p1.name = "Protein"
@@ -108,7 +110,7 @@ Type AttractPeptideModel {
   form {
     completion_tool.add_header("External tool for PDB completion and hydrogens")
     completion_tool.add_header("NOTE: PDB2PQR, AMBER and CNS require a local installation")
-    completion_tool.add_header("NOTE: PDB2PQR only completes proteins; WHATIF is used for nucleic acids")  
+    completion_tool.add_header("NOTE: PDB2PQR only completes proteins; WHATIF is used for nucleic acids")
     completion_tool.name = "PDB completion method"
     completion_tool.optiontitles = (
       "WHATIF web server",
@@ -116,7 +118,7 @@ Type AttractPeptideModel {
       "AMBER",
       "CNS",
     )
-  }  
+  }
   form {
     _g = "Energy and interaction parameters"
     use_grids.group = _g
@@ -124,19 +126,64 @@ Type AttractPeptideModel {
     completion_tool.group = _g
   }
 
-  
-  #***Analysis***  
-  Bool calc_lrmsd = False  
+
+  #***Analysis***
+  Bool analyze_interface = False
+  Integer nstruc_analyze_interface = 100
+  validate {
+    if analyze_interface: assert nstruc_analyze_interface > 0
+    if analyze_interface: assert nstruc_analyze_interface <= 1000
+  }
+  error {
+    'if analyze_interface: assert nstruc_analyze_interface > 0'
+    =>
+    'The number of structures to analyze the interface must be positive'
+
+    'if analyze_interface: assert nstruc_analyze_interface <= 1000'
+    =>
+    'The number of structures to analyze the interface must be at most 1000'
+  }
+  form {
+    analyze_interface.name = "Analyze the most frequent interface residues from the top docking solutions (before clustering)"
+    nstruc_analyze_interface.name = "How many structures to select for interface analysis"
+  }
+  Bool clustering = False
+  Integer min_cluster_size = 4
+  Float clustering_cutoff = 2.0
+  validate {
+    assert clustering_cutoff > 0
+    assert min_cluster_size > 0 and min_cluster_size <= 10
+  }
+  error {
+    'assert clustering_cutoff > 0'
+    =>
+    'The clustering cutoff size must be positive'
+
+    'assert min_cluster_size > 0 and min_cluster_size <= 10'
+    =>
+    'Please set the minimum cluster size to between 1 and 10'
+  }
+  form {
+    clustering.name = "Perform clustering"
+    clustering_cutoff.name = "Clustering cutoff (in A)"
+    min_cluster_size.name = "Minimum cluster size"
+  }
+  Bool calc_lrmsd = False
   Bool calc_irmsd = False
   Bool calc_fnat = False
   Integer nr_collect = 50
   form {
+    _g = "Analysis"
+    analyze_interface.group = _g
+    nstruc_analyze_interface.group = _g
+    clustering.group = _g
+    min_cluster_size.group = _g
+    clustering_cutoff.group = _g
+    calc_lrmsd.group = _g
+    calc_irmsd.group = _g
+    calc_fnat.group = _g
+    nr_collect.group = _g
 
-    calc_lrmsd.group = "Analysis"
-    calc_irmsd.group = "Analysis"
-    calc_fnat.group = "Analysis"
-    nr_collect.group = "Analysis"
-    
     calc_lrmsd.name = "Calculate ligand RMSD after docking"
     calc_irmsd.name = "Calculate interface RMSD after docking"
     calc_fnat.name = "Calculate fraction of native contacts after docking"
@@ -144,9 +191,9 @@ Type AttractPeptideModel {
     nr_collect.name = "Number of structures to collect as PDB file"
   }
   #***
-    
+
   #***Computing and parallelization parameters***
-  
+
   Enum use_gpu("never","if_available",  "always") = "never"
   form {
     use_gpu.group = "Computing and parallelization parameters"
@@ -158,7 +205,7 @@ Type AttractPeptideModel {
     )
   }
   validate {
-    if use_gpu != "never": 
+    if use_gpu != "never":
       assert use_grids #gpu
       assert p1.ensemble_size in (0,1) #gpu
       assert p1.haddock_restraints is None #gpu
@@ -167,26 +214,26 @@ Type AttractPeptideModel {
     'assert use_grids #gpu'
     =>
     'GPU acceleration must be combined with grids'
-    
+
     'assert p1.ensemble_size in (0,1) #gpu'
     =>
-    'GPU acceleration is not compatible with protein ensembles'    
-    
+    'GPU acceleration is not compatible with protein ensembles'
+
     'assert p1.haddock_restraints is None #gpu'
     =>
-    'GPU acceleration is not compatible with HADDOCK restraints'    
+    'GPU acceleration is not compatible with HADDOCK restraints'
   }
-  
+
   Integer np = 4
   ## form np.group = "Computing and parallelization parameters"
   ## form np.name = "Number of processor cores"
-  
-  
+
+
   #***
   validate {
     assert nr_collect > 0
     assert np > 0
-    
+
     assert p1.use_rmsd == p2.use_rmsd
     if p1.use_rmsd :
       assert calc_lrmsd or calc_irmsd or calc_fnat
@@ -227,9 +274,9 @@ Type AttractPeptideModel {
     'if completion_tool is not None: assert completion_tool in ("whatif", "pdb2pqr_whatif", "amber", "cns")'
     =>
     ''
-  
+
   }
-  
+
 }
-  
+
 Define AttractEasyModel(AttractPeptideModel) peptide2model

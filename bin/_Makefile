@@ -11,7 +11,7 @@ OBJ0= read_hm.o read_dof.o read_parameters.o read_pdb.o write_pdb.o print_struc.
 OBJ= $(OBJ0) nonbon8.o
 H=state.h max.h grid.h nonbon.h max.fin
 FF=gfortran
- 
+
 #Fortran flags
 #1. for final release
 #FLAG= -g -O3 -fno-automatic -ffast-math -fcray-pointer
@@ -30,11 +30,11 @@ CC        = gcc
 #2. For standard development
 CFLAGS = -g -p -O3 -ffast-math -Wall
 #3. For heavy debugging
-#CFLAGS = -g -p -O0 -fno-inline -Wall -ffast-math 
+#CFLAGS = -g -p -O0 -fno-inline -Wall -ffast-math
 
-attract: attract.o grid.o grid-torque.o $(OBJ) 
+attract: attract.o grid.o grid-torque.o $(OBJ)
 	$(CXX) $(CFLAGS)  $^ -lgfortran -lrt -o $@
-	
+
 attract-infinite: attract.o grid.o grid-torque.o nonbon8-infinite.o $(OBJ0)
 	$(CXX) $(CFLAGS)  $^ -lgfortran -lrt -o $@
 
@@ -58,35 +58,35 @@ rmsd: rmsd.o read_parameters.o read_pdb.o read_pdb2.o read_dof.o \
   read_ens.o axsym.o matinv.o matmult.o state.h
 	$(CXX) $(CFLAGS)  $^ -lgfortran -o $@
 
-make-grid: make-grid.o grid_calculate.o grid.o grid_calculate-torque.o grid-torque.o $(OBJ) 
+make-grid: make-grid.o grid_calculate.o grid.o grid_calculate-torque.o grid-torque.o $(OBJ)
 	$(CXX) $(CFLAGS) $^  -lgfortran -lrt -o $@
 
-make-grid-omp: make-grid-omp.o grid_calculate-omp.o grid.o grid_calculate-torque-omp.o grid-torque.o $(OBJ) 
+make-grid-omp: make-grid-omp.o grid_calculate-omp.o grid.o grid_calculate-torque-omp.o grid-torque.o $(OBJ)
 	$(CXX) $(CFLAGS)  $^  -fopenmp -lgfortran -lrt -o $@
 
-make-grid-torque: make-grid-torque.o grid_calculate.o grid.o grid_calculate-torque.o grid-torque.o $(OBJ) 
+make-grid-torque: make-grid-torque.o grid_calculate.o grid.o grid_calculate-torque.o grid-torque.o $(OBJ)
 	$(CXX) $(CFLAGS)  $^  -lgfortran -lrt -o $@
 
-make-grid-torque-omp: make-grid-torque-omp.o grid_calculate-omp.o grid.o grid_calculate-torque-omp.o grid-torque.o $(OBJ) 
+make-grid-torque-omp: make-grid-torque-omp.o grid_calculate-omp.o grid.o grid_calculate-torque-omp.o grid-torque.o $(OBJ)
 	$(CXX) $(CFLAGS)  $^  -fopenmp -lgfortran -lrt -o $@
 
 shm-grid: shm-grid.o grid_calculate.o grid.o grid_calculate-torque.o grid-torque.o $(OBJ)
 	$(CXX) $(CFLAGS) $^  -lgfortran -lrt -o $@
 
 shm-grid-torque: shm-grid-torque.o grid_calculate.o grid.o grid_calculate-torque.o grid-torque.o $(OBJ)
-	$(CXX) $(CFLAGS)  $^ -lgfortran -lrt -o $@ 
+	$(CXX) $(CFLAGS)  $^ -lgfortran -lrt -o $@
 
 shm-clean: shm-clean.o
 	$(CXX) $(CFLAGS)  $^ -lrt -o $@
-	
+
 systsearch: systsearch.o
 	$(FF) $(FLAG) $< -o $@
-	
-grid.o: grid.cpp $(H) 
-	$(CXX) $(CFLAGS) --param max-inline-insns-single=2000 -c $< -o $@ 
 
-grid-torque.o: grid.cpp $(H) 
-	$(CXX) $(CFLAGS) --param max-inline-insns-single=2000 -DTORQUEGRID -c $< -o $@ 
+grid.o: grid.cpp $(H)
+	$(CXX) $(CFLAGS) --param max-inline-insns-single=2000 -c $< -o $@
+
+grid-torque.o: grid.cpp $(H)
+	$(CXX) $(CFLAGS) --param max-inline-insns-single=2000 -DTORQUEGRID -c $< -o $@
 
 fix_receptor:   fix_receptor.o read_dof.o euler2rotmat.o matinv.o matmult.o \
                 print_struc.o state.h
@@ -107,33 +107,33 @@ axsymmetry: axsymmetry.o read_dof.o euler2rotmat.o matmult.o matinv.o \
 ncsymmetry: ncsymmetry.o read_dof.o euler2rotmat.o matmult.o matinv.o \
                 print_struc.o state.h axsym.h axsym.o
 	$(CXX) $(CFLAGS) $^ -o $@ -lm
-	
+
 omp_threadnum: omp_threadnum.o
 	$(CXX) $(CFLAGS)  $^  -fopenmp -o $@
 
 %-torque-omp.o: %.cpp $(H)
-	$(CXX) $(CFLAGS) -fopenmp -DTORQUEGRID -c $< -o $@ 
+	$(CXX) $(CFLAGS) -fopenmp -DTORQUEGRID -c $< -o $@
 
 %-torque.o: %.cpp $(H)
-	$(CXX) $(CFLAGS) -DTORQUEGRID -c $< -o $@ 
+	$(CXX) $(CFLAGS) -DTORQUEGRID -c $< -o $@
 
 %-omp.o: %.cpp $(H)
-	$(CXX) $(CFLAGS) -fopenmp -c $< -o $@ 
-	
-	
+	$(CXX) $(CFLAGS) -fopenmp -c $< -o $@
+
+
 
 collectlib.so: collectlib-pic.o read_parameters-pic.o read_pdb-pic.o \
   read_pdb2-pic.o read_dof-pic.o cartstate-pic.o euler2rotmat-pic.o \
   deform-pic.o rotate-pic.o read_hm-pic.o memcpy-pic.o write_pdb-pic.o \
   read_ens-pic.o axsym-pic.o matmult-pic.o state.h max.h
-	$(CXX) $(CFLAGS) -Wall -shared -fPIC $^ -lgfortran -lm -o $@ 
+	$(CXX) $(CFLAGS) -Wall -shared -fPIC $^ -lgfortran -lm -o $@
 
-_gridify.so: gridify-pic.o	
-	$(CXX) $(CFLAGS) -Wall -shared -fPIC $^ -lm -o $@ 
-	
+_gridify.so: gridify-pic.o
+	$(CXX) $(CFLAGS) -Wall -shared -fPIC $^ -lm -o $@
+
 max.fin: max.h
 	python make_max.py max.h > max.fin
-	
+
 #collectlib: collectlib.so
 
 %.o: %.cpp $(H)
@@ -144,7 +144,7 @@ max.fin: max.h
 
 %.o: %.f max.fin
 	$(FF) $(FLAG) -c $< -o $@
-	
+
 
 %-pic.o: %.cpp $(H)
 	$(CXX) $(CFLAGS) -c -fPIC $< -o $@
@@ -152,26 +152,24 @@ max.fin: max.h
 %-pic.o: %.f $(H)
 	$(FF) $(FLAG) -c -fPIC $< -o $@
 
-clean: 
+clean:
 	rm -f *.o
 	rm -f attract attract-infinite collect collectlib.so rmsd make-grid \
  			make-grid-omp make-grid-torque make-grid-torque-omp shm-grid \
  			shm-grid-torque shm-clean systsearch fix_receptor \
  			omp_threadnum deredundant matrix-lrmsd rest axsymmetry ncsymmetry \
  			_gridify.so \
-			redatom translate rotam compare viewe rmsca center trans cluster_struc
+			translate rotam compare viewe rmsca center trans cluster_struc
 
 center: read_pdb2.o center.o
 	$(CXX) $(CFLAGS) $^ -o $@
 
 trans: read_pdb2.o transl.o
 	$(CXX) $(CFLAGS) $^ -o $@
-	
+
 cluster_struc: cluster_struc.o
 	$(CXX) $(CFLAGS) $< -o $@
 
-redatom: redatom.o
-	$(FF) $(FLAG) $< -o $@
 translate: translate.o
 	$(FF) $(FLAG) $< -o $@
 rotam: rotam.o
@@ -183,12 +181,11 @@ viewe: viewe.o
 rmsca: rmsca.o
 	$(FF) $(FLAG) $< -o $@
 
-rest: redatom translate rotam compare viewe rmsca center trans cluster_struc
-	
+rest: translate rotam compare viewe rmsca center trans cluster_struc
+
 
 all: max.fin attract attract-infinite collect collectlib.so rmsd make-grid \
  make-grid-omp make-grid-torque make-grid-torque-omp shm-grid \
  shm-grid-torque shm-clean systsearch fix_receptor \
  omp_threadnum deredundant matrix-lrmsd rest axsymmetry ncsymmetry \
  _gridify.so
-

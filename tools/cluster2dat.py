@@ -40,7 +40,7 @@ for stnr in clusterlist:
   s = strucs[stnr]
   st2nr += 1
   print "#"+str(st2nr)
-  print "##"+str(stnr) + " => cluster"
+  print "## "+str(stnr) + " => cluster"
   l1,l2 = s
   for l in l1: print l
   for l in l2: print l
