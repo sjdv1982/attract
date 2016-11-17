@@ -92,7 +92,7 @@ def read_filelist(filelist):
     ret.append(l)
   return ret
 
-def read_pdb(pdblines, add_termini=False,modbase=False,modres=False):
+def read_pdb(pdblines, pdbname, add_termini=False,modbase=False,modres=False):
   repl = (
     ("H","HN"),
     ("HT1","HN"),
@@ -137,6 +137,9 @@ def read_pdb(pdblines, add_termini=False,modbase=False,modres=False):
           atomlines.append(l)
   else:
     atomlines = [l for l in pdblines if l.startswith("ATOM")]
+  
+  if len(atomlines) == 0:
+    raise ValueError("PDB '%s' contains no ATOM records" % pdbname )
   
   for l in atomlines:
     atomcode = l[12:16].strip()
@@ -412,7 +415,7 @@ if args.rnalib:
   rnalib = pdbcomplete.load_rnalib()
 
 def run(pdbfile):  
-  pdb = read_pdb(open(pdbfile), add_termini=args.termini,modbase=args.modbase,modres=args.modres)
+  pdb = read_pdb(open(pdbfile), pdbfile, add_termini=args.termini,modbase=args.modbase,modres=args.modres)
   pdblines = write_pdb(pdb, args.chain)[0]
 
   termini_pdb(pdb, args.nter, args.cter)
@@ -437,7 +440,7 @@ def run(pdbfile):
   patch_pdb(pdb, patches)
 
   if args.refe:
-    refe = read_pdb(open(args.refe), add_termini=args.termini)
+    refe = read_pdb(open(args.refe), args.refe, add_termini=args.termini)
     patch_pdb(refe, patches)
     if not args.heavy:
       update_patches(refe)
@@ -447,14 +450,14 @@ def run(pdbfile):
   if args.pdb2pqr:
     pdblines = write_pdb(pdb, args.chain, one_letter_na = True)[0]
     pqrlines = run_pdb2pqr(pdblines)
-    pqr = read_pdb(pqrlines)
+    pqr = read_pdb(pqrlines, "<PDB2PQR output from %s>" % pdbfile)
     pdbcomplete.pdbcomplete(pdb, pqr)
     if not args.heavy and not args.refe: 
       update_patches(pdb)
   if args.whatif:
     pdblines = write_pdb(pdb, args.chain, one_letter_na = True)[0]
     whatiflines = run_whatif(pdblines)
-    whatif = read_pdb(whatiflines)
+    whatif = read_pdb(whatiflines, "<WHATIF output from %s>" % pdbfile)
     pdbcomplete.pdbcomplete(pdb, whatif)
     if not args.heavy and not args.refe and not args.pdb2pqr: 
       update_patches(pdb)

@@ -1,0 +1,3 @@
+#!/bin/sh
+silk --default-output attract.web AttractEasyModel -m attractmodel -I $ATTRACTGUI --gui html \
+-I $ATTRACTGUI/server --form form_standard webform_easy --view form_standard html_easy --webdir $ATTRACTGUI/server/html --webserver-pre form_standard webserverform_easy $@
