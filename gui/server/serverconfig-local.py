@@ -10,3 +10,4 @@ cgidir = website + "/cgi/server/%s/" % servicename
 webresultdir = website + "/results/server/%s/" % servicename
 localdir = localserverdir + "/%s/html/" % servicename
 localresultdir = localserverdir + "/%s/results/" % servicename
+rpbs_website="http://localhost/cgi-bin/mobyle/"
