@@ -1,4 +1,4 @@
-easy2model_version = "Converted from AttractEasyModel by easy2model 1.2"
+easy2model_version = "Converted from AttractEasyModel by easy2model 1.3"
 
 def easy2model(emodel):
   partners = []
@@ -108,6 +108,11 @@ def easy2model(emodel):
    gravity=gravity,
    forcefield=emodel.forcefield,
    epsilon=epsilon,
+   analyze_interface=emodel.analyze_interface,
+   nstruc_analyze_interface=emodel.nstruc_analyze_interface,
+   clustering=emodel.clustering,
+   min_cluster_size=emodel.min_cluster_size,
+   clustering_cutoff=emodel.clustering_cutoff,
    calc_lrmsd=emodel.calc_lrmsd,
    calc_irmsd=emodel.calc_irmsd,
    rmsd_atoms=rmsd_atoms,
@@ -116,7 +121,7 @@ def easy2model(emodel):
    keep_perconf=emodel.keep_perconf,
    nr_collect=emodel.nr_collect,
    np=emodel.np,
-   deredundant_ignorens = False,
+   deredundant_ignorens=False,
    demode=True,
    completion_tool=emodel.completion_tool,
    rescore_step=emodel.rescore_step,
@@ -124,7 +129,7 @@ def easy2model(emodel):
    use_iattract=emodel.use_iattract,
    use_gpu=emodel.use_gpu,
   )
-  if has_peptide:
+  if has_peptide and not emodel.clustering and not emodel.analyze_interface:
     newmodel.demode = False
   if has_peptide or has_na or use_haddock or emodel.position_restraints_file is not None:
     newmodel.search = "random"

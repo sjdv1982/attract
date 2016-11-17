@@ -30,8 +30,13 @@ def peptide2model(pmodel):
    runname=pmodel.runname,
    partners=partners,
    use_grids=pmodel.use_grids,
-   rescore_step=pmodel.rescore_step,
+   rescore_step=False, #does not seem to work well at the present
    use_iattract=pmodel.use_iattract,
+   analyze_interface=pmodel.analyze_interface,
+   nstruc_analyze_interface=pmodel.nstruc_analyze_interface,
+   clustering=pmodel.clustering,
+   min_cluster_size=pmodel.min_cluster_size,
+   clustering_cutoff=pmodel.clustering_cutoff,
    calc_lrmsd=pmodel.calc_lrmsd,
    calc_irmsd=pmodel.calc_irmsd,
    calc_fnat=pmodel.calc_fnat,
@@ -41,7 +46,7 @@ def peptide2model(pmodel):
    use_gpu=pmodel.use_gpu,
   )
   if not pmodel.use_iattract:
-      newmodel.max_filt_analysis = 1000000
+      newmodel.max_analysis = 1000000
 
   return newmodel
 
@@ -72,10 +77,14 @@ def create_PDB(seq,phi,psi,output):
   except ImportError:
     raise ImportError("You need to have BioPython installed to convert peptide sequences to structures")
   try:
-    import Geometry
+    from PeptideBuilder import Geometry
     import PeptideBuilder
   except ImportError:
-    raise ImportError("You need to have the Python module PeptideBuilder installed to convert peptide sequences to structures")
+    try:
+      import Geometry
+      import PeptideBuilder
+    except ImportError:
+      raise ImportError("You need to have the Python module PeptideBuilder installed to convert peptide sequences to structures")
 
   geo = Geometry.geometry(seq[0])
   struc = PeptideBuilder.initialize_res(geo)

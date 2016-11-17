@@ -3,53 +3,53 @@ header = """<!DOCTYPE html>
 <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
 <!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
-    
+
     <head>
         <title>%s</title>
-        
+
         <meta charset="utf-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
         <meta name="description" content="" />
         <meta name="viewport" content="width=device-width"/>
-        
+
         <!-- Always load normalize CSS first -->
         <link rel="stylesheet" href="css/normalize.min.css">
         <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,600' rel='stylesheet' type='text/css'>
         <link href='http://fonts.googleapis.com/css?family=Lobster' rel='stylesheet' type='text/css'>
         <link rel="stylesheet" href="css/attract.min.css">
     </head>
-    
+
     <body>
         <!--[if lt IE 7]>
             <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
         <![endif]-->
 
         <main id="container" class="col row">
-          
+
           <section id="sidebar" class="col">
             <div id="title"><span class="t1">Attract</span> <span class="t2">online</span></div>
             <div id="logo"></div>
-            
+
             <nav id="form-category-navigation" class="row">
               <ul>
                 <li id="view-page1"><a id="nav-block-partners" class="puzzle-icon">Partners</a></li>
                 <li id="view-page2"><a id="nav-block-sampling" class="sampling-icon">Sampling</a></li>
-                <li id="view-page3"><a id="nav-block-energy" class="energy-icon">Energy and Interaction</a></li>                
+                <li id="view-page3"><a id="nav-block-energy" class="energy-icon">Energy and Interaction</a></li>
                 <li id="view-page4"><a id="nav-block-analysis" class="analysis-icon">Analysis</a></li>
                 <li id="view-page5"><a id="nav-block-computation" class="computation-icon">Computation</a></li>
               </ul>
             </nav>
-            
+
             <div id="download-button" class="row download-icon" onClick="submitForm();">
               <p>Get configuration</p>
-            </div>  
-            
+            </div>
+
           </section>
-            
+
           <section id="content" class="col">
-            
+
             <header id="header">
-              
+
               <div id="show-hide-sidepanel" class="button menu-icon float-left"><div class="header-tooltip"><p>Hide sidepanel</p></div></div>
               <div id="reload-form" class="button reload-icon-active float-left"><div class="header-tooltip"><p>Restore default values</p></div></div>
               <div id="unfold-all" class="button double-arrow-icon float-left"><div class="header-tooltip"><p>Unfold all form blocks</p></div></div>
@@ -61,18 +61,18 @@ header = """<!DOCTYPE html>
                     <li><a href="documentation.html#contact" target="_blank" class="contact-icon">Contact</a></li>
                     <li><a href="documentation.html" target="_blank" class="help-icon">Help and documentation</a></li>
                   </ul>
-                </nav> 
+                </nav>
               </div>
               <div id="close-app" class="button close-icon-active float-right"></div>
-              
+
             </header>
 """
 
-footer = """           
-            
+footer = """
+
         </section>
-      </main>  
-        
+      </main>
+
       <script src="js/jquery-1.10.2.min.js"></script>
       <script src="js/main.min.js"></script>
 
@@ -90,7 +90,7 @@ def _assign_category(f, category, groupname, span = False):
 
 def webform(f, model=None):
   import copy
-  f = copy.deepcopy(f)  
+  f = copy.deepcopy(f)
   f.resourcefilevar = "_tempresource"
   f.arraymarker = "_clonearraymarker"
 
@@ -100,10 +100,10 @@ def webform(f, model=None):
   c.icon = "puzzle-icon"
   c.title = "Docking partners"
   c.categoryname = "partners"
-  c.description = """Define 2 docking partners by uploading a PDB structure file.""" 
-  c.members.append("partners")   
+  c.description = """Define 2 docking partners by uploading a PDB structure file."""
+  c.members.append("partners")
   f.partners.clonelength = 2
-  f.partners.controltitle = "Docking partners"  
+  f.partners.controltitle = "Docking partners"
   for fpnr in range(f.partners.length):
     fp = f.partners[fpnr]
     fp.group = None
@@ -113,7 +113,7 @@ def webform(f, model=None):
     b = fp.new_group("b_struc", "block")
     b.title = "Structure Sources"
     b.has_switch = False
-    b.members.append("pdbfile") 
+    b.members.append("pdbfile")
     ff = fp.pdbfile
     ff.name = "Structure file"
     ff.tooltip = "Upload PDB structure file"
@@ -133,14 +133,14 @@ def webform(f, model=None):
     b.has_switch = True
     ff = fp.generate_modes
     ff.name = "Generate harmonic modes"
-    ff.type = "switch"    
+    ff.type = "switch"
     ff = fp.nr_modes
     ff.name = "Number of modes to select"
     ff.type = "number"
     ff.min = 1
     ff.max = 10
     ### END b_modes block
-    
+
     ### START b_rmsd block
     b = fp.new_group("b_rmsd", "block")
     b.title = "RMSD calculation"
@@ -149,12 +149,12 @@ def webform(f, model=None):
     b.members.append("rmsd_pdb")
     ff = fp.use_rmsd
     ff.default = False
-    ff.type = "switch" 
+    ff.type = "switch"
     ff.name = "RMSD calculation"
     ff = fp.rmsd_pdb
     ff.name = "Reference RMSD PDB file"
     ### END b_rmsd block
-  ### END partners category 
+  ### END partners category
 
   ### START restraints category
   c = f.new_group("c_restraints", "category")
@@ -165,7 +165,7 @@ def webform(f, model=None):
   c.categoryname = "sampling"
   c.description = ""
   _assign_category(f, c, "Custom distance restraints", span = True)
-  ### END energy category  
+  ### END energy category
 
   ### START energy category
   c = f.new_group("c_energy", "category")
@@ -176,7 +176,7 @@ def webform(f, model=None):
   c.categoryname = "energy"
   c.description = ""
   _assign_category(f, c, "Energy and interaction parameters", span = True)
-  ### END energy category  
+  ### END energy category
 
   ### START analysis category
   c = f.new_group("c_analysis", "category")
@@ -188,7 +188,7 @@ def webform(f, model=None):
   c.description = ""
   _assign_category(f, c, "Analysis")
   ff = f.nr_collect
-  ff.span = True  
+  ff.span = True
   ### END analysis category
 
   ### START computation category
@@ -213,7 +213,10 @@ def webform_easy(f, model=None):
     p.has_hydrogens.type = None
   f.forcefield.type = None
   f.completion_tool.type = None
-  f.use_iattract.default = False
+  f.nstruc_analyze_interface.type = None
+  f.min_cluster_size.type = None
+  f.clustering_cutoff.type = None
+
   return f
 
 def webserverform(webdict, form=None, spydertype=None):
@@ -225,11 +228,11 @@ def webserverform_easy(webdict, form=None, spydertype=None):
   if spydertype is not None: form = spydertype._form()
   f = webform_easy(form)
   return f
- 
+
 def html_easy(form, cgi, spyderobj, newtab=False):
   from form_model import html
   return html(form, cgi, spyderobj, newtab, header=header % "ATTRACT Easy Web Interface")
- 
+
 def html_standard(form, cgi, spyderobj, newtab=False):
   from form_model import html
   return html(form, cgi, spyderobj, newtab, header=header % "ATTRACT Standard Web Interface")
