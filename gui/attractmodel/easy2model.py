@@ -116,8 +116,7 @@ def easy2model(emodel):
    calc_lrmsd=emodel.calc_lrmsd,
    calc_irmsd=emodel.calc_irmsd,
    rmsd_atoms=rmsd_atoms,
-   calc_fnat=emodel.calc_fnat,
-   max_filt_analysis=emodel.max_analysis,
+   calc_fnat=emodel.calc_fnat,   
    keep_perconf=emodel.keep_perconf,
    nr_collect=emodel.nr_collect,
    np=emodel.np,
@@ -126,6 +125,7 @@ def easy2model(emodel):
    completion_tool=emodel.completion_tool,
    rescore_step=emodel.rescore_step,
    max_rescore_step=(10000 if emodel.rescore_step else 0) ,
+   max_filt_analysis=min(emodel.max_analysis, 10000),
    use_iattract=emodel.use_iattract,
    use_gpu=emodel.use_gpu,
   )
