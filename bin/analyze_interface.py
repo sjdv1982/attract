@@ -7,6 +7,11 @@ import sys
 import numpy as np
 import scipy.spatial
 from scipy.spatial import cKDTree as KDTree
+try:
+  KDTree.query_ball_tree
+except AttributeError:
+  from scipy.spatial import KDTree
+  
 import collectlibpy as collectlib
 import os
 sys.path.insert(0, os.environ["ATTRACTTOOLS"])
