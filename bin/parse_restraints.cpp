@@ -6,7 +6,7 @@
 #include <map>
 using namespace std;
 
-bool is_empty(char *buf) {
+bool _is_empty(char *buf) {
   for (int n = 0; n < strlen(buf)-1; n++) {
     if (buf[n] != 32) return 0;
   }
@@ -35,7 +35,7 @@ void parse_restraintfile(MiniState &ms, const char *restfile) {
     char buf[100000];
     char l[100000];
     char *fields[10000];
-    if (!fgets(buf,100000,f) || (!strlen(buf)) || is_empty(buf)) {
+    if (!fgets(buf,100000,f) || (!strlen(buf)) || _is_empty(buf)) {
       if (mode == 1) break;
       mode = 1; continue;
     }
