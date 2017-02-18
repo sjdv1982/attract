@@ -437,9 +437,10 @@ name=%s
       ps = " --ens %d %s" % (pnr+1, ensemble_lists[pnr])
       params += ps
       scoreparams += ps
-    if gaa_ensemble_lists[pnr] is not None:
-      ps = " --ens %d %s" % (pnr+1, gaa_ensemble_lists[pnr])
-      stepscore_params += ps
+    if m.rescore_step:
+      if gaa_ensemble_lists[pnr] is not None:
+        ps = " --ens %d %s" % (pnr+1, gaa_ensemble_lists[pnr])
+        stepscore_params += ps
   if m.ghost:
     params += " --ghost"
   if m.ghost_ligands:
@@ -1134,7 +1135,7 @@ echo 'Analyze most frequent interface from top %d docking structures'
 echo '**************************************************************'
 """  % m.nstruc_analyze_interface
     if_params = " ".join(aa_rmsd_filenames)
-    if modes_any and not (m.use_iattract and m.demode):
+    if modes_any and not m.use_iattract:
       if_params += " --modes hm-all-heavy.dat"
     if ens_any:
       for pnr,p in enumerate(m.partners):
@@ -1149,7 +1150,7 @@ echo '**************************************************************'
     for n in range(len(m.partners)):
       inp = aa_rmsd_filenames[n]
       outp = "partner-%d-interface.pdb" % (n+1)
-      ret += "awk '$1==%d{print substr($0,3)}' %s | python $ATTRACTTOOLS/fill-bfactor.py %s /dev/stdin > %s\n" % (n+1,interface,inp,outp)        
+      ret += "awk '$1==%d{print substr($0,3)}' %s | python $ATTRACTTOOLS/fill-bfactor.py %s /dev/stdin > %s\n" % (n+1,interface,inp,outp)
     ret += "\n"
 
   if m.clustering:
@@ -1160,7 +1161,7 @@ echo '**************************************************************'
 """
     assert m.clustering_method == "lrmsd"
     mclustering_params = " ".join(filenames)
-    if modes_any and not (m.use_iattract and m.demode):
+    if modes_any and not m.use_iattract:
       mclustering_params += " --modes hm-all.dat"
     if ens_any:
       for pnr,p in enumerate(m.partners):

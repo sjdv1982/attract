@@ -131,7 +131,7 @@ Type AttractEasyModel {
     'The GRADSCOPT step potential is not compatible with harmonic modes'
 
   }
-  Bool use_iattract = True
+  Bool use_iattract = False
   Integer keep_perconf = 0
   form {
     keep_perconf.add_header("During rigid-body docking, you may choose to keep a limited number of structures per conformer")
@@ -141,7 +141,7 @@ Type AttractEasyModel {
     keep_perconf.add_header("A value of 0 means 'keep all structures per conformer'")
     keep_perconf.name = "Maximum number of structures per conformer to keep"
   }
-  ## form use_iattract.name = "Perform iATTRACT refinement after the docking"  
+  ## form use_iattract.name = "Perform iATTRACT refinement after the docking"
   Enum forcefield("ATTRACT", "OPLSX") = "ATTRACT"
   ## form forcefield.add_header("Which forcefield is to be used?")
   ## form forcefield.name = "Forcefield"
@@ -170,18 +170,63 @@ Type AttractEasyModel {
 
 
   #***Analysis***
+  Bool analyze_interface = False
+  Integer nstruc_analyze_interface = 100
+  validate {
+    if analyze_interface: assert nstruc_analyze_interface > 0
+    if analyze_interface: assert nstruc_analyze_interface <= 400
+  }
+  error {
+    'if analyze_interface: assert nstruc_analyze_interface > 0'
+    =>
+    'The number of structures to analyze the interface must be positive'
+
+    'if analyze_interface: assert nstruc_analyze_interface <= 400'
+    =>
+    'The number of structures to analyze the interface must be at most 400'
+  }
+  form {
+    analyze_interface.name = "Analyze the most frequent interface residues from the top docking solutions (before clustering)"
+    nstruc_analyze_interface.name = "How many structures to select for interface analysis"
+  }
+  Bool clustering = False
+  Integer min_cluster_size = 1
+  Float clustering_cutoff = 10
+  validate {
+    assert clustering_cutoff > 0
+    assert min_cluster_size > 0 and min_cluster_size <= 10
+  }
+  error {
+    'assert clustering_cutoff > 0'
+    =>
+    'The clustering cutoff size must be positive'
+
+    'assert min_cluster_size > 0 and min_cluster_size <= 10'
+    =>
+    'Please set the minimum cluster size to between 1 and 10'
+  }
+  form {
+    clustering.name = "Perform clustering"
+    clustering_cutoff.name = "Clustering cutoff (in A)"
+    min_cluster_size.name = "Minimum cluster size"
+  }
   Bool calc_lrmsd = False
   Bool calc_irmsd = False
   Bool calc_fnat = False
   Integer max_analysis = 0
   Integer nr_collect = 50
   form {
-
-    calc_lrmsd.group = "Analysis"
-    calc_irmsd.group = "Analysis"
-    calc_fnat.group = "Analysis"
-    max_analysis.group = "Analysis"
-    nr_collect.group = "Analysis"
+    _g = "Analysis"
+    analyze_interface.group = _g
+    nstruc_analyze_interface.group = _g
+    clustering.group = _g
+    min_cluster_size.group = _g
+    clustering_cutoff.group = _g
+    calc_lrmsd.group = _g
+    calc_irmsd.group = _g
+    calc_fnat.group = _g
+    max_analysis.group = _g
+    nr_collect.group = _g
 
     calc_lrmsd.name = "Calculate ligand RMSD after docking"
     calc_irmsd.name = "Calculate interface RMSD after docking"

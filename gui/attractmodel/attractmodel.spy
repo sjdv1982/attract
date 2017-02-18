@@ -702,6 +702,8 @@ Type AttractModel {
   Integer max_filt_analysis = 0
   Bool analyze_interface = False
   Integer nstruc_analyze_interface = 100
+  validate {
+  }
   Float analyze_interface_cutoff = 5
   Bool clustering = False
   Enum clustering_method("lrmsd") = "lrmsd"
@@ -717,9 +719,15 @@ Type AttractModel {
     if rescore_step is not None and max_rescore_step:
       max_clust = min(max_clust, max_rescore_step)
     if use_iattract:
-      max_clust = min(max_clust, iattract.nstruc)
+      iattract_nstruc = 50
+      if iattract is not None: iattract_nstruc = iattract.nstruc
+      max_clust = min(max_clust, iattract_nstruc)
+    if clustering and use_iattract: assert demode
+    if analyze_interface and use_iattract: assert demode
     if clustering: assert max_clust <= 10000
     if clustering: assert min_cluster_size <= max_clust, max_clust
+    if analyze_interface: assert nstruc_analyze_interface > 0
+    if analyze_interface: assert nstruc_analyze_interface <= max_clust, max_clust
   }
   error {
     'if clustering: assert max_rescore_step or max_filt_analysis or use_iattract'
@@ -728,7 +736,7 @@ Type AttractModel {
 
     'if clustering: assert max_clust <= 10000'
     =>
-    'ATTRACT cannot cluster arbitrary numbers of structures. You asked it to cluster {max_struc} structures, which is more than the limit of 10000. Manually use fastcluster.py to cluster more structures'
+    'ATTRACT cannot cluster arbitrary numbers of structures. You asked it to cluster {max_clust} structures, which is more than the limit of 10000. Manually use fastcluster.py to cluster more structures'
   }
   Bool deflex = False
   ## form deflex.add_header("If you perform RMSD analysis, you may remove all flexibility (ensemble and modes) beforehand")

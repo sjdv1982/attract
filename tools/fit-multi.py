@@ -92,7 +92,7 @@ import argparse
 a = argparse.ArgumentParser(prog="fit-multi.py")
 a.add_argument("reference")
 a.add_argument("mobilelist")
-a.add_argument("--pattern", help="output file pattern")
+a.add_argument("--pattern", help="output file pattern; if it contains %, the list number is substituted, else it is added together with .pdb")
 a.add_argument("--pattern-offset",dest="offset",type=int,default=0)
 a.add_argument("--np",type=int)
 a.add_argument("--rmsd", action="store_true")
@@ -119,7 +119,10 @@ mobiles = [l.strip().strip("\n") for l in open(args.mobilelist) if len(l.strip()
 if not args.rmsd:
   if args.pattern is None: 
     raise ValueError("If you don't specify --rmsd, you need to provide an output file pattern")
-  outputs = [args.pattern + "-" + str(n+args.offset+1) + ".pdb" for n in range(len(mobiles))]
+  if "%" in args.pattern:
+    outputs = [args.pattern % (n+args.offset+1) for n in range(len(mobiles))]
+  else:
+    outputs = [args.pattern + "-" + str(n+args.offset+1) + ".pdb" for n in range(len(mobiles))]
 
 def run(runarg):
   mobile, outputfile = runarg
