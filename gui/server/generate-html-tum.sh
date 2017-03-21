@@ -7,3 +7,4 @@ python generate-html-cryo.py $website/attractserver-cryo.py > html/cryo.html
 python generate-html-narefine.py $website/attractserver-narefine.py > html/narefine.html 
 \rm serverconfig.py
 ln -s serverconfig-tum.py serverconfig.py
+\cp html/upload-default.html html/upload.html
