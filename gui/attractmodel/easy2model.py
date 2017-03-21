@@ -96,6 +96,16 @@ def easy2model(emodel):
     rmsd_atoms = "all"
   epsilon = 15.0
   if emodel.forcefield == "OPLSX": epsilon = 10.0
+
+  iattract = None
+  if emodel.use_iattract:
+    iattract = IAttractParameters(
+      nstruc = emodel.nr_collect
+    )
+    if has_peptide:
+      iattract.icut= 5.0
+      iattract.nstruc = 1000
+
   newmodel = AttractModel (
    annotation=easy2model_version,
    runname=emodel.runname,
@@ -116,7 +126,7 @@ def easy2model(emodel):
    calc_lrmsd=emodel.calc_lrmsd,
    calc_irmsd=emodel.calc_irmsd,
    rmsd_atoms=rmsd_atoms,
-   calc_fnat=emodel.calc_fnat,   
+   calc_fnat=emodel.calc_fnat,
    keep_perconf=emodel.keep_perconf,
    nr_collect=emodel.nr_collect,
    np=emodel.np,
@@ -127,6 +137,7 @@ def easy2model(emodel):
    max_rescore_step=(10000 if emodel.rescore_step else 0) ,
    max_filt_analysis=min(emodel.max_analysis, 10000),
    use_iattract=emodel.use_iattract,
+   iattract=iattract,
    use_gpu=emodel.use_gpu,
   )
   if has_peptide and not emodel.clustering and not emodel.analyze_interface:
@@ -138,13 +149,6 @@ def easy2model(emodel):
     else:
       newmodel.structures= 100000
 
-  if emodel.use_iattract:
-    iattract = IAttractParameters(
-     nstruc = emodel.nr_collect
-    )
-    if has_peptide:
-      iattract.icut= 5.0
-    newmodel.iattract = iattract
 
   newmodel.harmonic_restraints_file = emodel.harmonic_restraints_file
   newmodel.position_restraints_file = emodel.position_restraints_file

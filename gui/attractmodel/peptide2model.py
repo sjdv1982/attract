@@ -46,7 +46,7 @@ def peptide2model(pmodel):
    use_gpu=pmodel.use_gpu,
   )
   if not pmodel.use_iattract:
-      newmodel.max_analysis = 1000000
+      newmodel.max_analysis = 10000
 
   return newmodel
 
