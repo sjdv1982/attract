@@ -129,7 +129,7 @@ Type AttractPeptideModel {
 
   #***Analysis***
   Bool analyze_interface = False
-  Integer nstruc_analyze_interface = 100
+  Integer nstruc_analyze_interface = 50
   validate {
     if analyze_interface: assert nstruc_analyze_interface > 0
     if analyze_interface: assert nstruc_analyze_interface <= 1000
@@ -148,7 +148,7 @@ Type AttractPeptideModel {
     nstruc_analyze_interface.name = "How many structures to select for interface analysis"
   }
   Bool clustering = False
-  Integer min_cluster_size = 4
+  Integer min_cluster_size = 1
   Float clustering_cutoff = 2.0
   validate {
     assert clustering_cutoff > 0
