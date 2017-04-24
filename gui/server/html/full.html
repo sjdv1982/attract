@@ -39,7 +39,7 @@
                 <li id="view-page5"><a id="nav-block-energy" class="energy-icon">Energy and Interaction</a></li>
                 <li id="view-page6"><a id="nav-block-atomdensitygrid" class="cryo-icon">Atom density grids</a></li>
                 <li id="view-page7"><a id="nav-block-symmetry" class="symmetry-icon">Symmetry</a></li>
-                <li id="view-page8"><a id="nav-block-analysis" class="analysis-icon">Analysis</a></li>
+                <li id="view-page8"><a id="nav-block-analysis" class="analysis-icon">Rescoring and analysis</a></li>
                 <li id="view-page9"><a id="nav-block-computation" class="computation-icon">Computation</a></li>
               </ul>
             </nav>
@@ -188,9 +188,9 @@
                         <div class="field-container">
                           <div class="title"><h3>Use harmonic modes</h3></div>
                           <div class="field-item switch align-left">
-                            <input type="checkbox" name="partners-0-use_modes" id="partners-0-use_modes" value="">
-                            <label for="partners-0-use_modes">Off</label>
-                            <label for="partners-0-use_modes">On</label>
+                            <input type="checkbox" name="partners-0-generate_modes" id="partners-0-generate_modes" value="">
+                            <label for="partners-0-generate_modes">Off</label>
+                            <label for="partners-0-generate_modes">On</label>
                             <span class="toggle"></span>
                           </div>
                         </div>
@@ -200,27 +200,20 @@
                           <div class="group-inline clearfix">
 
                             <div class="field-container">
-                              <div class="title"><p>Or: generate harmonic modes automatically</p></div>
-                              <div class="field-item checkbox align-right">
-                                <input type="checkbox" name="partners-0-generate_modes" id="partners-0-generate_modes" value="">
-                              </div>
-                            </div>
-
-                            <div class="field-container">
                               <div class="title"><p>Use all-atom contact spring constants in mode generation</p></div>
                               <div class="field-item checkbox align-right">
                                 <input type="checkbox" name="partners-0-aacontact_modes" id="partners-0-aacontact_modes" value="">
                               </div>
                             </div>
 
-                          </div> <!--END: group-inline -->
-
-                          <div class="field-container">
-                            <div class="title"><p>Number of modes to select</p></div>
-                            <div class="field-item number align-right">
-                              <input type="number" name="partners-0-nr_modes" id="partners-0-nr_modes" value = "0" min="1" max="10">
+                            <div class="field-container">
+                              <div class="title"><p>Number of modes to select</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="partners-0-nr_modes" id="partners-0-nr_modes" value = "0" min="1" max="10">
+                              </div>
                             </div>
-                          </div>
+
+                          </div> <!--END: group-inline -->
                         </div> <!-- END: group-container -->
                       </div> <!-- END: level2 -->
 
@@ -744,6 +737,16 @@
                             </div>
                           </div>
                           <div class="field-container">
+                            <div class="title"><p>During rigid-body docking, you may choose to keep a limited number of structures per conformer<br>When the number of structures is very large (e.g. 100 000 structures x 100 conformers),<br> this option can save a large amount of disk space<br>Currently, this option is only implemented for GPU docking<br>A value of 0 means 'keep all structures per conformer'</p></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Maximum number of structures per conformer to keep</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="keep_perconf" id="keep_perconf" value = "0">
+                            </div>
+                          </div>
+                          <div class="field-container">
                             <div class="title"><p>iATTRACT parameters</p></div>
                           </div>
 
@@ -1259,7 +1262,7 @@
                 <div class="form-category-description">
                   <div class="large-icon analysis-icon"></div>
                   <div class="description">
-                    <h2>Analysis</h2>
+                    <h2>Rescoring and analysis</h2>
                     <p></p>
                   </div>
                 </div>
@@ -1270,7 +1273,7 @@
                   <div id="block-analysis-0" class="level1 active">
 
                     <div class="controls">
-                      <div class="title"><h4>Analysis</h4></div>
+                      <div class="title"><h4>Rescoring and analysis</h4></div>
                       <div class="button reload-icon reload-form-block"><div class="controls-tooltip"><p>Restore default values</p></div></div>
                     </div>
 
@@ -1280,14 +1283,27 @@
 
                         <div class="group-container">
 
-                          <div class="group-inline clearfix">
+                          <div class="field-container">
+                            <div class="title"><p>RESCORING</p></div>
+                          </div>
 
-                            <div class="field-container">
-                              <div class="title"><p>Perform a rescoring step after docking</p></div>
-                              <div class="field-item checkbox align-right">
-                                <input type="checkbox" name="rescoring" id="rescoring" value="" checked="checked">
-                              </div>
+                          <div class="field-container">
+                            <div class="title"><p>Perform a rescoring step after docking</p></div>
+                            <div class="field-item checkbox align-right">
+                              <input type="checkbox" name="rescoring" id="rescoring" value="" checked="checked">
                             </div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><p>The nonbonded pairlist distance cutoff (rcut) (in A**2) during rescoring</p></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>rcut (rescoring)</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="rcut_rescoring" id="rcut_rescoring" value = "50.0">
+                            </div>
+                          </div>
+                          <div class="group-inline clearfix">
 
                             <div class="field-container">
                               <div class="title"><p>Sort the final structures according to forcefield energy</p></div>
@@ -1296,8 +1312,22 @@
                               </div>
                             </div>
 
+                            <div class="field-container">
+                              <div class="title"><p>Rescore the top docking solutions by the GRADSCOPT step potential</p></div>
+                              <div class="field-item checkbox align-right">
+                                <input type="checkbox" name="rescore_step" id="rescore_step" value="">
+                              </div>
+                            </div>
+
                           </div> <!--END: group-inline -->
                           <div class="group-inline clearfix">
+
+                            <div class="field-container">
+                              <div class="title"><p>Number of top ATTRACT structures to keep and then re-score with GRADSCOPT</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="max_rescore_step" id="max_rescore_step" value = "0">
+                              </div>
+                            </div>
 
                             <div class="field-container">
                               <div class="title"><p>Remove redundant structures after docking</p></div>
@@ -1306,15 +1336,91 @@
                               </div>
                             </div>
 
+                          </div> <!--END: group-inline -->
+                          <div class="group-inline clearfix">
+
                             <div class="field-container">
                               <div class="title"><p>Ignore ensemble conformers for redundancy</p></div>
                               <div class="field-item checkbox align-right">
                                 <input type="checkbox" name="deredundant_ignorens" id="deredundant_ignorens" value="" checked="checked">
                               </div>
                             </div>
+                            <div class="field-container">
+                              <div class="title"><p>FILTERING<br>If the generated number of structures is large,<br> it is possible to restrict the number of structures to filter/analyze<br>A value of 0 means 'filter/analyze all structures'</p></div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Maximum number of structures to filter/analyze</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="max_filt_analysis" id="max_filt_analysis" value = "0">
+                              </div>
+                            </div>
 
                           </div> <!--END: group-inline -->
                           <div class="group-inline clearfix">
+
+                            <div class="field-container">
+                              <div class="title"><p>Analyze the most frequent interface residues from the top docking solutions (before clustering)</p></div>
+                              <div class="field-item checkbox align-right">
+                                <input type="checkbox" name="analyze_interface" id="analyze_interface" value="">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>How many structures to select for interface analysis</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="nstruc_analyze_interface" id="nstruc_analyze_interface" value = "100">
+                              </div>
+                            </div>
+
+                          </div> <!--END: group-inline -->
+                          <div class="group-inline clearfix">
+
+                            <div class="field-container">
+                              <div class="title"><p>Minimum interface distance cutoff (A) for interface analysis</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="analyze_interface_cutoff" id="analyze_interface_cutoff" value = "5.0">
+                              </div>
+                            </div>
+                            <div class="field-container">
+                              <div class="title"><p>It is possible to cluster the results</p></div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Perform clustering</p></div>
+                              <div class="field-item checkbox align-right">
+                                <input type="checkbox" name="clustering" id="clustering" value="">
+                              </div>
+                            </div>
+
+                          </div> <!--END: group-inline -->
+                          <div class="group-inline clearfix">
+
+                            <div class="field-container">
+                              <div class="title"><p>Clustering method</p></div>
+                              <div class="field-item select align-right">
+                                <select name="clustering_method" id="clustering_method">
+                                  <option value="lrmsd" selected>Pairwise all-atom ligand RMSD</option>
+                                </select>
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Clustering cutoff (in A)</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="clustering_cutoff" id="clustering_cutoff" value = "10.0">
+                              </div>
+                            </div>
+
+                          </div> <!--END: group-inline -->
+                          <div class="group-inline clearfix">
+
+                            <div class="field-container">
+                              <div class="title"><p>Minimum cluster size</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="min_cluster_size" id="min_cluster_size" value = "1">
+                              </div>
+                            </div>
                             <div class="field-container">
                               <div class="title"><p>If you perform RMSD analysis, you may remove all flexibility (ensemble and modes) beforehand</p></div>
                             </div>
@@ -1327,15 +1433,18 @@
                               </div>
                             </div>
 
+                          </div> <!--END: group-inline -->
+                          <div class="group-inline clearfix">
+                            <div class="field-container">
+                              <div class="title"><p>ANALYSIS</p></div>
+                            </div>
+
                             <div class="field-container">
                               <div class="title"><p>Calculate ligand RMSD after docking</p></div>
                               <div class="field-item checkbox align-right">
                                 <input type="checkbox" name="calc_lrmsd" id="calc_lrmsd" value="">
                               </div>
                             </div>
-
-                          </div> <!--END: group-inline -->
-                          <div class="group-inline clearfix">
 
                             <div class="field-container">
                               <div class="title"><p>Which atoms to use in RMSD calculation</p></div>
@@ -1348,15 +1457,15 @@
                               </div>
                             </div>
 
+                          </div> <!--END: group-inline -->
+                          <div class="group-inline clearfix">
+
                             <div class="field-container">
                               <div class="title"><p>Calculate interface RMSD after docking</p></div>
                               <div class="field-item checkbox align-right">
                                 <input type="checkbox" name="calc_irmsd" id="calc_irmsd" value="">
                               </div>
                             </div>
-
-                          </div> <!--END: group-inline -->
-                          <div class="group-inline clearfix">
 
                             <div class="field-container">
                               <div class="title"><p>Calculate fraction of native contacts after docking</p></div>
@@ -1365,22 +1474,12 @@
                               </div>
                             </div>
 
-                            <div class="field-container">
-                              <div class="title"><p>Collect the structures as PDBs after docking</p></div>
-                              <div class="field-item checkbox align-right">
-                                <input type="checkbox" name="collect" id="collect" value="" checked="checked">
-                              </div>
-                            </div>
-
                           </div> <!--END: group-inline -->
-                          <div class="field-container">
-                            <div class="title"><p>The nonbonded pairlist distance cutoff (rcut) (in A**2) during rescoring</p></div>
-                          </div>
 
                           <div class="field-container">
-                            <div class="title"><p>rcut (rescoring)</p></div>
-                            <div class="field-item number align-right">
-                              <input type="number" name="rcut_rescoring" id="rcut_rescoring" value = "50.0">
+                            <div class="title"><p>Collect the structures as PDBs after docking</p></div>
+                            <div class="field-item checkbox align-right">
+                              <input type="checkbox" name="collect" id="collect" value="" checked="checked">
                             </div>
                           </div>
 
@@ -1435,9 +1534,20 @@
                           </div>
 
                           <div class="field-container">
+                            <div class="title"><p>Use GPU acceleration (experimental!)</p></div>
+                            <div class="field-item select align-right">
+                              <select name="use_gpu" id="use_gpu">
+                                <option value="never" selected>Never</option>
+                                <option value="if_available">If available</option>
+                                <option value="always">Always</option>
+                              </select>
+                            </div>
+                          </div>
+
+                          <div class="field-container">
                             <div class="title"><p>Number of processor cores</p></div>
                             <div class="field-item number align-right">
-                              <input type="number" name="np" id="np" value = "1">
+                              <input type="number" name="np" id="np" value = "4">
                             </div>
                           </div>
 
@@ -1445,6 +1555,17 @@
                             <div class="title"><p>Number of structures in a single job (leave blank to divide all structures equally over the cores)</p></div>
                             <div class="field-item number align-right">
                               <input type="number" name="jobsize" id="jobsize" value = "0">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Temporary directory for multi-conformer GPU-based docking intermediate files</p></div>
+                            <div class="field-item select align-right">
+                              <select name="gpu_temp" id="gpu_temp">
+                                <option value="/dev/shm" selected>/dev/shm</option>
+                                <option value="/tmp">/tmp</option>
+                                <option value="/scratch">/scratch</option>
+                              </select>
                             </div>
                           </div>
 

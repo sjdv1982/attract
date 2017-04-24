@@ -671,10 +671,11 @@ Type AttractModel {
     assert max_rescore_step >= 0
     if rescore_step: assert rescoring
     if rescore_step: assert max_rescore_step > 0
-    if max_rescore_step > 0: assert rescore_step
-    for p in partners:
-      assert p.moleculetype in ("Protein", "Peptide") #step
-      assert not p.generate_modes #step
+    if max_rescore_step > 0: 
+        assert rescore_step
+        for p in partners:
+            assert p.moleculetype in ("Protein", "Peptide") #step
+            assert not p.generate_modes #step
   }
   error {
     'if rescore_step: assert rescoring'

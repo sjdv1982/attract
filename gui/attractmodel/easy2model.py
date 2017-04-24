@@ -106,6 +106,9 @@ def easy2model(emodel):
             iattract.icut= 5.0
             iattract.nstruc = 1000
 
+    rescore_step = emodel.rescore_step
+    if partners[0].generate_modes or partners[1].generate_modes:
+        rescore_step = False
     newmodel = AttractModel (
      annotation=easy2model_version,
      runname=emodel.runname,
@@ -133,12 +136,12 @@ def easy2model(emodel):
      deredundant_ignorens=False,
      demode=True,
      completion_tool=emodel.completion_tool,
-     rescore_step=emodel.rescore_step,
-     max_rescore_step=(10000 if emodel.rescore_step else 0) ,
+     max_rescore_step=(10000 if rescore_step else 0) ,
      max_filt_analysis=min(emodel.max_analysis, 10000),
      use_iattract=emodel.use_iattract,
      iattract=iattract,
      use_gpu=emodel.use_gpu,
+     rescore_step=rescore_step
     )
     if has_peptide and not emodel.clustering and not emodel.analyze_interface:
         newmodel.demode = False

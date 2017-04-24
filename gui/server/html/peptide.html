@@ -296,11 +296,55 @@
                           <div class="group-inline clearfix">
 
                             <div class="field-container">
+                              <div class="title"><p>Analyze the most frequent interface residues from the top docking solutions (before clustering)</p></div>
+                              <div class="field-item checkbox align-right">
+                                <input type="checkbox" name="analyze_interface" id="analyze_interface" value="">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>How many structures to select for interface analysis</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="nstruc_analyze_interface" id="nstruc_analyze_interface" value = "50">
+                              </div>
+                            </div>
+
+                          </div> <!--END: group-inline -->
+                          <div class="group-inline clearfix">
+
+                            <div class="field-container">
+                              <div class="title"><p>Perform clustering</p></div>
+                              <div class="field-item checkbox align-right">
+                                <input type="checkbox" name="clustering" id="clustering" value="">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Minimum cluster size</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="min_cluster_size" id="min_cluster_size" value = "1">
+                              </div>
+                            </div>
+
+                          </div> <!--END: group-inline -->
+                          <div class="group-inline clearfix">
+
+                            <div class="field-container">
+                              <div class="title"><p>Clustering cutoff (in A)</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="clustering_cutoff" id="clustering_cutoff" value = "2.0">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
                               <div class="title"><p>Calculate ligand RMSD after docking</p></div>
                               <div class="field-item checkbox align-right">
                                 <input type="checkbox" name="calc_lrmsd" id="calc_lrmsd" value="">
                               </div>
                             </div>
+
+                          </div> <!--END: group-inline -->
+                          <div class="group-inline clearfix">
 
                             <div class="field-container">
                               <div class="title"><p>Calculate interface RMSD after docking</p></div>
@@ -309,14 +353,14 @@
                               </div>
                             </div>
 
-                          </div> <!--END: group-inline -->
-
-                          <div class="field-container">
-                            <div class="title"><p>Calculate fraction of native contacts after docking</p></div>
-                            <div class="field-item checkbox align-right">
-                              <input type="checkbox" name="calc_fnat" id="calc_fnat" value="">
+                            <div class="field-container">
+                              <div class="title"><p>Calculate fraction of native contacts after docking</p></div>
+                              <div class="field-item checkbox align-right">
+                                <input type="checkbox" name="calc_fnat" id="calc_fnat" value="">
+                              </div>
                             </div>
-                          </div>
+
+                          </div> <!--END: group-inline -->
 
                           <div class="field-container">
                             <div class="title"><p>Number of structures to collect as PDB file</p></div>
@@ -369,9 +413,20 @@
                           </div>
 
                           <div class="field-container">
+                            <div class="title"><p>Use GPU acceleration (experimental!)</p></div>
+                            <div class="field-item select align-right">
+                              <select name="use_gpu" id="use_gpu">
+                                <option value="never" selected>Never</option>
+                                <option value="if_available">If available</option>
+                                <option value="always">Always</option>
+                              </select>
+                            </div>
+                          </div>
+
+                          <div class="field-container">
                             <div class="title"><p>Number of processor cores</p></div>
                             <div class="field-item number align-right">
-                              <input type="number" name="np" id="np" value = "1">
+                              <input type="number" name="np" id="np" value = "4">
                             </div>
                           </div>
                         </div> <!-- END: group-container -->

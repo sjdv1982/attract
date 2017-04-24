@@ -3,53 +3,53 @@
 <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
 <!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
-    
+
     <head>
-        <title>ATTRACT Easy Online</title>
-        
+        <title>ATTRACT Standard Web Interface</title>
+
         <meta charset="utf-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
         <meta name="description" content="" />
         <meta name="viewport" content="width=device-width"/>
-        
+
         <!-- Always load normalize CSS first -->
         <link rel="stylesheet" href="css/normalize.min.css">
         <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,600' rel='stylesheet' type='text/css'>
         <link href='http://fonts.googleapis.com/css?family=Lobster' rel='stylesheet' type='text/css'>
         <link rel="stylesheet" href="css/attract.min.css">
     </head>
-    
+
     <body>
         <!--[if lt IE 7]>
             <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
         <![endif]-->
 
         <main id="container" class="col row">
-          
+
           <section id="sidebar" class="col">
             <div id="title"><span class="t1">Attract</span> <span class="t2">online</span></div>
             <div id="logo"></div>
-            
+
             <nav id="form-category-navigation" class="row">
               <ul>
                 <li id="view-page1"><a id="nav-block-partners" class="puzzle-icon">Partners</a></li>
                 <li id="view-page2"><a id="nav-block-sampling" class="sampling-icon">Sampling</a></li>
-                <li id="view-page3"><a id="nav-block-energy" class="energy-icon">Energy and Interaction</a></li>                
+                <li id="view-page3"><a id="nav-block-energy" class="energy-icon">Energy and Interaction</a></li>
                 <li id="view-page4"><a id="nav-block-analysis" class="analysis-icon">Analysis</a></li>
                 <li id="view-page5"><a id="nav-block-computation" class="computation-icon">Computation</a></li>
               </ul>
             </nav>
-            
+
             <div id="download-button" class="row download-icon" onClick="submitForm();">
               <p>Get configuration</p>
-            </div>  
-            
+            </div>
+
           </section>
-            
+
           <section id="content" class="col">
-            
+
             <header id="header">
-              
+
               <div id="show-hide-sidepanel" class="button menu-icon float-left"><div class="header-tooltip"><p>Hide sidepanel</p></div></div>
               <div id="reload-form" class="button reload-icon-active float-left"><div class="header-tooltip"><p>Restore default values</p></div></div>
               <div id="unfold-all" class="button double-arrow-icon float-left"><div class="header-tooltip"><p>Unfold all form blocks</p></div></div>
@@ -61,10 +61,10 @@
                     <li><a href="documentation.html#contact" target="_blank" class="contact-icon">Contact</a></li>
                     <li><a href="documentation.html" target="_blank" class="help-icon">Help and documentation</a></li>
                   </ul>
-                </nav> 
+                </nav>
               </div>
               <div id="close-app" class="button close-icon-active float-right"></div>
-              
+
             </header>
             <form encType="multipart/form-data" action="http://www.attract.ph.tum.de/cgi/services/ATTRACT/attractserver-standard.py" method="post" target="_blank">
 
@@ -460,9 +460,26 @@
                           </div>
 
                           <div class="field-container">
+                            <div class="title"><p>Rescore the docking solutions by the GRADSCOPT step potential</p></div>
+                            <div class="field-item checkbox align-right">
+                              <input type="checkbox" name="rescore_step" id="rescore_step" value="">
+                            </div>
+                          </div>
+
+                          <div class="field-container">
                             <div class="title"><p>Perform iATTRACT refinement after the docking</p></div>
                             <div class="field-item checkbox align-right">
-                              <input type="checkbox" name="use_iattract" id="use_iattract" value="" checked="checked">
+                              <input type="checkbox" name="use_iattract" id="use_iattract" value="">
+                            </div>
+                          </div>
+                          <div class="field-container">
+                            <div class="title"><p>During rigid-body docking, you may choose to keep a limited number of structures per conformer<br>When the number of structures is very large (e.g. 100 000 structures x 100 conformers),<br> this option can save a large amount of disk space<br>Currently, this option is only implemented for GPU docking<br>A value of 0 means 'keep all structures per conformer'</p></div>
+                          </div>
+
+                          <div class="field-container">
+                            <div class="title"><p>Maximum number of structures per conformer to keep</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="keep_perconf" id="keep_perconf" value = "0">
                             </div>
                           </div>
                           <div class="field-container">
@@ -529,11 +546,55 @@
                           <div class="group-inline clearfix">
 
                             <div class="field-container">
+                              <div class="title"><p>Analyze the most frequent interface residues from the top docking solutions (before clustering)</p></div>
+                              <div class="field-item checkbox align-right">
+                                <input type="checkbox" name="analyze_interface" id="analyze_interface" value="">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>How many structures to select for interface analysis</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="nstruc_analyze_interface" id="nstruc_analyze_interface" value = "100">
+                              </div>
+                            </div>
+
+                          </div> <!--END: group-inline -->
+                          <div class="group-inline clearfix">
+
+                            <div class="field-container">
+                              <div class="title"><p>Perform clustering</p></div>
+                              <div class="field-item checkbox align-right">
+                                <input type="checkbox" name="clustering" id="clustering" value="">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
+                              <div class="title"><p>Minimum cluster size</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="min_cluster_size" id="min_cluster_size" value = "1">
+                              </div>
+                            </div>
+
+                          </div> <!--END: group-inline -->
+                          <div class="group-inline clearfix">
+
+                            <div class="field-container">
+                              <div class="title"><p>Clustering cutoff (in A)</p></div>
+                              <div class="field-item number align-right">
+                                <input type="number" name="clustering_cutoff" id="clustering_cutoff" value = "10.0">
+                              </div>
+                            </div>
+
+                            <div class="field-container">
                               <div class="title"><p>Calculate ligand RMSD after docking</p></div>
                               <div class="field-item checkbox align-right">
                                 <input type="checkbox" name="calc_lrmsd" id="calc_lrmsd" value="">
                               </div>
                             </div>
+
+                          </div> <!--END: group-inline -->
+                          <div class="group-inline clearfix">
 
                             <div class="field-container">
                               <div class="title"><p>Calculate interface RMSD after docking</p></div>
@@ -542,12 +603,22 @@
                               </div>
                             </div>
 
+                            <div class="field-container">
+                              <div class="title"><p>Calculate fraction of native contacts after docking</p></div>
+                              <div class="field-item checkbox align-right">
+                                <input type="checkbox" name="calc_fnat" id="calc_fnat" value="">
+                              </div>
+                            </div>
+
                           </div> <!--END: group-inline -->
+                          <div class="field-container">
+                            <div class="title"><p>If the generated number of structures is large,<br> it is possible to restrict the number of structures to analyze<br>A value of 0 means 'analyze all structures'</p></div>
+                          </div>
 
                           <div class="field-container">
-                            <div class="title"><p>Calculate fraction of native contacts after docking</p></div>
-                            <div class="field-item checkbox align-right">
-                              <input type="checkbox" name="calc_fnat" id="calc_fnat" value="">
+                            <div class="title"><p>Maximum number of structures to analyze</p></div>
+                            <div class="field-item number align-right">
+                              <input type="number" name="max_analysis" id="max_analysis" value = "0">
                             </div>
                           </div>
 
@@ -602,9 +673,20 @@
                           </div>
 
                           <div class="field-container">
+                            <div class="title"><p>Use GPU acceleration (experimental!)</p></div>
+                            <div class="field-item select align-right">
+                              <select name="use_gpu" id="use_gpu">
+                                <option value="never" selected>Never</option>
+                                <option value="if_available">If available</option>
+                                <option value="always">Always</option>
+                              </select>
+                            </div>
+                          </div>
+
+                          <div class="field-container">
                             <div class="title"><p>Number of processor cores</p></div>
                             <div class="field-item number align-right">
-                              <input type="number" name="np" id="np" value = "1">
+                              <input type="number" name="np" id="np" value = "4">
                             </div>
                           </div>
                         </div> <!-- END: group-container -->
