@@ -671,10 +671,11 @@ Type AttractModel {
     assert max_rescore_step >= 0
     if rescore_step: assert rescoring
     if rescore_step: assert max_rescore_step > 0
-    if max_rescore_step > 0: assert rescore_step
-    for p in partners:
-      assert p.moleculetype in ("Protein", "Peptide") #step
-      assert not p.generate_modes #step
+    if max_rescore_step > 0: 
+        assert rescore_step
+        for p in partners:
+            assert p.moleculetype in ("Protein", "Peptide") #step
+            assert not p.generate_modes #step
   }
   error {
     'if rescore_step: assert rescoring'
@@ -703,7 +704,19 @@ Type AttractModel {
   Bool analyze_interface = False
   Integer nstruc_analyze_interface = 100
   validate {
+    if use_iattract: assert iattract is not None
+    if iattract is not None: assert use_iattract
   }
+  error {
+    'if use_iattract: assert iattract is not None'
+    =>
+    'If you enable iATTRACT, you must define iATTRACT parameters'
+
+    'if iattract is not None: assert use_iattract'
+    =>
+    'If you define iATTRACT parameters, you must enable use_iattract'
+
+ }
   Float analyze_interface_cutoff = 5
   Bool clustering = False
   Enum clustering_method("lrmsd") = "lrmsd"
@@ -719,9 +732,7 @@ Type AttractModel {
     if rescore_step is not None and max_rescore_step:
       max_clust = min(max_clust, max_rescore_step)
     if use_iattract:
-      iattract_nstruc = 50
-      if iattract is not None: iattract_nstruc = iattract.nstruc
-      max_clust = min(max_clust, iattract_nstruc)
+      max_clust = min(max_clust, iattract.nstruc)
     if clustering and use_iattract: assert demode
     if analyze_interface and use_iattract: assert demode
     if clustering: assert max_clust <= 10000

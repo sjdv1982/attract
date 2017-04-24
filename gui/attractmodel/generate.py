@@ -1175,7 +1175,7 @@ echo '**************************************************************'
     ret += "python $ATTRACTTOOLS/cluster2dat.py %s-clusters %s --best > %s\n" % (result, result, result0)
     result = result0
 
-  if m.sort:
+  if m.sort and not m.use_iattract:
     ret += """
 echo '**************************************************************'
 echo 'Sort structures'

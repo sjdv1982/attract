@@ -28,3 +28,4 @@ html-local
 gui/server/cgi-local
 emATTRACT.log
 bin/ScoringClient.log
+html/upload.html
