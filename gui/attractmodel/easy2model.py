@@ -92,8 +92,6 @@ def easy2model(emodel):
     if emodel.use_gpu != "never": gravity = 0
     if not has_peptide and not has_na: gravity = 0
     rmsd_atoms = "backbone"
-    if has_na:
-        rmsd_atoms = "all"
     epsilon = 15.0
     if emodel.forcefield == "OPLSX": epsilon = 10.0
 
