@@ -447,20 +447,25 @@ def run(pdbfile):
     set_reference(pdb, refe)
   if args.rnalib:
     pdbcomplete.apply_rnalib(pdb, rnalib, args.heavy)
-  if args.pdb2pqr:
-    pdblines = write_pdb(pdb, args.chain, one_letter_na = True)[0]
-    pqrlines = run_pdb2pqr(pdblines)
-    pqr = read_pdb(pqrlines, "<PDB2PQR output from %s>" % pdbfile)
-    pdbcomplete.pdbcomplete(pdb, pqr)
-    if not args.heavy and not args.refe: 
-      update_patches(pdb)
-  if args.whatif:
-    pdblines = write_pdb(pdb, args.chain, one_letter_na = True)[0]
-    whatiflines = run_whatif(pdblines)
-    whatif = read_pdb(whatiflines, "<WHATIF output from %s>" % pdbfile)
-    pdbcomplete.pdbcomplete(pdb, whatif)
-    if not args.heavy and not args.refe and not args.pdb2pqr: 
-      update_patches(pdb)
+  try:
+    if not args.heavy:
+        raise ValueError
+    check_pdb(pdb, heavy=True)
+  except:
+    if args.pdb2pqr:
+      pdblines = write_pdb(pdb, args.chain, one_letter_na = True)[0]
+      pqrlines = run_pdb2pqr(pdblines)
+      pqr = read_pdb(pqrlines, "<PDB2PQR output from %s>" % pdbfile)
+      pdbcomplete.pdbcomplete(pdb, pqr)
+      if not args.heavy and not args.refe: 
+        update_patches(pdb)
+    if args.whatif:
+        pdblines = write_pdb(pdb, args.chain, one_letter_na = True)[0]
+        whatiflines = run_whatif(pdblines)
+        whatif = read_pdb(whatiflines, "<WHATIF output from %s>" % pdbfile)
+        pdbcomplete.pdbcomplete(pdb, whatif)
+        if not args.heavy and not args.refe and not args.pdb2pqr: 
+          update_patches(pdb)
 
   if args.refe:  
     pdbfix(pdb, refe)

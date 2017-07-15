@@ -66,13 +66,16 @@ fi
   use_gpu = (m.use_gpu != "never")
 
   #determine moleculetype interactions (Protein-protein, protein-RNA, protein-DNA, etc.)
+  nucleic_acid = False
   moleculetype_interactions = set()
   for pnr,p in enumerate(m.partners):
+    if p.moleculetype in ("DNA", "RNA"):
+        nucleic_acid = True        
     for pnr2,p2 in enumerate(m.partners):
       if pnr2 <= pnr: continue
       moleculetype_interaction = tuple(sorted((p.moleculetype, p2.moleculetype)))
       moleculetype_interactions.add(moleculetype_interaction)
-
+  
   for moleculetype_interaction in moleculetype_interactions:
     if moleculetype_interaction in supported_moleculetype_interactions: continue
     if tuple(reversed(moleculetype_interaction)) in supported_moleculetype_interactions: continue
@@ -170,9 +173,9 @@ echo '**************************************************************'
         if p.charged_termini: opts.append("--termini")
         if (use_aa and not p.has_hydrogens) or m.use_iattract:
           opts.append("--dumppatch")
-        if not use_aa:
+        if not (m.forcefield == "OPLSX" or m.use_iattract):
           opts.append("--heavy")
-        if p.has_hydrogens:
+        elif p.has_hydrogens:
           opts.append("--autorefe")
         else:
           opts.append(completion_opt[m.completion_tool, p.moleculetype])
@@ -237,7 +240,7 @@ echo '**************************************************************'
         if p.charged_termini: opts.append("--termini")
         if use_aa and not p.has_hydrogens:
           opts.append("--dumppatch")
-        if not use_aa:
+        if not (m.forcefield == "OPLSX" or m.use_iattract):
           opts.append("--heavy")
         elif mnr > 0:
           opts.append("--reference")
@@ -1175,16 +1178,16 @@ echo '**************************************************************'
     ret += "python $ATTRACTTOOLS/cluster2dat.py %s-clusters %s --best > %s\n" % (result, result, result0)
     result = result0
 
-  if m.sort and not m.use_iattract:
-    ret += """
+    if m.sort and not m.use_iattract:
+      ret += """
 echo '**************************************************************'
 echo 'Sort structures'
 echo '**************************************************************'
 """
-    result0 = "out_$name-clustered-sorted.dat"
-    ret += "$PYPY $ATTRACTTOOLS/sort.py %s > %s\n" % (result, result0)
-    result = result0
-    ret += "\n"
+      result0 = "out_$name-clustered-sorted.dat"
+      ret += "$PYPY $ATTRACTTOOLS/sort.py %s > %s\n" % (result, result0)
+      result = result0
+      ret += "\n"
 
   ret += """
 echo '**************************************************************'
@@ -1309,10 +1312,10 @@ echo '**************************************************************'
 
     if m.rmsd_atoms == "all":
       lrmsdpar += " --allatoms"
+    elif nucleic_acid:
+      lrmsdpar += " --nucleic-acid"
     elif m.rmsd_atoms == "trace":
-      mt = m.partners[0].moleculetype
-      if mt == "Protein": lrmsdpar += " --ca"
-      elif mt in ("DNA", "RNA"): lrmsdpar += " --p"
+      lrmsdpar += " --ca"
 
     if '--name' in flexpar2a:
       lrmsd_filenames = aa_rmsd_filenames
@@ -1343,7 +1346,10 @@ echo '**************************************************************'
 
     irmsdresult = os.path.splitext(result0)[0] + ".irmsd"
     bbo = ""
-    if m.rmsd_atoms == "all": bbo = "--allatoms"
+    if m.rmsd_atoms == "all": 
+        bbo = "--allatoms"
+    elif nucleic_acid:
+        bbo = "--nucleic-acid"
     irmsd_allfilenames_alts = []
     if '--name' in flexpar2:
       irmsd_allfilenames_alts = list(generate_rmsdargs(aa_filenames, aa_rmsd_refenames))

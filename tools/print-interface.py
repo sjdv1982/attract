@@ -49,11 +49,11 @@ while 1:
     anr -= 1
     continue
 
-  if arg == "--p": 
+  if arg == "--nucleic-acid": 
     sys.argv = sys.argv[:anr] + sys.argv[anr+1:]
-    atomnames = ("P",)
+    atomnames = ("P","CA",)
     anr -= 1
-    continue
+    continue  
     
   if anr <= len(sys.argv)-2 and arg == "--output":
     output = sys.argv[anr+1]

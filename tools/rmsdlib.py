@@ -189,9 +189,15 @@ def build_hydrogenmask(pdbs):
 def build_atommask(pdbs, atoms):
   import numpy
   amask = []
-  for pdb in pdbs:
+  for pdbnr, pdb in enumerate(pdbs):
+    ok = False
     for a in pdb.atoms():
-      amask.append(a.name in atoms)
+      found = a.name in atoms
+      amask.append(found)
+      if found:
+          ok = True
+    if not ok:
+        raise Exception("Atommask: zero atoms selected for molecule %d" % (pdbnr+1))
   return numpy.array(amask)
 
 def _build_resfilters(pdbs):

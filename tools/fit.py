@@ -67,6 +67,12 @@ def select_ca(lines, atoms):
   for l, a in zip(lines, atoms):
     if l[13:15] in ("CA",): ret.append(a)
   return ret
+
+def select_p(lines, atoms):
+  ret = []
+  for l, a in zip(lines, atoms):
+    if l[13:15] in ("P ",): ret.append(a)
+  return ret
     
 def write_pdb(lines, atoms, extralines):
   count = 0
@@ -91,6 +97,7 @@ a.add_argument("reference")
 a.add_argument("mobile")
 a.add_argument("--allatoms", action="store_true")
 a.add_argument("--ca", action="store_true")
+a.add_argument("--p", action="store_true")
 a.add_argument("--rmsd", action="store_true")
 a.add_argument("--iterative", action="store_true")
 a.add_argument("--iterative_cycles",type=int,default=5)
@@ -104,11 +111,16 @@ lines2, atoms2, extralines2 = read_pdb(args.mobile)
 #select backbone
 if args.allatoms:
   assert not args.ca
+  assert not args.p
   atoms1_fit = atoms1
   atoms2_fit = atoms2
 elif args.ca:
+  assert not args.p
   atoms1_fit = select_ca(lines1, atoms1)
   atoms2_fit = select_ca(lines2, atoms2)  
+elif args.p:
+  atoms1_fit = select_p(lines1, atoms1)
+  atoms2_fit = select_p(lines2, atoms2)  
 else:  
   atoms1_fit = select_bb(lines1, atoms1)
   atoms2_fit = select_bb(lines2, atoms2)
