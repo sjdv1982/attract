@@ -5,33 +5,45 @@ from math import *
 itscript1 = """outp=dock-run%(run)s-it%(it)s.dat
 sorted=dock-run%(run)s-it%(it)s-sorted.dat
 topstruc=dock-run%(run)s-it%(it)s-topstruc.dat
-if [ ! -s $outp-filtered ]; then
- python $ATTRACTDIR/../protocols/attract.py $inp $dock0 %(dock)s --chunks $threads  --np $threads --output $outp
- python $ATTRACTTOOLS/filter-energy.py $outp $energy_threshold > $outp-filtered
+if [ ! -s $outp ]; then
+ python %(protocol)s $inp $dock0 %(dock)s --chunks $threads  --np $threads --output $outp
 """
 
 itscript1min = """outp=dock-run%(run)s-it%(it)s.dat
 sorted=dock-run%(run)s-it%(it)s-sorted.dat
 topstruc=dock-run%(run)s-it%(it)s-topstruc.dat
-if [ ! -s $outp-filtered ]; then
- python $ATTRACTDIR/../protocols/attract.py $inp $dock0 %(dock)s --chunks $threads  --np $threads --output $outp
- python $ATTRACTDIR/../protocols/attract.py $outp $dock0 %(dock_min)s --chunks $threads  --np $threads --output $outp-min
- python $ATTRACTTOOLS/filter-energy.py $outp-min $energy_threshold > $outp-filtered
+if [ ! -s $outp ]; then
+ python %(protocol)s $inp $dock0 %(dock)s --chunks $threads  --np $threads --output $outp-unfiltered
+ python $ATTRACTDIR/../protocols/attract.py $outp-unfiltered $dock0 %(dock_min)s --chunks $threads  --np $threads --output $outp-min
+ python $ATTRACTTOOLS/filter-energy.py $outp-min $energy_threshold > $outp
 """
 
 itscript1_dummy = """outp=dock-run%(run)s-it%(it)s.dat
 sorted=dock-run%(run)s-it%(it)s-sorted.dat
 topstruc=dock-run%(run)s-it%(it)s-topstruc.dat
-if [ ! -s $outp-filtered ]; then
- ln -s dock-run1-it%(it)s.dat-filtered $outp-filtered 
+if [ ! -s $outp ]; then
+ ln -s dock-run1-it%(it)s.dat $outp
 """
 
 itscript1_dummy2 = """outp=dock-run%(run)s-it%(it)s.dat
 sorted=dock-run%(run)s-it%(it)s-sorted.dat
 topstruc=dock-run%(run)s-it%(it)s-topstruc.dat
-if [ ! -s $outp-filtered ]; then
- ln -s dock-run1-it%(it)s-topstruc.dat-topcombined $outp-filtered 
+if [ ! -s $outp ]; then
+ ln -s $tabucomb $outp
 """
+
+itscript_tabucomb = """
+tabucomb=top10-result-%druns.dat
+if [ ! -s $tabucomb ]; then
+  %s > $tabucomb
+  python $ATTRACTTOOLS/swapcombine.py $tabucomb > $tabucomb-combined
+  python $ATTRACTDIR/gvm.py $mapfile $score_threshold $tabucomb-combined $complex | awk '{print \"Energy:\", $1}' > $tabucomb-gvm1
+  python $ATTRACTTOOLS/fill-energies.py $tabucomb-combined $tabucomb-gvm1 > $tabucomb-gvm2
+  python $ATTRACTTOOLS/topcombined.py $tabucomb-gvm2 $nstruc --rev > $tabucomb-topcombined
+fi  
+"""
+
+
 
 itscript2_axsym = """if [ ! -s $topstruc ]; then
  ./axsym.sh %s > $outp-axsym
@@ -39,16 +51,16 @@ itscript2_axsym = """if [ ! -s $topstruc ]; then
  python $ATTRACTTOOLS/fill-energies.py %s $outp-gvm1 > $outp-gvm2
  python $ATTRACTTOOLS/sort.py $outp-gvm2 --rev > $sorted
  $ATTRACTTOOLS/top $sorted $ntop > $topstruc
-fi 
-""" 
+fi
+"""
 
 itscript2_noaxsym = """if [ ! -s $topstruc ]; then
  python $ATTRACTDIR/gvm.py $mapfile $score_threshold %s $complex | awk '{print "Energy:", $1}' > $outp-gvm1
  python $ATTRACTTOOLS/fill-energies.py %s $outp-gvm1 > $outp-gvm2
  python $ATTRACTTOOLS/sort.py $outp-gvm2 --rev > $sorted
  $ATTRACTTOOLS/top $sorted $ntop > $topstruc
-fi 
-""" 
+fi
+"""
 
 def generate_cryo(m):
   import os
@@ -60,7 +72,7 @@ set -u -e
   ret += "name=%s\n" % m.runname
   ret += "nbodies=%d\n" % np
   mapfilename = m.mapfilename
-  if mapfilename is None: 
+  if mapfilename is None:
     mapfilename = m.mapfile.name
   mapfilename2 = "map-scaled.sit"
   if mapfilename == mapfilename2:
@@ -71,7 +83,7 @@ set -u -e
   ret += "nstruc=%d\n" % m.nstruc
   ret += "ntop=%d\n" % m.ntop
   ret += "score_threshold=%s\n\n" % m.score_threshold
-  
+
   filenames = []
   pdbnames = []
   collectnames = []
@@ -82,7 +94,7 @@ set -u -e
     #TODO: select chain
     pdbname = p.pdbfile.name
     pdbname2 = os.path.split(pdbname)[1]
-    if pdbname not in pdbnames: 
+    if pdbname not in pdbnames:
       pdbname3 = os.path.splitext(pdbname2)[0]
       pdbname3_0 = pdbname3
       pcount = 0
@@ -92,9 +104,9 @@ set -u -e
       pdbnames3.add(pdbname3)
       pdbname4 = pdbname3 + ".pdb"
       if pdbname4 != pdbname:
-        ret += "cat %s > %s\n" % (pdbname, pdbname4)          
-      collectnames.append(pdbname4)
+        ret += "cat %s > %s\n" % (pdbname, pdbname4)      
       pdbname_heavy = pdbname3 + "-heavy.pdb"
+      collectnames.append(pdbname_heavy)
       pdbname_reduced = pdbname3 + "r.pdb"
       ret += "python $ATTRACTDIR/../allatom/aareduce.py --heavy --chain %s %s %s > /dev/null\n" % (chain, pdbname4, pdbname_heavy)
       ret += "python $ATTRACTTOOLS/reduce.py --chain %s %s %s > /dev/null\n" % (chain, pdbname_heavy, pdbname_reduced)
@@ -107,7 +119,7 @@ set -u -e
     ret += "cat %s >> partners.pdb\n" % f
     ret += "echo TER >> partners.pdb\n"
   ret += "\n"
-  
+
   structure_partners = open("partners.dat", "w")
   print("#pivot auto", file=structure_partners)
   print("#1", file=structure_partners)
@@ -127,72 +139,83 @@ set -u -e
       axpar += " --axsym" + axstr
       copies = ax.fold
       copies_done = 1
-      if ax.molecule in axcopies: 
+      if ax.molecule in axcopies:
         copies *= axcopies[ax.molecule]
         copies_done *= axcopies[ax.molecule]
-      axcopies[ax.molecule] = copies        
+      axcopies[ax.molecule] = copies
       npax += copies - copies_done
     print(axsymstr, file=axsym)
-    axsym.close()    
-    os.system("chmod +x axsym.sh")    
-    
+    axsym.close()
+    os.system("chmod +x axsym.sh")
+
     axcopies = {}
     ret += "echo %d > partners-axsym.pdb\n" % npax
     for f in filenames:
       ret += "cat %s >> partners-axsym.pdb\n" % f
-      ret += "echo TER >> partners-axsym.pdb\n"    
+      ret += "echo TER >> partners-axsym.pdb\n"
     for n in range(len(m.axsymmetry)):
       ax = m.axsymmetry[n]
       f = filenames[ax.molecule-1]
       copies = ax.fold
       copies_done = 1
-      if ax.molecule in axcopies: 
+      if ax.molecule in axcopies:
         copies *= axcopies[ax.molecule]
         copies_done *= axcopies[ax.molecule]
-      axcopies[ax.molecule] = copies  
+      axcopies[ax.molecule] = copies
       for nn in range(copies-copies_done):
         ret += "cat %s >> partners-axsym.pdb\n" % f
-        ret += "echo TER >> partners-axsym.pdb\n"    
+        ret += "echo TER >> partners-axsym.pdb\n"
     ret += "complex=partners-axsym.pdb\n\n"
   else:
-    ret += "complex=partners.pdb\n"     
+    ret += "complex=partners.pdb\n"
 
   tabunames = []
   if m.mapmass is None:
     ret += "mapmass=`python $ATTRACTTOOLS/mass.py $complex`\n"
   else:
     ret += "mapmass=%s\n" % m.mapmass
-  ret += "python $ATTRACTTOOLS/em/mapsumset-smart.py $mapfile0 $mapfile $mapmass\n" 
+  ret += "python $ATTRACTTOOLS/em/mapsumset-smart.py $mapfile0 $mapfile $mapmass\n"
   ret += "mask1=map-scale-mask1.mask\n"
   ret += "mask2=map-scale-mask2.mask\n"
   ret += "if [ ! -s $mask1 ]; then\n"
   ret += " python $ATTRACTTOOLS/em/situs2mask.py $mapfile $mapmask_threshold %s %s $mask1 ${mask1%%%%.*}.sit\n" % (m.mapmask1_voxelsize, m.mapmask1_dimension)
   ret += " python $ATTRACTTOOLS/em/situs2mask.py $mapfile $mapmask_threshold %s %s $mask2 ${mask2%%%%.*}.sit\n" % (m.mapmask2_voxelsize, m.mapmask2_dimension)
   ret += "fi\n"
-  
+
   ret += "\n#iteration parameters\n"
   ret += "energy_threshold=%s\n" % m.energy_threshold
   dock0 = "$ATTRACTDIR'/../attract.par partners.pdb --ghost" + axpar + "'"
   rest = ""
-  restweights = 0.1, 0.2, 0.6, 0.6, 1.0 
+  restweights = 0.1, 0.2, 0.6, 0.6, 1.0
   if m.harmonic_restraints_file is not None:
-    raise NotImplementedError #TODO: convert with tbl2attract    
+    raise NotImplementedError #TODO: convert with tbl2attract
     restfile = "harmonic-restraints.rest"
     rest = " --rest %s" % restfile
-  ret += "dock0=%s\n" % dock0 
+  ret += "dock0=%s\n" % dock0
   dock_stages = []
   dock_stages_min = []
   fr = m.global_scale_rot
-  fc = m.global_scale_trans    
+  fc = m.global_scale_trans
+  
+  #stage 1
   dock_stage = "--atomdensitymask \'$mask1\' %s --mc --mcscalerot %s --mcscalecenter %s --mcmax %s" % \
    (m.maskweight[0], m.mcscalerot[0]*fr, m.mcscalecenter[0]*fc, m.mcmax[0])
   if rest:
     dock_stage += rest + " --restweight %s" % restweights[0]
   if m.gravity:
-    dock_stage += " --gravity 1"   
-    dock_stage += " --rstk %s" % m.rstk    
-  dock_stages.append(dock_stage) 
-  for n in range(1,4):
+    dock_stage += " --gravity 1"
+    dock_stage += " --rstk %s" % m.rstk
+  dock_stages.append(dock_stage)
+
+  #stage 2
+  dock_stage = "--atomdensitymask \'$mask2\' %s --mc --mcscalerot %s --mcscalecenter %s --mcmax %s" % \
+   (m.maskweight[1], m.mcscalerot[1]*fr, m.mcscalecenter[1]*fc, m.mcmax[1])
+  if rest:
+    dock_stage += rest + " --restweight %s" % restweights[0]
+  dock_stages.append(dock_stage)
+
+  #stage 3-4
+  for n in range(2,4):
     dock_stage = " --atomdensitymask \'$mask2\' %s --mc --mcscalerot %s --mcscalecenter %s --mcmax %s" % \
      (m.maskweight[n], m.mcscalerot[n]*fr, m.mcscalecenter[n]*fc, m.mcmax[n])
     dock_stage_min = " --atomdensitymask \'$mask2\' %s" % m.maskweight[n]
@@ -202,17 +225,20 @@ set -u -e
       dock_stage_min += t
     dock_stages.append(dock_stage)
     dock_stages_min.append(dock_stage_min)
+    
+  
+  #stage 5
   dock_stage = "--atomdensitymask \'$mask2\' %s" % m.maskweight[4]
   dock_stages.append(dock_stage)
+  
   ret += "dock_stage1=\'%s\'\n" % dock_stages[0]
   ret += "dock_stage2=\'%s\'\n" % dock_stages[1]
   ret += "dock_stage3=\'%s\'\n" % dock_stages[2]
   ret += "dock_stage4=\'%s\'\n" % dock_stages[3]
   ret += "dock_stage5=\'%s\'\n" % dock_stages[4]
-  ret += "dock_stage2_min=\'%s\'\n" % dock_stages_min[0]
-  ret += "dock_stage3_min=\'%s\'\n" % dock_stages_min[1]
-  ret += "dock_stage4_min=\'%s\'\n" % dock_stages_min[2]
-  
+  ret += "dock_stage3_min=\'%s\'\n" % dock_stages_min[0]
+  ret += "dock_stage4_min=\'%s\'\n" % dock_stages_min[1]
+
   clonefac = m.nstruc/m.ntop
   if len(m.partners) == 1:
     clone1 = "\'--ori %s --trans %s --clone %d --keepfirst\'" % (m.clone_rot[0]*fr, m.clone_center[0]*fc, clonefac)
@@ -220,20 +246,21 @@ set -u -e
   else:
     noclone = "\'--ori %s --trans %s\'" % (m.clone_rot[1]*fr, m.clone_center[1]*fc)
     ret += "noclone=%s\n" % noclone
-  clone2 = "\'--ori %s --trans %s --clone %d --keepfirst\'" % (m.clone_rot[1]*fr, m.clone_center[1]*fc, clonefac)  
+  clone2 = "\'--ori %s --trans %s --clone 10 --keepfirst\'" % (m.clone_rot[1]*fr, m.clone_center[1]*fc)
   ret += "clone2=%s\n" % clone2
   fast = ""
   if len(m.partners) > 1: fast = " --fast"
   radius = ""
-  if m.randsearch_radius != 35: radius = " --radius %s" % m.randsearch_radius  
+  if m.randsearch_radius != 35: radius = " --radius %s" % m.randsearch_radius
   ret += "\nif [ ! -s randsearch.dat ]; then\n python $ATTRACTTOOLS/randsearch.py %d $nstruc%s%s > randsearch.dat\nfi\n"  % (len(m.partners), fast, radius)
   ret += "inp=randsearch.dat\n\n"
 
-  runs = m.tabu + 1
-  if len(m.partners) > 1:
-    runs += 6
+  runs = 1+ m.tabu1 + m.tabu2
+  protocol="$ATTRACTDIR/../protocols/attract.py"
+  if m.use_gpu:
+    protocol="$ATTRACTDIR/../attract-em-gpu/neo-attract-em.py"
   for run in range(1, runs+1):
-    ret += "#run %d\n" % run  
+    ret += "#run %d\n" % run
     if len(m.axsymmetry):
       itscript2 = itscript2_axsym
     else:
@@ -248,65 +275,64 @@ set -u -e
       dock = "$dock_stage1"
       clone = "$clone1"
       dock_min = None
-      if run > m.tabu+1:
-        dock = "$dock_stage5"
-        clone = "$clone2"        
-      else:  
-        if it > cumsumit[0]:      
-          if it <= cumsumit[3]:
-            if it <= cumsumit[1]:
-              dock = "$dock_stage2"
-              dock_min = "$dock_stage2_min"
-            elif it <= cumsumit[2]:
-              dock = "$dock_stage3"
-              dock_min = "$dock_stage3_min"
-            else:  
-              dock = "$dock_stage4"
-              dock_min = "$dock_stage4_min"
-            if it == cumsumit[3]: clone = "$clone2"    
+      if it > cumsumit[0]:
+        if it <= cumsumit[3]:
+          if it <= cumsumit[1]:
+            dock = "$dock_stage2"
+          elif it <= cumsumit[2]:
+            dock = "$dock_stage3"
+            dock_min = "$dock_stage3_min"
           else:
-            dock = "$dock_stage5"
-            clone = "$clone2"
-      if run > 1 and it < cumsumit[1]: 
+            dock = "$dock_stage4"
+            dock_min = "$dock_stage4_min"
+          if it == cumsumit[3]: clone = "$noclone"
+        else:
+          dock = "$dock_stage5"
+          clone = "$clone2"
+      if run > 1 and it < cumsumit[1]:
           continue
       if run > 1 and it == cumsumit[1]:
-        if run > m.tabu + 1:
-          ret += itscript1_dummy2 % {"run": run, "it" : it}    
-        else:  
-          ret += itscript1_dummy % {"run": run, "it" : it}    
+        if run <= 1 + m.tabu1:
+          ret += itscript1_dummy % {"run": run, "it" : it}
+        else:
+          ret += itscript1_dummy2 % {"run": run, "it" : it}
       elif dock_min is not None:
-        ret += itscript1min % {"run": run, "dock": dock, "dock_min" : dock_min, "it": it}            
+        ret += itscript1min % {"protocol": protocol, "run": run, "dock": dock, "dock_min" : dock_min, "it": it}
       else:
-        ret += itscript1 % {"run": run, "dock": dock, "it": it}    
-      filtered = "$outp-filtered"    
+        ret += itscript1 % {"protocol": protocol, "run": run, "dock": dock, "it": it}
+      outp = "$outp"
       if len(tabunames):
         rmsdfiles = []
         for n in range(len(tabunames)):
           tfiles = tabunames[n]
           rmsdpdbfiles = []
           for a,b in zip(collectnames, tfiles): rmsdpdbfiles += [a,b]
-          rmsdfile = filtered + "-rmsd-tabu%d" % (n+1)
+          rmsdfile = outp + "-rmsd-tabu%d" % (n+1)
           rmsdfiles.append(rmsdfile)
-          ret += " $ATTRACTDIR/rmsd %s %s | grep RMSD > %s\n" % (filtered, " ".join(rmsdpdbfiles), rmsdfile)
-        newfiltered = filtered + "-tabu"
-        ret += " python $ATTRACTTOOLS/filter-tabu.py %s 10.0 %s > %s\n" % (filtered, " ".join(rmsdfiles), newfiltered)
-        filtered = newfiltered      
-      ret += "fi\n"  
-      ret += itscript2 % (filtered, filtered)
-      assert m.score_method == "gvm" #TODO: non-GVM    
+          ret += " $ATTRACTDIR/rmsd %s %s | grep RMSD > %s\n" % (outp, " ".join(rmsdpdbfiles), rmsdfile)
+        newoutp = outp + "-tabu"
+        ret += " python $ATTRACTTOOLS/filter-tabu.py %s 10.0 %s > %s\n" % (outp, " ".join(rmsdfiles), newoutp)
+        outp = newoutp
+      ret += "fi\n"
+      ret += itscript2 % (outp, outp)
+      assert m.score_method == "gvm" #TODO: non-GVM
       if it < totit:
         ret += "newinp=dock-run%s-preit%s.dat\n" % (run, it+1)
         ret += "if [ ! -s $newinp ]; then\n"
-        if len(m.partners) > 1 and run <= (m.tabu+1) and it <= cumsumit[3]:
-          ret += " python $ATTRACTTOOLS/swapcombine.py $topstruc > $topstruc-combined\n"                    
+        if len(m.partners) > 1 and it <= cumsumit[3]:
+          ret += " python $ATTRACTTOOLS/swapcombine.py $topstruc > $topstruc-combined\n"
           ret += " python $ATTRACTDIR/gvm.py $mapfile $score_threshold $topstruc-combined $complex | awk '{print \"Energy:\", $1}' > $topstruc-gvm1\n"
           ret += " python $ATTRACTTOOLS/fill-energies.py $topstruc-combined $topstruc-gvm1 > $topstruc-gvm2\n"
           ret += " python $ATTRACTTOOLS/topcombined.py $topstruc-gvm2 $nstruc --rev > $topstruc-topcombined\n"
           ret += " python $ATTRACTTOOLS/monte.py $topstruc-topcombined $noclone > $newinp\n"
-        else:      
+        else:
           ret += " python $ATTRACTTOOLS/monte.py $topstruc %s > $newinp\n" %  clone
         ret += "fi\n"
-        ret += "inp=$newinp\n\n"
+        if it == cumsumit[3]: 
+          ret += "$ATTRACTTOOLS/top $newinp $ntop > $newinp-top\n"
+          ret += "inp=$newinp-top\n\n"
+        else:
+          ret += "inp=$newinp\n\n"
       else:
         ret += "\nif [ ! -s result-run%d.dat ]; then\n ln -s $topstruc result-run%d.dat\nfi\n" % (run, run)
         ret += "$ATTRACTTOOLS/top result-run%d.dat 1 > best-result-run%d.dat\n" % (run, run)
@@ -319,7 +345,13 @@ set -u -e
           f = "tabu-run%d-%s.pdb" % (run, ch)
           ret += "awk '$1 == \"ATOM\" && substr($0,22,1) == \"%s\"' best-result-run%d.pdb > %s\n" % (ch, run, f)
           t.append(f)
-        tabunames.append(t)  
+        tabunames.append(t)
         ret += "$ATTRACTDIR/collect top10-result-run%d.dat %s > top10-result-run%d.pdb\n" % (run, collectnamestr, run)
         ret += "\n"
+        if m.tabu2 > 0 and run == 1 + m.tabu1:
+          joincommand = "$ATTRACTTOOLS/add dock-run1-it1-topstruc.dat"
+          for n in range(1,run+1):
+            joincommand += " top10-result-run%d.dat" % n
+          ret += itscript_tabucomb % (run, joincommand)
+        
   return ret

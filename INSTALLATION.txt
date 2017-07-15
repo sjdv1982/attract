@@ -46,9 +46,12 @@ Optional steps:
 Some ATTRACT tools will run considerably faster if you install PyPy
 (under Ubuntu: sudo apt-get install pypy)
 
-9. Spydersilk support
+10. Spydersilk support
 With Spydersilk, you can edit ATTRACT protocol files (.web files) locally.
 - Get the Spydersilk code (under Ubuntu: wget http://www.attract.ph.tum.de/services/ATTRACT/downloads/spydersilk-0.03.tar.gz)
 - Install pip (under Ubuntu: sudo apt-get install python-pip)
 - Install Spydersilk: sudo pip install spydersilk-0.03.tar.gz
 - To test that it works, type "cd $ATTRACTGUI; python -c 'import spyder, attractmodel'"
+
+11. ATTRACT-EM GPU routines
+These require the PyCUDA library. Install pip (see above), then PyCUDA (under Ubuntu: sudo pip install pycuda)

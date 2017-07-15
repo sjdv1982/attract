@@ -39,7 +39,7 @@ Type CryoInterface {
   ## form axsymmetry.form = "soft"
   ## form axsymmetry.count_from_one = True
   validate {
-    if len(axsymmetry): assert tabu == 0 ##TODO: rearrange-monomers
+    if len(axsymmetry): assert tabu1 == tabu2 == 0 ##TODO: rearrange-monomers
     for a in axsymmetry: assert a.molecule <= len(partners)
   }
 
@@ -74,10 +74,16 @@ Type CryoInterface {
 
   *ResourceData_CNS_Restraints harmonic_restraints_file
   ##form harmonic_restraints_file.type = "file"
-  Integer tabu = 0
+  Integer tabu1 = 0
+  Integer tabu2 = 0
+  form {
+    tabu1.add_header("After the first run, there comes a number of initial tabu runs. Then, the top 10 generated structures of each run get recombined with the result of it1 of run 1, and then subsequent tabu runs are performed")
+    tabu1.name = "Number of initial tabu runs"
+    tabu2.name = "Number of subsequent tabu runs"
+  }
   Enum score_method("gvm", "corr") = "gvm"
   Float score_threshold = 10.0
-  Integer nstruc = 1000
+  Integer nstruc = 3000
   Integer ntop = 50
   IntegerArray iterations[5] = (1,1,1,1,8)
   Float global_scale_rot = 0.785
@@ -86,14 +92,15 @@ Type CryoInterface {
   FloatArray clone_center[2] = (1, 0.1)
   FloatArray mcscalerot[4] = (0.5,0.25,0.1,0.1)
   FloatArray mcscalecenter[4] = (0.5,0.25,0.1,0.1)
-  FloatArray mcmax[4] = (250,250,250,250)
+  IntegerArray mcmax[4] = (250,250,250,250)
   Float randsearch_radius = 35
   Bool gravity = False #only in first stage
   Float rstk = 0.1 #only in first stage
   form {
     _g = "Sampling"
     harmonic_restraints_file.group = _g
-    tabu.group = _g
+    tabu1.group = _g
+    tabu2.group = _g
     score_method.group = _g
     score_threshold.group = _g
     nstruc.group = _g
@@ -123,9 +130,12 @@ Type CryoInterface {
       raise ValueError("The name of your run may contain only letters, digits, _ and -")
   }
   Integer threads = 8
+  Bool use_gpu = False
   form {
     runname.group = "Computation"
     threads.group = "Computation"
+    use_gpu.group = "Computation"
+    use_gpu.name = "Use GPU acceleration"
   }
 
   validate {
@@ -133,6 +143,7 @@ Type CryoInterface {
     assert nstruc > 0
     assert ntop > 0
     assert float(nstruc)/ntop == int(nstruc/ntop)
+    for it in iterations: assert it >= 0
   }
 }
 
@@ -169,6 +180,7 @@ Type CryoEasyInterface {
       raise ValueError("The name of your run may contain only letters, digits, _ and -")
   }
 
+  Bool use_gpu = False
   Integer threads = 8
   validate {
     assert len(partners) > 0
@@ -182,23 +194,34 @@ Define CryoInterface(CryoEasyInterface m) {
 
   mp1 = len(m.partners)
   if mp1 > 3: mp1 = 3
-  dof_factor = 3 ** (mp1 - 1)
-  ret.nstruc *= dof_factor * mp1
-  ret.ntop *=  dof_factor
+  dof_factor = 2 ** (mp1 + 1)
+  ret.nstruc = 3000 * mp1 * dof_factor
+  ret.ntop = 300 * mp1
 
   rotscalefactor = 1.0/len(m.partners)
   ret.global_scale_rot *= rotscalefactor
   ret.global_scale_trans *= rotscalefactor
 
   mp2 = len(m.partners)
-  ret.mcmax[0] *= mp2
-  ret.mcmax[1] *= mp2
-  ret.iterations[1] = mp2
-  ret.iterations[2] = 2 * (mp2-1) + 1
-  ret.iterations[3] = 2 * (mp2-1) + 1
+  if mp2 > 1:
+    ret.mcmax[0] *= mp2/2.0
+    ret.mcmax[1] *= mp2/2.0  
+  if mp2 <= 2:
+    ret.iterations[1] = 3
+    ret.iterations[2] = 0
+    ret.iterations[3] = 0
+  else:
+    ret.iterations[1] = mp2  
+    ret.iterations[2] = 2 * (mp2-1) + 1
+    ret.iterations[3] = 2 * (mp2-1) + 1
   ret.iterations[4] = 12 * (mp2-1) + 8
 
-  if mp2 > 1: ret.tabu = 3
+  if mp2 > 1:
+    ret.tabu1 = 5
+    ret.tabu2 = 4
+  else:
+    ret.tabu1 = 2
+    ret.tabu2 = 0
 
   ret.validate()
   return ret
