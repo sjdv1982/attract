@@ -3,8 +3,8 @@ from math import *
 from _read_struc import read_struc
 import random
 
-if len(sys.argv) != 5:
-  print >> sys.stderr, "Usage: ensemblize <DOF file> <ensemble size> <molecule ID> <mode='all'/'random'>"
+if len(sys.argv) not in  (5,6):
+  print >> sys.stderr, "Usage: ensemblize <DOF file> <ensemble size> <molecule ID> <mode='all'/'random'> [random seed]"
   sys.exit()
 
 header,structures = read_struc(sys.argv[1])
@@ -16,8 +16,15 @@ assert molecule > 0
 
 mode = sys.argv[4]
 if mode not in ("all", "random"):
-  print >> sys.stderr, "Usage: ensemblize <DOF file> <ensemble size> <molecule ID> <mode='all'/'random'>"
+  print >> sys.stderr, "Usage: ensemblize <DOF file> <ensemble size> <molecule ID> <mode='all'/'random'> [random seed]"
   sys.exit()
+
+if len(sys.argv) == 6:
+    assert mode == "random", mode
+    seed = int(sys.argv[5])
+else:
+    seed = 0
+random.seed(seed)
 
 stnr = 0
 for h in header: print h
