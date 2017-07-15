@@ -46,14 +46,8 @@ while 1:
     atomnames = ("CA",)
     anr -= 1
     continue
-
-  if arg == "--p": 
-    sys.argv = sys.argv[:anr] + sys.argv[anr+1:]
-    atomnames = ("P",)
-    anr -= 1
-    continue
     
-  if arg == "--cap": 
+  if arg == "--nucleic-acid": 
     sys.argv = sys.argv[:anr] + sys.argv[anr+1:]
     atomnames = ("P","CA",)
     anr -= 1
