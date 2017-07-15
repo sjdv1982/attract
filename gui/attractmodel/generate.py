@@ -170,9 +170,9 @@ echo '**************************************************************'
         if p.charged_termini: opts.append("--termini")
         if (use_aa and not p.has_hydrogens) or m.use_iattract:
           opts.append("--dumppatch")
-        if not use_aa:
+        if not (m.forcefield == "OPLSX" or m.use_iattract):
           opts.append("--heavy")
-        if p.has_hydrogens:
+        elif p.has_hydrogens:
           opts.append("--autorefe")
         else:
           opts.append(completion_opt[m.completion_tool, p.moleculetype])
@@ -237,7 +237,7 @@ echo '**************************************************************'
         if p.charged_termini: opts.append("--termini")
         if use_aa and not p.has_hydrogens:
           opts.append("--dumppatch")
-        if not use_aa:
+        if not (m.forcefield == "OPLSX" or m.use_iattract):
           opts.append("--heavy")
         elif mnr > 0:
           opts.append("--reference")
