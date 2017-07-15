@@ -141,7 +141,7 @@ def easy2model(emodel):
      use_gpu=emodel.use_gpu,
      rescore_step=rescore_step
     )
-    if has_peptide and not emodel.clustering and not emodel.analyze_interface:
+    if (has_peptide or has_na) and not emodel.clustering and not emodel.analyze_interface:
         newmodel.demode = False
     if has_peptide or has_na or use_haddock or emodel.position_restraints_file is not None:
         newmodel.search = "random"
