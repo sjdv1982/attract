@@ -74,7 +74,7 @@ extern "C" void print_struc_(
     printf("\n"); 
   }
   time_t curr_time = time(NULL);
-  if (!has_flushed || difftime(curr_time, last_flush) > 10) {    
+  if (!has_flushed || difftime(curr_time, last_flush) > 0.5) {    
     fflush(stdout);
     has_flushed = 1;
     last_flush = curr_time;
