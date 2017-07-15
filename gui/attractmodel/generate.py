@@ -318,6 +318,8 @@ cat /dev/null > hm-all.dat
 """
     if separate_aa_mode:
       partnercode += "cat /dev/null > hm-all-aa.dat\n"
+    if aa_rmsd:
+      partnercode += "cat /dev/null > hm-all-heavy.dat\n"
     partnercode += "\n"
     for pnr,p in enumerate(m.partners):
       if p.generate_modes:
