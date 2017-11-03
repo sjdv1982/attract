@@ -78,23 +78,31 @@ try:
   natom = len(coor) / 3
   lim = cutoff * cutoff * natom
   clust_struc = numpy.zeros(dtype=float,shape=(maxstruc,coorsize))    
+  counter = 0
 
   clust_struc[0,:] = coor
 
+  order_err = "Clusters must be ordered: Cluster 1 =>  1 2 3, Cluster 2 => 4 5 6, etc. "
   for rootclustnr, rootclust in enumerate(rootclusters):
     print >> sys.stderr, rootclustnr+1
-    if len(rootclust) == 1:
+    if len(rootclust) == 1:      
+      assert rootclust[0] == counter+1, order_err + "Expected: %d; read %d" % (counter+1, rootclust[0])
       subclust.append(rootclust)
       superclust.append([len(subclust)])
       if rootclustnr > 0:
         result = collectlib.collect_next()
+        counter += 1
       continue
     leafclust = []
     for cnr, c in enumerate(rootclust):
-      if cnr == 0 and rootclustnr == 0: continue
-      result = collectlib.collect_next()
-      coor = collectlib.collect_coor_raw()
+      assert c == counter+1, order_err + "Expected: %d; read %d" % (counter+1, c)
+      if cnr == 0 and rootclustnr == 0: 
+        counter += 1
+        continue
+      result = collectlib.collect_next()      
+      coor = collectlib.collect_coor_raw()      
       clust_struc[cnr,:] = coor[3*coorstart:]
+      counter += 1
     d = squareform(pdist(clust_struc[:len(rootclust)], 'sqeuclidean'))
     d2 = d<lim
     
