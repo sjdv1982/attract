@@ -16,9 +16,9 @@ class Atom(object):
     l = self.line
     o = l[:12]
     if len(self.name) == 4:
-      o += "%4s" % self.name
+      o += "%4s " % self.name
     else:
-      o += " %-4.4s" % self.name
+      o += " %-3.3s " % self.name
     o += "%-3.3s" % self.resname
     o += l[20]
     o += self.resid

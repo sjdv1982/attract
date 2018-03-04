@@ -90,7 +90,7 @@ int main(int argc, char *argv[]) {
       while (argc > 4) {
         memmove(argv+3, argv+4, sizeof(char*) * (argc-3));
         argc--;      
-        if (!strncmp(argv[3],"--",2)) break;      
+        if (!strncmp(argv[3],"--",2)) {argc++; break;}      
         nhm[count] = atoi(argv[3]);
         count++;
       }
@@ -102,7 +102,7 @@ int main(int argc, char *argv[]) {
       while (argc > 4) {
         memmove(argv+3, argv+4, sizeof(char*) * (argc-3));
         argc--;
-        if (!strncmp(argv[3],"--",2)) break;
+        if (!strncmp(argv[3],"--",2)) {argc++; break;}
         nihm[count] = atoi(argv[3]);
         count++;
       }
@@ -114,7 +114,7 @@ int main(int argc, char *argv[]) {
       while (argc > 4) {
         memmove(argv+3, argv+4, sizeof(char*) * (argc-3));
         argc--;      
-        if (!strncmp(argv[3],"--",2)) break;      
+        if (!strncmp(argv[3],"--",2)) {argc++; break;}
         nrens[count] = atoi(argv[3]);
         count++;
       }
