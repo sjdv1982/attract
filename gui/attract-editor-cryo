@@ -1,2 +1,0 @@
-#!/bin/sh
-silk --default-output attract.web CryoInterface -I $ATTRACTGUI -m attractmodel --form localgui buttons --logic localgui logic $@

@@ -84,7 +84,7 @@ fi
   #do we need all-atom representation for RMSD calculation?
   if m.calc_irmsd or m.calc_fnat or m.analyze_interface:
     aa_rmsd = True
-  elif m.calc_lrmsd and m.rmsd_atoms == "all":
+  elif m.calc_lrmsd:
     aa_rmsd = True
   else:
     aa_rmsd = False
@@ -101,7 +101,7 @@ fi
     separate_aa_pdb = False
     for p in m.partners:
       if not p.generate_modes: continue
-      if m.aacontact_modes or p.moleculetype in ("DNA","RNA"):
+      if p.aacontact_modes or p.moleculetype in ("DNA","RNA"):
         separate_aa_pdb = True
         break
   if separate_aa_pdb:

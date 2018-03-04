@@ -5,7 +5,7 @@ header = """<!DOCTYPE html>
 <!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
     
     <head>
-        <title>ATTRACT-EM Easy Online</title>
+        <title>ATTRACT-EM Online</title>
         
         <meta charset="utf-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
@@ -94,6 +94,17 @@ def webform(f, model=None):
   f.resourcefilevar = "_tempresource"
   f.arraymarker = "_clonearraymarker"
 
+  if model is not None:
+      partnerslength = max(1,len(model.partners))
+      symmetrieslength = max(1,len(model.axsymmetry))
+  else:
+      partnerslength = 1
+      symmetrieslength = 1
+  f.partners.length = partnerslength
+  f.axsymmetry.length = symmetrieslength
+  f.partners.clonebutton = "Add partner"
+  f.partners.clonelength = 10
+
   ### START partners category
   c = f.new_group("c_partners", "category")
   c.page = 1
@@ -126,11 +137,12 @@ def webform(f, model=None):
   c = f.new_group("c_symmetry", "category")
   c.page = 2
   c.icon = "symmetry-icon"
-  c.title = "Symmetry"
+  c.title = "Generative symmetry"
   c.description = c.title
   c.always_active = True
   c.categoryname = "symmetry"  
   c.members.append("axsymmetry")
+  f.axsymmetry.clonebutton = "Add symmetry"
   f.axsymmetry.clonelength = 6
   f.axsymmetry.controltitle = "Symmetry"    
   ### END symmetry category  
@@ -144,6 +156,7 @@ def webform(f, model=None):
   c.always_active = True
   c.categoryname = "cryo"  
   _assign_category(f, c, c.title, span = True)
+  f.harmonic_restraints_file.type = None 
   ### END cryo category  
 
   ### START sampling category
@@ -155,13 +168,6 @@ def webform(f, model=None):
   c.always_active = True
   c.categoryname = "sampling"  
   _assign_category(f, c, c.title, span = True)
-  f.iterations.type = None #TODO
-  f.maskweight.type = None #TODO
-  f.clone_rot.type = None #TODO
-  f.clone_center.type = None #TODO
-  f.mcscalerot.type = None #TODO
-  f.mcscalecenter.type = None #TODO
-  f.mcmax.type = None #TODO
   ### END sampling category  
 
   ### START computation category

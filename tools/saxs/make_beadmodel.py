@@ -18,7 +18,7 @@ if atsasdir == '' or not os.path.exists(atsasdir+'/datgnom'):
 
 os.system('mkdir dammifrun')
 os.chdir('dammifrun')
-os.system(atsasdir+'/datgnom '+saxsdata+' -o pr.out')
+os.system(atsasdir+'/datgnom4 '+saxsdata+' -o pr.out')
 #run dammif 20 times
 
 p = Pool(8)

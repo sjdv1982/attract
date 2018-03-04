@@ -44,6 +44,10 @@ mask[mask>=0.02]=1
 boolmask = numpy.greater(mask, 0)
 originshift = (ratio-1)*gridspacing
 maskorigin = origin + originshift
+for ori in maskorigin:
+  lpad = int(ceil(ori+boxlim)/maskvoxelsize)
+  if lpad < 0:
+    boxlim += -lpad * gridspacing
 pad = []
 maskpadorigin = []
 for ori,d in zip(maskorigin, mask.shape):
@@ -52,11 +56,13 @@ for ori,d in zip(maskorigin, mask.shape):
   rpad = int(ceil(boxlim-end)/maskvoxelsize)
   pad.append((lpad, lpad+d, lpad+rpad+d))
   maskpadorigin.append(ori-lpad*maskvoxelsize)
+#assert pad[0][2] == pad[1][2] == pad[2][2], pad
 maskpadorigin=numpy.array(maskpadorigin)  
 padmask = numpy.zeros([v[2] for v in pad], dtype=float,order='F')
 padboolmask = numpy.zeros([v[2] for v in pad], dtype=bool,order='F')
 padboolmask[pad[0][0]:pad[0][1],pad[1][0]:pad[1][1],pad[2][0]:pad[2][1]] = boolmask
 padmask[pad[0][0]:pad[0][1],pad[1][0]:pad[1][1],pad[2][0]:pad[2][1]] = mask
+assert padmask.shape[0] == padmask.shape[1] == padmask.shape[2], padmask.shape
 
 write_mask(maskfile, padboolmask, maskvoxelsize, maskpadorigin)
 

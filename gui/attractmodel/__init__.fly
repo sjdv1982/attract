@@ -1,4 +1,6 @@
 HaddockResidueList.py
+IntegerList.py
+FloatList.py
 generate.py
 attractmodel.spy
 easy2model.py

@@ -13,6 +13,7 @@ BASE_PATH = $(shell pwd)
 BINDIR = $(BASE_PATH)/.
 ATTRACTDIR = $(BASE_PATH)/.
 GPU_DIR = $(BASE_PATH)/gpuATTRACT
+GPU_DIR2 = ./gpuATTRACT
 
 $(shell mkdir -p $(BINDIR))
 
@@ -22,15 +23,15 @@ $(shell mkdir -p $(BINDIR))
 
 em: as
 	cd $(GPU_DIR)/emATTRACT/bin && $(MAKE) TARGET=$(TARGET)
-	cd $(BINDIR) && ln -sf $(GPU_DIR)/emATTRACT/bin/emATTRACT
+	cd $(BINDIR) && ln -sf $(GPU_DIR2)/emATTRACT/bin/emATTRACT
 
 gpuATTRACTcheck: as
 	cd $(GPU_DIR)/gpuATTRACTcheck/bin && $(MAKE) TARGET=$(TARGET)
-	cd $(BINDIR) && ln -sf $(GPU_DIR)/gpuATTRACTcheck/bin/gpuATTRACTcheck
+	cd $(BINDIR) && ln -sf $(GPU_DIR2)/gpuATTRACTcheck/bin/gpuATTRACTcheck
 
 mc: as
 	cd $(GPU_DIR)/mcATTRACT/bin && $(MAKE) TARGET=$(TARGET)
-	cd $(BINDIR) && ln -sf $(GPU_DIR)/mcATTRACT/bin/mcATTRACT
+	cd $(BINDIR) && ln -sf $(GPU_DIR2)/mcATTRACT/bin/mcATTRACT
 	
 sc: as
 	cd $(GPU_DIR)/scATTRACT/bin && $(MAKE) TARGET=$(TARGET)
@@ -38,7 +39,7 @@ sc: as
 
 as: check_cuda_version
 	cd $(GPU_DIR)/AttractServer/lib && $(MAKE) TARGET=$(TARGET)
-	cd $(BINDIR) && ln -sf $(GPU_DIR)/AttractServer/lib/libAttractServer.so
+	cd $(BINDIR) && ln -sf $(GPU_DIR2)/AttractServer/lib/libAttractServer.so
 
 attract:
 	cd $(ATTRACTDIR) && $(MAKE) -f _Makefile all
