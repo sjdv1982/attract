@@ -1,5 +1,0 @@
-source leaprc.ff14SB
-set default pbradii mbondi3
-one = loadpdb one.pdb
-saveamberparm one one.top one.crd
-quit

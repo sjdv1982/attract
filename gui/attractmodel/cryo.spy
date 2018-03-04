@@ -76,10 +76,12 @@ Type CryoInterface {
   ##form harmonic_restraints_file.type = "file"
   Integer tabu1 = 0
   Integer tabu2 = 0
+  Float tabu_dist = 10
   form {
     tabu1.add_header("After the first run, there comes a number of initial tabu runs. Then, the top 10 generated structures of each run get recombined with the result of it1 of run 1, and then subsequent tabu runs are performed")
     tabu1.name = "Number of initial tabu runs"
     tabu2.name = "Number of subsequent tabu runs"
+    tabu_dist.name = "Tabu RMSD distance (angstroms)"
   }
   Enum score_method("gvm", "corr") = "gvm"
   Float score_threshold = 10.0
@@ -139,7 +141,7 @@ Type CryoInterface {
   }
 
   validate {
-    assert len(partners) > 0
+    assert len(partners) > 1
     assert nstruc > 0
     assert ntop > 0
     assert float(nstruc)/ntop == int(nstruc/ntop)

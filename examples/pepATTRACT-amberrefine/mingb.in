@@ -1,7 +1,0 @@
-minization
- &cntrl
-     maxcyc=0,imin=1,ntmin=1,cut=99999.0,nsnb=5, 
-     dielc=1.0,ntpr=1,igb=8,
-     ntb=0,
- &end
-eof
