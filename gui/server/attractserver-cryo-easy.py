@@ -28,7 +28,7 @@ The ATTRACT web interface is in active development, thank you for your patience.
   sys.exit()
 
 try:
-  r = serve_attract(Spyder.AttractCryoEasyModel, form_cryo_easy, attractsave.deploy_cryo_easy, easy=False)
+  r = serve_attract(Spyder.CryoEasyInterface, form_cryo_easy, attractsave.deploy_cryo_easy, easy=False)
   report(r)
 except AttractServerError as e:
   report("<b>There was an inconsistency in your data</b>")
