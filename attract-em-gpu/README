@@ -1,0 +1,2 @@
+You need to install pycuda
+You need to build axsym: python axsym_build.py (requires CFFI)
