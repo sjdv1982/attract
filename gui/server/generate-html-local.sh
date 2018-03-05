@@ -7,7 +7,7 @@ for i in `ls -d ./* | grep -v '\.pyc' | grep -v 'cgi-local' | grep -v 'servercon
  cd ..
 done
 cd cgi-local
-ln -s ../serverconfig-local.py serverconfig.py 
+ln -s ../serverconfig-local.py serverconfig.py
 cd ..
 for i in `ls -d ./* | grep 'attractserver'`; do
  cd cgi-local
@@ -27,7 +27,7 @@ grep -v 'index.html' | grep -v 'attract.html' | grep -v 'narefine.html' | grep -
   cd html-local
   ln -s ../$i ${i##*/}
   cd ..
-done  
+done
 cd html-local
 ln -s ../html/upload-local.html upload.html
 cd ..
@@ -35,7 +35,7 @@ cd ..
 \cp -d html/index.html html/attract.html html-local/
 python generate-html-full.py $website/attractserver.py > html-local/full.html
 python generate-html-easy.py $website/attractserver-easy.py > html-local/easy.html
-python generate-html-standard.py $website/attractserver-standard.py > html-local/standard.html 
-python generate-html-peptide.py $website/attractserver-peptide.py > html-local/peptide.html 
-python generate-html-cryo.py $website/attractserver-cryo.py > html-local/cryo.html 
-python generate-html-narefine.py $website/attractserver-narefine.py > html-local/narefine.html 
+python generate-html-standard.py $website/attractserver-standard.py > html-local/standard.html
+python generate-html-peptide.py $website/attractserver-peptide.py > html-local/peptide.html
+python generate-html-cryo.py $website/attractserver-cryo.py > html-local/cryo.html
+python generate-html-cryo-easy.py $website/attractserver-cryo-easy.py > html-local/cryo_easy.html 

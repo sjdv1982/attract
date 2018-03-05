@@ -2,10 +2,10 @@ import os
 import Spyder
 
 from spyder.formtools import make_relpath, check_embedded
-  
+
 def save(m, outp, *args):
-  v = m._get()   
-  outpdir = os.path.split(outp)[0]  
+  v = m._get()
+  outpdir = os.path.split(outp)[0]
   if v is not None:
     make_relpath(outpdir, v)
     v.tofile(outp)
@@ -14,15 +14,15 @@ def save(m, outp, *args):
     print("Cannot save form: does not contain a valid object")
 
 def generate(m, outp, *args):
-  v = m._get() 
+  v = m._get()
   outpdir = os.path.split(outp)[0]
-  if v is not None: 
+  if v is not None:
     if isinstance(v, Spyder.AttractPeptideModel):
-      v = v.convert(Spyder.AttractEasyModel) 
+      v = v.convert(Spyder.AttractEasyModel)
       r = v.partners[1].pdbfile
       r.link("./peptide.pdb")
       r.save()
-    
+
     embedded = check_embedded(v)
     if embedded is not None:
       print("Cannot generate shell script: %s is an embedded resource, not a file name" % embedded)
@@ -37,12 +37,12 @@ def generate(m, outp, *args):
     print("Shell script generated: %s" % sh)
   else:
     print("Cannot generate shell script: form does not contain a valid object")
-    
+
 def _deploy(resource, fname):
-  if resource is not None: 
+  if resource is not None:
     resource.link(fname)
     resource.save()
-  
+
 def deploy(model, dir):
   d = dir + "/"
   if dir in (None, "", ".", "./"): d = ""
@@ -70,12 +70,23 @@ def deploy_easy(model, dir):
   _deploy(model.harmonic_restraints_file,d+"harmonic-restraints.tbl")
   _deploy(model.position_restraints_file,d+"position-restraints.tbl")
 
-def deploy_narefine(model, dir):
+def deploy_cryo(model, dir):
   d = dir + "/"
   if dir in (None, "", ".", "./"): d = ""
   elif dir.endswith("/"): d = dir
-  _deploy(model.pdbfile,d+"input.pdb")
-   
+  for n,p in enumerate(model.partners):
+    _deploy(p.pdbfile,d+"partner-%d.pdb" % (n+1))
+  _deploy(model.mapfile,d+"map.sit")
+  _deploy(model.harmonic_restraints_file,d+"harmonic-restraints.tbl")
+
+def deploy_cryo_easy(model, dir):
+  d = dir + "/"
+  if dir in (None, "", ".", "./"): d = ""
+  elif dir.endswith("/"): d = dir
+  for n,p in enumerate(model.partners):
+    _deploy(p.pdbfile,d+"partner-%d.pdb" % (n+1))
+  _deploy(model.mapfile,d+"map.sit")
+
 def deploy_peptide(model,dir):
   d = dir + "/"
   if dir in (None, "",".","./"): d = ""

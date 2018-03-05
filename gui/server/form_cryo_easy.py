@@ -5,7 +5,7 @@ header = """<!DOCTYPE html>
 <!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
     
     <head>
-        <title>ATTRACT NARefine Online</title>
+        <title>ATTRACT-EM Easy Online</title>
         
         <meta charset="utf-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
@@ -32,8 +32,10 @@ header = """<!DOCTYPE html>
             
             <nav id="form-category-navigation" class="row">
               <ul>
-                <li id="view-page1"><a id="nav-block-setup" class="puzzle-icon">Setup</a></li>
-                <li id="view-page2"><a id="nav-block-simulation" class="sampling-icon">Simulation</a></li>
+                <li id="view-page1"><a id="nav-block-partners" class="puzzle-icon">Partners</a></li>
+                <li id="view-page2"><a id="nav-block-symmetry" class="symmetry-icon">Symmetry</a></li>
+                <li id="view-page3"><a id="nav-block-cryo" class="cryo-icon">Cryo-EM data</a></li>  
+                <li id="view-page4"><a id="nav-block-computation" class="computation-icon">Computation</a></li>
               </ul>
             </nav>
             
@@ -76,48 +78,95 @@ footer = """
     </body>
 </html>"""
 
+def _assign_category(f, category, groupname, span = False):
+  for member in f._membernames:
+    ff = getattr(f, member)
+    if not hasattr(ff, "group"): continue
+    if ff.group != groupname: continue
+    category.members.append(member)
+    ff.group = None
+    if span: ff.span = True
+
 def webform(f, model=None):
   import copy
   f = copy.deepcopy(f)  
   f.resourcefilevar = "_tempresource"
   f.arraymarker = "_clonearraymarker"
+  
+  if model is not None:
+      partnerslength = max(1,len(model.partners))
+      symmetrieslength = max(1,len(model.axsymmetry))
+  else:
+      partnerslength = 1
+      symmetrieslength = 1
+  f.partners.length = partnerslength
+  f.axsymmetry.length = symmetrieslength
+  f.partners.clonebutton = "Add partner"
+  f.partners.clonelength = 10
 
-  ### START setup category
-  c = f.new_group("c_setup", "category")
+  ### START partners category
+  c = f.new_group("c_partners", "category")
   c.page = 1
   c.icon = "puzzle-icon"
-  c.title = "Setup"
-  c.categoryname = "setup"
-  c.description = """Setup"""
-  c.members.append("runname")
-  c.members.append("pdbfile")
-  c.members.append("offset")
-  c.members.append("use_simulation")
-  c.members.append("min2_cycles")
-  c.members.append("minc_cycles")
-  c.members.append("nparallel")
-  c.members.append("use_cuda")
-  c.members.append("use_5PO")
+  c.title = "Docking partners"
+  c.categoryname = "partners"
+  c.description = """Define docking partners by uploading a PDB structure file.""" 
+  c.members.append("partners")   
+  f.partners.clonelength = 6
+  f.partners.controltitle = "Docking partners"  
+  for fpnr in range(f.partners.length):
+    fp = f.partners[fpnr]
+    fp.group = None
+    fp.multi_active = True
 
-  ### START simulation category
-  c = f.new_group("c_simulation", "category")
+    ### START b_struc block
+    b = fp.new_group("b_struc", "block")
+    b.title = "Structure Sources"
+    b.has_switch = False
+    b.members.append("pdbfile") 
+    ff = fp.pdbfile
+    ff.name = "Structure file"
+    ff.tooltip = "Upload PDB structure file"
+    ff.tooltip_doc = "documentation.html#partners-structure_file"
+    ff.span = True
+    ### END b_struc block
+
+
+  ### START symmetry category
+  c = f.new_group("c_symmetry", "category")
   c.page = 2
-  c.icon = "sampling-icon"
-  c.title = "Setup"
-  c.categoryname = "simulation"
-  c.description = """Simulation"""
-  
-  b = f.new_group("b_md1", "block")
-  b.title = "Simulation 1"
-  b.has_switch = False 
-  b.members.append("md1")
-  c.members.append("b_md1")
+  c.icon = "symmetry-icon"
+  c.title = f.axsymmetry.name
+  c.description = c.title
+  c.always_active = True
+  c.categoryname = "symmetry"  
+  c.members.append("axsymmetry")
+  f.axsymmetry.clonebutton = "Add symmetry"
+  f.axsymmetry.clonelength = 6
+  f.axsymmetry.controltitle = "Symmetry"
+  ### END symmetry category  
 
-  b = f.new_group("b_md2", "block")
-  b.title = "Simulation 2"
-  b.has_switch = False 
-  b.members.append("md2")
-  c.members.append("b_md2")
+  ### START cryo category
+  c = f.new_group("c_cryo", "category")
+  c.page = 3
+  c.icon = "cryo-icon"
+  c.title = "Cryo-EM data"
+  c.description = c.title
+  c.always_active = True
+  c.categoryname = "cryo"  
+  _assign_category(f, c, c.title, span = True)
+  ### END cryo category  
+
+  ### START computation category
+  c = f.new_group("c_computation", "category")
+  c.page = 4
+  c.icon = "computation-icon"
+  c.title = "Computation"
+  c.description = c.title
+  c.always_active = True
+  c.categoryname = "computation"  
+  _assign_category(f, c, c.title, span = True)
+  ### END computation category  
   
   return f
 

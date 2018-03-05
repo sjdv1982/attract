@@ -36,7 +36,7 @@ rootclusters = read_clustfile(clustfile)
 superclust = []
 subclust = []
 
-maxstruc = 100000
+maxstruc = 30000
 
 coor = rmsdlib.read_pdb(pdbfiles[0]).coordinates()
 coor = numpy.array(coor)
@@ -60,6 +60,7 @@ for rootclustnr, rootclust in enumerate(rootclusters):
     clust_struc[cnr,:] = coor
   d = squareform(pdist(clust_struc[:len(rootclust)], 'sqeuclidean'))
   d2 = d<lim
+  del d
   
   clustered = 0
   while clustered < len(rootclust):

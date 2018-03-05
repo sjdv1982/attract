@@ -318,6 +318,8 @@ cat /dev/null > hm-all.dat
 """
     if separate_aa_mode:
       partnercode += "cat /dev/null > hm-all-aa.dat\n"
+    if aa_rmsd:
+      partnercode += "cat /dev/null > hm-all-heavy.dat\n"
     partnercode += "\n"
     for pnr,p in enumerate(m.partners):
       if p.generate_modes:
@@ -616,6 +618,7 @@ echo '**************************************************************'
   #determine flexibility parameters for fix_receptor and deredundant during docking
   flexpar1 = ""
   flexpar_iattract = ""
+  flexpar_demode = ""
   if ens_any:
     flexpar1 += " --ens"
     if m.use_iattract:
@@ -627,10 +630,13 @@ echo '**************************************************************'
         flexpar_iattract += " %d" % ensemble_size
     if m.deredundant_ignorens: flexpar1 += " --ignorens"
   if modes_any:
-    flexpar1 += " --modes"
+    flexpar1 += " --modes"    
     for p in m.partners:
       nr_modes = p.nr_modes
-      flexpar1 += " %d" % nr_modes
+      flexpar1 += " %d" % nr_modes    
+    for pnr, p in enumerate(m.partners):
+      if p.ensemble:
+        flexpar_demode += "--ens %d " % (pnr+1)
 
   rest = ""
   if has_air_restraints:
@@ -1213,7 +1219,7 @@ echo '**************************************************************'
         flexpar_collect = " --modes %s" % aa_modesfile
       elif not m.use_iattract:
         demodestr = "-demode"
-        ret += "$PYPY $ATTRACTTOOLS/demode.py out_$name-top%d.dat > out_$name-top%d.dat-demode\n" % (nr, nr)
+        ret += "$PYPY $ATTRACTTOOLS/demode.py out_$name-top%d.dat %s > out_$name-top%d.dat-demode\n" % (nr, flexpar_demode, nr)
     if m.use_iattract and not m.demode:
         flexpar_collect += " --name %s" %iname
     for pnr,p in enumerate(m.partners):
@@ -1237,8 +1243,8 @@ tmpf2=`mktemp`
     if modes_any and not (m.use_iattract and m.demode):
       ret += deflex_header
       has_tmpf = True
-      ret += "$PYPY $ATTRACTTOOLS/demode.py %s > %s\n" % \
-        (result, outp)
+      ret += "$PYPY $ATTRACTTOOLS/demode.py %s %s > %s\n" % \
+        (result, flexpar_demode, outp)
       result = outp
       outp, outp2 = outp2, outp
     if ens_any:
