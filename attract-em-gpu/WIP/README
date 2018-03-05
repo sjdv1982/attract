@@ -1,0 +1,1 @@
+gvm.py computes the GVM score on the GPU, but it seems to be bugged, the numbers are different from $ATTRACTDIR/gvm.py
