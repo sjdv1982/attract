@@ -14,9 +14,9 @@ def read_enestruc(datfile):
           else:
             e = float(ee)
           energies.append(e)
-    energies = energies[:4]
-    energy = sum(energies)/len(energies)
-    return header, energy, structures
+    energies4 = energies[:4]
+    energy = sum(energies4)/len(energies4)
+    return header, energy, energies, structures
 
 runs = int(sys.argv[1])
 iter_refinements = int(sys.argv[2])
@@ -24,34 +24,36 @@ data = []
 header = None
 for n in range(runs):
     filename = "dock-refine%d-it%d-topstruc.dat" % (n+1, iter_refinements)
-    header0, energy, structures = read_enestruc(filename)
+    header0, energy, energies, structures = read_enestruc(filename)
     if n == 0:
         header = header0
     else:
         assert header == header0, (n+1)
-    data.append((energy, structures))
+    data.append((energy, energies, structures))
 data.sort(key=lambda v:v[0], reverse=True)
 
 for h in header: print(h)
 stnr = 0
 for n in range(4):
     for run in range(runs):
-        energy, structures = data[run]
+        energy, energies, structures = data[run]
         s = structures[n]
+        e = energies[n]
         stnr += 1
         l1,l2 = s
         print("#"+str(stnr))
         print("## Run %d structure %d" % (run+1, n+1))
-        print("## Energy: %.6f" % energy )
+        print("## Energy: %.6f" % e )
         for l in l2: print(l)
 
 for run in range(runs):
-    energy, structures = data[run]
+    energy, energies, structures = data[run]
     for n in range(4,len(structures)):
         s = structures[n]
+        e = energies[n]
         stnr += 1
         l1,l2 = s
         print("#"+str(stnr))
         print("## Run %d structure %d" % (run+1, n+1))
-        print("## Energy: %.6f" % energy )
+        print("## Energy: %.6f" % e )
         for l in l2: print(l)
