@@ -24,8 +24,8 @@ script_gvm_noaxsym = """      python $ATTRACTDIR/gvm.py $mapfile $score_threshol
       python $ATTRACTTOOLS/fill-energies.py $outp $outp-gvm1 > $outp-gvm2
       python $ATTRACTTOOLS/sort.py $outp-gvm2 --rev > $sorted"""
 
-script_gvm_axsym = """      ./axsym.sh %s > $outp-axsym
-      python $ATTRACTDIR/gvm.py $mapfile $score_threshold $outp $complex | awk '{print "Energy:", $1}' > $outp-gvm1
+script_gvm_axsym = """      ./axsym.sh $outp > $outp-axsym
+      python $ATTRACTDIR/gvm.py $mapfile $score_threshold $outp-axsym $complex | awk '{print "Energy:", $1}' > $outp-gvm1
       python $ATTRACTTOOLS/fill-energies.py $outp $outp-gvm1 > $outp-gvm2
       python $ATTRACTTOOLS/sort.py $outp-gvm2 --rev > $sorted"""
 
@@ -79,7 +79,7 @@ script_collect =  """collect() {
   $ATTRACTTOOLS/top $inp 1 > best-$pattern.dat
   $ATTRACTTOOLS/top $inp 10 > top10-$pattern.dat
   $ATTRACTDIR/collect best-$pattern.dat %s > best-$pattern.pdb
-%s$ATTRACTDIR/collect top10-$pattern.dat %s > top10-$pattern.pdb
+%s  $ATTRACTDIR/collect top10-$pattern.dat %s > top10-$pattern.pdb
 }
 
 """
@@ -205,7 +205,7 @@ collect $inp refine1
 %(runs_tabu1)s
 %(recombination)s
 %(runs_tabu2)s
-python $ATTRACTTOOLS/select-em.py 10 $iter > result-all.dat
+python $ATTRACTTOOLS/select-em.py %(nruns)d $iter > result-all.dat
 $ATTRACTTOOLS/top result-all.dat 100 > result-top100.dat
 """
 
@@ -420,7 +420,10 @@ def generate_cryo(m):
         ch = chr(ord('A')+n)
         collect_str += "  awk '$1 == \"ATOM\" && substr($0,22,1) == \"%s\"' best-$pattern.pdb > tabu-$pattern-%s.pdb\n" % (ch, ch)
     filenames_str = " ".join(filenames)
-    ret += script_collect % (filenames_str, collect_str, filenames_str)
+    filenames_collect = filenames_str
+    if len(m.partners) == 1:
+        filenames_collect = "partners.pdb"
+    ret += script_collect % (filenames_collect, collect_str, filenames_collect)
     if len(m.axsymmetry):
         script_gvm = script_gvm_axsym
     else:
@@ -452,9 +455,11 @@ def generate_cryo(m):
              1 + m.tabu1, script_gvm)
         s = script_recombination %  p
     main_params["recombination"] = s
+    nruns = 1 + m.tabu1 + m.tabu2
+    main_params["nruns"] = nruns
     s = ""
     if m.tabu2:
-        s = script_runs_tabu % (2 + m.tabu1, 1 + m.tabu1 + m.tabu2, "monocombine-start.dat")
+        s = script_runs_tabu % (2 + m.tabu1, nruns, "monocombine-start.dat")
     main_params["runs_tabu2"] = s
     ret += script_main % main_params
     return ret
