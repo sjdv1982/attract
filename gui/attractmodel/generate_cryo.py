@@ -44,6 +44,18 @@ script_prepare="""prepare(){
 
 """
 
+
+script_prepare_one_molecule ="""prepare(){
+  topstruc=$1
+  inp=$2
+  if [ ! -s $inp ]; then
+    python $ATTRACTTOOLS/monte.py $topstruc $clone > $inp
+  fi
+}
+
+"""
+
+
 script_tabufilter="""tabufilter() {
   inp=$1
   ntabu=$2
@@ -398,7 +410,10 @@ def generate_cryo(m):
         ret += script_score % script_gvm_axsym
     else:
         ret += script_score % script_gvm_noaxsym
-    ret += script_prepare
+    if len(m.partners) == 1:
+      ret += script_prepare_one_molecule
+    else:
+      ret += script_prepare
     ret += script_tabufilter % (" ".join(tabu_pdbnames), m.tabu_dist)
     collect_str = ""
     for n in range(len(m.partners)):

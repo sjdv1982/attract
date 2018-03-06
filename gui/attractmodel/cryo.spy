@@ -197,7 +197,7 @@ Type CryoInterface {
   }
 
   validate {
-    assert len(partners) > 1
+    assert len(partners) > 0
     assert nstruc > 0
     assert ntop > 0
     assert float(nstruc)/ntop == int(nstruc/ntop)
@@ -242,7 +242,7 @@ Type CryoEasyInterface {
   Bool use_gpu = True
   Integer threads = 8
   validate {
-    assert len(partners) > 1
+    assert len(partners) > 0
   }
   form {
     g = "Cryo-EM data"
@@ -292,7 +292,7 @@ Define CryoInterface(CryoEasyInterface m) {
     ret.tabu1 = 5
     ret.tabu2 = 4
   else:
-    ret.tabu1 = 2
+    ret.tabu1 = 0 ###TODO: set to 2, but only when rearrange_monomers has been incorporated
     ret.tabu2 = 0
 
   ret.validate()

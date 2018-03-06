@@ -1,5 +1,6 @@
 ATTRACT is developed under Linux. It should work under Mac OSX, but this has not been tested.
 It does not work under Microsoft Windows.
+Note that ATTRACT's Python scripts are written for Python2.7, not for Python3.
 
 Installation instructions for Linux:
 
@@ -55,3 +56,5 @@ With Spydersilk, you can edit ATTRACT protocol files (.web files) locally.
 
 11. ATTRACT-EM GPU routines
 These require the PyCUDA library. Install pip (see above), then PyCUDA (under Ubuntu: sudo pip install pycuda)
+You will also need to install jinja2 and cffi (both with pip)
+Finally, you need to go to the attract-em-gpu directory, and run axsym_build.py
