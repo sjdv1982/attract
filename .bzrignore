@@ -29,3 +29,4 @@ gui/server/cgi-local
 emATTRACT.log
 bin/ScoringClient.log
 html/upload.html
+attract-em-gpu/_axsym.cpp
