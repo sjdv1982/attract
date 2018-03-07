@@ -237,6 +237,7 @@ set -u -e
     pdbnames = []
     collectnames = []
     tabu_pdbnames = []
+    collectnames_final = []
     pdbnames3 = set(("partners.pdb","partners-axsym.pdb"))
     for pnr, p in enumerate(m.partners):
         chain = chr(ord('A') + pnr)
@@ -244,32 +245,30 @@ set -u -e
         #TODO: select chain
         pdbname = p.pdbfile.name
         pdbname2 = os.path.split(pdbname)[1]
+        pdbname3 = os.path.splitext(pdbname2)[0]
+        pdbname3_0 = pdbname3
+        pcount = 0
+        while pdbname3 in pdbnames3:
+            pcount += 1
+            pdbname3 = pdbname3_0 + "-" + str(pcount)
+        pdbnames3.add(pdbname3)
+        pdbname4 = pdbname3 + ".pdb"
+        pdbname_heavy = pdbname3 + "-heavy.pdb"
+        collectnames.append(pdbname_heavy)
+        pdbname_reduced = pdbname3 + "r.pdb"
         if pdbname not in pdbnames:
-            pdbname3 = os.path.splitext(pdbname2)[0]
-            pdbname3_0 = pdbname3
-            pcount = 0
-            while pdbname3 in pdbnames3:
-                pcount += 1
-                pdbname3 = pdbname3_0 + "-" + str(pcount)
-            pdbnames3.add(pdbname3)
-            pdbname4 = pdbname3 + ".pdb"
             if pdbname4 != pdbname:
                 ret += "cat %s > %s\n" % (pdbname, pdbname4)
-            pdbname_heavy = pdbname3 + "-heavy.pdb"
-            collectnames.append(pdbname_heavy)
-            pdbname_reduced = pdbname3 + "r.pdb"
             ret += "python $ATTRACTDIR/../allatom/aareduce.py --heavy --chain %s %s %s > /dev/null\n" % (chain, pdbname4, pdbname_heavy)
             ret += "python $ATTRACTTOOLS/reduce.py --chain %s %s %s > /dev/null\n" % (chain, pdbname_heavy, pdbname_reduced)
-            pdbnames.append(pdbname)
-        else:
-            pdbname_reduced = filenames[pdbnames.index(pdbname)]
+        pdbnames.append(pdbname)
         filenames.append(pdbname_reduced)
         tabu_pdbnames.append(pdbname_reduced)
         tabu_pdbnames.append("tabu-refine$n-%s.pdb" % chain)
     ret += "echo %d > partners.pdb\n" % np
     for f in filenames:
         ret += "cat %s >> partners.pdb\n" % f
-        ret += "echo TER >> partners.pdb\n"
+        ret += "echo TER >> partners.pdb\n"        
     ret += "\n"
 
     structure_partners = open("partners.dat", "w")
@@ -302,12 +301,16 @@ set -u -e
 
         axcopies = {}
         ret += "echo %d > partners-axsym.pdb\n" % npax
-        for f in filenames:
+        for n in range(len(m.partners)):
+            f = filenames[n]
+            f2 = collectnames[n]
             ret += "cat %s >> partners-axsym.pdb\n" % f
             ret += "echo TER >> partners-axsym.pdb\n"
+            collectnames_final.append(f2)
         for n in range(len(m.axsymmetry)):
             ax = m.axsymmetry[n]
             f = filenames[ax.molecule-1]
+            f2 = collectnames[ax.molecule-1]
             copies = ax.fold
             copies_done = 1
             if ax.molecule in axcopies:
@@ -315,10 +318,12 @@ set -u -e
                 copies_done *= axcopies[ax.molecule]
             axcopies[ax.molecule] = copies
             for nn in range(copies-copies_done):
+                collectnames_final.append(f2)
                 ret += "cat %s >> partners-axsym.pdb\n" % f
                 ret += "echo TER >> partners-axsym.pdb\n"
         ret += "complex=partners-axsym.pdb\n\n"
     else:
+        collectnames_final = collectnames
         ret += "complex=partners.pdb\n"
 
     if m.mapmass is None:
@@ -401,11 +406,11 @@ set -u -e
     if m.randsearch_radius != 35: radius = " --radius %.6f" % m.randsearch_radius
     ret += "\nif [ ! -s randsearch.dat ]; then\n python $ATTRACTTOOLS/randsearch.py %d $nstruc%s%s > randsearch.dat\nfi\n"  % (len(m.partners), fast, radius)
     ret += "\n"
-    return ret, filenames, tabu_pdbnames
+    return ret, filenames, tabu_pdbnames, collectnames_final
 
 def generate_cryo(m):
     assert m.score_method == "gvm" #TODO: not implemented
-    ret, filenames, tabu_pdbnames = generate_cryo_init(m)
+    ret, filenames, tabu_pdbnames, collectnames_final = generate_cryo_init(m)
     if len(m.axsymmetry):
         ret += script_score % script_gvm_axsym
     else:
@@ -462,4 +467,10 @@ def generate_cryo(m):
         s = script_runs_tabu % (2 + m.tabu1, nruns, "monocombine-start.dat")
     main_params["runs_tabu2"] = s
     ret += script_main % main_params
+    collect_final_str = " ".join(collectnames_final)
+    if len(m.axsymmetry):
+        ret += "./axsym.sh result-top100.dat > result-top100.dat-axsym\n"
+        ret += "$ATTRACTDIR/collect result-top100.dat-axsym %s > result-top100.pdb\n" % collect_final_str
+    else:
+        ret += "$ATTRACTDIR/collect result-top100.dat %s > result-top100.pdb\n" % collect_final_str
     return ret
