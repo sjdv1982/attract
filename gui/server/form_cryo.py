@@ -179,6 +179,11 @@ def webform(f, model=None):
   c.always_active = True
   c.categoryname = "computation"  
   _assign_category(f, c, c.title, span = True)
+  f.maskweight.length = 100
+  f.iterations.length = 100
+  f.mcmax.length = 100
+  f.mcscalerot.length = 100
+  f.mcscalecenter.length = 100
   ### END computation category  
   
   return f

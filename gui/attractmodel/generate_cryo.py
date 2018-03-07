@@ -120,7 +120,7 @@ script_refine = """refine() {
 
 script_it_initial = """for it in `seq %d %d`; do
   echo '******************************************************************************************************************************'
-  echo Run $run Initial sampling iteration $it '(%s stage, 250 steps)'
+  echo Run $run Initial sampling iteration $it '(%s stage, %d steps)'
   echo '******************************************************************************************************************************'
   outp=dock-run$run-it$it.dat
   sorted=dock-run$run-it$it-sorted.dat
@@ -136,8 +136,8 @@ script_it_initial = """for it in `seq %d %d`; do
   inp=$newinp
 done
 """
-#(1, 1, first, 1, cmd_dock)
-#(2, 4, second, 2, cmd_dock)
+#(1, 1, first, 250, 1, cmd_dock)
+#(2, 4, second, 250, 2, cmd_dock)
 
 script_runs_tabu="""for run in `seq %d %d`; do
   echo '******************************************************************************************************************************'
@@ -259,7 +259,8 @@ set -u -e
         if pdbname not in pdbnames:
             if pdbname4 != pdbname:
                 ret += "cat %s > %s\n" % (pdbname, pdbname4)
-            ret += "python $ATTRACTDIR/../allatom/aareduce.py --heavy --chain %s %s %s > /dev/null\n" % (chain, pdbname4, pdbname_heavy)
+            ret += "$ATTRACTDIR/center %s > %s-centered\n" % (pdbname4, pdbname4)    
+            ret += "python $ATTRACTDIR/../allatom/aareduce.py --heavy --chain %s %s-centered %s > /dev/null\n" % (chain, pdbname4, pdbname_heavy)
             ret += "python $ATTRACTTOOLS/reduce.py --chain %s %s %s > /dev/null\n" % (chain, pdbname_heavy, pdbname_reduced)
         pdbnames.append(pdbname)
         filenames.append(pdbname_reduced)
@@ -448,7 +449,11 @@ def generate_cryo(m):
             end = cumit[n+1]
             cmdd0 = cmd_dockmin if n >=2 else cmd_dock
             cmdd = cmdd0 % {"protocol":protocol}
-            s = script_it_initial % (start, end, ordinals[n], n+1, cmdd)
+            if n == 4:
+                stages = 100
+            else:
+                stages = m.mcmax[n]
+            s = script_it_initial % (start, end, ordinals[n], stages, n+1, cmdd)
         main_params["stage%d" %(n+1)] = s
     s = ""
     if m.tabu1:
