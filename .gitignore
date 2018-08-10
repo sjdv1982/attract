@@ -1,5 +1,10 @@
+# Ignore all
+*
+
+# Unignore all files with extensions recursively
+!**/*.*
+
 *.o
-RE:bin/[^.]+
 ~*
 */gmon.out
 gmon.out
@@ -9,8 +14,8 @@ bin/*.pyc
 tools/*.pyc
 .
 ..
+.git
 .bzr
-.bzrignore
 .cproject
 .metadata
 .project
