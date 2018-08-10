@@ -1,0 +1,3 @@
+[submodule "gpuATTRACT"]
+	path = gpuATTRACT
+	url = git://github.com/UmbrellaSampler/gpuATTRACT_2.0.git
