@@ -21,6 +21,7 @@
 #include <memory>
 #include <string>
 #include <fstream>
+#include <numeric> 
 #include <nvToolsExt.h>
 
 #include <AttractServer>
@@ -104,7 +105,7 @@ int main (int argc, char *argv[]) {
 		TCLAP::ValueArg<int> cpusArg("c","cpus","Number of CPU threads to be used. (Default: 0)", false, 0, "int", cmd);
 
 		int numDevicesAvailable = 0; CUDA_CHECK(cudaGetDeviceCount(&numDevicesAvailable));
-		vector<int> allowedValues(numDevicesAvailable); iota(allowedValues.begin(), allowedValues.end(), 0);
+		vector<int> allowedValues(numDevicesAvailable); std::iota(allowedValues.begin(), allowedValues.end(), 0);
 		TCLAP::ValuesConstraint<int> vc(allowedValues);
 		TCLAP::MultiArg<int> deviceArg("d","device","Device ID of GPU to be used.", false, &vc, cmd);
 		TCLAP::ValueArg<int> chunkSizeArg("","chunkSize", "Number of concurrently processed structures", false, 1000, "int", cmd);

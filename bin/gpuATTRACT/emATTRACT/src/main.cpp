@@ -27,6 +27,7 @@
 #include <memory>
 #include <string>
 #include <algorithm>
+#include <numeric>
 #include <cuda_runtime.h>
 
 #include <AttractServer>
@@ -134,7 +135,7 @@ int main (int argc, char *argv[]) {
 		TCLAP::ValueArg<unsigned> cpusArg("c","cpus","Number of CPU threads to be used. (Default: 0)", false, 0, "uint");
 
 		int numDevicesAvailable = 0; CUDA_CHECK(cudaGetDeviceCount(&numDevicesAvailable));
-		vector<int> allowedDevices(numDevicesAvailable); iota(allowedDevices.begin(), allowedDevices.end(), 0);
+		vector<int> allowedDevices(numDevicesAvailable); std::iota(allowedDevices.begin(), allowedDevices.end(), 0);
 		TCLAP::ValuesConstraint<int> vc(allowedDevices);
 		TCLAP::MultiArg<int> deviceArg("d","device","Device ID of serverMode to be used. Must be between 0 and the number of available GPUs minus one.", false, &vc);
 
