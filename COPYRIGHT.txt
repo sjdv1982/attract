@@ -1,6 +1,20 @@
-ATTRACT (development version) 
-Copyright 2014
-Authors: Martin Zacharias, Sjoerd de Vries, Christina Schindler, Piotr Setny, Isaure Chauvot de Beauchene
+ATTRACT
+Copyright 2003-2018
+
+Authors:
+Sjoerd de Vries
+Christina Schindler
+Isaure Chauvot de Beauchene
+Martin Zacharias
+
+Contributions from:
+Alexander Sasse
+Piotr Setny
+Matthias ???
+
+Embeds GPU-ATTRACT
+ Authors: Uwe Ehmann and Glenn Glashagen
+
 
 This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -14,5 +28,3 @@ This program is free software: you can redistribute it and/or modify
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-

@@ -51,41 +51,6 @@ def run_pdb2pqr(pdblines):
         result.append(p)
   return result
 
-def run_whatif(pdblines):
-  """
-  Runs the WHATIF server on the input
-  """
-  from whatif import run
-  whatifresult0 = run("corall", "\n".join(list(pdblines)))
-  whatifresult = run("htopo", whatifresult0)
-  whatiflines = whatifresult.split("\n")
-  result = []
-  repl = (
-    (" H  ", " HN "),
-    (" H  ", " HT1"),
-    (" H2 ", " HT2"),
-    (" H3 ", " HT3"),
-    ("1HD2", "HD21"),
-    ("2HD2", "HD22"),
-    ("1HE2", "HE21"),
-    ("2HE2", "HE22"),
-    ("1HH1", "HH11"),
-    ("2HH1", "HH12"),
-    ("1HH2", "HH21"),
-    ("2HH2", "HH22"),
-    ("'HO2", "HO2'"),
-    (" HO2", "HO2'"),
-    ("H2''", " H2'"),
-  )
-  for l in whatiflines:
-    result.append(l)
-    atom2 = l[12:16]
-    for pin, pout in repl:
-      if atom2 == pin:
-        p = l[:12] + pout + l[16:]
-        result.append(p)
-  return result
-
 def update_patches(pdb):
   """
   Updates PDB His/Cys patches based on the presence of hydrogens
@@ -247,7 +212,7 @@ def apply_nalib(pdb, lib, heavy):
         if fixmode == "base":
             libcoor = lib.base[nuc][numpy.newaxis]
             atoms = lib.baseatoms[nuc]
-            print lib.baseatoms[nuc], nuc
+            #print >> sys.stderr,  lib.baseatoms[nuc], nuc
         elif fixmode == "sugar":
             libcoor = lib.sugar
             atoms = lib.sugaratoms
@@ -258,7 +223,7 @@ def apply_nalib(pdb, lib, heavy):
             libcoor = lib.mono[nuc]
             atoms = lib.monoatoms[nuc]
         rmsd_atoms = fit_atoms
-        print fixmode, rmsd_atoms
+        #print >> sys.stderr,  fixmode, rmsd_atoms
         #print >> sys.stderr, (fixmode, res.topology)
         if fixmode == "ph":
             rmsd_atoms = lib.phatoms_rmsd
@@ -287,7 +252,7 @@ def apply_nalib(pdb, lib, heavy):
         libconf = _apply_matrix(libconf, pivot+offset, rotmat.T, -offset)
         for anr, a in enumerate(atoms):
             if a in missing or fixmode == "base":
-                print "FIX", a, fixmode
+                #print "FIX", a, fixmode
                 x,y,z = libconf[anr]
                 res.coords[a] = x,y,z
         if fixmode == "nucleotide": break

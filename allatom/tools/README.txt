@@ -1,4 +1,4 @@
-This document describes the generation of ATTRACT parameters from CNS or OpenMM format.
+This document describes the generation of ATTRACT topology and parameters from CNS or OpenMM format.
 See allatom.txt for more technical detail.
 
 *********************************************************************************************************
@@ -26,8 +26,12 @@ To create a combined file for DNA, RNA and protein, concatenate different trans 
 3. Generate the ATTRACT parameters using the gen_par tool
 	Example: python gen_par.py allatom.trans > allatom.par
 
-4. Use allatom/aareduce.py to reduce your PDBs. This requires the trans file and the topology file.
-   CNS example:
+
+
+C. Usage
+=====================================================================================================================================
+
+4. Use allatom/aareduce.py to reduce your PDBs. This requires the trans file and the ATTRACT topology file.
 	 python aareduce.py mypdb.pdb --trans oplsx.trans --top topallhdg5.3_HIS.pro
 	 This will create mypdb-aaX.pdb.
 
