@@ -9,9 +9,9 @@ class Residue(object):
         self.patches = []
 
     def add_atom(self, atom):
-        if atom.name not in self.atomorder:
-            self.atomorder.append(atom.name)
-        self.atoms[atom.name] = atom
+        if atom["name"] not in self.atomorder:
+            self.atomorder.append(atom["name"])
+        self.atoms[atom["name"]] = atom
 
     def add_bond(self, bond):
         atom1, atom2 = bond
