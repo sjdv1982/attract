@@ -1,0 +1,7981 @@
+{
+  "patches": [],
+  "residues": {
+    "01G": {
+      "atomorder": [
+        "C1",
+        "H1",
+        "C2",
+        "H2",
+        "O2",
+        "S6",
+        "C3",
+        "H3",
+        "O3",
+        "S10",
+        "C4",
+        "H4",
+        "C5",
+        "H5",
+        "O5",
+        "C6",
+        "H61",
+        "H62",
+        "O6",
+        "S20",
+        "O4",
+        "O23",
+        "O24",
+        "O25",
+        "O26",
+        "O27",
+        "O28",
+        "O29",
+        "O30",
+        "O31",
+        "H4O"
+      ],
+      "atoms": {
+        "C1": {
+          "charge": 0.509,
+          "name": "C1",
+          "type": "CG"
+        },
+        "C2": {
+          "charge": 0.246,
+          "name": "C2",
+          "type": "CG"
+        },
+        "C3": {
+          "charge": 0.286,
+          "name": "C3",
+          "type": "CG"
+        },
+        "C4": {
+          "charge": 0.254,
+          "name": "C4",
+          "type": "CG"
+        },
+        "C5": {
+          "charge": 0.283,
+          "name": "C5",
+          "type": "CG"
+        },
+        "C6": {
+          "charge": 0.276,
+          "name": "C6",
+          "type": "CG"
+        },
+        "H1": {
+          "charge": 0.0,
+          "name": "H1",
+          "type": "H2"
+        },
+        "H2": {
+          "charge": 0.0,
+          "name": "H2",
+          "type": "H1"
+        },
+        "H3": {
+          "charge": 0.0,
+          "name": "H3",
+          "type": "H1"
+        },
+        "H4": {
+          "charge": 0.0,
+          "name": "H4",
+          "type": "H1"
+        },
+        "H4O": {
+          "charge": 0.436,
+          "name": "H4O",
+          "type": "HO"
+        },
+        "H5": {
+          "charge": 0.0,
+          "name": "H5",
+          "type": "H1"
+        },
+        "H61": {
+          "charge": 0.0,
+          "name": "H61",
+          "type": "H1"
+        },
+        "H62": {
+          "charge": 0.0,
+          "name": "H62",
+          "type": "H1"
+        },
+        "O2": {
+          "charge": -0.5098,
+          "name": "O2",
+          "type": "OS"
+        },
+        "O23": {
+          "charge": -0.6499,
+          "name": "O23",
+          "type": "O2"
+        },
+        "O24": {
+          "charge": -0.6499,
+          "name": "O24",
+          "type": "O2"
+        },
+        "O25": {
+          "charge": -0.6499,
+          "name": "O25",
+          "type": "O2"
+        },
+        "O26": {
+          "charge": -0.6499,
+          "name": "O26",
+          "type": "O2"
+        },
+        "O27": {
+          "charge": -0.6499,
+          "name": "O27",
+          "type": "O2"
+        },
+        "O28": {
+          "charge": -0.6499,
+          "name": "O28",
+          "type": "O2"
+        },
+        "O29": {
+          "charge": -0.6499,
+          "name": "O29",
+          "type": "O2"
+        },
+        "O3": {
+          "charge": -0.5058,
+          "name": "O3",
+          "type": "OS"
+        },
+        "O30": {
+          "charge": -0.6499,
+          "name": "O30",
+          "type": "O2"
+        },
+        "O31": {
+          "charge": -0.6499,
+          "name": "O31",
+          "type": "O2"
+        },
+        "O4": {
+          "charge": -0.71,
+          "name": "O4",
+          "type": "OH"
+        },
+        "O5": {
+          "charge": -0.574,
+          "name": "O5",
+          "type": "OS"
+        },
+        "O6": {
+          "charge": -0.4978,
+          "name": "O6",
+          "type": "OS"
+        },
+        "S10": {
+          "charge": 1.1835,
+          "name": "S10",
+          "type": "S"
+        },
+        "S20": {
+          "charge": 1.1835,
+          "name": "S20",
+          "type": "S"
+        },
+        "S6": {
+          "charge": 1.1835,
+          "name": "S6",
+          "type": "S"
+        }
+      },
+      "bonds": [],
+      "topname": "gag"
+    },
+    "02Y": {
+      "atomorder": [
+        "C1",
+        "H1",
+        "C2",
+        "H2",
+        "N2",
+        "H2N",
+        "S",
+        "C3",
+        "H3",
+        "O3",
+        "H3O",
+        "C4",
+        "H4",
+        "C5",
+        "H5",
+        "O5",
+        "C6",
+        "H61",
+        "H62",
+        "O6",
+        "H6O",
+        "O4",
+        "O1S",
+        "O2S",
+        "O3S",
+        "H4O"
+      ],
+      "atoms": {
+        "C1": {
+          "charge": 0.468,
+          "name": "C1",
+          "type": "CG"
+        },
+        "C2": {
+          "charge": 0.245,
+          "name": "C2",
+          "type": "CG"
+        },
+        "C3": {
+          "charge": 0.165,
+          "name": "C3",
+          "type": "CG"
+        },
+        "C4": {
+          "charge": 0.322,
+          "name": "C4",
+          "type": "CG"
+        },
+        "C5": {
+          "charge": 0.246,
+          "name": "C5",
+          "type": "CG"
+        },
+        "C6": {
+          "charge": 0.328,
+          "name": "C6",
+          "type": "CG"
+        },
+        "H1": {
+          "charge": 0.0,
+          "name": "H1",
+          "type": "H2"
+        },
+        "H2": {
+          "charge": 0.0,
+          "name": "H2",
+          "type": "H1"
+        },
+        "H2N": {
+          "charge": 0.236,
+          "name": "H2N",
+          "type": "H"
+        },
+        "H3": {
+          "charge": 0.0,
+          "name": "H3",
+          "type": "H1"
+        },
+        "H3O": {
+          "charge": 0.413,
+          "name": "H3O",
+          "type": "HO"
+        },
+        "H4": {
+          "charge": 0.0,
+          "name": "H4",
+          "type": "H1"
+        },
+        "H4O": {
+          "charge": 0.449,
+          "name": "H4O",
+          "type": "HO"
+        },
+        "H5": {
+          "charge": 0.0,
+          "name": "H5",
+          "type": "H1"
+        },
+        "H61": {
+          "charge": 0.0,
+          "name": "H61",
+          "type": "H1"
+        },
+        "H62": {
+          "charge": 0.0,
+          "name": "H62",
+          "type": "H1"
+        },
+        "H6O": {
+          "charge": 0.421,
+          "name": "H6O",
+          "type": "HO"
+        },
+        "N2": {
+          "charge": -0.7394,
+          "name": "N2",
+          "type": "NG"
+        },
+        "O1S": {
+          "charge": -0.6366,
+          "name": "O1S",
+          "type": "O2"
+        },
+        "O2S": {
+          "charge": -0.6366,
+          "name": "O2S",
+          "type": "O2"
+        },
+        "O3": {
+          "charge": -0.63,
+          "name": "O3",
+          "type": "OH"
+        },
+        "O3S": {
+          "charge": -0.6366,
+          "name": "O3S",
+          "type": "O2"
+        },
+        "O4": {
+          "charge": -0.733,
+          "name": "O4",
+          "type": "OH"
+        },
+        "O5": {
+          "charge": -0.568,
+          "name": "O5",
+          "type": "OS"
+        },
+        "O6": {
+          "charge": -0.688,
+          "name": "O6",
+          "type": "OH"
+        },
+        "S": {
+          "charge": 1.1692,
+          "name": "S",
+          "type": "S"
+        }
+      },
+      "bonds": [],
+      "topname": "gag"
+    },
+    "02Z": {
+      "atomorder": [
+        "C1",
+        "H1",
+        "O5",
+        "C5",
+        "H5",
+        "C6",
+        "O6A",
+        "O6B",
+        "C4",
+        "H4",
+        "C3",
+        "H3",
+        "O3",
+        "H3O",
+        "C2",
+        "H2",
+        "O2",
+        "S",
+        "O4",
+        "O1S",
+        "O2S",
+        "O3S",
+        "H4O"
+      ],
+      "atoms": {
+        "C1": {
+          "charge": 0.251,
+          "name": "C1",
+          "type": "CG"
+        },
+        "C2": {
+          "charge": 0.411,
+          "name": "C2",
+          "type": "CG"
+        },
+        "C3": {
+          "charge": 0.266,
+          "name": "C3",
+          "type": "CG"
+        },
+        "C4": {
+          "charge": 0.267,
+          "name": "C4",
+          "type": "CG"
+        },
+        "C5": {
+          "charge": 0.075,
+          "name": "C5",
+          "type": "CG"
+        },
+        "C6": {
+          "charge": 0.893,
+          "name": "C6",
+          "type": "C"
+        },
+        "H1": {
+          "charge": 0.0,
+          "name": "H1",
+          "type": "H2"
+        },
+        "H2": {
+          "charge": 0.0,
+          "name": "H2",
+          "type": "H1"
+        },
+        "H3": {
+          "charge": 0.0,
+          "name": "H3",
+          "type": "H1"
+        },
+        "H3O": {
+          "charge": 0.403,
+          "name": "H3O",
+          "type": "HO"
+        },
+        "H4": {
+          "charge": 0.0,
+          "name": "H4",
+          "type": "H1"
+        },
+        "H4O": {
+          "charge": 0.429,
+          "name": "H4O",
+          "type": "HO"
+        },
+        "H5": {
+          "charge": 0.0,
+          "name": "H5",
+          "type": "H1"
+        },
+        "O1S": {
+          "charge": -0.6499,
+          "name": "O1S",
+          "type": "O2"
+        },
+        "O2": {
+          "charge": -0.5518,
+          "name": "O2",
+          "type": "OS"
+        },
+        "O2S": {
+          "charge": -0.6499,
+          "name": "O2S",
+          "type": "O2"
+        },
+        "O3": {
+          "charge": -0.701,
+          "name": "O3",
+          "type": "OH"
+        },
+        "O3S": {
+          "charge": -0.6499,
+          "name": "O3S",
+          "type": "O2"
+        },
+        "O4": {
+          "charge": -0.733,
+          "name": "O4",
+          "type": "OH"
+        },
+        "O5": {
+          "charge": -0.413,
+          "name": "O5",
+          "type": "OS"
+        },
+        "O6A": {
+          "charge": -0.818,
+          "name": "O6A",
+          "type": "O2"
+        },
+        "O6B": {
+          "charge": -0.818,
+          "name": "O6B",
+          "type": "O2"
+        },
+        "S": {
+          "charge": 1.1835,
+          "name": "S",
+          "type": "S"
+        }
+      },
+      "bonds": [],
+      "topname": "gag"
+    },
+    "02u": {
+      "atomorder": [
+        "C1",
+        "H1",
+        "O5",
+        "C5",
+        "H5",
+        "C6",
+        "O6A",
+        "O6B",
+        "C4",
+        "H4",
+        "C3",
+        "H3",
+        "O3",
+        "H3O",
+        "C2",
+        "H2",
+        "O2",
+        "S",
+        "O4",
+        "O1S",
+        "O2S",
+        "O3S",
+        "H4O"
+      ],
+      "atoms": {
+        "C1": {
+          "charge": 0.363,
+          "name": "C1",
+          "type": "CG"
+        },
+        "C2": {
+          "charge": 0.259,
+          "name": "C2",
+          "type": "CG"
+        },
+        "C3": {
+          "charge": 0.417,
+          "name": "C3",
+          "type": "CG"
+        },
+        "C4": {
+          "charge": 0.223,
+          "name": "C4",
+          "type": "CG"
+        },
+        "C5": {
+          "charge": 0.232,
+          "name": "C5",
+          "type": "CG"
+        },
+        "C6": {
+          "charge": 0.697,
+          "name": "C6",
+          "type": "C"
+        },
+        "H1": {
+          "charge": 0.0,
+          "name": "H1",
+          "type": "H2"
+        },
+        "H2": {
+          "charge": 0.0,
+          "name": "H2",
+          "type": "H1"
+        },
+        "H3": {
+          "charge": 0.0,
+          "name": "H3",
+          "type": "H1"
+        },
+        "H3O": {
+          "charge": 0.417,
+          "name": "H3O",
+          "type": "HO"
+        },
+        "H4": {
+          "charge": 0.0,
+          "name": "H4",
+          "type": "H1"
+        },
+        "H4O": {
+          "charge": 0.397,
+          "name": "H4O",
+          "type": "HO"
+        },
+        "H5": {
+          "charge": 0.0,
+          "name": "H5",
+          "type": "H1"
+        },
+        "O1S": {
+          "charge": -0.6499,
+          "name": "O1S",
+          "type": "O2"
+        },
+        "O2": {
+          "charge": -0.5338,
+          "name": "O2",
+          "type": "OS"
+        },
+        "O2S": {
+          "charge": -0.6499,
+          "name": "O2S",
+          "type": "O2"
+        },
+        "O3": {
+          "charge": -0.771,
+          "name": "O3",
+          "type": "OH"
+        },
+        "O3S": {
+          "charge": -0.6499,
+          "name": "O3S",
+          "type": "O2"
+        },
+        "O4": {
+          "charge": -0.711,
+          "name": "O4",
+          "type": "OH"
+        },
+        "O5": {
+          "charge": -0.515,
+          "name": "O5",
+          "type": "OS"
+        },
+        "O6A": {
+          "charge": -0.757,
+          "name": "O6A",
+          "type": "O2"
+        },
+        "O6B": {
+          "charge": -0.757,
+          "name": "O6B",
+          "type": "O2"
+        },
+        "S": {
+          "charge": 1.1835,
+          "name": "S",
+          "type": "S"
+        }
+      },
+      "bonds": [],
+      "topname": "gag"
+    },
+    "03Z": {
+      "atomorder": [
+        "C1",
+        "H1",
+        "O5",
+        "C5",
+        "H5",
+        "C6",
+        "O6A",
+        "O6B",
+        "C4",
+        "H4",
+        "O4",
+        "H4O",
+        "C3",
+        "H3",
+        "O3",
+        "S",
+        "C2",
+        "H2",
+        "O2",
+        "H2O",
+        "O1S",
+        "O2S",
+        "O3S"
+      ],
+      "atoms": {
+        "C1": {
+          "charge": 0.251,
+          "name": "C1",
+          "type": "CG"
+        },
+        "C2": {
+          "charge": 0.411,
+          "name": "C2",
+          "type": "CG"
+        },
+        "C3": {
+          "charge": 0.266,
+          "name": "C3",
+          "type": "CG"
+        },
+        "C4": {
+          "charge": 0.267,
+          "name": "C4",
+          "type": "CG"
+        },
+        "C5": {
+          "charge": 0.075,
+          "name": "C5",
+          "type": "CG"
+        },
+        "C6": {
+          "charge": 0.893,
+          "name": "C6",
+          "type": "C"
+        },
+        "H1": {
+          "charge": 0.0,
+          "name": "H1",
+          "type": "H2"
+        },
+        "H2": {
+          "charge": 0.0,
+          "name": "H2",
+          "type": "H1"
+        },
+        "H2O": {
+          "charge": 0.422,
+          "name": "H2O",
+          "type": "HO"
+        },
+        "H3": {
+          "charge": 0.0,
+          "name": "H3",
+          "type": "H1"
+        },
+        "H4": {
+          "charge": 0.0,
+          "name": "H4",
+          "type": "H1"
+        },
+        "H4O": {
+          "charge": 0.429,
+          "name": "H4O",
+          "type": "HO"
+        },
+        "H5": {
+          "charge": 0.0,
+          "name": "H5",
+          "type": "H1"
+        },
+        "O1S": {
+          "charge": -0.6499,
+          "name": "O1S",
+          "type": "O2"
+        },
+        "O2": {
+          "charge": -0.74,
+          "name": "O2",
+          "type": "OH"
+        },
+        "O2S": {
+          "charge": -0.6499,
+          "name": "O2S",
+          "type": "O2"
+        },
+        "O3": {
+          "charge": -0.5318,
+          "name": "O3",
+          "type": "OS"
+        },
+        "O3S": {
+          "charge": -0.6499,
+          "name": "O3S",
+          "type": "O2"
+        },
+        "O4": {
+          "charge": -0.733,
+          "name": "O4",
+          "type": "OH"
+        },
+        "O5": {
+          "charge": -0.413,
+          "name": "O5",
+          "type": "OS"
+        },
+        "O6A": {
+          "charge": -0.818,
+          "name": "O6A",
+          "type": "O2"
+        },
+        "O6B": {
+          "charge": -0.818,
+          "name": "O6B",
+          "type": "O2"
+        },
+        "S": {
+          "charge": 1.1835,
+          "name": "S",
+          "type": "S"
+        }
+      },
+      "bonds": [],
+      "topname": "gag"
+    },
+    "03u": {
+      "atomorder": [
+        "C1",
+        "H1",
+        "O5",
+        "C5",
+        "H5",
+        "C6",
+        "O6A",
+        "O6B",
+        "C4",
+        "H4",
+        "O4",
+        "H4O",
+        "C3",
+        "H3",
+        "O3",
+        "S",
+        "C2",
+        "H2",
+        "O2",
+        "H2O",
+        "O1S",
+        "O2S",
+        "O3S"
+      ],
+      "atoms": {
+        "C1": {
+          "charge": 0.363,
+          "name": "C1",
+          "type": "CG"
+        },
+        "C2": {
+          "charge": 0.259,
+          "name": "C2",
+          "type": "CG"
+        },
+        "C3": {
+          "charge": 0.417,
+          "name": "C3",
+          "type": "CG"
+        },
+        "C4": {
+          "charge": 0.223,
+          "name": "C4",
+          "type": "CG"
+        },
+        "C5": {
+          "charge": 0.232,
+          "name": "C5",
+          "type": "CG"
+        },
+        "C6": {
+          "charge": 0.697,
+          "name": "C6",
+          "type": "C"
+        },
+        "H1": {
+          "charge": 0.0,
+          "name": "H1",
+          "type": "H2"
+        },
+        "H2": {
+          "charge": 0.0,
+          "name": "H2",
+          "type": "H1"
+        },
+        "H2O": {
+          "charge": 0.385,
+          "name": "H2O",
+          "type": "HO"
+        },
+        "H3": {
+          "charge": 0.0,
+          "name": "H3",
+          "type": "H1"
+        },
+        "H4": {
+          "charge": 0.0,
+          "name": "H4",
+          "type": "H1"
+        },
+        "H4O": {
+          "charge": 0.397,
+          "name": "H4O",
+          "type": "HO"
+        },
+        "H5": {
+          "charge": 0.0,
+          "name": "H5",
+          "type": "H1"
+        },
+        "O1S": {
+          "charge": -0.6499,
+          "name": "O1S",
+          "type": "O2"
+        },
+        "O2": {
+          "charge": -0.685,
+          "name": "O2",
+          "type": "OH"
+        },
+        "O2S": {
+          "charge": -0.6499,
+          "name": "O2S",
+          "type": "O2"
+        },
+        "O3": {
+          "charge": -0.5878,
+          "name": "O3",
+          "type": "OS"
+        },
+        "O3S": {
+          "charge": -0.6499,
+          "name": "O3S",
+          "type": "O2"
+        },
+        "O4": {
+          "charge": -0.711,
+          "name": "O4",
+          "type": "OH"
+        },
+        "O5": {
+          "charge": -0.515,
+          "name": "O5",
+          "type": "OS"
+        },
+        "O6A": {
+          "charge": -0.757,
+          "name": "O6A",
+          "type": "O2"
+        },
+        "O6B": {
+          "charge": -0.757,
+          "name": "O6B",
+          "type": "O2"
+        },
+        "S": {
+          "charge": 1.1835,
+          "name": "S",
+          "type": "S"
+        }
+      },
+      "bonds": [],
+      "topname": "gag"
+    },
+    "04B": {
+      "atomorder": [
+        "C1",
+        "H1",
+        "O5",
+        "C5",
+        "H5",
+        "C6",
+        "H61",
+        "H62",
+        "O6",
+        "H6O",
+        "C4",
+        "H4",
+        "O4",
+        "S",
+        "C3",
+        "H3",
+        "O3",
+        "H3O",
+        "C2",
+        "H2",
+        "N2",
+        "H2N",
+        "C2N",
+        "O2N",
+        "CME",
+        "H1M",
+        "H2M",
+        "H3M",
+        "O1S",
+        "O2S",
+        "O3S"
+      ],
+      "atoms": {
+        "C1": {
+          "charge": 0.287,
+          "name": "C1",
+          "type": "CG"
+        },
+        "C2": {
+          "charge": 0.48,
+          "name": "C2",
+          "type": "CG"
+        },
+        "C2N": {
+          "charge": 0.648,
+          "name": "C2N",
+          "type": "C"
+        },
+        "C3": {
+          "charge": 0.18,
+          "name": "C3",
+          "type": "CG"
+        },
+        "C4": {
+          "charge": 0.302,
+          "name": "C4",
+          "type": "CG"
+        },
+        "C5": {
+          "charge": 0.208,
+          "name": "C5",
+          "type": "CG"
+        },
+        "C6": {
+          "charge": 0.289,
+          "name": "C6",
+          "type": "CG"
+        },
+        "CME": {
+          "charge": 0.034,
+          "name": "CME",
+          "type": "CG"
+        },
+        "H1": {
+          "charge": 0.0,
+          "name": "H1",
+          "type": "H2"
+        },
+        "H1M": {
+          "charge": 0.0,
+          "name": "H1M",
+          "type": "HC"
+        },
+        "H2": {
+          "charge": 0.0,
+          "name": "H2",
+          "type": "H1"
+        },
+        "H2M": {
+          "charge": 0.0,
+          "name": "H2M",
+          "type": "HC"
+        },
+        "H2N": {
+          "charge": 0.3,
+          "name": "H2N",
+          "type": "H"
+        },
+        "H3": {
+          "charge": 0.0,
+          "name": "H3",
+          "type": "H1"
+        },
+        "H3M": {
+          "charge": 0.0,
+          "name": "H3M",
+          "type": "HC"
+        },
+        "H3O": {
+          "charge": 0.423,
+          "name": "H3O",
+          "type": "HO"
+        },
+        "H4": {
+          "charge": 0.0,
+          "name": "H4",
+          "type": "H1"
+        },
+        "H5": {
+          "charge": 0.0,
+          "name": "H5",
+          "type": "H1"
+        },
+        "H61": {
+          "charge": 0.0,
+          "name": "H61",
+          "type": "H1"
+        },
+        "H62": {
+          "charge": 0.0,
+          "name": "H62",
+          "type": "H1"
+        },
+        "H6O": {
+          "charge": 0.424,
+          "name": "H6O",
+          "type": "HO"
+        },
+        "N2": {
+          "charge": -0.722,
+          "name": "N2",
+          "type": "NG"
+        },
+        "O1S": {
+          "charge": -0.6499,
+          "name": "O1S",
+          "type": "O2"
+        },
+        "O2N": {
+          "charge": -0.576,
+          "name": "O2N",
+          "type": "O"
+        },
+        "O2S": {
+          "charge": -0.6499,
+          "name": "O2S",
+          "type": "O2"
+        },
+        "O3": {
+          "charge": -0.681,
+          "name": "O3",
+          "type": "OH"
+        },
+        "O3S": {
+          "charge": -0.6499,
+          "name": "O3S",
+          "type": "O2"
+        },
+        "O4": {
+          "charge": -0.5138,
+          "name": "O4",
+          "type": "OS"
+        },
+        "O5": {
+          "charge": -0.433,
+          "name": "O5",
+          "type": "OS"
+        },
+        "O6": {
+          "charge": -0.689,
+          "name": "O6",
+          "type": "OH"
+        },
+        "S": {
+          "charge": 1.1835,
+          "name": "S",
+          "type": "S"
+        }
+      },
+      "bonds": [],
+      "topname": "gag"
+    },
+    "04V": {
+      "atomorder": [
+        "C1",
+        "H1",
+        "O5",
+        "C5",
+        "H5",
+        "C6",
+        "H61",
+        "H62",
+        "O6",
+        "H6O",
+        "C4",
+        "H4",
+        "O4",
+        "S",
+        "C3",
+        "H3",
+        "C2",
+        "H2",
+        "N2",
+        "H2N",
+        "C2N",
+        "O2N",
+        "CME",
+        "H1M",
+        "H2M",
+        "H3M",
+        "O3",
+        "O1S",
+        "O2S",
+        "O3S",
+        "H3O"
+      ],
+      "atoms": {
+        "C1": {
+          "charge": 0.305,
+          "name": "C1",
+          "type": "CG"
+        },
+        "C2": {
+          "charge": 0.544,
+          "name": "C2",
+          "type": "CG"
+        },
+        "C2N": {
+          "charge": 0.586,
+          "name": "C2N",
+          "type": "C"
+        },
+        "C3": {
+          "charge": 0.152,
+          "name": "C3",
+          "type": "CG"
+        },
+        "C4": {
+          "charge": 0.253,
+          "name": "C4",
+          "type": "CG"
+        },
+        "C5": {
+          "charge": 0.136,
+          "name": "C5",
+          "type": "CG"
+        },
+        "C6": {
+          "charge": 0.353,
+          "name": "C6",
+          "type": "CG"
+        },
+        "CME": {
+          "charge": 0.056,
+          "name": "CME",
+          "type": "CG"
+        },
+        "H1": {
+          "charge": 0.0,
+          "name": "H1",
+          "type": "H2"
+        },
+        "H1M": {
+          "charge": 0.0,
+          "name": "H1M",
+          "type": "HC"
+        },
+        "H2": {
+          "charge": 0.0,
+          "name": "H2",
+          "type": "H1"
+        },
+        "H2M": {
+          "charge": 0.0,
+          "name": "H2M",
+          "type": "HC"
+        },
+        "H2N": {
+          "charge": 0.254,
+          "name": "H2N",
+          "type": "H"
+        },
+        "H3": {
+          "charge": 0.0,
+          "name": "H3",
+          "type": "H1"
+        },
+        "H3M": {
+          "charge": 0.0,
+          "name": "H3M",
+          "type": "HC"
+        },
+        "H3O": {
+          "charge": 0.415,
+          "name": "H3O",
+          "type": "HO"
+        },
+        "H4": {
+          "charge": 0.0,
+          "name": "H4",
+          "type": "H1"
+        },
+        "H5": {
+          "charge": 0.0,
+          "name": "H5",
+          "type": "H1"
+        },
+        "H61": {
+          "charge": 0.0,
+          "name": "H61",
+          "type": "H1"
+        },
+        "H62": {
+          "charge": 0.0,
+          "name": "H62",
+          "type": "H1"
+        },
+        "H6O": {
+          "charge": 0.427,
+          "name": "H6O",
+          "type": "HO"
+        },
+        "N2": {
+          "charge": -0.686,
+          "name": "N2",
+          "type": "NG"
+        },
+        "O1S": {
+          "charge": -0.6499,
+          "name": "O1S",
+          "type": "O2"
+        },
+        "O2N": {
+          "charge": -0.564,
+          "name": "O2N",
+          "type": "O"
+        },
+        "O2S": {
+          "charge": -0.6499,
+          "name": "O2S",
+          "type": "O2"
+        },
+        "O3": {
+          "charge": -0.665,
+          "name": "O3",
+          "type": "OH"
+        },
+        "O3S": {
+          "charge": -0.6499,
+          "name": "O3S",
+          "type": "O2"
+        },
+        "O4": {
+          "charge": -0.4838,
+          "name": "O4",
+          "type": "OS"
+        },
+        "O5": {
+          "charge": -0.408,
+          "name": "O5",
+          "type": "OS"
+        },
+        "O6": {
+          "charge": -0.714,
+          "name": "O6",
+          "type": "OH"
+        },
+        "S": {
+          "charge": 1.1835,
+          "name": "S",
+          "type": "S"
+        }
+      },
+      "bonds": [],
+      "topname": "gag"
+    },
+    "04Y": {
+      "atomorder": [
+        "C1",
+        "H1",
+        "C2",
+        "H2",
+        "N2",
+        "H2N",
+        "C2N",
+        "O2N",
+        "CME",
+        "H1M",
+        "H2M",
+        "H3M",
+        "C3",
+        "H3",
+        "O3",
+        "H3O",
+        "C4",
+        "H4",
+        "O4",
+        "S",
+        "C5",
+        "H5",
+        "O5",
+        "C6",
+        "H61",
+        "H62",
+        "O6",
+        "H6O",
+        "O1S",
+        "O2S",
+        "O3S"
+      ],
+      "atoms": {
+        "C1": {
+          "charge": 0.468,
+          "name": "C1",
+          "type": "CG"
+        },
+        "C2": {
+          "charge": 0.245,
+          "name": "C2",
+          "type": "CG"
+        },
+        "C2N": {
+          "charge": 0.588,
+          "name": "C2N",
+          "type": "C"
+        },
+        "C3": {
+          "charge": 0.165,
+          "name": "C3",
+          "type": "CG"
+        },
+        "C4": {
+          "charge": 0.322,
+          "name": "C4",
+          "type": "CG"
+        },
+        "C5": {
+          "charge": 0.246,
+          "name": "C5",
+          "type": "CG"
+        },
+        "C6": {
+          "charge": 0.328,
+          "name": "C6",
+          "type": "CG"
+        },
+        "CME": {
+          "charge": 0.063,
+          "name": "CME",
+          "type": "CG"
+        },
+        "H1": {
+          "charge": 0.0,
+          "name": "H1",
+          "type": "H2"
+        },
+        "H1M": {
+          "charge": 0.0,
+          "name": "H1M",
+          "type": "HC"
+        },
+        "H2": {
+          "charge": 0.0,
+          "name": "H2",
+          "type": "H1"
+        },
+        "H2M": {
+          "charge": 0.0,
+          "name": "H2M",
+          "type": "HC"
+        },
+        "H2N": {
+          "charge": 0.236,
+          "name": "H2N",
+          "type": "H"
+        },
+        "H3": {
+          "charge": 0.0,
+          "name": "H3",
+          "type": "H1"
+        },
+        "H3M": {
+          "charge": 0.0,
+          "name": "H3M",
+          "type": "HC"
+        },
+        "H3O": {
+          "charge": 0.413,
+          "name": "H3O",
+          "type": "HO"
+        },
+        "H4": {
+          "charge": 0.0,
+          "name": "H4",
+          "type": "H1"
+        },
+        "H5": {
+          "charge": 0.0,
+          "name": "H5",
+          "type": "H1"
+        },
+        "H61": {
+          "charge": 0.0,
+          "name": "H61",
+          "type": "H1"
+        },
+        "H62": {
+          "charge": 0.0,
+          "name": "H62",
+          "type": "H1"
+        },
+        "H6O": {
+          "charge": 0.421,
+          "name": "H6O",
+          "type": "HO"
+        },
+        "N2": {
+          "charge": -0.552,
+          "name": "N2",
+          "type": "NG"
+        },
+        "O1S": {
+          "charge": -0.6499,
+          "name": "O1S",
+          "type": "O2"
+        },
+        "O2N": {
+          "charge": -0.579,
+          "name": "O2N",
+          "type": "O"
+        },
+        "O2S": {
+          "charge": -0.6499,
+          "name": "O2S",
+          "type": "O2"
+        },
+        "O3": {
+          "charge": -0.63,
+          "name": "O3",
+          "type": "OH"
+        },
+        "O3S": {
+          "charge": -0.6499,
+          "name": "O3S",
+          "type": "O2"
+        },
+        "O4": {
+          "charge": -0.5178,
+          "name": "O4",
+          "type": "OS"
+        },
+        "O5": {
+          "charge": -0.568,
+          "name": "O5",
+          "type": "OS"
+        },
+        "O6": {
+          "charge": -0.688,
+          "name": "O6",
+          "type": "OH"
+        },
+        "S": {
+          "charge": 1.1835,
+          "name": "S",
+          "type": "S"
+        }
+      },
+      "bonds": [],
+      "topname": "gag"
+    },
+    "06B": {
+      "atomorder": [
+        "C1",
+        "H1",
+        "O5",
+        "C5",
+        "H5",
+        "C6",
+        "H61",
+        "H62",
+        "O6",
+        "C4",
+        "H4",
+        "O4",
+        "H4O",
+        "C3",
+        "H3",
+        "O3",
+        "H3O",
+        "C2",
+        "H2",
+        "N2",
+        "H2N",
+        "C2N",
+        "O2N",
+        "CME",
+        "H1M",
+        "H2M",
+        "H3M",
+        "S",
+        "O1S",
+        "O2S",
+        "O3S"
+      ],
+      "atoms": {
+        "C1": {
+          "charge": 0.287,
+          "name": "C1",
+          "type": "CG"
+        },
+        "C2": {
+          "charge": 0.48,
+          "name": "C2",
+          "type": "CG"
+        },
+        "C2N": {
+          "charge": 0.648,
+          "name": "C2N",
+          "type": "C"
+        },
+        "C3": {
+          "charge": 0.18,
+          "name": "C3",
+          "type": "CG"
+        },
+        "C4": {
+          "charge": 0.302,
+          "name": "C4",
+          "type": "CG"
+        },
+        "C5": {
+          "charge": 0.208,
+          "name": "C5",
+          "type": "CG"
+        },
+        "C6": {
+          "charge": 0.289,
+          "name": "C6",
+          "type": "CG"
+        },
+        "CME": {
+          "charge": 0.034,
+          "name": "CME",
+          "type": "CG"
+        },
+        "H1": {
+          "charge": 0.0,
+          "name": "H1",
+          "type": "H2"
+        },
+        "H1M": {
+          "charge": 0.0,
+          "name": "H1M",
+          "type": "HC"
+        },
+        "H2": {
+          "charge": 0.0,
+          "name": "H2",
+          "type": "H1"
+        },
+        "H2M": {
+          "charge": 0.0,
+          "name": "H2M",
+          "type": "HC"
+        },
+        "H2N": {
+          "charge": 0.3,
+          "name": "H2N",
+          "type": "H"
+        },
+        "H3": {
+          "charge": 0.0,
+          "name": "H3",
+          "type": "H1"
+        },
+        "H3M": {
+          "charge": 0.0,
+          "name": "H3M",
+          "type": "HC"
+        },
+        "H3O": {
+          "charge": 0.423,
+          "name": "H3O",
+          "type": "HO"
+        },
+        "H4": {
+          "charge": 0.0,
+          "name": "H4",
+          "type": "H1"
+        },
+        "H4O": {
+          "charge": 0.436,
+          "name": "H4O",
+          "type": "HO"
+        },
+        "H5": {
+          "charge": 0.0,
+          "name": "H5",
+          "type": "H1"
+        },
+        "H61": {
+          "charge": 0.0,
+          "name": "H61",
+          "type": "H1"
+        },
+        "H62": {
+          "charge": 0.0,
+          "name": "H62",
+          "type": "H1"
+        },
+        "N2": {
+          "charge": -0.722,
+          "name": "N2",
+          "type": "NG"
+        },
+        "O1S": {
+          "charge": -0.6499,
+          "name": "O1S",
+          "type": "O2"
+        },
+        "O2N": {
+          "charge": -0.576,
+          "name": "O2N",
+          "type": "O"
+        },
+        "O2S": {
+          "charge": -0.6499,
+          "name": "O2S",
+          "type": "O2"
+        },
+        "O3": {
+          "charge": -0.681,
+          "name": "O3",
+          "type": "OH"
+        },
+        "O3S": {
+          "charge": -0.6499,
+          "name": "O3S",
+          "type": "O2"
+        },
+        "O4": {
+          "charge": -0.716,
+          "name": "O4",
+          "type": "OH"
+        },
+        "O5": {
+          "charge": -0.433,
+          "name": "O5",
+          "type": "OS"
+        },
+        "O6": {
+          "charge": -0.4988,
+          "name": "O6",
+          "type": "OS"
+        },
+        "S": {
+          "charge": 1.1835,
+          "name": "S",
+          "type": "S"
+        }
+      },
+      "bonds": [],
+      "topname": "gag"
+    },
+    "06L": {
+      "atomorder": [
+        "C1",
+        "H1",
+        "O5",
+        "C5",
+        "H5",
+        "C6",
+        "H61",
+        "H62",
+        "O6",
+        "S",
+        "C4",
+        "H4",
+        "O4",
+        "H4O",
+        "C3",
+        "H3",
+        "C2",
+        "H2",
+        "O2",
+        "H2O",
+        "O3",
+        "O1S",
+        "O2S",
+        "O3S",
+        "H3O"
+      ],
+      "atoms": {
+        "C1": {
+          "charge": 0.374,
+          "name": "C1",
+          "type": "CG"
+        },
+        "C2": {
+          "charge": 0.357,
+          "name": "C2",
+          "type": "CG"
+        },
+        "C3": {
+          "charge": 0.259,
+          "name": "C3",
+          "type": "CG"
+        },
+        "C4": {
+          "charge": 0.203,
+          "name": "C4",
+          "type": "CG"
+        },
+        "C5": {
+          "charge": 0.14,
+          "name": "C5",
+          "type": "CG"
+        },
+        "C6": {
+          "charge": 0.319,
+          "name": "C6",
+          "type": "CG"
+        },
+        "H1": {
+          "charge": 0.0,
+          "name": "H1",
+          "type": "H2"
+        },
+        "H2": {
+          "charge": 0.0,
+          "name": "H2",
+          "type": "H1"
+        },
+        "H2O": {
+          "charge": 0.432,
+          "name": "H2O",
+          "type": "HO"
+        },
+        "H3": {
+          "charge": 0.0,
+          "name": "H3",
+          "type": "H1"
+        },
+        "H3O": {
+          "charge": 0.433,
+          "name": "H3O",
+          "type": "HO"
+        },
+        "H4": {
+          "charge": 0.0,
+          "name": "H4",
+          "type": "H1"
+        },
+        "H4O": {
+          "charge": 0.437,
+          "name": "H4O",
+          "type": "HO"
+        },
+        "H5": {
+          "charge": 0.0,
+          "name": "H5",
+          "type": "H1"
+        },
+        "H61": {
+          "charge": 0.0,
+          "name": "H61",
+          "type": "H1"
+        },
+        "H62": {
+          "charge": 0.0,
+          "name": "H62",
+          "type": "H1"
+        },
+        "O1S": {
+          "charge": -0.6499,
+          "name": "O1S",
+          "type": "O2"
+        },
+        "O2": {
+          "charge": -0.726,
+          "name": "O2",
+          "type": "OH"
+        },
+        "O2S": {
+          "charge": -0.6499,
+          "name": "O2S",
+          "type": "O2"
+        },
+        "O3": {
+          "charge": -0.694,
+          "name": "O3",
+          "type": "OH"
+        },
+        "O3S": {
+          "charge": -0.6499,
+          "name": "O3S",
+          "type": "O2"
+        },
+        "O4": {
+          "charge": -0.664,
+          "name": "O4",
+          "type": "OH"
+        },
+        "O5": {
+          "charge": -0.402,
+          "name": "O5",
+          "type": "OS"
+        },
+        "O6": {
+          "charge": -0.5078,
+          "name": "O6",
+          "type": "OS"
+        },
+        "S": {
+          "charge": 1.1835,
+          "name": "S",
+          "type": "S"
+        }
+      },
+      "bonds": [],
+      "topname": "gag"
+    },
+    "06V": {
+      "atomorder": [
+        "C1",
+        "H1",
+        "O5",
+        "C5",
+        "H5",
+        "C6",
+        "H61",
+        "H62",
+        "O6",
+        "S",
+        "C4",
+        "H4",
+        "O4",
+        "H4O",
+        "C3",
+        "H3",
+        "C2",
+        "H2",
+        "N2",
+        "H2N",
+        "C2N",
+        "O2N",
+        "CME",
+        "H1M",
+        "H2M",
+        "H3M",
+        "O3",
+        "O1S",
+        "O2S",
+        "O3S",
+        "H3O"
+      ],
+      "atoms": {
+        "C1": {
+          "charge": 0.305,
+          "name": "C1",
+          "type": "CG"
+        },
+        "C2": {
+          "charge": 0.544,
+          "name": "C2",
+          "type": "CG"
+        },
+        "C2N": {
+          "charge": 0.586,
+          "name": "C2N",
+          "type": "C"
+        },
+        "C3": {
+          "charge": 0.152,
+          "name": "C3",
+          "type": "CG"
+        },
+        "C4": {
+          "charge": 0.253,
+          "name": "C4",
+          "type": "CG"
+        },
+        "C5": {
+          "charge": 0.136,
+          "name": "C5",
+          "type": "CG"
+        },
+        "C6": {
+          "charge": 0.353,
+          "name": "C6",
+          "type": "CG"
+        },
+        "CME": {
+          "charge": 0.056,
+          "name": "CME",
+          "type": "CG"
+        },
+        "H1": {
+          "charge": 0.0,
+          "name": "H1",
+          "type": "H2"
+        },
+        "H1M": {
+          "charge": 0.0,
+          "name": "H1M",
+          "type": "HC"
+        },
+        "H2": {
+          "charge": 0.0,
+          "name": "H2",
+          "type": "H1"
+        },
+        "H2M": {
+          "charge": 0.0,
+          "name": "H2M",
+          "type": "HC"
+        },
+        "H2N": {
+          "charge": 0.254,
+          "name": "H2N",
+          "type": "H"
+        },
+        "H3": {
+          "charge": 0.0,
+          "name": "H3",
+          "type": "H1"
+        },
+        "H3M": {
+          "charge": 0.0,
+          "name": "H3M",
+          "type": "HC"
+        },
+        "H3O": {
+          "charge": 0.415,
+          "name": "H3O",
+          "type": "HO"
+        },
+        "H4": {
+          "charge": 0.0,
+          "name": "H4",
+          "type": "H1"
+        },
+        "H4O": {
+          "charge": 0.44,
+          "name": "H4O",
+          "type": "HO"
+        },
+        "H5": {
+          "charge": 0.0,
+          "name": "H5",
+          "type": "H1"
+        },
+        "H61": {
+          "charge": 0.0,
+          "name": "H61",
+          "type": "H1"
+        },
+        "H62": {
+          "charge": 0.0,
+          "name": "H62",
+          "type": "H1"
+        },
+        "N2": {
+          "charge": -0.686,
+          "name": "N2",
+          "type": "NG"
+        },
+        "O1S": {
+          "charge": -0.6499,
+          "name": "O1S",
+          "type": "O2"
+        },
+        "O2N": {
+          "charge": -0.564,
+          "name": "O2N",
+          "type": "O"
+        },
+        "O2S": {
+          "charge": -0.6499,
+          "name": "O2S",
+          "type": "O2"
+        },
+        "O3": {
+          "charge": -0.665,
+          "name": "O3",
+          "type": "OH"
+        },
+        "O3S": {
+          "charge": -0.6499,
+          "name": "O3S",
+          "type": "O2"
+        },
+        "O4": {
+          "charge": -0.69,
+          "name": "O4",
+          "type": "OH"
+        },
+        "O5": {
+          "charge": -0.408,
+          "name": "O5",
+          "type": "OS"
+        },
+        "O6": {
+          "charge": -0.5208,
+          "name": "O6",
+          "type": "OS"
+        },
+        "S": {
+          "charge": 1.1835,
+          "name": "S",
+          "type": "S"
+        }
+      },
+      "bonds": [],
+      "topname": "gag"
+    },
+    "06Y": {
+      "atomorder": [
+        "C1",
+        "H1",
+        "C2",
+        "H2",
+        "N2",
+        "H2N",
+        "C2N",
+        "O2N",
+        "CME",
+        "H1M",
+        "H2M",
+        "H3M",
+        "C3",
+        "H3",
+        "O3",
+        "H3O",
+        "C4",
+        "H4",
+        "O4",
+        "H4O",
+        "C5",
+        "H5",
+        "O5",
+        "C6",
+        "H61",
+        "H62",
+        "O6",
+        "S",
+        "O1S",
+        "O2S",
+        "O3S"
+      ],
+      "atoms": {
+        "C1": {
+          "charge": 0.468,
+          "name": "C1",
+          "type": "CG"
+        },
+        "C2": {
+          "charge": 0.245,
+          "name": "C2",
+          "type": "CG"
+        },
+        "C2N": {
+          "charge": 0.588,
+          "name": "C2N",
+          "type": "C"
+        },
+        "C3": {
+          "charge": 0.165,
+          "name": "C3",
+          "type": "CG"
+        },
+        "C4": {
+          "charge": 0.322,
+          "name": "C4",
+          "type": "CG"
+        },
+        "C5": {
+          "charge": 0.246,
+          "name": "C5",
+          "type": "CG"
+        },
+        "C6": {
+          "charge": 0.328,
+          "name": "C6",
+          "type": "CG"
+        },
+        "CME": {
+          "charge": 0.063,
+          "name": "CME",
+          "type": "CG"
+        },
+        "H1": {
+          "charge": 0.0,
+          "name": "H1",
+          "type": "H2"
+        },
+        "H1M": {
+          "charge": 0.0,
+          "name": "H1M",
+          "type": "HC"
+        },
+        "H2": {
+          "charge": 0.0,
+          "name": "H2",
+          "type": "H1"
+        },
+        "H2M": {
+          "charge": 0.0,
+          "name": "H2M",
+          "type": "HC"
+        },
+        "H2N": {
+          "charge": 0.236,
+          "name": "H2N",
+          "type": "H"
+        },
+        "H3": {
+          "charge": 0.0,
+          "name": "H3",
+          "type": "H1"
+        },
+        "H3M": {
+          "charge": 0.0,
+          "name": "H3M",
+          "type": "HC"
+        },
+        "H3O": {
+          "charge": 0.413,
+          "name": "H3O",
+          "type": "HO"
+        },
+        "H4": {
+          "charge": 0.0,
+          "name": "H4",
+          "type": "H1"
+        },
+        "H4O": {
+          "charge": 0.449,
+          "name": "H4O",
+          "type": "HO"
+        },
+        "H5": {
+          "charge": 0.0,
+          "name": "H5",
+          "type": "H1"
+        },
+        "H61": {
+          "charge": 0.0,
+          "name": "H61",
+          "type": "H1"
+        },
+        "H62": {
+          "charge": 0.0,
+          "name": "H62",
+          "type": "H1"
+        },
+        "N2": {
+          "charge": -0.552,
+          "name": "N2",
+          "type": "NG"
+        },
+        "O1S": {
+          "charge": -0.6499,
+          "name": "O1S",
+          "type": "O2"
+        },
+        "O2N": {
+          "charge": -0.579,
+          "name": "O2N",
+          "type": "O"
+        },
+        "O2S": {
+          "charge": -0.6499,
+          "name": "O2S",
+          "type": "O2"
+        },
+        "O3": {
+          "charge": -0.63,
+          "name": "O3",
+          "type": "OH"
+        },
+        "O3S": {
+          "charge": -0.6499,
+          "name": "O3S",
+          "type": "O2"
+        },
+        "O4": {
+          "charge": -0.733,
+          "name": "O4",
+          "type": "OH"
+        },
+        "O5": {
+          "charge": -0.568,
+          "name": "O5",
+          "type": "OS"
+        },
+        "O6": {
+          "charge": -0.5008,
+          "name": "O6",
+          "type": "OS"
+        },
+        "S": {
+          "charge": 1.1835,
+          "name": "S",
+          "type": "S"
+        }
+      },
+      "bonds": [],
+      "topname": "gag"
+    },
+    "07B": {
+      "atomorder": [
+        "C1",
+        "H1",
+        "O5",
+        "C5",
+        "H5",
+        "C6",
+        "H61",
+        "H62",
+        "C4",
+        "H4",
+        "O4",
+        "S1",
+        "C3",
+        "H3",
+        "C2",
+        "H2",
+        "N2",
+        "H2N",
+        "C2N",
+        "O2N",
+        "CME",
+        "H1M",
+        "H2M",
+        "H3M",
+        "O3",
+        "O1S",
+        "O2S",
+        "O3S",
+        "O6",
+        "S2",
+        "O4S",
+        "O5S",
+        "O6S",
+        "H3O"
+      ],
+      "atoms": {
+        "C1": {
+          "charge": 0.287,
+          "name": "C1",
+          "type": "CG"
+        },
+        "C2": {
+          "charge": 0.48,
+          "name": "C2",
+          "type": "CG"
+        },
+        "C2N": {
+          "charge": 0.648,
+          "name": "C2N",
+          "type": "C"
+        },
+        "C3": {
+          "charge": 0.18,
+          "name": "C3",
+          "type": "CG"
+        },
+        "C4": {
+          "charge": 0.302,
+          "name": "C4",
+          "type": "CG"
+        },
+        "C5": {
+          "charge": 0.208,
+          "name": "C5",
+          "type": "CG"
+        },
+        "C6": {
+          "charge": 0.289,
+          "name": "C6",
+          "type": "CG"
+        },
+        "CME": {
+          "charge": 0.034,
+          "name": "CME",
+          "type": "CG"
+        },
+        "H1": {
+          "charge": 0.0,
+          "name": "H1",
+          "type": "H2"
+        },
+        "H1M": {
+          "charge": 0.0,
+          "name": "H1M",
+          "type": "HC"
+        },
+        "H2": {
+          "charge": 0.0,
+          "name": "H2",
+          "type": "H1"
+        },
+        "H2M": {
+          "charge": 0.0,
+          "name": "H2M",
+          "type": "HC"
+        },
+        "H2N": {
+          "charge": 0.3,
+          "name": "H2N",
+          "type": "H"
+        },
+        "H3": {
+          "charge": 0.0,
+          "name": "H3",
+          "type": "H1"
+        },
+        "H3M": {
+          "charge": 0.0,
+          "name": "H3M",
+          "type": "HC"
+        },
+        "H3O": {
+          "charge": 0.423,
+          "name": "H3O",
+          "type": "HO"
+        },
+        "H4": {
+          "charge": 0.0,
+          "name": "H4",
+          "type": "H1"
+        },
+        "H5": {
+          "charge": 0.0,
+          "name": "H5",
+          "type": "H1"
+        },
+        "H61": {
+          "charge": 0.0,
+          "name": "H61",
+          "type": "H1"
+        },
+        "H62": {
+          "charge": 0.0,
+          "name": "H62",
+          "type": "H1"
+        },
+        "N2": {
+          "charge": -0.722,
+          "name": "N2",
+          "type": "NG"
+        },
+        "O1S": {
+          "charge": -0.6499,
+          "name": "O1S",
+          "type": "O2"
+        },
+        "O2N": {
+          "charge": -0.576,
+          "name": "O2N",
+          "type": "O"
+        },
+        "O2S": {
+          "charge": -0.6499,
+          "name": "O2S",
+          "type": "O2"
+        },
+        "O3": {
+          "charge": -0.681,
+          "name": "O3",
+          "type": "OH"
+        },
+        "O3S": {
+          "charge": -0.6499,
+          "name": "O3S",
+          "type": "O2"
+        },
+        "O4": {
+          "charge": -0.5138,
+          "name": "O4",
+          "type": "OS"
+        },
+        "O4S": {
+          "charge": -0.6499,
+          "name": "O4S",
+          "type": "O2"
+        },
+        "O5": {
+          "charge": -0.433,
+          "name": "O5",
+          "type": "OS"
+        },
+        "O5S": {
+          "charge": -0.6499,
+          "name": "O5S",
+          "type": "O2"
+        },
+        "O6": {
+          "charge": -0.4988,
+          "name": "O6",
+          "type": "OS"
+        },
+        "O6S": {
+          "charge": -0.6499,
+          "name": "O6S",
+          "type": "O2"
+        },
+        "S1": {
+          "charge": 1.1835,
+          "name": "S1",
+          "type": "S"
+        },
+        "S2": {
+          "charge": 1.1835,
+          "name": "S2",
+          "type": "S"
+        }
+      },
+      "bonds": [],
+      "topname": "gag"
+    },
+    "07V": {
+      "atomorder": [
+        "C1",
+        "H1",
+        "O5",
+        "C5",
+        "H5",
+        "C6",
+        "H61",
+        "H62",
+        "O6",
+        "S2",
+        "C4",
+        "H4",
+        "O4",
+        "S1",
+        "C3",
+        "H3",
+        "C2",
+        "H2",
+        "N2",
+        "H2N",
+        "C2N",
+        "O2N",
+        "CME",
+        "H1M",
+        "H2M",
+        "H3M",
+        "O3",
+        "O1S",
+        "O2S",
+        "O3S",
+        "O4S",
+        "O5S",
+        "O6S",
+        "H3O"
+      ],
+      "atoms": {
+        "C1": {
+          "charge": 0.305,
+          "name": "C1",
+          "type": "CG"
+        },
+        "C2": {
+          "charge": 0.544,
+          "name": "C2",
+          "type": "CG"
+        },
+        "C2N": {
+          "charge": 0.586,
+          "name": "C2N",
+          "type": "C"
+        },
+        "C3": {
+          "charge": 0.152,
+          "name": "C3",
+          "type": "CG"
+        },
+        "C4": {
+          "charge": 0.253,
+          "name": "C4",
+          "type": "CG"
+        },
+        "C5": {
+          "charge": 0.136,
+          "name": "C5",
+          "type": "CG"
+        },
+        "C6": {
+          "charge": 0.353,
+          "name": "C6",
+          "type": "CG"
+        },
+        "CME": {
+          "charge": 0.056,
+          "name": "CME",
+          "type": "CG"
+        },
+        "H1": {
+          "charge": 0.0,
+          "name": "H1",
+          "type": "H2"
+        },
+        "H1M": {
+          "charge": 0.0,
+          "name": "H1M",
+          "type": "HC"
+        },
+        "H2": {
+          "charge": 0.0,
+          "name": "H2",
+          "type": "H1"
+        },
+        "H2M": {
+          "charge": 0.0,
+          "name": "H2M",
+          "type": "HC"
+        },
+        "H2N": {
+          "charge": 0.254,
+          "name": "H2N",
+          "type": "H"
+        },
+        "H3": {
+          "charge": 0.0,
+          "name": "H3",
+          "type": "H1"
+        },
+        "H3M": {
+          "charge": 0.0,
+          "name": "H3M",
+          "type": "HC"
+        },
+        "H3O": {
+          "charge": 0.415,
+          "name": "H3O",
+          "type": "HO"
+        },
+        "H4": {
+          "charge": 0.0,
+          "name": "H4",
+          "type": "H1"
+        },
+        "H5": {
+          "charge": 0.0,
+          "name": "H5",
+          "type": "H1"
+        },
+        "H61": {
+          "charge": 0.0,
+          "name": "H61",
+          "type": "H1"
+        },
+        "H62": {
+          "charge": 0.0,
+          "name": "H62",
+          "type": "H1"
+        },
+        "N2": {
+          "charge": -0.686,
+          "name": "N2",
+          "type": "NG"
+        },
+        "O1S": {
+          "charge": -0.6499,
+          "name": "O1S",
+          "type": "O2"
+        },
+        "O2N": {
+          "charge": -0.564,
+          "name": "O2N",
+          "type": "O"
+        },
+        "O2S": {
+          "charge": -0.6499,
+          "name": "O2S",
+          "type": "O2"
+        },
+        "O3": {
+          "charge": -0.665,
+          "name": "O3",
+          "type": "OH"
+        },
+        "O3S": {
+          "charge": -0.6499,
+          "name": "O3S",
+          "type": "O2"
+        },
+        "O4": {
+          "charge": -0.4838,
+          "name": "O4",
+          "type": "OS"
+        },
+        "O4S": {
+          "charge": -0.6499,
+          "name": "O4S",
+          "type": "O2"
+        },
+        "O5": {
+          "charge": -0.408,
+          "name": "O5",
+          "type": "OS"
+        },
+        "O5S": {
+          "charge": -0.6499,
+          "name": "O5S",
+          "type": "O2"
+        },
+        "O6": {
+          "charge": -0.5208,
+          "name": "O6",
+          "type": "OS"
+        },
+        "O6S": {
+          "charge": -0.6499,
+          "name": "O6S",
+          "type": "O2"
+        },
+        "S1": {
+          "charge": 1.1835,
+          "name": "S1",
+          "type": "S"
+        },
+        "S2": {
+          "charge": 1.1835,
+          "name": "S2",
+          "type": "S"
+        }
+      },
+      "bonds": [],
+      "topname": "gag"
+    },
+    "07Y": {
+      "atomorder": [
+        "C1",
+        "H1",
+        "C2",
+        "H2",
+        "N2",
+        "H2N",
+        "S1",
+        "C3",
+        "H3",
+        "O3",
+        "H3O",
+        "C4",
+        "H4",
+        "C5",
+        "H5",
+        "O5",
+        "C6",
+        "H61",
+        "H62",
+        "O6",
+        "S2",
+        "O4",
+        "O1S",
+        "O2S",
+        "O3S",
+        "O4S",
+        "O5S",
+        "O6S",
+        "H4O"
+      ],
+      "atoms": {
+        "C1": {
+          "charge": 0.468,
+          "name": "C1",
+          "type": "CG"
+        },
+        "C2": {
+          "charge": 0.245,
+          "name": "C2",
+          "type": "CG"
+        },
+        "C3": {
+          "charge": 0.165,
+          "name": "C3",
+          "type": "CG"
+        },
+        "C4": {
+          "charge": 0.322,
+          "name": "C4",
+          "type": "CG"
+        },
+        "C5": {
+          "charge": 0.246,
+          "name": "C5",
+          "type": "CG"
+        },
+        "C6": {
+          "charge": 0.328,
+          "name": "C6",
+          "type": "CG"
+        },
+        "H1": {
+          "charge": 0.0,
+          "name": "H1",
+          "type": "H2"
+        },
+        "H2": {
+          "charge": 0.0,
+          "name": "H2",
+          "type": "H1"
+        },
+        "H2N": {
+          "charge": 0.236,
+          "name": "H2N",
+          "type": "H"
+        },
+        "H3": {
+          "charge": 0.0,
+          "name": "H3",
+          "type": "H1"
+        },
+        "H3O": {
+          "charge": 0.413,
+          "name": "H3O",
+          "type": "HO"
+        },
+        "H4": {
+          "charge": 0.0,
+          "name": "H4",
+          "type": "H1"
+        },
+        "H4O": {
+          "charge": 0.449,
+          "name": "H4O",
+          "type": "HO"
+        },
+        "H5": {
+          "charge": 0.0,
+          "name": "H5",
+          "type": "H1"
+        },
+        "H61": {
+          "charge": 0.0,
+          "name": "H61",
+          "type": "H1"
+        },
+        "H62": {
+          "charge": 0.0,
+          "name": "H62",
+          "type": "H1"
+        },
+        "N2": {
+          "charge": -0.7394,
+          "name": "N2",
+          "type": "NG"
+        },
+        "O1S": {
+          "charge": -0.6366,
+          "name": "O1S",
+          "type": "O2"
+        },
+        "O2S": {
+          "charge": -0.6366,
+          "name": "O2S",
+          "type": "O2"
+        },
+        "O3": {
+          "charge": -0.63,
+          "name": "O3",
+          "type": "OH"
+        },
+        "O3S": {
+          "charge": -0.6366,
+          "name": "O3S",
+          "type": "O2"
+        },
+        "O4": {
+          "charge": -0.733,
+          "name": "O4",
+          "type": "OH"
+        },
+        "O4S": {
+          "charge": -0.6499,
+          "name": "O4S",
+          "type": "O2"
+        },
+        "O5": {
+          "charge": -0.568,
+          "name": "O5",
+          "type": "OS"
+        },
+        "O5S": {
+          "charge": -0.6499,
+          "name": "O5S",
+          "type": "O2"
+        },
+        "O6": {
+          "charge": -0.5008,
+          "name": "O6",
+          "type": "OS"
+        },
+        "O6S": {
+          "charge": -0.6499,
+          "name": "O6S",
+          "type": "O2"
+        },
+        "S1": {
+          "charge": 1.1692,
+          "name": "S1",
+          "type": "S"
+        },
+        "S2": {
+          "charge": 1.1835,
+          "name": "S2",
+          "type": "S"
+        }
+      },
+      "bonds": [],
+      "topname": "gag"
+    },
+    "07Z": {
+      "atomorder": [
+        "C1",
+        "H1",
+        "O5",
+        "C5",
+        "H5",
+        "C6",
+        "O6A",
+        "O6B",
+        "C4",
+        "H4",
+        "O4",
+        "H4O",
+        "C3",
+        "H3",
+        "O3",
+        "S16",
+        "C2",
+        "H2",
+        "O2",
+        "S1",
+        "O4S",
+        "O5S",
+        "O6S",
+        "O1S",
+        "O2S",
+        "O3S"
+      ],
+      "atoms": {
+        "C1": {
+          "charge": 0.251,
+          "name": "C1",
+          "type": "CG"
+        },
+        "C2": {
+          "charge": 0.411,
+          "name": "C2",
+          "type": "CG"
+        },
+        "C3": {
+          "charge": 0.266,
+          "name": "C3",
+          "type": "CG"
+        },
+        "C4": {
+          "charge": 0.267,
+          "name": "C4",
+          "type": "CG"
+        },
+        "C5": {
+          "charge": 0.075,
+          "name": "C5",
+          "type": "CG"
+        },
+        "C6": {
+          "charge": 0.893,
+          "name": "C6",
+          "type": "C"
+        },
+        "H1": {
+          "charge": 0.0,
+          "name": "H1",
+          "type": "H2"
+        },
+        "H2": {
+          "charge": 0.0,
+          "name": "H2",
+          "type": "H1"
+        },
+        "H3": {
+          "charge": 0.0,
+          "name": "H3",
+          "type": "H1"
+        },
+        "H4": {
+          "charge": 0.0,
+          "name": "H4",
+          "type": "H1"
+        },
+        "H4O": {
+          "charge": 0.429,
+          "name": "H4O",
+          "type": "HO"
+        },
+        "H5": {
+          "charge": 0.0,
+          "name": "H5",
+          "type": "H1"
+        },
+        "O1S": {
+          "charge": -0.6499,
+          "name": "O1S",
+          "type": "O2"
+        },
+        "O2": {
+          "charge": -0.5518,
+          "name": "O2",
+          "type": "OS"
+        },
+        "O2S": {
+          "charge": -0.6499,
+          "name": "O2S",
+          "type": "O2"
+        },
+        "O3": {
+          "charge": -0.5318,
+          "name": "O3",
+          "type": "OS"
+        },
+        "O3S": {
+          "charge": -0.6499,
+          "name": "O3S",
+          "type": "O2"
+        },
+        "O4": {
+          "charge": -0.733,
+          "name": "O4",
+          "type": "OH"
+        },
+        "O4S": {
+          "charge": -0.6499,
+          "name": "O4S",
+          "type": "O2"
+        },
+        "O5": {
+          "charge": -0.413,
+          "name": "O5",
+          "type": "OS"
+        },
+        "O5S": {
+          "charge": -0.6499,
+          "name": "O5S",
+          "type": "O2"
+        },
+        "O6A": {
+          "charge": -0.818,
+          "name": "O6A",
+          "type": "O2"
+        },
+        "O6B": {
+          "charge": -0.818,
+          "name": "O6B",
+          "type": "O2"
+        },
+        "O6S": {
+          "charge": -0.6499,
+          "name": "O6S",
+          "type": "O2"
+        },
+        "S1": {
+          "charge": 1.1835,
+          "name": "S1",
+          "type": "S"
+        },
+        "S16": {
+          "charge": 1.1835,
+          "name": "S16",
+          "type": "S"
+        }
+      },
+      "bonds": [],
+      "topname": "gag"
+    },
+    "07u": {
+      "atomorder": [
+        "C1",
+        "H1",
+        "O5",
+        "C5",
+        "H5",
+        "C6",
+        "O6A",
+        "O6B",
+        "C4",
+        "H4",
+        "C3",
+        "H3",
+        "O3",
+        "S2",
+        "C2",
+        "H2",
+        "O2",
+        "S",
+        "O4",
+        "O1S",
+        "O2S",
+        "O3S",
+        "H4O",
+        "O4S",
+        "O5S",
+        "O6S"
+      ],
+      "atoms": {
+        "C1": {
+          "charge": 0.363,
+          "name": "C1",
+          "type": "CG"
+        },
+        "C2": {
+          "charge": 0.259,
+          "name": "C2",
+          "type": "CG"
+        },
+        "C3": {
+          "charge": 0.417,
+          "name": "C3",
+          "type": "CG"
+        },
+        "C4": {
+          "charge": 0.223,
+          "name": "C4",
+          "type": "CG"
+        },
+        "C5": {
+          "charge": 0.232,
+          "name": "C5",
+          "type": "CG"
+        },
+        "C6": {
+          "charge": 0.697,
+          "name": "C6",
+          "type": "C"
+        },
+        "H1": {
+          "charge": 0.0,
+          "name": "H1",
+          "type": "H2"
+        },
+        "H2": {
+          "charge": 0.0,
+          "name": "H2",
+          "type": "H1"
+        },
+        "H3": {
+          "charge": 0.0,
+          "name": "H3",
+          "type": "H1"
+        },
+        "H4": {
+          "charge": 0.0,
+          "name": "H4",
+          "type": "H1"
+        },
+        "H4O": {
+          "charge": 0.397,
+          "name": "H4O",
+          "type": "HO"
+        },
+        "H5": {
+          "charge": 0.0,
+          "name": "H5",
+          "type": "H1"
+        },
+        "O1S": {
+          "charge": -0.6499,
+          "name": "O1S",
+          "type": "O2"
+        },
+        "O2": {
+          "charge": -0.5338,
+          "name": "O2",
+          "type": "OS"
+        },
+        "O2S": {
+          "charge": -0.6499,
+          "name": "O2S",
+          "type": "O2"
+        },
+        "O3": {
+          "charge": -0.5878,
+          "name": "O3",
+          "type": "OS"
+        },
+        "O3S": {
+          "charge": -0.6499,
+          "name": "O3S",
+          "type": "O2"
+        },
+        "O4": {
+          "charge": -0.711,
+          "name": "O4",
+          "type": "OH"
+        },
+        "O4S": {
+          "charge": -0.6499,
+          "name": "O4S",
+          "type": "O2"
+        },
+        "O5": {
+          "charge": -0.515,
+          "name": "O5",
+          "type": "OS"
+        },
+        "O5S": {
+          "charge": -0.6499,
+          "name": "O5S",
+          "type": "O2"
+        },
+        "O6A": {
+          "charge": -0.757,
+          "name": "O6A",
+          "type": "O2"
+        },
+        "O6B": {
+          "charge": -0.757,
+          "name": "O6B",
+          "type": "O2"
+        },
+        "O6S": {
+          "charge": -0.6499,
+          "name": "O6S",
+          "type": "O2"
+        },
+        "S": {
+          "charge": 1.1835,
+          "name": "S",
+          "type": "S"
+        },
+        "S2": {
+          "charge": 1.1835,
+          "name": "S2",
+          "type": "S"
+        }
+      },
+      "bonds": [],
+      "topname": "gag"
+    },
+    "08G": {
+      "atomorder": [
+        "C1",
+        "H1",
+        "C2",
+        "H2",
+        "O2",
+        "S6",
+        "C3",
+        "H3",
+        "O3",
+        "H3O",
+        "C4",
+        "H4",
+        "C5",
+        "H5",
+        "O5",
+        "C6",
+        "H61",
+        "H62",
+        "O6",
+        "S20",
+        "O4",
+        "O22",
+        "O23",
+        "O24",
+        "O25",
+        "O26",
+        "O27",
+        "H4O"
+      ],
+      "atoms": {
+        "C1": {
+          "charge": 0.509,
+          "name": "C1",
+          "type": "CG"
+        },
+        "C2": {
+          "charge": 0.246,
+          "name": "C2",
+          "type": "CG"
+        },
+        "C3": {
+          "charge": 0.286,
+          "name": "C3",
+          "type": "CG"
+        },
+        "C4": {
+          "charge": 0.254,
+          "name": "C4",
+          "type": "CG"
+        },
+        "C5": {
+          "charge": 0.283,
+          "name": "C5",
+          "type": "CG"
+        },
+        "C6": {
+          "charge": 0.276,
+          "name": "C6",
+          "type": "CG"
+        },
+        "H1": {
+          "charge": 0.0,
+          "name": "H1",
+          "type": "H2"
+        },
+        "H2": {
+          "charge": 0.0,
+          "name": "H2",
+          "type": "H1"
+        },
+        "H3": {
+          "charge": 0.0,
+          "name": "H3",
+          "type": "H1"
+        },
+        "H3O": {
+          "charge": 0.427,
+          "name": "H3O",
+          "type": "HO"
+        },
+        "H4": {
+          "charge": 0.0,
+          "name": "H4",
+          "type": "H1"
+        },
+        "H4O": {
+          "charge": 0.436,
+          "name": "H4O",
+          "type": "HO"
+        },
+        "H5": {
+          "charge": 0.0,
+          "name": "H5",
+          "type": "H1"
+        },
+        "H61": {
+          "charge": 0.0,
+          "name": "H61",
+          "type": "H1"
+        },
+        "H62": {
+          "charge": 0.0,
+          "name": "H62",
+          "type": "H1"
+        },
+        "O2": {
+          "charge": -0.5098,
+          "name": "O2",
+          "type": "OS"
+        },
+        "O22": {
+          "charge": -0.6499,
+          "name": "O22",
+          "type": "O2"
+        },
+        "O23": {
+          "charge": -0.6499,
+          "name": "O23",
+          "type": "O2"
+        },
+        "O24": {
+          "charge": -0.6499,
+          "name": "O24",
+          "type": "O2"
+        },
+        "O25": {
+          "charge": -0.6499,
+          "name": "O25",
+          "type": "O2"
+        },
+        "O26": {
+          "charge": -0.6499,
+          "name": "O26",
+          "type": "O2"
+        },
+        "O27": {
+          "charge": -0.6499,
+          "name": "O27",
+          "type": "O2"
+        },
+        "O3": {
+          "charge": -0.699,
+          "name": "O3",
+          "type": "OH"
+        },
+        "O4": {
+          "charge": -0.71,
+          "name": "O4",
+          "type": "OH"
+        },
+        "O5": {
+          "charge": -0.574,
+          "name": "O5",
+          "type": "OS"
+        },
+        "O6": {
+          "charge": -0.4978,
+          "name": "O6",
+          "type": "OS"
+        },
+        "S20": {
+          "charge": 1.1835,
+          "name": "S20",
+          "type": "S"
+        },
+        "S6": {
+          "charge": 1.1835,
+          "name": "S6",
+          "type": "S"
+        }
+      },
+      "bonds": [],
+      "topname": "gag"
+    },
+    "09G": {
+      "atomorder": [
+        "C1",
+        "H1",
+        "C2",
+        "H2",
+        "O2",
+        "H2O",
+        "C3",
+        "H3",
+        "O3",
+        "S10",
+        "C4",
+        "H4",
+        "C5",
+        "H5",
+        "O5",
+        "C6",
+        "H61",
+        "H62",
+        "O6",
+        "S20",
+        "O4",
+        "O22",
+        "O23",
+        "O24",
+        "O25",
+        "O26",
+        "O27",
+        "H4O"
+      ],
+      "atoms": {
+        "C1": {
+          "charge": 0.509,
+          "name": "C1",
+          "type": "CG"
+        },
+        "C2": {
+          "charge": 0.246,
+          "name": "C2",
+          "type": "CG"
+        },
+        "C3": {
+          "charge": 0.286,
+          "name": "C3",
+          "type": "CG"
+        },
+        "C4": {
+          "charge": 0.254,
+          "name": "C4",
+          "type": "CG"
+        },
+        "C5": {
+          "charge": 0.283,
+          "name": "C5",
+          "type": "CG"
+        },
+        "C6": {
+          "charge": 0.276,
+          "name": "C6",
+          "type": "CG"
+        },
+        "H1": {
+          "charge": 0.0,
+          "name": "H1",
+          "type": "H2"
+        },
+        "H2": {
+          "charge": 0.0,
+          "name": "H2",
+          "type": "H1"
+        },
+        "H2O": {
+          "charge": 0.437,
+          "name": "H2O",
+          "type": "HO"
+        },
+        "H3": {
+          "charge": 0.0,
+          "name": "H3",
+          "type": "H1"
+        },
+        "H4": {
+          "charge": 0.0,
+          "name": "H4",
+          "type": "H1"
+        },
+        "H4O": {
+          "charge": 0.436,
+          "name": "H4O",
+          "type": "HO"
+        },
+        "H5": {
+          "charge": 0.0,
+          "name": "H5",
+          "type": "H1"
+        },
+        "H61": {
+          "charge": 0.0,
+          "name": "H61",
+          "type": "H1"
+        },
+        "H62": {
+          "charge": 0.0,
+          "name": "H62",
+          "type": "H1"
+        },
+        "O2": {
+          "charge": -0.713,
+          "name": "O2",
+          "type": "OH"
+        },
+        "O22": {
+          "charge": -0.6499,
+          "name": "O22",
+          "type": "O2"
+        },
+        "O23": {
+          "charge": -0.6499,
+          "name": "O23",
+          "type": "O2"
+        },
+        "O24": {
+          "charge": -0.6499,
+          "name": "O24",
+          "type": "O2"
+        },
+        "O25": {
+          "charge": -0.6499,
+          "name": "O25",
+          "type": "O2"
+        },
+        "O26": {
+          "charge": -0.6499,
+          "name": "O26",
+          "type": "O2"
+        },
+        "O27": {
+          "charge": -0.6499,
+          "name": "O27",
+          "type": "O2"
+        },
+        "O3": {
+          "charge": -0.5058,
+          "name": "O3",
+          "type": "OS"
+        },
+        "O4": {
+          "charge": -0.71,
+          "name": "O4",
+          "type": "OH"
+        },
+        "O5": {
+          "charge": -0.574,
+          "name": "O5",
+          "type": "OS"
+        },
+        "O6": {
+          "charge": -0.4978,
+          "name": "O6",
+          "type": "OS"
+        },
+        "S10": {
+          "charge": 1.1835,
+          "name": "S10",
+          "type": "S"
+        },
+        "S20": {
+          "charge": 1.1835,
+          "name": "S20",
+          "type": "S"
+        }
+      },
+      "bonds": [],
+      "topname": "gag"
+    },
+    "34B": {
+      "atomorder": [
+        "C1",
+        "H1",
+        "O5",
+        "C5",
+        "H5",
+        "C6",
+        "H61",
+        "H62",
+        "O6",
+        "H6O",
+        "C4",
+        "H4",
+        "O4",
+        "S",
+        "C3",
+        "H3",
+        "C2",
+        "H2",
+        "N2",
+        "H2N",
+        "C2N",
+        "O2N",
+        "CME",
+        "H1M",
+        "H2M",
+        "H3M",
+        "O3",
+        "O1S",
+        "O2S",
+        "O3S"
+      ],
+      "atoms": {
+        "C1": {
+          "charge": 0.287,
+          "name": "C1",
+          "type": "CG"
+        },
+        "C2": {
+          "charge": 0.48,
+          "name": "C2",
+          "type": "CG"
+        },
+        "C2N": {
+          "charge": 0.648,
+          "name": "C2N",
+          "type": "C"
+        },
+        "C3": {
+          "charge": 0.18,
+          "name": "C3",
+          "type": "CG"
+        },
+        "C4": {
+          "charge": 0.302,
+          "name": "C4",
+          "type": "CG"
+        },
+        "C5": {
+          "charge": 0.208,
+          "name": "C5",
+          "type": "CG"
+        },
+        "C6": {
+          "charge": 0.289,
+          "name": "C6",
+          "type": "CG"
+        },
+        "CME": {
+          "charge": 0.034,
+          "name": "CME",
+          "type": "CG"
+        },
+        "H1": {
+          "charge": 0.0,
+          "name": "H1",
+          "type": "H2"
+        },
+        "H1M": {
+          "charge": 0.0,
+          "name": "H1M",
+          "type": "HC"
+        },
+        "H2": {
+          "charge": 0.0,
+          "name": "H2",
+          "type": "H1"
+        },
+        "H2M": {
+          "charge": 0.0,
+          "name": "H2M",
+          "type": "HC"
+        },
+        "H2N": {
+          "charge": 0.3,
+          "name": "H2N",
+          "type": "H"
+        },
+        "H3": {
+          "charge": 0.0,
+          "name": "H3",
+          "type": "H1"
+        },
+        "H3M": {
+          "charge": 0.0,
+          "name": "H3M",
+          "type": "HC"
+        },
+        "H4": {
+          "charge": 0.0,
+          "name": "H4",
+          "type": "H1"
+        },
+        "H5": {
+          "charge": 0.0,
+          "name": "H5",
+          "type": "H1"
+        },
+        "H61": {
+          "charge": 0.0,
+          "name": "H61",
+          "type": "H1"
+        },
+        "H62": {
+          "charge": 0.0,
+          "name": "H62",
+          "type": "H1"
+        },
+        "H6O": {
+          "charge": 0.424,
+          "name": "H6O",
+          "type": "HO"
+        },
+        "N2": {
+          "charge": -0.722,
+          "name": "N2",
+          "type": "NG"
+        },
+        "O1S": {
+          "charge": -0.6499,
+          "name": "O1S",
+          "type": "O2"
+        },
+        "O2N": {
+          "charge": -0.576,
+          "name": "O2N",
+          "type": "O"
+        },
+        "O2S": {
+          "charge": -0.6499,
+          "name": "O2S",
+          "type": "O2"
+        },
+        "O3": {
+          "charge": -0.452,
+          "name": "O3",
+          "type": "OS"
+        },
+        "O3S": {
+          "charge": -0.6499,
+          "name": "O3S",
+          "type": "O2"
+        },
+        "O4": {
+          "charge": -0.5138,
+          "name": "O4",
+          "type": "OS"
+        },
+        "O5": {
+          "charge": -0.433,
+          "name": "O5",
+          "type": "OS"
+        },
+        "O6": {
+          "charge": -0.689,
+          "name": "O6",
+          "type": "OH"
+        },
+        "S": {
+          "charge": 1.1835,
+          "name": "S",
+          "type": "S"
+        }
+      },
+      "bonds": [],
+      "topname": "gag"
+    },
+    "34V": {
+      "atomorder": [
+        "C1",
+        "H1",
+        "O5",
+        "C5",
+        "H5",
+        "C6",
+        "H61",
+        "H62",
+        "O6",
+        "H6O",
+        "C4",
+        "H4",
+        "O4",
+        "S",
+        "C3",
+        "H3",
+        "C2",
+        "H2",
+        "N2",
+        "H2N",
+        "C2N",
+        "O2N",
+        "CME",
+        "H1M",
+        "H2M",
+        "H3M",
+        "O3",
+        "O1S",
+        "O2S",
+        "O3S"
+      ],
+      "atoms": {
+        "C1": {
+          "charge": 0.305,
+          "name": "C1",
+          "type": "CG"
+        },
+        "C2": {
+          "charge": 0.544,
+          "name": "C2",
+          "type": "CG"
+        },
+        "C2N": {
+          "charge": 0.586,
+          "name": "C2N",
+          "type": "C"
+        },
+        "C3": {
+          "charge": 0.152,
+          "name": "C3",
+          "type": "CG"
+        },
+        "C4": {
+          "charge": 0.253,
+          "name": "C4",
+          "type": "CG"
+        },
+        "C5": {
+          "charge": 0.136,
+          "name": "C5",
+          "type": "CG"
+        },
+        "C6": {
+          "charge": 0.353,
+          "name": "C6",
+          "type": "CG"
+        },
+        "CME": {
+          "charge": 0.056,
+          "name": "CME",
+          "type": "CG"
+        },
+        "H1": {
+          "charge": 0.0,
+          "name": "H1",
+          "type": "H2"
+        },
+        "H1M": {
+          "charge": 0.0,
+          "name": "H1M",
+          "type": "HC"
+        },
+        "H2": {
+          "charge": 0.0,
+          "name": "H2",
+          "type": "H1"
+        },
+        "H2M": {
+          "charge": 0.0,
+          "name": "H2M",
+          "type": "HC"
+        },
+        "H2N": {
+          "charge": 0.254,
+          "name": "H2N",
+          "type": "H"
+        },
+        "H3": {
+          "charge": 0.0,
+          "name": "H3",
+          "type": "H1"
+        },
+        "H3M": {
+          "charge": 0.0,
+          "name": "H3M",
+          "type": "HC"
+        },
+        "H4": {
+          "charge": 0.0,
+          "name": "H4",
+          "type": "H1"
+        },
+        "H5": {
+          "charge": 0.0,
+          "name": "H5",
+          "type": "H1"
+        },
+        "H61": {
+          "charge": 0.0,
+          "name": "H61",
+          "type": "H1"
+        },
+        "H62": {
+          "charge": 0.0,
+          "name": "H62",
+          "type": "H1"
+        },
+        "H6O": {
+          "charge": 0.427,
+          "name": "H6O",
+          "type": "HO"
+        },
+        "N2": {
+          "charge": -0.686,
+          "name": "N2",
+          "type": "NG"
+        },
+        "O1S": {
+          "charge": -0.6499,
+          "name": "O1S",
+          "type": "O2"
+        },
+        "O2N": {
+          "charge": -0.564,
+          "name": "O2N",
+          "type": "O"
+        },
+        "O2S": {
+          "charge": -0.6499,
+          "name": "O2S",
+          "type": "O2"
+        },
+        "O3": {
+          "charge": -0.444,
+          "name": "O3",
+          "type": "OS"
+        },
+        "O3S": {
+          "charge": -0.6499,
+          "name": "O3S",
+          "type": "O2"
+        },
+        "O4": {
+          "charge": -0.4838,
+          "name": "O4",
+          "type": "OS"
+        },
+        "O5": {
+          "charge": -0.408,
+          "name": "O5",
+          "type": "OS"
+        },
+        "O6": {
+          "charge": -0.714,
+          "name": "O6",
+          "type": "OH"
+        },
+        "S": {
+          "charge": 1.1835,
+          "name": "S",
+          "type": "S"
+        }
+      },
+      "bonds": [],
+      "topname": "gag"
+    },
+    "36B": {
+      "atomorder": [
+        "C1",
+        "H1",
+        "O5",
+        "C5",
+        "H5",
+        "C6",
+        "H8",
+        "O6",
+        "H9",
+        "C4",
+        "H4",
+        "O4",
+        "H4O",
+        "C3",
+        "H3",
+        "C2",
+        "H2",
+        "N2",
+        "H2N",
+        "C2N",
+        "O2N",
+        "CME",
+        "H1M",
+        "H2M",
+        "H3M",
+        "O3",
+        "S",
+        "O1S",
+        "O2S",
+        "O3S"
+      ],
+      "atoms": {
+        "C1": {
+          "charge": 0.287,
+          "name": "C1",
+          "type": "CG"
+        },
+        "C2": {
+          "charge": 0.48,
+          "name": "C2",
+          "type": "CG"
+        },
+        "C2N": {
+          "charge": 0.648,
+          "name": "C2N",
+          "type": "C"
+        },
+        "C3": {
+          "charge": 0.18,
+          "name": "C3",
+          "type": "CG"
+        },
+        "C4": {
+          "charge": 0.302,
+          "name": "C4",
+          "type": "CG"
+        },
+        "C5": {
+          "charge": 0.208,
+          "name": "C5",
+          "type": "CG"
+        },
+        "C6": {
+          "charge": 0.289,
+          "name": "C6",
+          "type": "CG"
+        },
+        "CME": {
+          "charge": 0.034,
+          "name": "CME",
+          "type": "CG"
+        },
+        "H1": {
+          "charge": 0.0,
+          "name": "H1",
+          "type": "H2"
+        },
+        "H1M": {
+          "charge": 0.0,
+          "name": "H1M",
+          "type": "HC"
+        },
+        "H2": {
+          "charge": 0.0,
+          "name": "H2",
+          "type": "H1"
+        },
+        "H2M": {
+          "charge": 0.0,
+          "name": "H2M",
+          "type": "HC"
+        },
+        "H2N": {
+          "charge": 0.3,
+          "name": "H2N",
+          "type": "H"
+        },
+        "H3": {
+          "charge": 0.0,
+          "name": "H3",
+          "type": "H1"
+        },
+        "H3M": {
+          "charge": 0.0,
+          "name": "H3M",
+          "type": "HC"
+        },
+        "H4": {
+          "charge": 0.0,
+          "name": "H4",
+          "type": "H1"
+        },
+        "H4O": {
+          "charge": 0.436,
+          "name": "H4O",
+          "type": "HO"
+        },
+        "H5": {
+          "charge": 0.0,
+          "name": "H5",
+          "type": "H1"
+        },
+        "H8": {
+          "charge": 0.0,
+          "name": "H8",
+          "type": "H1"
+        },
+        "H9": {
+          "charge": 0.0,
+          "name": "H9",
+          "type": "H1"
+        },
+        "N2": {
+          "charge": -0.722,
+          "name": "N2",
+          "type": "NG"
+        },
+        "O1S": {
+          "charge": -0.6499,
+          "name": "O1S",
+          "type": "O2"
+        },
+        "O2N": {
+          "charge": -0.576,
+          "name": "O2N",
+          "type": "O"
+        },
+        "O2S": {
+          "charge": -0.6499,
+          "name": "O2S",
+          "type": "O2"
+        },
+        "O3": {
+          "charge": -0.452,
+          "name": "O3",
+          "type": "OS"
+        },
+        "O3S": {
+          "charge": -0.6499,
+          "name": "O3S",
+          "type": "O2"
+        },
+        "O4": {
+          "charge": -0.716,
+          "name": "O4",
+          "type": "OH"
+        },
+        "O5": {
+          "charge": -0.433,
+          "name": "O5",
+          "type": "OS"
+        },
+        "O6": {
+          "charge": -0.4988,
+          "name": "O6",
+          "type": "OS"
+        },
+        "S": {
+          "charge": 1.1835,
+          "name": "S",
+          "type": "S"
+        }
+      },
+      "bonds": [],
+      "topname": "gag"
+    },
+    "36L": {
+      "atomorder": [
+        "C1",
+        "H1",
+        "O5",
+        "C5",
+        "H5",
+        "C6",
+        "H61",
+        "H62",
+        "O6",
+        "S",
+        "C4",
+        "H4",
+        "O4",
+        "H4O",
+        "C3",
+        "H3",
+        "C2",
+        "H2",
+        "O2",
+        "H2O",
+        "O3",
+        "O1S",
+        "O2S",
+        "O3S"
+      ],
+      "atoms": {
+        "C1": {
+          "charge": 0.374,
+          "name": "C1",
+          "type": "CG"
+        },
+        "C2": {
+          "charge": 0.357,
+          "name": "C2",
+          "type": "CG"
+        },
+        "C3": {
+          "charge": 0.259,
+          "name": "C3",
+          "type": "CG"
+        },
+        "C4": {
+          "charge": 0.203,
+          "name": "C4",
+          "type": "CG"
+        },
+        "C5": {
+          "charge": 0.14,
+          "name": "C5",
+          "type": "CG"
+        },
+        "C6": {
+          "charge": 0.319,
+          "name": "C6",
+          "type": "CG"
+        },
+        "H1": {
+          "charge": 0.0,
+          "name": "H1",
+          "type": "H2"
+        },
+        "H2": {
+          "charge": 0.0,
+          "name": "H2",
+          "type": "H1"
+        },
+        "H2O": {
+          "charge": 0.432,
+          "name": "H2O",
+          "type": "HO"
+        },
+        "H3": {
+          "charge": 0.0,
+          "name": "H3",
+          "type": "H1"
+        },
+        "H4": {
+          "charge": 0.0,
+          "name": "H4",
+          "type": "H1"
+        },
+        "H4O": {
+          "charge": 0.437,
+          "name": "H4O",
+          "type": "HO"
+        },
+        "H5": {
+          "charge": 0.0,
+          "name": "H5",
+          "type": "H1"
+        },
+        "H61": {
+          "charge": 0.0,
+          "name": "H61",
+          "type": "H1"
+        },
+        "H62": {
+          "charge": 0.0,
+          "name": "H62",
+          "type": "H1"
+        },
+        "O1S": {
+          "charge": -0.6499,
+          "name": "O1S",
+          "type": "O2"
+        },
+        "O2": {
+          "charge": -0.726,
+          "name": "O2",
+          "type": "OH"
+        },
+        "O2S": {
+          "charge": -0.6499,
+          "name": "O2S",
+          "type": "O2"
+        },
+        "O3": {
+          "charge": -0.455,
+          "name": "O3",
+          "type": "OS"
+        },
+        "O3S": {
+          "charge": -0.6499,
+          "name": "O3S",
+          "type": "O2"
+        },
+        "O4": {
+          "charge": -0.664,
+          "name": "O4",
+          "type": "OH"
+        },
+        "O5": {
+          "charge": -0.402,
+          "name": "O5",
+          "type": "OS"
+        },
+        "O6": {
+          "charge": -0.5078,
+          "name": "O6",
+          "type": "OS"
+        },
+        "S": {
+          "charge": 1.1835,
+          "name": "S",
+          "type": "S"
+        }
+      },
+      "bonds": [],
+      "topname": "gag"
+    },
+    "36V": {
+      "atomorder": [
+        "C1",
+        "H1",
+        "O5",
+        "C5",
+        "H5",
+        "C6",
+        "H61",
+        "H62",
+        "O6",
+        "S",
+        "C4",
+        "H4",
+        "O4",
+        "H4O",
+        "C3",
+        "H3",
+        "C2",
+        "H2",
+        "N2",
+        "H2N",
+        "C2N",
+        "O2N",
+        "CME",
+        "H1M",
+        "H2M",
+        "H3M",
+        "O3",
+        "O1S",
+        "O2S",
+        "O3S"
+      ],
+      "atoms": {
+        "C1": {
+          "charge": 0.305,
+          "name": "C1",
+          "type": "CG"
+        },
+        "C2": {
+          "charge": 0.544,
+          "name": "C2",
+          "type": "CG"
+        },
+        "C2N": {
+          "charge": 0.586,
+          "name": "C2N",
+          "type": "C"
+        },
+        "C3": {
+          "charge": 0.152,
+          "name": "C3",
+          "type": "CG"
+        },
+        "C4": {
+          "charge": 0.253,
+          "name": "C4",
+          "type": "CG"
+        },
+        "C5": {
+          "charge": 0.136,
+          "name": "C5",
+          "type": "CG"
+        },
+        "C6": {
+          "charge": 0.353,
+          "name": "C6",
+          "type": "CG"
+        },
+        "CME": {
+          "charge": 0.056,
+          "name": "CME",
+          "type": "CG"
+        },
+        "H1": {
+          "charge": 0.0,
+          "name": "H1",
+          "type": "H2"
+        },
+        "H1M": {
+          "charge": 0.0,
+          "name": "H1M",
+          "type": "HC"
+        },
+        "H2": {
+          "charge": 0.0,
+          "name": "H2",
+          "type": "H1"
+        },
+        "H2M": {
+          "charge": 0.0,
+          "name": "H2M",
+          "type": "HC"
+        },
+        "H2N": {
+          "charge": 0.254,
+          "name": "H2N",
+          "type": "H"
+        },
+        "H3": {
+          "charge": 0.0,
+          "name": "H3",
+          "type": "H1"
+        },
+        "H3M": {
+          "charge": 0.0,
+          "name": "H3M",
+          "type": "HC"
+        },
+        "H4": {
+          "charge": 0.0,
+          "name": "H4",
+          "type": "H1"
+        },
+        "H4O": {
+          "charge": 0.44,
+          "name": "H4O",
+          "type": "HO"
+        },
+        "H5": {
+          "charge": 0.0,
+          "name": "H5",
+          "type": "H1"
+        },
+        "H61": {
+          "charge": 0.0,
+          "name": "H61",
+          "type": "H1"
+        },
+        "H62": {
+          "charge": 0.0,
+          "name": "H62",
+          "type": "H1"
+        },
+        "N2": {
+          "charge": -0.686,
+          "name": "N2",
+          "type": "NG"
+        },
+        "O1S": {
+          "charge": -0.6499,
+          "name": "O1S",
+          "type": "O2"
+        },
+        "O2N": {
+          "charge": -0.564,
+          "name": "O2N",
+          "type": "O"
+        },
+        "O2S": {
+          "charge": -0.6499,
+          "name": "O2S",
+          "type": "O2"
+        },
+        "O3": {
+          "charge": -0.444,
+          "name": "O3",
+          "type": "OS"
+        },
+        "O3S": {
+          "charge": -0.6499,
+          "name": "O3S",
+          "type": "O2"
+        },
+        "O4": {
+          "charge": -0.69,
+          "name": "O4",
+          "type": "OH"
+        },
+        "O5": {
+          "charge": -0.408,
+          "name": "O5",
+          "type": "OS"
+        },
+        "O6": {
+          "charge": -0.5208,
+          "name": "O6",
+          "type": "OS"
+        },
+        "S": {
+          "charge": 1.1835,
+          "name": "S",
+          "type": "S"
+        }
+      },
+      "bonds": [],
+      "topname": "gag"
+    },
+    "36Y": {
+      "atomorder": [
+        "C1",
+        "H1",
+        "C2",
+        "H2",
+        "N2",
+        "H2N",
+        "C2N",
+        "O2N",
+        "CME",
+        "H1M",
+        "H2M",
+        "H3M",
+        "C3",
+        "H3",
+        "C4",
+        "H4",
+        "O4",
+        "H4O",
+        "C5",
+        "H5",
+        "O5",
+        "C6",
+        "H61",
+        "H62",
+        "O6",
+        "S",
+        "O3",
+        "O1S",
+        "O2S",
+        "O3S"
+      ],
+      "atoms": {
+        "C1": {
+          "charge": 0.468,
+          "name": "C1",
+          "type": "CG"
+        },
+        "C2": {
+          "charge": 0.245,
+          "name": "C2",
+          "type": "CG"
+        },
+        "C2N": {
+          "charge": 0.588,
+          "name": "C2N",
+          "type": "C"
+        },
+        "C3": {
+          "charge": 0.165,
+          "name": "C3",
+          "type": "CG"
+        },
+        "C4": {
+          "charge": 0.322,
+          "name": "C4",
+          "type": "CG"
+        },
+        "C5": {
+          "charge": 0.246,
+          "name": "C5",
+          "type": "CG"
+        },
+        "C6": {
+          "charge": 0.328,
+          "name": "C6",
+          "type": "CG"
+        },
+        "CME": {
+          "charge": 0.063,
+          "name": "CME",
+          "type": "CG"
+        },
+        "H1": {
+          "charge": 0.0,
+          "name": "H1",
+          "type": "H2"
+        },
+        "H1M": {
+          "charge": 0.0,
+          "name": "H1M",
+          "type": "HC"
+        },
+        "H2": {
+          "charge": 0.0,
+          "name": "H2",
+          "type": "H1"
+        },
+        "H2M": {
+          "charge": 0.0,
+          "name": "H2M",
+          "type": "HC"
+        },
+        "H2N": {
+          "charge": 0.236,
+          "name": "H2N",
+          "type": "H"
+        },
+        "H3": {
+          "charge": 0.0,
+          "name": "H3",
+          "type": "H1"
+        },
+        "H3M": {
+          "charge": 0.0,
+          "name": "H3M",
+          "type": "HC"
+        },
+        "H4": {
+          "charge": 0.0,
+          "name": "H4",
+          "type": "H1"
+        },
+        "H4O": {
+          "charge": 0.449,
+          "name": "H4O",
+          "type": "HO"
+        },
+        "H5": {
+          "charge": 0.0,
+          "name": "H5",
+          "type": "H1"
+        },
+        "H61": {
+          "charge": 0.0,
+          "name": "H61",
+          "type": "H1"
+        },
+        "H62": {
+          "charge": 0.0,
+          "name": "H62",
+          "type": "H1"
+        },
+        "N2": {
+          "charge": -0.552,
+          "name": "N2",
+          "type": "NG"
+        },
+        "O1S": {
+          "charge": -0.6499,
+          "name": "O1S",
+          "type": "O2"
+        },
+        "O2N": {
+          "charge": -0.579,
+          "name": "O2N",
+          "type": "O"
+        },
+        "O2S": {
+          "charge": -0.6499,
+          "name": "O2S",
+          "type": "O2"
+        },
+        "O3": {
+          "charge": -0.411,
+          "name": "O3",
+          "type": "OS"
+        },
+        "O3S": {
+          "charge": -0.6499,
+          "name": "O3S",
+          "type": "O2"
+        },
+        "O4": {
+          "charge": -0.733,
+          "name": "O4",
+          "type": "OH"
+        },
+        "O5": {
+          "charge": -0.568,
+          "name": "O5",
+          "type": "OS"
+        },
+        "O6": {
+          "charge": -0.5008,
+          "name": "O6",
+          "type": "OS"
+        },
+        "S": {
+          "charge": 1.1835,
+          "name": "S",
+          "type": "S"
+        }
+      },
+      "bonds": [],
+      "topname": "gag"
+    },
+    "37B": {
+      "atomorder": [
+        "C1",
+        "H1",
+        "O5",
+        "C5",
+        "H5",
+        "C6",
+        "H61",
+        "H62",
+        "C4",
+        "H4",
+        "O4",
+        "S1",
+        "C3",
+        "H3",
+        "C2",
+        "H2",
+        "N2",
+        "H2N",
+        "C2N",
+        "O2N",
+        "CME",
+        "H1M",
+        "H2M",
+        "H3M",
+        "O3",
+        "O1S",
+        "O2S",
+        "O3S",
+        "O6",
+        "S2",
+        "O4S",
+        "O5S",
+        "O6S"
+      ],
+      "atoms": {
+        "C1": {
+          "charge": 0.287,
+          "name": "C1",
+          "type": "CG"
+        },
+        "C2": {
+          "charge": 0.48,
+          "name": "C2",
+          "type": "CG"
+        },
+        "C2N": {
+          "charge": 0.648,
+          "name": "C2N",
+          "type": "C"
+        },
+        "C3": {
+          "charge": 0.18,
+          "name": "C3",
+          "type": "CG"
+        },
+        "C4": {
+          "charge": 0.302,
+          "name": "C4",
+          "type": "CG"
+        },
+        "C5": {
+          "charge": 0.208,
+          "name": "C5",
+          "type": "CG"
+        },
+        "C6": {
+          "charge": 0.289,
+          "name": "C6",
+          "type": "CG"
+        },
+        "CME": {
+          "charge": 0.034,
+          "name": "CME",
+          "type": "CG"
+        },
+        "H1": {
+          "charge": 0.0,
+          "name": "H1",
+          "type": "H2"
+        },
+        "H1M": {
+          "charge": 0.0,
+          "name": "H1M",
+          "type": "HC"
+        },
+        "H2": {
+          "charge": 0.0,
+          "name": "H2",
+          "type": "H1"
+        },
+        "H2M": {
+          "charge": 0.0,
+          "name": "H2M",
+          "type": "HC"
+        },
+        "H2N": {
+          "charge": 0.3,
+          "name": "H2N",
+          "type": "H"
+        },
+        "H3": {
+          "charge": 0.0,
+          "name": "H3",
+          "type": "H1"
+        },
+        "H3M": {
+          "charge": 0.0,
+          "name": "H3M",
+          "type": "HC"
+        },
+        "H4": {
+          "charge": 0.0,
+          "name": "H4",
+          "type": "H1"
+        },
+        "H5": {
+          "charge": 0.0,
+          "name": "H5",
+          "type": "H1"
+        },
+        "H61": {
+          "charge": 0.0,
+          "name": "H61",
+          "type": "H1"
+        },
+        "H62": {
+          "charge": 0.0,
+          "name": "H62",
+          "type": "H1"
+        },
+        "N2": {
+          "charge": -0.722,
+          "name": "N2",
+          "type": "NG"
+        },
+        "O1S": {
+          "charge": -0.6499,
+          "name": "O1S",
+          "type": "O2"
+        },
+        "O2N": {
+          "charge": -0.576,
+          "name": "O2N",
+          "type": "O"
+        },
+        "O2S": {
+          "charge": -0.6499,
+          "name": "O2S",
+          "type": "O2"
+        },
+        "O3": {
+          "charge": -0.452,
+          "name": "O3",
+          "type": "OS"
+        },
+        "O3S": {
+          "charge": -0.6499,
+          "name": "O3S",
+          "type": "O2"
+        },
+        "O4": {
+          "charge": -0.5138,
+          "name": "O4",
+          "type": "OS"
+        },
+        "O4S": {
+          "charge": -0.6499,
+          "name": "O4S",
+          "type": "O2"
+        },
+        "O5": {
+          "charge": -0.433,
+          "name": "O5",
+          "type": "OS"
+        },
+        "O5S": {
+          "charge": -0.6499,
+          "name": "O5S",
+          "type": "O2"
+        },
+        "O6": {
+          "charge": -0.4988,
+          "name": "O6",
+          "type": "OS"
+        },
+        "O6S": {
+          "charge": -0.6499,
+          "name": "O6S",
+          "type": "O2"
+        },
+        "S1": {
+          "charge": 1.1835,
+          "name": "S1",
+          "type": "S"
+        },
+        "S2": {
+          "charge": 1.1835,
+          "name": "S2",
+          "type": "S"
+        }
+      },
+      "bonds": [],
+      "topname": "gag"
+    },
+    "37V": {
+      "atomorder": [
+        "C1",
+        "H1",
+        "O5",
+        "C5",
+        "H5",
+        "C6",
+        "H61",
+        "H62",
+        "O6",
+        "S2",
+        "C4",
+        "H4",
+        "O4",
+        "S1",
+        "C3",
+        "H3",
+        "C2",
+        "H2",
+        "N2",
+        "H2N",
+        "C2N",
+        "O2N",
+        "CME",
+        "H1M",
+        "H2M",
+        "H3M",
+        "O3",
+        "O1S",
+        "O2S",
+        "O3S",
+        "O4S",
+        "O5S",
+        "O6S"
+      ],
+      "atoms": {
+        "C1": {
+          "charge": 0.305,
+          "name": "C1",
+          "type": "CG"
+        },
+        "C2": {
+          "charge": 0.544,
+          "name": "C2",
+          "type": "CG"
+        },
+        "C2N": {
+          "charge": 0.586,
+          "name": "C2N",
+          "type": "C"
+        },
+        "C3": {
+          "charge": 0.152,
+          "name": "C3",
+          "type": "CG"
+        },
+        "C4": {
+          "charge": 0.253,
+          "name": "C4",
+          "type": "CG"
+        },
+        "C5": {
+          "charge": 0.136,
+          "name": "C5",
+          "type": "CG"
+        },
+        "C6": {
+          "charge": 0.353,
+          "name": "C6",
+          "type": "CG"
+        },
+        "CME": {
+          "charge": 0.056,
+          "name": "CME",
+          "type": "CG"
+        },
+        "H1": {
+          "charge": 0.0,
+          "name": "H1",
+          "type": "H2"
+        },
+        "H1M": {
+          "charge": 0.0,
+          "name": "H1M",
+          "type": "HC"
+        },
+        "H2": {
+          "charge": 0.0,
+          "name": "H2",
+          "type": "H1"
+        },
+        "H2M": {
+          "charge": 0.0,
+          "name": "H2M",
+          "type": "HC"
+        },
+        "H2N": {
+          "charge": 0.254,
+          "name": "H2N",
+          "type": "H"
+        },
+        "H3": {
+          "charge": 0.0,
+          "name": "H3",
+          "type": "H1"
+        },
+        "H3M": {
+          "charge": 0.0,
+          "name": "H3M",
+          "type": "HC"
+        },
+        "H4": {
+          "charge": 0.0,
+          "name": "H4",
+          "type": "H1"
+        },
+        "H5": {
+          "charge": 0.0,
+          "name": "H5",
+          "type": "H1"
+        },
+        "H61": {
+          "charge": 0.0,
+          "name": "H61",
+          "type": "H1"
+        },
+        "H62": {
+          "charge": 0.0,
+          "name": "H62",
+          "type": "H1"
+        },
+        "N2": {
+          "charge": -0.686,
+          "name": "N2",
+          "type": "NG"
+        },
+        "O1S": {
+          "charge": -0.6499,
+          "name": "O1S",
+          "type": "O2"
+        },
+        "O2N": {
+          "charge": -0.564,
+          "name": "O2N",
+          "type": "O"
+        },
+        "O2S": {
+          "charge": -0.6499,
+          "name": "O2S",
+          "type": "O2"
+        },
+        "O3": {
+          "charge": -0.444,
+          "name": "O3",
+          "type": "OS"
+        },
+        "O3S": {
+          "charge": -0.6499,
+          "name": "O3S",
+          "type": "O2"
+        },
+        "O4": {
+          "charge": -0.4838,
+          "name": "O4",
+          "type": "OS"
+        },
+        "O4S": {
+          "charge": -0.6499,
+          "name": "O4S",
+          "type": "O2"
+        },
+        "O5": {
+          "charge": -0.408,
+          "name": "O5",
+          "type": "OS"
+        },
+        "O5S": {
+          "charge": -0.6499,
+          "name": "O5S",
+          "type": "O2"
+        },
+        "O6": {
+          "charge": -0.5208,
+          "name": "O6",
+          "type": "OS"
+        },
+        "O6S": {
+          "charge": -0.6499,
+          "name": "O6S",
+          "type": "O2"
+        },
+        "S1": {
+          "charge": 1.1835,
+          "name": "S1",
+          "type": "S"
+        },
+        "S2": {
+          "charge": 1.1835,
+          "name": "S2",
+          "type": "S"
+        }
+      },
+      "bonds": [],
+      "topname": "gag"
+    },
+    "39Y": {
+      "atomorder": [
+        "C1",
+        "H1",
+        "C2",
+        "H2",
+        "N2",
+        "H2N",
+        "C2N",
+        "O2N",
+        "CME",
+        "H1M",
+        "H2M",
+        "H3M",
+        "C3",
+        "H3",
+        "C4",
+        "H4",
+        "O4",
+        "S1",
+        "C5",
+        "H5",
+        "O5",
+        "C6",
+        "H61",
+        "H62",
+        "O6",
+        "S2",
+        "O3",
+        "O4S",
+        "O5S",
+        "O6S",
+        "O1S",
+        "O2S",
+        "O3S"
+      ],
+      "atoms": {
+        "C1": {
+          "charge": 0.468,
+          "name": "C1",
+          "type": "CG"
+        },
+        "C2": {
+          "charge": 0.245,
+          "name": "C2",
+          "type": "CG"
+        },
+        "C2N": {
+          "charge": 0.588,
+          "name": "C2N",
+          "type": "C"
+        },
+        "C3": {
+          "charge": 0.165,
+          "name": "C3",
+          "type": "CG"
+        },
+        "C4": {
+          "charge": 0.322,
+          "name": "C4",
+          "type": "CG"
+        },
+        "C5": {
+          "charge": 0.246,
+          "name": "C5",
+          "type": "CG"
+        },
+        "C6": {
+          "charge": 0.328,
+          "name": "C6",
+          "type": "CG"
+        },
+        "CME": {
+          "charge": 0.063,
+          "name": "CME",
+          "type": "CG"
+        },
+        "H1": {
+          "charge": 0.0,
+          "name": "H1",
+          "type": "H2"
+        },
+        "H1M": {
+          "charge": 0.0,
+          "name": "H1M",
+          "type": "HC"
+        },
+        "H2": {
+          "charge": 0.0,
+          "name": "H2",
+          "type": "H1"
+        },
+        "H2M": {
+          "charge": 0.0,
+          "name": "H2M",
+          "type": "HC"
+        },
+        "H2N": {
+          "charge": 0.236,
+          "name": "H2N",
+          "type": "H"
+        },
+        "H3": {
+          "charge": 0.0,
+          "name": "H3",
+          "type": "H1"
+        },
+        "H3M": {
+          "charge": 0.0,
+          "name": "H3M",
+          "type": "HC"
+        },
+        "H4": {
+          "charge": 0.0,
+          "name": "H4",
+          "type": "H1"
+        },
+        "H5": {
+          "charge": 0.0,
+          "name": "H5",
+          "type": "H1"
+        },
+        "H61": {
+          "charge": 0.0,
+          "name": "H61",
+          "type": "H1"
+        },
+        "H62": {
+          "charge": 0.0,
+          "name": "H62",
+          "type": "H1"
+        },
+        "N2": {
+          "charge": -0.552,
+          "name": "N2",
+          "type": "NG"
+        },
+        "O1S": {
+          "charge": -0.6499,
+          "name": "O1S",
+          "type": "O2"
+        },
+        "O2N": {
+          "charge": -0.579,
+          "name": "O2N",
+          "type": "O"
+        },
+        "O2S": {
+          "charge": -0.6499,
+          "name": "O2S",
+          "type": "O2"
+        },
+        "O3": {
+          "charge": -0.411,
+          "name": "O3",
+          "type": "OS"
+        },
+        "O3S": {
+          "charge": -0.6499,
+          "name": "O3S",
+          "type": "O2"
+        },
+        "O4": {
+          "charge": -0.5178,
+          "name": "O4",
+          "type": "OS"
+        },
+        "O4S": {
+          "charge": -0.6499,
+          "name": "O4S",
+          "type": "O2"
+        },
+        "O5": {
+          "charge": -0.568,
+          "name": "O5",
+          "type": "OS"
+        },
+        "O5S": {
+          "charge": -0.6499,
+          "name": "O5S",
+          "type": "O2"
+        },
+        "O6": {
+          "charge": -0.5008,
+          "name": "O6",
+          "type": "OS"
+        },
+        "O6S": {
+          "charge": -0.6499,
+          "name": "O6S",
+          "type": "O2"
+        },
+        "S1": {
+          "charge": 1.1835,
+          "name": "S1",
+          "type": "S"
+        },
+        "S2": {
+          "charge": 1.1835,
+          "name": "S2",
+          "type": "S"
+        }
+      },
+      "bonds": [],
+      "topname": "gag"
+    },
+    "41G": {
+      "atomorder": [
+        "C1",
+        "H1",
+        "C2",
+        "H2",
+        "O2",
+        "S6",
+        "C3",
+        "H3",
+        "O3",
+        "S10",
+        "C4",
+        "H4",
+        "C5",
+        "H5",
+        "O5",
+        "C6",
+        "H61",
+        "H62",
+        "O6",
+        "S20",
+        "O4",
+        "O23",
+        "O24",
+        "O25",
+        "O26",
+        "O27",
+        "O28",
+        "O29",
+        "O30",
+        "O31"
+      ],
+      "atoms": {
+        "C1": {
+          "charge": 0.509,
+          "name": "C1",
+          "type": "CG"
+        },
+        "C2": {
+          "charge": 0.246,
+          "name": "C2",
+          "type": "CG"
+        },
+        "C3": {
+          "charge": 0.286,
+          "name": "C3",
+          "type": "CG"
+        },
+        "C4": {
+          "charge": 0.254,
+          "name": "C4",
+          "type": "CG"
+        },
+        "C5": {
+          "charge": 0.283,
+          "name": "C5",
+          "type": "CG"
+        },
+        "C6": {
+          "charge": 0.276,
+          "name": "C6",
+          "type": "CG"
+        },
+        "H1": {
+          "charge": 0.0,
+          "name": "H1",
+          "type": "H2"
+        },
+        "H2": {
+          "charge": 0.0,
+          "name": "H2",
+          "type": "H1"
+        },
+        "H3": {
+          "charge": 0.0,
+          "name": "H3",
+          "type": "H1"
+        },
+        "H4": {
+          "charge": 0.0,
+          "name": "H4",
+          "type": "H1"
+        },
+        "H5": {
+          "charge": 0.0,
+          "name": "H5",
+          "type": "H1"
+        },
+        "H61": {
+          "charge": 0.0,
+          "name": "H61",
+          "type": "H1"
+        },
+        "H62": {
+          "charge": 0.0,
+          "name": "H62",
+          "type": "H1"
+        },
+        "O2": {
+          "charge": -0.5098,
+          "name": "O2",
+          "type": "OS"
+        },
+        "O23": {
+          "charge": -0.6499,
+          "name": "O23",
+          "type": "O2"
+        },
+        "O24": {
+          "charge": -0.6499,
+          "name": "O24",
+          "type": "O2"
+        },
+        "O25": {
+          "charge": -0.6499,
+          "name": "O25",
+          "type": "O2"
+        },
+        "O26": {
+          "charge": -0.6499,
+          "name": "O26",
+          "type": "O2"
+        },
+        "O27": {
+          "charge": -0.6499,
+          "name": "O27",
+          "type": "O2"
+        },
+        "O28": {
+          "charge": -0.6499,
+          "name": "O28",
+          "type": "O2"
+        },
+        "O29": {
+          "charge": -0.6499,
+          "name": "O29",
+          "type": "O2"
+        },
+        "O3": {
+          "charge": -0.5058,
+          "name": "O3",
+          "type": "OS"
+        },
+        "O30": {
+          "charge": -0.6499,
+          "name": "O30",
+          "type": "O2"
+        },
+        "O31": {
+          "charge": -0.6499,
+          "name": "O31",
+          "type": "O2"
+        },
+        "O4": {
+          "charge": -0.468,
+          "name": "O4",
+          "type": "OS"
+        },
+        "O5": {
+          "charge": -0.574,
+          "name": "O5",
+          "type": "OS"
+        },
+        "O6": {
+          "charge": -0.4978,
+          "name": "O6",
+          "type": "OS"
+        },
+        "S10": {
+          "charge": 1.1835,
+          "name": "S10",
+          "type": "S"
+        },
+        "S20": {
+          "charge": 1.1835,
+          "name": "S20",
+          "type": "S"
+        },
+        "S6": {
+          "charge": 1.1835,
+          "name": "S6",
+          "type": "S"
+        }
+      },
+      "bonds": [],
+      "topname": "gag"
+    },
+    "42Y": {
+      "atomorder": [
+        "C1",
+        "H1",
+        "C2",
+        "H2",
+        "N2",
+        "H2N",
+        "S",
+        "C3",
+        "H3",
+        "O3",
+        "H3O",
+        "C4",
+        "H4",
+        "C5",
+        "H5",
+        "O5",
+        "C6",
+        "H61",
+        "H62",
+        "O6",
+        "H6O",
+        "O4",
+        "O1S",
+        "O2S",
+        "O3S"
+      ],
+      "atoms": {
+        "C1": {
+          "charge": 0.468,
+          "name": "C1",
+          "type": "CG"
+        },
+        "C2": {
+          "charge": 0.245,
+          "name": "C2",
+          "type": "CG"
+        },
+        "C3": {
+          "charge": 0.165,
+          "name": "C3",
+          "type": "CG"
+        },
+        "C4": {
+          "charge": 0.322,
+          "name": "C4",
+          "type": "CG"
+        },
+        "C5": {
+          "charge": 0.246,
+          "name": "C5",
+          "type": "CG"
+        },
+        "C6": {
+          "charge": 0.328,
+          "name": "C6",
+          "type": "CG"
+        },
+        "H1": {
+          "charge": 0.0,
+          "name": "H1",
+          "type": "H2"
+        },
+        "H2": {
+          "charge": 0.0,
+          "name": "H2",
+          "type": "H1"
+        },
+        "H2N": {
+          "charge": 0.236,
+          "name": "H2N",
+          "type": "H"
+        },
+        "H3": {
+          "charge": 0.0,
+          "name": "H3",
+          "type": "H1"
+        },
+        "H3O": {
+          "charge": 0.413,
+          "name": "H3O",
+          "type": "HO"
+        },
+        "H4": {
+          "charge": 0.0,
+          "name": "H4",
+          "type": "H1"
+        },
+        "H5": {
+          "charge": 0.0,
+          "name": "H5",
+          "type": "H1"
+        },
+        "H61": {
+          "charge": 0.0,
+          "name": "H61",
+          "type": "H1"
+        },
+        "H62": {
+          "charge": 0.0,
+          "name": "H62",
+          "type": "H1"
+        },
+        "H6O": {
+          "charge": 0.421,
+          "name": "H6O",
+          "type": "HO"
+        },
+        "N2": {
+          "charge": -0.7394,
+          "name": "N2",
+          "type": "NG"
+        },
+        "O1S": {
+          "charge": -0.6366,
+          "name": "O1S",
+          "type": "O2"
+        },
+        "O2S": {
+          "charge": -0.6366,
+          "name": "O2S",
+          "type": "O2"
+        },
+        "O3": {
+          "charge": -0.63,
+          "name": "O3",
+          "type": "OH"
+        },
+        "O3S": {
+          "charge": -0.6366,
+          "name": "O3S",
+          "type": "O2"
+        },
+        "O4": {
+          "charge": -0.478,
+          "name": "O4",
+          "type": "OS"
+        },
+        "O5": {
+          "charge": -0.568,
+          "name": "O5",
+          "type": "OS"
+        },
+        "O6": {
+          "charge": -0.688,
+          "name": "O6",
+          "type": "OH"
+        },
+        "S": {
+          "charge": 1.1692,
+          "name": "S",
+          "type": "S"
+        }
+      },
+      "bonds": [],
+      "topname": "gag"
+    },
+    "42Z": {
+      "atomorder": [
+        "C1",
+        "H1",
+        "O5",
+        "C5",
+        "H5",
+        "C6",
+        "O6A",
+        "O6B",
+        "C4",
+        "H4",
+        "C3",
+        "H3",
+        "O3",
+        "H3O",
+        "C2",
+        "H2",
+        "O2",
+        "S",
+        "O4",
+        "O1S",
+        "O2S",
+        "O3S"
+      ],
+      "atoms": {
+        "C1": {
+          "charge": 0.251,
+          "name": "C1",
+          "type": "CG"
+        },
+        "C2": {
+          "charge": 0.411,
+          "name": "C2",
+          "type": "CG"
+        },
+        "C3": {
+          "charge": 0.266,
+          "name": "C3",
+          "type": "CG"
+        },
+        "C4": {
+          "charge": 0.267,
+          "name": "C4",
+          "type": "CG"
+        },
+        "C5": {
+          "charge": 0.075,
+          "name": "C5",
+          "type": "CG"
+        },
+        "C6": {
+          "charge": 0.893,
+          "name": "C6",
+          "type": "C"
+        },
+        "H1": {
+          "charge": 0.0,
+          "name": "H1",
+          "type": "H2"
+        },
+        "H2": {
+          "charge": 0.0,
+          "name": "H2",
+          "type": "H1"
+        },
+        "H3": {
+          "charge": 0.0,
+          "name": "H3",
+          "type": "H1"
+        },
+        "H3O": {
+          "charge": 0.403,
+          "name": "H3O",
+          "type": "HO"
+        },
+        "H4": {
+          "charge": 0.0,
+          "name": "H4",
+          "type": "H1"
+        },
+        "H5": {
+          "charge": 0.0,
+          "name": "H5",
+          "type": "H1"
+        },
+        "O1S": {
+          "charge": -0.6499,
+          "name": "O1S",
+          "type": "O2"
+        },
+        "O2": {
+          "charge": -0.5518,
+          "name": "O2",
+          "type": "OS"
+        },
+        "O2S": {
+          "charge": -0.6499,
+          "name": "O2S",
+          "type": "O2"
+        },
+        "O3": {
+          "charge": -0.701,
+          "name": "O3",
+          "type": "OH"
+        },
+        "O3S": {
+          "charge": -0.6499,
+          "name": "O3S",
+          "type": "O2"
+        },
+        "O4": {
+          "charge": -0.498,
+          "name": "O4",
+          "type": "OS"
+        },
+        "O5": {
+          "charge": -0.413,
+          "name": "O5",
+          "type": "OS"
+        },
+        "O6A": {
+          "charge": -0.818,
+          "name": "O6A",
+          "type": "O2"
+        },
+        "O6B": {
+          "charge": -0.818,
+          "name": "O6B",
+          "type": "O2"
+        },
+        "S": {
+          "charge": 1.1835,
+          "name": "S",
+          "type": "S"
+        }
+      },
+      "bonds": [],
+      "topname": "gag"
+    },
+    "42u": {
+      "atomorder": [
+        "C1",
+        "H1",
+        "O5",
+        "C5",
+        "H5",
+        "C6",
+        "O6A",
+        "O6B",
+        "C4",
+        "H4",
+        "C3",
+        "H3",
+        "O3",
+        "H3O",
+        "C2",
+        "H2",
+        "O2",
+        "S",
+        "O4",
+        "O1S",
+        "O2S",
+        "O3S"
+      ],
+      "atoms": {
+        "C1": {
+          "charge": 0.363,
+          "name": "C1",
+          "type": "CG"
+        },
+        "C2": {
+          "charge": 0.259,
+          "name": "C2",
+          "type": "CG"
+        },
+        "C3": {
+          "charge": 0.417,
+          "name": "C3",
+          "type": "CG"
+        },
+        "C4": {
+          "charge": 0.223,
+          "name": "C4",
+          "type": "CG"
+        },
+        "C5": {
+          "charge": 0.232,
+          "name": "C5",
+          "type": "CG"
+        },
+        "C6": {
+          "charge": 0.697,
+          "name": "C6",
+          "type": "C"
+        },
+        "H1": {
+          "charge": 0.0,
+          "name": "H1",
+          "type": "H2"
+        },
+        "H2": {
+          "charge": 0.0,
+          "name": "H2",
+          "type": "H1"
+        },
+        "H3": {
+          "charge": 0.0,
+          "name": "H3",
+          "type": "H1"
+        },
+        "H3O": {
+          "charge": 0.417,
+          "name": "H3O",
+          "type": "HO"
+        },
+        "H4": {
+          "charge": 0.0,
+          "name": "H4",
+          "type": "H1"
+        },
+        "H5": {
+          "charge": 0.0,
+          "name": "H5",
+          "type": "H1"
+        },
+        "O1S": {
+          "charge": -0.6499,
+          "name": "O1S",
+          "type": "O2"
+        },
+        "O2": {
+          "charge": -0.5338,
+          "name": "O2",
+          "type": "OS"
+        },
+        "O2S": {
+          "charge": -0.6499,
+          "name": "O2S",
+          "type": "O2"
+        },
+        "O3": {
+          "charge": -0.771,
+          "name": "O3",
+          "type": "OH"
+        },
+        "O3S": {
+          "charge": -0.6499,
+          "name": "O3S",
+          "type": "O2"
+        },
+        "O4": {
+          "charge": -0.508,
+          "name": "O4",
+          "type": "OS"
+        },
+        "O5": {
+          "charge": -0.515,
+          "name": "O5",
+          "type": "OS"
+        },
+        "O6A": {
+          "charge": -0.757,
+          "name": "O6A",
+          "type": "O2"
+        },
+        "O6B": {
+          "charge": -0.757,
+          "name": "O6B",
+          "type": "O2"
+        },
+        "S": {
+          "charge": 1.1835,
+          "name": "S",
+          "type": "S"
+        }
+      },
+      "bonds": [],
+      "topname": "gag"
+    },
+    "43Z": {
+      "atomorder": [
+        "C1",
+        "H1",
+        "O5",
+        "C5",
+        "H5",
+        "C6",
+        "O6A",
+        "O6B",
+        "C4",
+        "H4",
+        "C3",
+        "H3",
+        "O3",
+        "S",
+        "C2",
+        "H2",
+        "O2",
+        "H2O",
+        "O4",
+        "O1S",
+        "O2S",
+        "O3S"
+      ],
+      "atoms": {
+        "C1": {
+          "charge": 0.251,
+          "name": "C1",
+          "type": "CG"
+        },
+        "C2": {
+          "charge": 0.411,
+          "name": "C2",
+          "type": "CG"
+        },
+        "C3": {
+          "charge": 0.266,
+          "name": "C3",
+          "type": "CG"
+        },
+        "C4": {
+          "charge": 0.267,
+          "name": "C4",
+          "type": "CG"
+        },
+        "C5": {
+          "charge": 0.075,
+          "name": "C5",
+          "type": "CG"
+        },
+        "C6": {
+          "charge": 0.893,
+          "name": "C6",
+          "type": "C"
+        },
+        "H1": {
+          "charge": 0.0,
+          "name": "H1",
+          "type": "H2"
+        },
+        "H2": {
+          "charge": 0.0,
+          "name": "H2",
+          "type": "H1"
+        },
+        "H2O": {
+          "charge": 0.422,
+          "name": "H2O",
+          "type": "HO"
+        },
+        "H3": {
+          "charge": 0.0,
+          "name": "H3",
+          "type": "H1"
+        },
+        "H4": {
+          "charge": 0.0,
+          "name": "H4",
+          "type": "H1"
+        },
+        "H5": {
+          "charge": 0.0,
+          "name": "H5",
+          "type": "H1"
+        },
+        "O1S": {
+          "charge": -0.6499,
+          "name": "O1S",
+          "type": "O2"
+        },
+        "O2": {
+          "charge": -0.74,
+          "name": "O2",
+          "type": "OH"
+        },
+        "O2S": {
+          "charge": -0.6499,
+          "name": "O2S",
+          "type": "O2"
+        },
+        "O3": {
+          "charge": -0.5318,
+          "name": "O3",
+          "type": "OS"
+        },
+        "O3S": {
+          "charge": -0.6499,
+          "name": "O3S",
+          "type": "O2"
+        },
+        "O4": {
+          "charge": -0.498,
+          "name": "O4",
+          "type": "OS"
+        },
+        "O5": {
+          "charge": -0.413,
+          "name": "O5",
+          "type": "OS"
+        },
+        "O6A": {
+          "charge": -0.818,
+          "name": "O6A",
+          "type": "O2"
+        },
+        "O6B": {
+          "charge": -0.818,
+          "name": "O6B",
+          "type": "O2"
+        },
+        "S": {
+          "charge": 1.1835,
+          "name": "S",
+          "type": "S"
+        }
+      },
+      "bonds": [],
+      "topname": "gag"
+    },
+    "43u": {
+      "atomorder": [
+        "C1",
+        "H1",
+        "O5",
+        "C5",
+        "H5",
+        "C6",
+        "O6A",
+        "O6B",
+        "C4",
+        "H4",
+        "C3",
+        "H3",
+        "O3",
+        "S",
+        "C2",
+        "H2",
+        "O2",
+        "H2O",
+        "O4",
+        "O1S",
+        "O2S",
+        "O3S"
+      ],
+      "atoms": {
+        "C1": {
+          "charge": 0.363,
+          "name": "C1",
+          "type": "CG"
+        },
+        "C2": {
+          "charge": 0.259,
+          "name": "C2",
+          "type": "CG"
+        },
+        "C3": {
+          "charge": 0.417,
+          "name": "C3",
+          "type": "CG"
+        },
+        "C4": {
+          "charge": 0.223,
+          "name": "C4",
+          "type": "CG"
+        },
+        "C5": {
+          "charge": 0.232,
+          "name": "C5",
+          "type": "CG"
+        },
+        "C6": {
+          "charge": 0.697,
+          "name": "C6",
+          "type": "C"
+        },
+        "H1": {
+          "charge": 0.0,
+          "name": "H1",
+          "type": "H2"
+        },
+        "H2": {
+          "charge": 0.0,
+          "name": "H2",
+          "type": "H1"
+        },
+        "H2O": {
+          "charge": 0.385,
+          "name": "H2O",
+          "type": "HO"
+        },
+        "H3": {
+          "charge": 0.0,
+          "name": "H3",
+          "type": "H1"
+        },
+        "H4": {
+          "charge": 0.0,
+          "name": "H4",
+          "type": "H1"
+        },
+        "H5": {
+          "charge": 0.0,
+          "name": "H5",
+          "type": "H1"
+        },
+        "O1S": {
+          "charge": -0.6499,
+          "name": "O1S",
+          "type": "O2"
+        },
+        "O2": {
+          "charge": -0.685,
+          "name": "O2",
+          "type": "OH"
+        },
+        "O2S": {
+          "charge": -0.6499,
+          "name": "O2S",
+          "type": "O2"
+        },
+        "O3": {
+          "charge": -0.5878,
+          "name": "O3",
+          "type": "OS"
+        },
+        "O3S": {
+          "charge": -0.6499,
+          "name": "O3S",
+          "type": "O2"
+        },
+        "O4": {
+          "charge": -0.508,
+          "name": "O4",
+          "type": "OS"
+        },
+        "O5": {
+          "charge": -0.515,
+          "name": "O5",
+          "type": "OS"
+        },
+        "O6A": {
+          "charge": -0.757,
+          "name": "O6A",
+          "type": "O2"
+        },
+        "O6B": {
+          "charge": -0.757,
+          "name": "O6B",
+          "type": "O2"
+        },
+        "S": {
+          "charge": 1.1835,
+          "name": "S",
+          "type": "S"
+        }
+      },
+      "bonds": [],
+      "topname": "gag"
+    },
+    "46B": {
+      "atomorder": [
+        "C1",
+        "H1",
+        "O5",
+        "C5",
+        "H5",
+        "C6",
+        "H8",
+        "O6",
+        "H9",
+        "C4",
+        "H4",
+        "O4",
+        "C3",
+        "H3",
+        "C2",
+        "H2",
+        "N2",
+        "H2N",
+        "C2N",
+        "O2N",
+        "CME",
+        "H1M",
+        "H2M",
+        "H3M",
+        "O3",
+        "S",
+        "O1S",
+        "O2S",
+        "O3S",
+        "H3O"
+      ],
+      "atoms": {
+        "C1": {
+          "charge": 0.287,
+          "name": "C1",
+          "type": "CG"
+        },
+        "C2": {
+          "charge": 0.48,
+          "name": "C2",
+          "type": "CG"
+        },
+        "C2N": {
+          "charge": 0.648,
+          "name": "C2N",
+          "type": "C"
+        },
+        "C3": {
+          "charge": 0.18,
+          "name": "C3",
+          "type": "CG"
+        },
+        "C4": {
+          "charge": 0.302,
+          "name": "C4",
+          "type": "CG"
+        },
+        "C5": {
+          "charge": 0.208,
+          "name": "C5",
+          "type": "CG"
+        },
+        "C6": {
+          "charge": 0.289,
+          "name": "C6",
+          "type": "CG"
+        },
+        "CME": {
+          "charge": 0.034,
+          "name": "CME",
+          "type": "CG"
+        },
+        "H1": {
+          "charge": 0.0,
+          "name": "H1",
+          "type": "H2"
+        },
+        "H1M": {
+          "charge": 0.0,
+          "name": "H1M",
+          "type": "HC"
+        },
+        "H2": {
+          "charge": 0.0,
+          "name": "H2",
+          "type": "H1"
+        },
+        "H2M": {
+          "charge": 0.0,
+          "name": "H2M",
+          "type": "HC"
+        },
+        "H2N": {
+          "charge": 0.3,
+          "name": "H2N",
+          "type": "H"
+        },
+        "H3": {
+          "charge": 0.0,
+          "name": "H3",
+          "type": "H1"
+        },
+        "H3M": {
+          "charge": 0.0,
+          "name": "H3M",
+          "type": "HC"
+        },
+        "H3O": {
+          "charge": 0.436,
+          "name": "H3O",
+          "type": "HO"
+        },
+        "H4": {
+          "charge": 0.0,
+          "name": "H4",
+          "type": "H1"
+        },
+        "H5": {
+          "charge": 0.0,
+          "name": "H5",
+          "type": "H1"
+        },
+        "H8": {
+          "charge": 0.0,
+          "name": "H8",
+          "type": "H1"
+        },
+        "H9": {
+          "charge": 0.0,
+          "name": "H9",
+          "type": "H1"
+        },
+        "N2": {
+          "charge": -0.722,
+          "name": "N2",
+          "type": "NG"
+        },
+        "O1S": {
+          "charge": -0.6499,
+          "name": "O1S",
+          "type": "O2"
+        },
+        "O2N": {
+          "charge": -0.576,
+          "name": "O2N",
+          "type": "O"
+        },
+        "O2S": {
+          "charge": -0.6499,
+          "name": "O2S",
+          "type": "O2"
+        },
+        "O3": {
+          "charge": -0.716,
+          "name": "O3",
+          "type": "OH"
+        },
+        "O3S": {
+          "charge": -0.6499,
+          "name": "O3S",
+          "type": "O2"
+        },
+        "O4": {
+          "charge": -0.452,
+          "name": "O4",
+          "type": "OS"
+        },
+        "O5": {
+          "charge": -0.433,
+          "name": "O5",
+          "type": "OS"
+        },
+        "O6": {
+          "charge": -0.4988,
+          "name": "O6",
+          "type": "OS"
+        },
+        "S": {
+          "charge": 1.1835,
+          "name": "S",
+          "type": "S"
+        }
+      },
+      "bonds": [],
+      "topname": "gag"
+    },
+    "46V": {
+      "atomorder": [
+        "C1",
+        "H1",
+        "O5",
+        "C5",
+        "H5",
+        "C6",
+        "H61",
+        "H62",
+        "O6",
+        "S",
+        "C4",
+        "H4",
+        "C3",
+        "H3",
+        "O3",
+        "H3O",
+        "C2",
+        "H2",
+        "N2",
+        "H2N",
+        "C2N",
+        "O2N",
+        "CME",
+        "H1M",
+        "H2M",
+        "H3M",
+        "O4",
+        "O1S",
+        "O2S",
+        "O3S"
+      ],
+      "atoms": {
+        "C1": {
+          "charge": 0.305,
+          "name": "C1",
+          "type": "CG"
+        },
+        "C2": {
+          "charge": 0.544,
+          "name": "C2",
+          "type": "CG"
+        },
+        "C2N": {
+          "charge": 0.586,
+          "name": "C2N",
+          "type": "C"
+        },
+        "C3": {
+          "charge": 0.152,
+          "name": "C3",
+          "type": "CG"
+        },
+        "C4": {
+          "charge": 0.253,
+          "name": "C4",
+          "type": "CG"
+        },
+        "C5": {
+          "charge": 0.136,
+          "name": "C5",
+          "type": "CG"
+        },
+        "C6": {
+          "charge": 0.353,
+          "name": "C6",
+          "type": "CG"
+        },
+        "CME": {
+          "charge": 0.056,
+          "name": "CME",
+          "type": "CG"
+        },
+        "H1": {
+          "charge": 0.0,
+          "name": "H1",
+          "type": "H2"
+        },
+        "H1M": {
+          "charge": 0.0,
+          "name": "H1M",
+          "type": "HC"
+        },
+        "H2": {
+          "charge": 0.0,
+          "name": "H2",
+          "type": "H1"
+        },
+        "H2M": {
+          "charge": 0.0,
+          "name": "H2M",
+          "type": "HC"
+        },
+        "H2N": {
+          "charge": 0.254,
+          "name": "H2N",
+          "type": "H"
+        },
+        "H3": {
+          "charge": 0.0,
+          "name": "H3",
+          "type": "H1"
+        },
+        "H3M": {
+          "charge": 0.0,
+          "name": "H3M",
+          "type": "HC"
+        },
+        "H3O": {
+          "charge": 0.415,
+          "name": "H3O",
+          "type": "HO"
+        },
+        "H4": {
+          "charge": 0.0,
+          "name": "H4",
+          "type": "H1"
+        },
+        "H5": {
+          "charge": 0.0,
+          "name": "H5",
+          "type": "H1"
+        },
+        "H61": {
+          "charge": 0.0,
+          "name": "H61",
+          "type": "H1"
+        },
+        "H62": {
+          "charge": 0.0,
+          "name": "H62",
+          "type": "H1"
+        },
+        "N2": {
+          "charge": -0.686,
+          "name": "N2",
+          "type": "NG"
+        },
+        "O1S": {
+          "charge": -0.6499,
+          "name": "O1S",
+          "type": "O2"
+        },
+        "O2N": {
+          "charge": -0.564,
+          "name": "O2N",
+          "type": "O"
+        },
+        "O2S": {
+          "charge": -0.6499,
+          "name": "O2S",
+          "type": "O2"
+        },
+        "O3": {
+          "charge": -0.665,
+          "name": "O3",
+          "type": "OH"
+        },
+        "O3S": {
+          "charge": -0.6499,
+          "name": "O3S",
+          "type": "O2"
+        },
+        "O4": {
+          "charge": -0.444,
+          "name": "O4",
+          "type": "OS"
+        },
+        "O5": {
+          "charge": -0.408,
+          "name": "O5",
+          "type": "OS"
+        },
+        "O6": {
+          "charge": -0.5208,
+          "name": "O6",
+          "type": "OS"
+        },
+        "S": {
+          "charge": 1.1835,
+          "name": "S",
+          "type": "S"
+        }
+      },
+      "bonds": [],
+      "topname": "gag"
+    },
+    "46Y": {
+      "atomorder": [
+        "C1",
+        "H1",
+        "C2",
+        "H2",
+        "N2",
+        "H2N",
+        "C2N",
+        "O2N",
+        "CME",
+        "H1M",
+        "H2M",
+        "H3M",
+        "C3",
+        "H3",
+        "O3",
+        "H3O",
+        "C4",
+        "H4",
+        "C5",
+        "H5",
+        "O5",
+        "C6",
+        "H61",
+        "H62",
+        "O6",
+        "S26",
+        "O4",
+        "O1S",
+        "O2S",
+        "O3S"
+      ],
+      "atoms": {
+        "C1": {
+          "charge": 0.468,
+          "name": "C1",
+          "type": "CG"
+        },
+        "C2": {
+          "charge": 0.245,
+          "name": "C2",
+          "type": "CG"
+        },
+        "C2N": {
+          "charge": 0.588,
+          "name": "C2N",
+          "type": "C"
+        },
+        "C3": {
+          "charge": 0.165,
+          "name": "C3",
+          "type": "CG"
+        },
+        "C4": {
+          "charge": 0.322,
+          "name": "C4",
+          "type": "CG"
+        },
+        "C5": {
+          "charge": 0.246,
+          "name": "C5",
+          "type": "CG"
+        },
+        "C6": {
+          "charge": 0.328,
+          "name": "C6",
+          "type": "CG"
+        },
+        "CME": {
+          "charge": 0.063,
+          "name": "CME",
+          "type": "CG"
+        },
+        "H1": {
+          "charge": 0.0,
+          "name": "H1",
+          "type": "H2"
+        },
+        "H1M": {
+          "charge": 0.0,
+          "name": "H1M",
+          "type": "HC"
+        },
+        "H2": {
+          "charge": 0.0,
+          "name": "H2",
+          "type": "H1"
+        },
+        "H2M": {
+          "charge": 0.0,
+          "name": "H2M",
+          "type": "HC"
+        },
+        "H2N": {
+          "charge": 0.236,
+          "name": "H2N",
+          "type": "H"
+        },
+        "H3": {
+          "charge": 0.0,
+          "name": "H3",
+          "type": "H1"
+        },
+        "H3M": {
+          "charge": 0.0,
+          "name": "H3M",
+          "type": "HC"
+        },
+        "H3O": {
+          "charge": 0.413,
+          "name": "H3O",
+          "type": "HO"
+        },
+        "H4": {
+          "charge": 0.0,
+          "name": "H4",
+          "type": "H1"
+        },
+        "H5": {
+          "charge": 0.0,
+          "name": "H5",
+          "type": "H1"
+        },
+        "H61": {
+          "charge": 0.0,
+          "name": "H61",
+          "type": "H1"
+        },
+        "H62": {
+          "charge": 0.0,
+          "name": "H62",
+          "type": "H1"
+        },
+        "N2": {
+          "charge": -0.552,
+          "name": "N2",
+          "type": "NG"
+        },
+        "O1S": {
+          "charge": -0.6499,
+          "name": "O1S",
+          "type": "O2"
+        },
+        "O2N": {
+          "charge": -0.579,
+          "name": "O2N",
+          "type": "O"
+        },
+        "O2S": {
+          "charge": -0.6499,
+          "name": "O2S",
+          "type": "O2"
+        },
+        "O3": {
+          "charge": -0.63,
+          "name": "O3",
+          "type": "OH"
+        },
+        "O3S": {
+          "charge": -0.6499,
+          "name": "O3S",
+          "type": "O2"
+        },
+        "O4": {
+          "charge": -0.478,
+          "name": "O4",
+          "type": "OS"
+        },
+        "O5": {
+          "charge": -0.568,
+          "name": "O5",
+          "type": "OS"
+        },
+        "O6": {
+          "charge": -0.5008,
+          "name": "O6",
+          "type": "OS"
+        },
+        "S26": {
+          "charge": 1.1835,
+          "name": "S26",
+          "type": "S"
+        }
+      },
+      "bonds": [],
+      "topname": "gag"
+    },
+    "47Y": {
+      "atomorder": [
+        "C1",
+        "H1",
+        "C2",
+        "H2",
+        "N2",
+        "H2N",
+        "S1",
+        "C3",
+        "H3",
+        "O3",
+        "H3O",
+        "C4",
+        "H4",
+        "C5",
+        "H5",
+        "O5",
+        "C6",
+        "H61",
+        "H62",
+        "O6",
+        "S2",
+        "O4",
+        "O1S",
+        "O2S",
+        "O3S",
+        "O4S",
+        "O5S",
+        "O6S"
+      ],
+      "atoms": {
+        "C1": {
+          "charge": 0.468,
+          "name": "C1",
+          "type": "CG"
+        },
+        "C2": {
+          "charge": 0.245,
+          "name": "C2",
+          "type": "CG"
+        },
+        "C3": {
+          "charge": 0.165,
+          "name": "C3",
+          "type": "CG"
+        },
+        "C4": {
+          "charge": 0.322,
+          "name": "C4",
+          "type": "CG"
+        },
+        "C5": {
+          "charge": 0.246,
+          "name": "C5",
+          "type": "CG"
+        },
+        "C6": {
+          "charge": 0.328,
+          "name": "C6",
+          "type": "CG"
+        },
+        "H1": {
+          "charge": 0.0,
+          "name": "H1",
+          "type": "H2"
+        },
+        "H2": {
+          "charge": 0.0,
+          "name": "H2",
+          "type": "H1"
+        },
+        "H2N": {
+          "charge": 0.236,
+          "name": "H2N",
+          "type": "H"
+        },
+        "H3": {
+          "charge": 0.0,
+          "name": "H3",
+          "type": "H1"
+        },
+        "H3O": {
+          "charge": 0.413,
+          "name": "H3O",
+          "type": "HO"
+        },
+        "H4": {
+          "charge": 0.0,
+          "name": "H4",
+          "type": "H1"
+        },
+        "H5": {
+          "charge": 0.0,
+          "name": "H5",
+          "type": "H1"
+        },
+        "H61": {
+          "charge": 0.0,
+          "name": "H61",
+          "type": "H1"
+        },
+        "H62": {
+          "charge": 0.0,
+          "name": "H62",
+          "type": "H1"
+        },
+        "N2": {
+          "charge": -0.7394,
+          "name": "N2",
+          "type": "NG"
+        },
+        "O1S": {
+          "charge": -0.6366,
+          "name": "O1S",
+          "type": "O2"
+        },
+        "O2S": {
+          "charge": -0.6366,
+          "name": "O2S",
+          "type": "O2"
+        },
+        "O3": {
+          "charge": -0.63,
+          "name": "O3",
+          "type": "OH"
+        },
+        "O3S": {
+          "charge": -0.6366,
+          "name": "O3S",
+          "type": "O2"
+        },
+        "O4": {
+          "charge": -0.478,
+          "name": "O4",
+          "type": "OS"
+        },
+        "O4S": {
+          "charge": -0.6499,
+          "name": "O4S",
+          "type": "O2"
+        },
+        "O5": {
+          "charge": -0.568,
+          "name": "O5",
+          "type": "OS"
+        },
+        "O5S": {
+          "charge": -0.6499,
+          "name": "O5S",
+          "type": "O2"
+        },
+        "O6": {
+          "charge": -0.5008,
+          "name": "O6",
+          "type": "OS"
+        },
+        "O6S": {
+          "charge": -0.6499,
+          "name": "O6S",
+          "type": "O2"
+        },
+        "S1": {
+          "charge": 1.1692,
+          "name": "S1",
+          "type": "S"
+        },
+        "S2": {
+          "charge": 1.1835,
+          "name": "S2",
+          "type": "S"
+        }
+      },
+      "bonds": [],
+      "topname": "gag"
+    },
+    "47Z": {
+      "atomorder": [
+        "C1",
+        "H1",
+        "O5",
+        "C5",
+        "H5",
+        "C6",
+        "O6A",
+        "O6B",
+        "C4",
+        "H4",
+        "C3",
+        "H3",
+        "O3",
+        "S2",
+        "C2",
+        "H2",
+        "O2",
+        "S1",
+        "O4",
+        "O1S",
+        "O2S",
+        "O3S",
+        "O4S",
+        "O5S",
+        "O6S"
+      ],
+      "atoms": {
+        "C1": {
+          "charge": 0.251,
+          "name": "C1",
+          "type": "CG"
+        },
+        "C2": {
+          "charge": 0.411,
+          "name": "C2",
+          "type": "CG"
+        },
+        "C3": {
+          "charge": 0.266,
+          "name": "C3",
+          "type": "CG"
+        },
+        "C4": {
+          "charge": 0.267,
+          "name": "C4",
+          "type": "CG"
+        },
+        "C5": {
+          "charge": 0.075,
+          "name": "C5",
+          "type": "CG"
+        },
+        "C6": {
+          "charge": 0.893,
+          "name": "C6",
+          "type": "C"
+        },
+        "H1": {
+          "charge": 0.0,
+          "name": "H1",
+          "type": "H2"
+        },
+        "H2": {
+          "charge": 0.0,
+          "name": "H2",
+          "type": "H1"
+        },
+        "H3": {
+          "charge": 0.0,
+          "name": "H3",
+          "type": "H1"
+        },
+        "H4": {
+          "charge": 0.0,
+          "name": "H4",
+          "type": "H1"
+        },
+        "H5": {
+          "charge": 0.0,
+          "name": "H5",
+          "type": "H1"
+        },
+        "O1S": {
+          "charge": -0.6499,
+          "name": "O1S",
+          "type": "O2"
+        },
+        "O2": {
+          "charge": -0.5518,
+          "name": "O2",
+          "type": "OS"
+        },
+        "O2S": {
+          "charge": -0.6499,
+          "name": "O2S",
+          "type": "O2"
+        },
+        "O3": {
+          "charge": -0.5318,
+          "name": "O3",
+          "type": "OS"
+        },
+        "O3S": {
+          "charge": -0.6499,
+          "name": "O3S",
+          "type": "O2"
+        },
+        "O4": {
+          "charge": -0.498,
+          "name": "O4",
+          "type": "OS"
+        },
+        "O4S": {
+          "charge": -0.6499,
+          "name": "O4S",
+          "type": "O2"
+        },
+        "O5": {
+          "charge": -0.413,
+          "name": "O5",
+          "type": "OS"
+        },
+        "O5S": {
+          "charge": -0.6499,
+          "name": "O5S",
+          "type": "O2"
+        },
+        "O6A": {
+          "charge": -0.818,
+          "name": "O6A",
+          "type": "O2"
+        },
+        "O6B": {
+          "charge": -0.818,
+          "name": "O6B",
+          "type": "O2"
+        },
+        "O6S": {
+          "charge": -0.6499,
+          "name": "O6S",
+          "type": "O2"
+        },
+        "S1": {
+          "charge": 1.1835,
+          "name": "S1",
+          "type": "S"
+        },
+        "S2": {
+          "charge": 1.1835,
+          "name": "S2",
+          "type": "S"
+        }
+      },
+      "bonds": [],
+      "topname": "gag"
+    },
+    "47u": {
+      "atomorder": [
+        "C1",
+        "H1",
+        "O5",
+        "C5",
+        "H5",
+        "C6",
+        "O6A",
+        "O6B",
+        "C4",
+        "H4",
+        "C3",
+        "H3",
+        "O3",
+        "S2",
+        "C2",
+        "H2",
+        "O2",
+        "S1",
+        "O4",
+        "O1S",
+        "O2S",
+        "O3S",
+        "O4S",
+        "O5S",
+        "O6S"
+      ],
+      "atoms": {
+        "C1": {
+          "charge": 0.363,
+          "name": "C1",
+          "type": "CG"
+        },
+        "C2": {
+          "charge": 0.259,
+          "name": "C2",
+          "type": "CG"
+        },
+        "C3": {
+          "charge": 0.417,
+          "name": "C3",
+          "type": "CG"
+        },
+        "C4": {
+          "charge": 0.223,
+          "name": "C4",
+          "type": "CG"
+        },
+        "C5": {
+          "charge": 0.232,
+          "name": "C5",
+          "type": "CG"
+        },
+        "C6": {
+          "charge": 0.697,
+          "name": "C6",
+          "type": "C"
+        },
+        "H1": {
+          "charge": 0.0,
+          "name": "H1",
+          "type": "H2"
+        },
+        "H2": {
+          "charge": 0.0,
+          "name": "H2",
+          "type": "H1"
+        },
+        "H3": {
+          "charge": 0.0,
+          "name": "H3",
+          "type": "H1"
+        },
+        "H4": {
+          "charge": 0.0,
+          "name": "H4",
+          "type": "H1"
+        },
+        "H5": {
+          "charge": 0.0,
+          "name": "H5",
+          "type": "H1"
+        },
+        "O1S": {
+          "charge": -0.6499,
+          "name": "O1S",
+          "type": "O2"
+        },
+        "O2": {
+          "charge": -0.5338,
+          "name": "O2",
+          "type": "OS"
+        },
+        "O2S": {
+          "charge": -0.6499,
+          "name": "O2S",
+          "type": "O2"
+        },
+        "O3": {
+          "charge": -0.5878,
+          "name": "O3",
+          "type": "OS"
+        },
+        "O3S": {
+          "charge": -0.6499,
+          "name": "O3S",
+          "type": "O2"
+        },
+        "O4": {
+          "charge": -0.508,
+          "name": "O4",
+          "type": "OS"
+        },
+        "O4S": {
+          "charge": -0.6499,
+          "name": "O4S",
+          "type": "O2"
+        },
+        "O5": {
+          "charge": -0.515,
+          "name": "O5",
+          "type": "OS"
+        },
+        "O5S": {
+          "charge": -0.6499,
+          "name": "O5S",
+          "type": "O2"
+        },
+        "O6A": {
+          "charge": -0.757,
+          "name": "O6A",
+          "type": "O2"
+        },
+        "O6B": {
+          "charge": -0.757,
+          "name": "O6B",
+          "type": "O2"
+        },
+        "O6S": {
+          "charge": -0.6499,
+          "name": "O6S",
+          "type": "O2"
+        },
+        "S1": {
+          "charge": 1.1835,
+          "name": "S1",
+          "type": "S"
+        },
+        "S2": {
+          "charge": 1.1835,
+          "name": "S2",
+          "type": "S"
+        }
+      },
+      "bonds": [],
+      "topname": "gag"
+    },
+    "48G": {
+      "atomorder": [
+        "C1",
+        "H1",
+        "C2",
+        "H2",
+        "O2",
+        "S6",
+        "C3",
+        "H3",
+        "O3",
+        "H3O",
+        "C4",
+        "H4",
+        "C5",
+        "H5",
+        "O5",
+        "C6",
+        "H61",
+        "H62",
+        "O6",
+        "S20",
+        "O4",
+        "O22",
+        "O23",
+        "O24",
+        "O25",
+        "O26",
+        "O27"
+      ],
+      "atoms": {
+        "C1": {
+          "charge": 0.509,
+          "name": "C1",
+          "type": "CG"
+        },
+        "C2": {
+          "charge": 0.246,
+          "name": "C2",
+          "type": "CG"
+        },
+        "C3": {
+          "charge": 0.286,
+          "name": "C3",
+          "type": "CG"
+        },
+        "C4": {
+          "charge": 0.254,
+          "name": "C4",
+          "type": "CG"
+        },
+        "C5": {
+          "charge": 0.283,
+          "name": "C5",
+          "type": "CG"
+        },
+        "C6": {
+          "charge": 0.276,
+          "name": "C6",
+          "type": "CG"
+        },
+        "H1": {
+          "charge": 0.0,
+          "name": "H1",
+          "type": "H2"
+        },
+        "H2": {
+          "charge": 0.0,
+          "name": "H2",
+          "type": "H1"
+        },
+        "H3": {
+          "charge": 0.0,
+          "name": "H3",
+          "type": "H1"
+        },
+        "H3O": {
+          "charge": 0.427,
+          "name": "H3O",
+          "type": "HO"
+        },
+        "H4": {
+          "charge": 0.0,
+          "name": "H4",
+          "type": "H1"
+        },
+        "H5": {
+          "charge": 0.0,
+          "name": "H5",
+          "type": "H1"
+        },
+        "H61": {
+          "charge": 0.0,
+          "name": "H61",
+          "type": "H1"
+        },
+        "H62": {
+          "charge": 0.0,
+          "name": "H62",
+          "type": "H1"
+        },
+        "O2": {
+          "charge": -0.5098,
+          "name": "O2",
+          "type": "OS"
+        },
+        "O22": {
+          "charge": -0.6499,
+          "name": "O22",
+          "type": "O2"
+        },
+        "O23": {
+          "charge": -0.6499,
+          "name": "O23",
+          "type": "O2"
+        },
+        "O24": {
+          "charge": -0.6499,
+          "name": "O24",
+          "type": "O2"
+        },
+        "O25": {
+          "charge": -0.6499,
+          "name": "O25",
+          "type": "O2"
+        },
+        "O26": {
+          "charge": -0.6499,
+          "name": "O26",
+          "type": "O2"
+        },
+        "O27": {
+          "charge": -0.6499,
+          "name": "O27",
+          "type": "O2"
+        },
+        "O3": {
+          "charge": -0.699,
+          "name": "O3",
+          "type": "OH"
+        },
+        "O4": {
+          "charge": -0.468,
+          "name": "O4",
+          "type": "OS"
+        },
+        "O5": {
+          "charge": -0.574,
+          "name": "O5",
+          "type": "OS"
+        },
+        "O6": {
+          "charge": -0.4978,
+          "name": "O6",
+          "type": "OS"
+        },
+        "S20": {
+          "charge": 1.1835,
+          "name": "S20",
+          "type": "S"
+        },
+        "S6": {
+          "charge": 1.1835,
+          "name": "S6",
+          "type": "S"
+        }
+      },
+      "bonds": [],
+      "topname": "gag"
+    },
+    "49G": {
+      "atomorder": [
+        "C1",
+        "H1",
+        "C2",
+        "H2",
+        "O2",
+        "H2O",
+        "C3",
+        "H3",
+        "O3",
+        "S10",
+        "C4",
+        "H4",
+        "C5",
+        "H5",
+        "O5",
+        "C6",
+        "H61",
+        "H62",
+        "O6",
+        "S20",
+        "O4",
+        "O22",
+        "O23",
+        "O24",
+        "O25",
+        "O26",
+        "O27"
+      ],
+      "atoms": {
+        "C1": {
+          "charge": 0.509,
+          "name": "C1",
+          "type": "CG"
+        },
+        "C2": {
+          "charge": 0.246,
+          "name": "C2",
+          "type": "CG"
+        },
+        "C3": {
+          "charge": 0.286,
+          "name": "C3",
+          "type": "CG"
+        },
+        "C4": {
+          "charge": 0.254,
+          "name": "C4",
+          "type": "CG"
+        },
+        "C5": {
+          "charge": 0.283,
+          "name": "C5",
+          "type": "CG"
+        },
+        "C6": {
+          "charge": 0.276,
+          "name": "C6",
+          "type": "CG"
+        },
+        "H1": {
+          "charge": 0.0,
+          "name": "H1",
+          "type": "H2"
+        },
+        "H2": {
+          "charge": 0.0,
+          "name": "H2",
+          "type": "H1"
+        },
+        "H2O": {
+          "charge": 0.437,
+          "name": "H2O",
+          "type": "HO"
+        },
+        "H3": {
+          "charge": 0.0,
+          "name": "H3",
+          "type": "H1"
+        },
+        "H4": {
+          "charge": 0.0,
+          "name": "H4",
+          "type": "H1"
+        },
+        "H5": {
+          "charge": 0.0,
+          "name": "H5",
+          "type": "H1"
+        },
+        "H61": {
+          "charge": 0.0,
+          "name": "H61",
+          "type": "H1"
+        },
+        "H62": {
+          "charge": 0.0,
+          "name": "H62",
+          "type": "H1"
+        },
+        "O2": {
+          "charge": -0.713,
+          "name": "O2",
+          "type": "OH"
+        },
+        "O22": {
+          "charge": -0.6499,
+          "name": "O22",
+          "type": "O2"
+        },
+        "O23": {
+          "charge": -0.6499,
+          "name": "O23",
+          "type": "O2"
+        },
+        "O24": {
+          "charge": -0.6499,
+          "name": "O24",
+          "type": "O2"
+        },
+        "O25": {
+          "charge": -0.6499,
+          "name": "O25",
+          "type": "O2"
+        },
+        "O26": {
+          "charge": -0.6499,
+          "name": "O26",
+          "type": "O2"
+        },
+        "O27": {
+          "charge": -0.6499,
+          "name": "O27",
+          "type": "O2"
+        },
+        "O3": {
+          "charge": -0.5058,
+          "name": "O3",
+          "type": "OS"
+        },
+        "O4": {
+          "charge": -0.468,
+          "name": "O4",
+          "type": "OS"
+        },
+        "O5": {
+          "charge": -0.574,
+          "name": "O5",
+          "type": "OS"
+        },
+        "O6": {
+          "charge": -0.4978,
+          "name": "O6",
+          "type": "OS"
+        },
+        "S10": {
+          "charge": 1.1835,
+          "name": "S10",
+          "type": "S"
+        },
+        "S20": {
+          "charge": 1.1835,
+          "name": "S20",
+          "type": "S"
+        }
+      },
+      "bonds": [],
+      "topname": "gag"
+    },
+    "49Y": {
+      "atomorder": [
+        "C1",
+        "H1",
+        "C2",
+        "H2",
+        "N2",
+        "H2N",
+        "S1",
+        "C3",
+        "H3",
+        "O3",
+        "S3",
+        "C4",
+        "H4",
+        "C5",
+        "H5",
+        "O5",
+        "C6",
+        "H61",
+        "H62",
+        "O6",
+        "S2",
+        "O4",
+        "O1S",
+        "O2S",
+        "O3S",
+        "O4S",
+        "O5S",
+        "O6S",
+        "O7S",
+        "O8S",
+        "O9S"
+      ],
+      "atoms": {
+        "C1": {
+          "charge": 0.468,
+          "name": "C1",
+          "type": "CG"
+        },
+        "C2": {
+          "charge": 0.245,
+          "name": "C2",
+          "type": "CG"
+        },
+        "C3": {
+          "charge": 0.165,
+          "name": "C3",
+          "type": "CG"
+        },
+        "C4": {
+          "charge": 0.322,
+          "name": "C4",
+          "type": "CG"
+        },
+        "C5": {
+          "charge": 0.246,
+          "name": "C5",
+          "type": "CG"
+        },
+        "C6": {
+          "charge": 0.328,
+          "name": "C6",
+          "type": "CG"
+        },
+        "H1": {
+          "charge": 0.0,
+          "name": "H1",
+          "type": "H2"
+        },
+        "H2": {
+          "charge": 0.0,
+          "name": "H2",
+          "type": "H1"
+        },
+        "H2N": {
+          "charge": 0.236,
+          "name": "H2N",
+          "type": "H"
+        },
+        "H3": {
+          "charge": 0.0,
+          "name": "H3",
+          "type": "H1"
+        },
+        "H4": {
+          "charge": 0.0,
+          "name": "H4",
+          "type": "H1"
+        },
+        "H5": {
+          "charge": 0.0,
+          "name": "H5",
+          "type": "H1"
+        },
+        "H61": {
+          "charge": 0.0,
+          "name": "H61",
+          "type": "H1"
+        },
+        "H62": {
+          "charge": 0.0,
+          "name": "H62",
+          "type": "H1"
+        },
+        "N2": {
+          "charge": -0.7394,
+          "name": "N2",
+          "type": "NG"
+        },
+        "O1S": {
+          "charge": -0.6366,
+          "name": "O1S",
+          "type": "O2"
+        },
+        "O2S": {
+          "charge": -0.6366,
+          "name": "O2S",
+          "type": "O2"
+        },
+        "O3": {
+          "charge": -0.4508,
+          "name": "O3",
+          "type": "OS"
+        },
+        "O3S": {
+          "charge": -0.6366,
+          "name": "O3S",
+          "type": "O2"
+        },
+        "O4": {
+          "charge": -0.478,
+          "name": "O4",
+          "type": "OS"
+        },
+        "O4S": {
+          "charge": -0.6499,
+          "name": "O4S",
+          "type": "O2"
+        },
+        "O5": {
+          "charge": -0.568,
+          "name": "O5",
+          "type": "OS"
+        },
+        "O5S": {
+          "charge": -0.6499,
+          "name": "O5S",
+          "type": "O2"
+        },
+        "O6": {
+          "charge": -0.5008,
+          "name": "O6",
+          "type": "OS"
+        },
+        "O6S": {
+          "charge": -0.6499,
+          "name": "O6S",
+          "type": "O2"
+        },
+        "O7S": {
+          "charge": -0.6499,
+          "name": "O7S",
+          "type": "O2"
+        },
+        "O8S": {
+          "charge": -0.6499,
+          "name": "O8S",
+          "type": "O2"
+        },
+        "O9S": {
+          "charge": -0.6499,
+          "name": "O9S",
+          "type": "O2"
+        },
+        "S1": {
+          "charge": 1.1692,
+          "name": "S1",
+          "type": "S"
+        },
+        "S2": {
+          "charge": 1.1835,
+          "name": "S2",
+          "type": "S"
+        },
+        "S3": {
+          "charge": 1.1835,
+          "name": "S3",
+          "type": "S"
+        }
+      },
+      "bonds": [],
+      "topname": "gag"
+    },
+    "ROS": {
+      "atomorder": [
+        "S",
+        "O1",
+        "O1S",
+        "O2S",
+        "O3S"
+      ],
+      "atoms": {
+        "O1": {
+          "charge": -0.4278,
+          "name": "O1",
+          "type": "OS"
+        },
+        "O1S": {
+          "charge": -0.6499,
+          "name": "O1S",
+          "type": "O2"
+        },
+        "O2S": {
+          "charge": -0.6499,
+          "name": "O2S",
+          "type": "O2"
+        },
+        "O3S": {
+          "charge": -0.6499,
+          "name": "O3S",
+          "type": "O2"
+        },
+        "S": {
+          "charge": 1.1835,
+          "name": "S",
+          "type": "S"
+        }
+      },
+      "bonds": [],
+      "topname": "gag"
+    },
+    "S7Z": {
+      "atomorder": [
+        "C1",
+        "H1",
+        "O5",
+        "C5",
+        "H5",
+        "C6",
+        "O6A",
+        "O6B",
+        "C4",
+        "H4",
+        "O4",
+        "S3",
+        "C3",
+        "H3",
+        "O3",
+        "S16",
+        "C2",
+        "H2",
+        "O2",
+        "S1",
+        "O4S",
+        "O5S",
+        "O6S",
+        "O1S",
+        "O2S",
+        "O3S",
+        "OS7",
+        "OS8",
+        "OS9"
+      ],
+      "atoms": {
+        "C1": {
+          "charge": 0.251,
+          "name": "C1",
+          "type": "CG"
+        },
+        "C2": {
+          "charge": 0.411,
+          "name": "C2",
+          "type": "CG"
+        },
+        "C3": {
+          "charge": 0.266,
+          "name": "C3",
+          "type": "CG"
+        },
+        "C4": {
+          "charge": 0.267,
+          "name": "C4",
+          "type": "CG"
+        },
+        "C5": {
+          "charge": 0.075,
+          "name": "C5",
+          "type": "CG"
+        },
+        "C6": {
+          "charge": 0.893,
+          "name": "C6",
+          "type": "C"
+        },
+        "H1": {
+          "charge": 0.0,
+          "name": "H1",
+          "type": "H2"
+        },
+        "H2": {
+          "charge": 0.0,
+          "name": "H2",
+          "type": "H1"
+        },
+        "H3": {
+          "charge": 0.0,
+          "name": "H3",
+          "type": "H1"
+        },
+        "H4": {
+          "charge": 0.0,
+          "name": "H4",
+          "type": "H1"
+        },
+        "H5": {
+          "charge": 0.0,
+          "name": "H5",
+          "type": "H1"
+        },
+        "O1S": {
+          "charge": -0.6499,
+          "name": "O1S",
+          "type": "O2"
+        },
+        "O2": {
+          "charge": -0.5518,
+          "name": "O2",
+          "type": "OS"
+        },
+        "O2S": {
+          "charge": -0.6499,
+          "name": "O2S",
+          "type": "O2"
+        },
+        "O3": {
+          "charge": -0.5318,
+          "name": "O3",
+          "type": "OS"
+        },
+        "O3S": {
+          "charge": -0.6499,
+          "name": "O3S",
+          "type": "O2"
+        },
+        "O4": {
+          "charge": -0.5378,
+          "name": "O4",
+          "type": "OS"
+        },
+        "O4S": {
+          "charge": -0.6499,
+          "name": "O4S",
+          "type": "O2"
+        },
+        "O5": {
+          "charge": -0.413,
+          "name": "O5",
+          "type": "OS"
+        },
+        "O5S": {
+          "charge": -0.6499,
+          "name": "O5S",
+          "type": "O2"
+        },
+        "O6A": {
+          "charge": -0.818,
+          "name": "O6A",
+          "type": "O2"
+        },
+        "O6B": {
+          "charge": -0.818,
+          "name": "O6B",
+          "type": "O2"
+        },
+        "O6S": {
+          "charge": -0.6499,
+          "name": "O6S",
+          "type": "O2"
+        },
+        "OS7": {
+          "charge": -0.6499,
+          "name": "OS7",
+          "type": "O2"
+        },
+        "OS8": {
+          "charge": -0.6499,
+          "name": "OS8",
+          "type": "O2"
+        },
+        "OS9": {
+          "charge": -0.6499,
+          "name": "OS9",
+          "type": "O2"
+        },
+        "S1": {
+          "charge": 1.1835,
+          "name": "S1",
+          "type": "S"
+        },
+        "S16": {
+          "charge": 1.1835,
+          "name": "S16",
+          "type": "S"
+        },
+        "S3": {
+          "charge": 1.1835,
+          "name": "S3",
+          "type": "S"
+        }
+      },
+      "bonds": [],
+      "topname": "gag"
+    }
+  }
+}

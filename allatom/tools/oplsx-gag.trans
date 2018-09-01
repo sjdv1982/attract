@@ -1,0 +1,22 @@
+1 0.118 3.800 CH2G                          #Gly CA
+2 0.0300 0.3564 HO
+3 0.2104 3.0665 OH
+4 0.1094 3.3997 CG
+5 0.0157 2.2932 H2
+6 0.0157 2.4714 H1
+7 0.0157 1.0691 H
+8 0.2500 3.5636 S
+9 0.1700 3.0000 OS
+10 0.0860 3.3997 C
+30 0.170 3.250 N NR NH1 NH2 NH3 NC2 NC3 NC4 NG #backbone N
+31 0.210 2.960 O OC O1P O3R O2                #backbone O
+65 0.080 3.800 CH1E                         #Non-Gly CA
+66 0.105 3.750 C CCIS CY2                   #backbone C
+67 0.110 3.750 CF CY CR1E CR1W
+68 0.145 3.750 CW CR1H CRHH C5W C5 CRH
+69 0.118 3.905 CH2P CH1P CH2E
+70 0.160 3.910 CH3E
+71 0.170 3.070 OH1 OHP OUF
+80 0.05 0.50 H HA HC                        # H
+81 0.2000 3.738 P                           # P
+82 0.250 3.550 S SM SH1E SUF                # S

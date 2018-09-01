@@ -78,8 +78,6 @@ class Residue(object):
         self.atomorder = []
         self.atoms = {}
         self.bonds = []
-        self.patchorder = []
-        self.patches = {}
 
     def _identify(self, species):
         assert species in allspecies, species
@@ -271,9 +269,11 @@ def parse_stream(stream,topname=None):
 
 if __name__ == "__main__":
     import sys, os
-    topfile, topname = sys.argv[1:3]
-    stream = open(topfile).readlines()
-    parse_stream(stream, topname=topname)
+    topname = sys.argv[1]
+    topfiles = sys.argv[2:]
+    for topfile in topfiles:
+        stream = open(topfile).readlines()
+        parse_stream(stream, topname=topname)
     residues = {k: v.serialize() for k,v in residues.items()}
     patches = {k: v.serialize() for k,v in patches.items()}
     result = {
