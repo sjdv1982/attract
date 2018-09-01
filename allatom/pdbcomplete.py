@@ -1,3 +1,4 @@
+from __future__ import print_function
 import sys, os, tempfile
 
 currdir = os.path.abspath(os.path.split(__file__)[0])
@@ -129,6 +130,8 @@ def pdbfix(pdb, refe):
 
 class nalib(object):pass
 
+class FixError(Exception):pass
+
 def load_nalib(libname):
   import numpy
   lib = nalib()
@@ -166,7 +169,7 @@ def _apply_matrix(atoms, pivot, rotmat, trans):
     ret.append(atom2)
   return ret
 
-def apply_nalib(pdb, lib, heavy):
+def apply_nalib(pdb, lib, heavy, manual):
   """
   Adds missing atoms using a nucleotides lib
   """
@@ -180,81 +183,90 @@ def apply_nalib(pdb, lib, heavy):
   for nr, res in enumerate(pdb):
     #print >> sys.stderr, ("residue %i"%nr)
     if res.resname not in ("RA","RC","RG","RU","DA","DC","DG","DT"): continue
-    ###while 1: #keep fixing as long as we can
-    for h in range(5):
-        missing = set()
-        top = res.topology
-        for a in top.atomorder:
-            aa = a.upper()
-            if heavy and aa[0].startswith("H"): continue
-            if aa not in res.coords:
-                missing.add(aa)
-        if not missing: break
-        #print >> sys.stderr, ("missing", missing)
-        nuc = res.resname[1]
-        fixmode = None
-        for fmode, fatoms in (
-            ("ph", lib.phatoms_fit),   #highest priority
-            ("sugar", lib.sugaratoms),
-            ("base", lib.baseatoms[nuc]),
-            ("nucleotide", lib.monoatoms[nuc]),  #lowest priority
-            ):
-            #we can fix if there are any missing atoms, and there are at least three non-lacking atoms
-            fatoms_fit = fatoms
-            if fmode == "nucleotide":
-                fatoms_fit = lib.sugaratoms     #in nucleotide mode, fit on the sugar
-            if any([(m in fatoms) for m in missing]) and \
-             len([a for a in fatoms_fit if a in res.coords]) >= 3:
-               fixmode = fmode
-               fit_atoms = fatoms_fit
-               break
-        if fixmode == "base":
-            libcoor = lib.base[nuc][numpy.newaxis]
-            atoms = lib.baseatoms[nuc]
-            #print >> sys.stderr,  lib.baseatoms[nuc], nuc
-        elif fixmode == "sugar":
-            libcoor = lib.sugar
-            atoms = lib.sugaratoms
-        elif fixmode == "ph":
-            libcoor = lib.ph[nuc]
-            atoms = lib.phatoms_all
-        elif fixmode == "nucleotide":
-            libcoor = lib.mono[nuc]
-            atoms = lib.monoatoms[nuc]
-        rmsd_atoms = fit_atoms
-        #print >> sys.stderr,  fixmode, rmsd_atoms
-        #print >> sys.stderr, (fixmode, res.topology)
-        if fixmode == "ph":
-            rmsd_atoms = lib.phatoms_rmsd
-        coor_atoms = [a for a in atoms if a in res.coords and a in fit_atoms]
-        coor = numpy.array([res.coords[a] for a in atoms if a in res.coords and a in fit_atoms])
-        mask = numpy.array([(a in fit_atoms and a in res.coords) for a in atoms])
+    try:
+        while 1: #keep fixing as long as we can
+            missing = set()
+            top = res.topology
+            for a in top.atomorder:
+                aa = a.upper()
+                if heavy and aa[0].startswith("H"): continue
+                if aa not in res.coords:
+                    missing.add(aa)
+            if not missing: break
+            #print >> sys.stderr, ("missing", missing)
+            nuc = res.resname[1]
+            fixmode = None
+            for fmode, fatoms in (
+                ("ph", lib.phatoms_fit),   #highest priority
+                ("sugar", lib.sugaratoms),
+                ("base", lib.baseatoms[nuc]),
+                ("nucleotide", lib.monoatoms[nuc]),  #lowest priority
+                ):
+                #we can fix if there are any missing atoms, and there are at least three non-lacking atoms
+                fatoms_fit = fatoms
+                if fmode == "nucleotide":
+                    fatoms_fit = lib.sugaratoms     #in nucleotide mode, fit on the sugar
+                if any([(m in fatoms) for m in missing]) and \
+                 len([a for a in fatoms_fit if a in res.coords]) >= 3:
+                   fixmode = fmode
+                   fit_atoms = fatoms_fit
+                   break
+            if fixmode is None:
+                msg = 'residue %s could not be fixed'%res.resid
+                raise FixError(msg)
+            if fixmode == "base":
+                libcoor = lib.base[nuc][numpy.newaxis]
+                atoms = lib.baseatoms[nuc]
+                #print >> sys.stderr,  lib.baseatoms[nuc], nuc
+            elif fixmode == "sugar":
+                libcoor = lib.sugar
+                atoms = lib.sugaratoms
+            elif fixmode == "ph":
+                libcoor = lib.ph[nuc]
+                atoms = lib.phatoms_all
+            elif fixmode == "nucleotide":
+                libcoor = lib.mono[nuc]
+                atoms = lib.monoatoms[nuc]
+            rmsd_atoms = fit_atoms
+            #print >> sys.stderr,  fixmode, rmsd_atoms
+            #print >> sys.stderr, (fixmode, res.topology)
+            if fixmode == "ph":
+                rmsd_atoms = lib.phatoms_rmsd
+            coor_atoms = [a for a in atoms if a in res.coords and a in fit_atoms]
+            coor = numpy.array([res.coords[a] for a in atoms if a in res.coords and a in fit_atoms])
+            mask = numpy.array([(a in fit_atoms and a in res.coords) for a in atoms])
 
-        refecoor = numpy.compress(mask, libcoor, axis=1) #or: refecoor = libcoor[:,mask] (slower)
-        rotmat, offset, rmsd = rmsdlib.fit(refecoor[0],coor)
-        pivot = numpy.sum(coor,axis=0) / float(len(coor))
-        fitcoor = numpy.array(_apply_matrix(coor, pivot, rotmat, offset))
-        fitcoor = fitcoor.flatten()[numpy.newaxis]
-        refecoor = refecoor.reshape((len(refecoor), 3 * len(coor)))
+            refecoor = numpy.compress(mask, libcoor, axis=1) #or: refecoor = libcoor[:,mask] (slower)
+            rotmat, offset, rmsd = rmsdlib.fit(refecoor[0],coor)
+            pivot = numpy.sum(coor,axis=0) / float(len(coor))
+            fitcoor = numpy.array(_apply_matrix(coor, pivot, rotmat, offset))
+            fitcoor = fitcoor.flatten()[numpy.newaxis]
+            refecoor = refecoor.reshape((len(refecoor), 3 * len(coor)))
 
-        mask2 = numpy.array([(a in rmsd_atoms and a in res.coords) for a in atoms])
-        refecoor2 = numpy.compress(mask2, libcoor, axis=1) #or: refecoor2 = libcoor[:,mask2] (slower)
-        coor2 = numpy.array([res.coords[a] for a in atoms if a in res.coords and a in rmsd_atoms])
-        rmsdcoor = numpy.array(_apply_matrix(coor2, pivot, rotmat, offset))
-        rmsdcoor = rmsdcoor.flatten()[numpy.newaxis]
-        refecoor2 = refecoor2.reshape((len(refecoor2), 3 * len(coor)))
+            mask2 = numpy.array([(a in rmsd_atoms and a in res.coords) for a in atoms])
+            refecoor2 = numpy.compress(mask2, libcoor, axis=1) #or: refecoor2 = libcoor[:,mask2] (slower)
+            coor2 = numpy.array([res.coords[a] for a in atoms if a in res.coords and a in rmsd_atoms])
+            rmsdcoor = numpy.array(_apply_matrix(coor2, pivot, rotmat, offset))
+            rmsdcoor = rmsdcoor.flatten()[numpy.newaxis]
+            refecoor2 = refecoor2.reshape((len(refecoor2), 3 * len(coor)))
 
-        #d = cdist(fitcoor, refecoor, 'sqeuclidean')[0]
-        d = cdist(rmsdcoor, refecoor2, 'sqeuclidean')[0]
-        libconfnr = numpy.argmin(d)
-        libconf = libcoor[libconfnr]
-        libconf = _apply_matrix(libconf, pivot+offset, rotmat.T, -offset)
-        for anr, a in enumerate(atoms):
-            if a in missing or fixmode == "base":
-                #print "FIX", a, fixmode
-                x,y,z = libconf[anr]
-                res.coords[a] = x,y,z
-        if fixmode == "nucleotide": break
+            #d = cdist(fitcoor, refecoor, 'sqeuclidean')[0]
+            d = cdist(rmsdcoor, refecoor2, 'sqeuclidean')[0]
+            libconfnr = numpy.argmin(d)
+            libconf = libcoor[libconfnr]
+            libconf = _apply_matrix(libconf, pivot+offset, rotmat.T, -offset)
+            for anr, a in enumerate(atoms):
+                if a in missing or fixmode == "base":
+                    #print "FIX", a, fixmode
+                    x,y,z = libconf[anr]
+                    res.coords[a] = x,y,z
+            if fixmode == "nucleotide": break
+    except FixError as err:
+        if manual:
+            e = "\n" + "!"*60 + "\n"
+            print(e + "WARNING: " + err.args[0] + e, file=sys.stderr)
+        else:
+            raise
 
 def pdb_lastresort(pdb):
   """
