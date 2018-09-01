@@ -15,7 +15,7 @@ OR: OpenMM:
 
 Steps:
 
-1. Convert the parameter file to a trans file using the trans_par.py (CNS) or trans_par-ffxml (OpenMM) tool.
+1. Convert the parameter file to a trans file using the trans_par.py (CNS) or trans_par-ffxml (OpenMM TODO) tool.
 	The "start" parameter specifies an offset for ATTRACT atom types; 75 or 33 would make sense to avoid overlap with the standard reduced atom types.
 	Example: python trans_par.py oplsx.par 75
 	The trans file contains the ATTRACT atom type (a number), the VdW radius parameters, and a list of CNS atom types (code strings). Example: oplsx.trans

@@ -1,5 +1,4 @@
 import sys, os, tempfile
-import parse_cns_top
 
 currdir = os.path.abspath(os.path.split(__file__)[0])
 
@@ -72,12 +71,12 @@ def update_patches(pdb):
       if len(protons) < 3:
         continue
       if "HE2" not in protons or "HE1" not in protons:
-        res.topology.patch(parse_cns_top.presidues["hisd"])
+        res.topology.patch(top_patches["hisd"])
       if "HD1" not in protons or "HD2" not in protons:
-        res.topology.patch(parse_cns_top.presidues["hise"])
+        res.topology.patch(top_patches["hise"])
     if res.resname == "CYS":
       if "HG" not in res.coords:
-        res.topology.patch(parse_cns_top.presidues["disu"])
+        res.topology.patch(top_patches["disu"])
 
 def pdbcomplete(pdb, other):
   """
