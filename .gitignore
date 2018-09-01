@@ -1,17 +1,18 @@
 # Ignore all
 *
 
-# Unignore all files with extensions recursively
-!**/*.*
+# Unignore all with extensions
+!*.*
 
-*.o
-~*
-*/gmon.out
-gmon.out
-*/~*
-*.pyc
-bin/*.pyc
-tools/*.pyc
+# Unignore all dirs
+!*/
+**/build/
+**/*.o
+**/*.so
+**/~*
+**/*.~*~
+**/*.pyc
+**/gmon.out
 .
 ..
 .git
@@ -20,18 +21,16 @@ tools/*.pyc
 .metadata
 .project
 .scinotes
-max.fin
-*.TYPES
+bin/max.fin
+**/*.TYPES
 gui/server/html/attract.tgz
 gui/server/html/index.html
 gui/test.html
-*/*.kate-swp
-gui/libpeerconnection.log
-*.kate-swp
-libpeerconnection.log
-html-local
+**/*.kate-swp
+**/libpeerconnection.log
+gui/server/html-local
 gui/server/cgi-local
-emATTRACT.log
+**/*.log
 bin/ScoringClient.log
 html/upload.html
 attract-em-gpu/_axsym.cpp
