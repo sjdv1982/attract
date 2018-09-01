@@ -228,23 +228,23 @@ def patch_pdb(pdbres, patches):
     if res.resid in patches:
       for p in patches[res.resid]:
         if p is None: continue
-        res.topology.patch(toppatch[p])
+        res.topology.patch(top_patches[p])
     elif len(pdbres) > 1 and "ca" in res.topology.atomorder: #protein
       if res.nter:
         if res.resname == "PRO":
-          res.topology.patch(toppatch["prop"])
+          res.topology.patch(top_patches["prop"])
         else:
-          res.topology.patch(toppatch["nter"])
+          res.topology.patch(top_patches["nter"])
       if res.cter:
-        res.topology.patch(toppatch["cter2"])
+        res.topology.patch(top_patches["cter2"])
     elif len(pdbres) > 1 and "p" in res.topology.atomorder: #DNA/RNA
       if res.chainfirst:
         if res.nter:
-          res.topology.patch(toppatch["5pho"])
+          res.topology.patch(top_patches["5pho"])
         else:
-          res.topology.patch(toppatch["5ter"])
+          res.topology.patch(top_patches["5ter"])
       if res.chainlast:
-        res.topology.patch(toppatch["3ter"])
+        res.topology.patch(top_patches["3ter"])
 
 def check_pdb(pdbres, heavy=False):
   for res in pdbres:
