@@ -72,12 +72,12 @@ def update_patches(pdb, top_patches):
       if len(protons) < 3:
         continue
       if "HE2" not in protons or "HE1" not in protons:
-        res.topology.patch(top_patches["hisd"])
+        res.topology.patch(top_patches["HISD"])
       if "HD1" not in protons or "HD2" not in protons:
-        res.topology.patch(top_patches["hise"])
+        res.topology.patch(top_patches["HISE"])
     if res.resname == "CYS":
       if "HG" not in res.coords:
-        res.topology.patch(top_patches["disu"])
+        res.topology.patch(top_patches["DISU"])
 
 def pdbcomplete(pdb, other):
   """

@@ -192,7 +192,7 @@ def read_pdb(pdblines, pdbname, add_termini=False,modbase=False,modres=False):
         if newres:
             try:
                 if resname is None: raise KeyError
-                topr = deepcopy(top_residues[resname.lower()])
+                topr = deepcopy(top_residues[resname])
             except KeyError:
                 raise KeyError("Residue type %s not known by the topology file" % resname)
             curr_res = PDBres(chain, resid, resname, topr)
@@ -228,15 +228,15 @@ def patch_pdb(pdbres, patches):
         if res.resid in patches:
             for p in patches[res.resid]:
                 if p is None: continue
-                res.topology.patch(top_patches[p])
+                res.topology.patch(top_patches[p.upper()])
         elif len(pdbres) > 1 and "ca" in res.topology.atomorder: #protein
             if res.nter:
                 if res.resname == "PRO":
-                    res.topology.patch(top_patches["prop"])
+                    res.topology.patch(top_patches["PROP"])
                 else:
-                    res.topology.patch(top_patches["nter"])
+                    res.topology.patch(top_patches["NTER"])
             if res.cter:
-                res.topology.patch(top_patches["cter2"])
+                res.topology.patch(top_patches["CTER2"])
         elif len(pdbres) > 1 and "p" in res.topology.atomorder: #DNA/RNA
             if res.chainfirst:
                 if res.nter:

@@ -274,8 +274,8 @@ if __name__ == "__main__":
     for topfile in topfiles:
         stream = open(topfile).readlines()
         parse_stream(stream, topname=topname)
-    residues = {k: v.serialize() for k,v in residues.items()}
-    patches = {k: v.serialize() for k,v in patches.items()}
+    residues = {k.upper(): v.serialize() for k,v in residues.items()}
+    patches = {k.upper(): v.serialize() for k,v in patches.items()}
     result = {
         "residues": residues,
         "patches": patches,

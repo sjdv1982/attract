@@ -1,6 +1,6 @@
 {
   "patches": {
-    "cipp": [
+    "CIPP": [
       [
         "modify_atom", 
         {
@@ -9,7 +9,7 @@
         }
       ]
     ], 
-    "cisp": [
+    "CISP": [
       [
         "modify_atom", 
         {
@@ -18,7 +18,7 @@
         }
       ]
     ], 
-    "cter": [
+    "CTER": [
       [
         "modify_atom", 
         {
@@ -68,7 +68,7 @@
         ]
       ]
     ], 
-    "cter2": [
+    "CTER2": [
       [
         "modify_atom", 
         {
@@ -118,7 +118,7 @@
         ]
       ]
     ], 
-    "ctn": [
+    "CTN": [
       [
         "modify_atom", 
         {
@@ -179,7 +179,7 @@
         ]
       ]
     ], 
-    "cynh": [
+    "CYNH": [
       [
         "delete_atom", 
         "hg"
@@ -200,7 +200,7 @@
         }
       ]
     ], 
-    "dca2": [
+    "DCA2": [
       [
         "add_bond", 
         [
@@ -209,7 +209,7 @@
         ]
       ]
     ], 
-    "disn": [
+    "DISN": [
       [
         "delete_atom", 
         "hg"
@@ -230,7 +230,7 @@
         }
       ]
     ], 
-    "disu": [
+    "DISU": [
       [
         "delete_atom", 
         "hg"
@@ -258,7 +258,7 @@
         ]
       ]
     ], 
-    "eca2": [
+    "ECA2": [
       [
         "add_bond", 
         [
@@ -267,7 +267,7 @@
         ]
       ]
     ], 
-    "hisd": [
+    "HISD": [
       [
         "modify_atom", 
         {
@@ -329,7 +329,7 @@
         "he2"
       ]
     ], 
-    "hise": [
+    "HISE": [
       [
         "modify_atom", 
         {
@@ -391,8 +391,8 @@
         "hd1"
       ]
     ], 
-    "ltod": [], 
-    "nter": [
+    "LTOD": [], 
+    "NTER": [
       [
         "modify_atom", 
         {
@@ -458,7 +458,7 @@
         ]
       ]
     ], 
-    "pepp": [
+    "PEPP": [
       [
         "add_bond", 
         [
@@ -467,7 +467,7 @@
         ]
       ]
     ], 
-    "pept": [
+    "PEPT": [
       [
         "add_bond", 
         [
@@ -476,7 +476,7 @@
         ]
       ]
     ], 
-    "ppg1": [
+    "PPG1": [
       [
         "add_bond", 
         [
@@ -485,7 +485,7 @@
         ]
       ]
     ], 
-    "ppg2": [
+    "PPG2": [
       [
         "add_bond", 
         [
@@ -494,7 +494,7 @@
         ]
       ]
     ], 
-    "ppgg": [
+    "PPGG": [
       [
         "add_bond", 
         [
@@ -503,7 +503,7 @@
         ]
       ]
     ], 
-    "ppgp": [
+    "PPGP": [
       [
         "add_bond", 
         [
@@ -512,7 +512,7 @@
         ]
       ]
     ], 
-    "prop": [
+    "PROP": [
       [
         "modify_atom", 
         {
@@ -568,7 +568,7 @@
     ]
   }, 
   "residues": {
-    "ace": {
+    "ACE": {
       "atomorder": [
         "ca", 
         "ha1", 
@@ -633,7 +633,7 @@
       ], 
       "topname": "oplsx"
     }, 
-    "ala": {
+    "ALA": {
       "atomorder": [
         "n", 
         "hn", 
@@ -738,7 +738,7 @@
       ], 
       "topname": "oplsx"
     }, 
-    "aly": {
+    "ALY": {
       "atomorder": [
         "n", 
         "hn", 
@@ -1003,7 +1003,7 @@
       ], 
       "topname": "oplsx"
     }, 
-    "arg": {
+    "ARG": {
       "atomorder": [
         "n", 
         "hn", 
@@ -1248,7 +1248,7 @@
       ], 
       "topname": "oplsx"
     }, 
-    "asn": {
+    "ASN": {
       "atomorder": [
         "n", 
         "hn", 
@@ -1393,7 +1393,7 @@
       ], 
       "topname": "oplsx"
     }, 
-    "asp": {
+    "ASP": {
       "atomorder": [
         "n", 
         "hn", 
@@ -1518,7 +1518,7 @@
       ], 
       "topname": "oplsx"
     }, 
-    "asph": {
+    "ASPH": {
       "atomorder": [
         "n", 
         "hn", 
@@ -1653,7 +1653,7 @@
       ], 
       "topname": "oplsx"
     }, 
-    "chex": {
+    "CHEX": {
       "atomorder": [
         "n", 
         "hn", 
@@ -1922,7 +1922,7 @@
       ], 
       "topname": "oplsx"
     }, 
-    "csp": {
+    "CSP": {
       "atomorder": [
         "n", 
         "hn", 
@@ -2067,7 +2067,7 @@
       ], 
       "topname": "oplsx"
     }, 
-    "cyf": {
+    "CYF": {
       "atomorder": [
         "n", 
         "hn", 
@@ -2172,7 +2172,7 @@
       ], 
       "topname": "oplsx"
     }, 
-    "cym": {
+    "CYM": {
       "atomorder": [
         "cac", 
         "cas", 
@@ -2415,7 +2415,7 @@
       ], 
       "topname": "oplsx"
     }, 
-    "cys": {
+    "CYS": {
       "atomorder": [
         "n", 
         "hn", 
@@ -2530,7 +2530,7 @@
       ], 
       "topname": "oplsx"
     }, 
-    "gln": {
+    "GLN": {
       "atomorder": [
         "n", 
         "hn", 
@@ -2705,7 +2705,7 @@
       ], 
       "topname": "oplsx"
     }, 
-    "glu": {
+    "GLU": {
       "atomorder": [
         "n", 
         "hn", 
@@ -2860,7 +2860,7 @@
       ], 
       "topname": "oplsx"
     }, 
-    "gluh": {
+    "GLUH": {
       "atomorder": [
         "n", 
         "hn", 
@@ -3025,7 +3025,7 @@
       ], 
       "topname": "oplsx"
     }, 
-    "gly": {
+    "GLY": {
       "atomorder": [
         "n", 
         "hn", 
@@ -3100,7 +3100,7 @@
       ], 
       "topname": "oplsx"
     }, 
-    "his": {
+    "HIS": {
       "atomorder": [
         "n", 
         "hn", 
@@ -3289,7 +3289,7 @@
       ], 
       "topname": "oplsx"
     }, 
-    "hish": {
+    "HISH": {
       "atomorder": [
         "n", 
         "hn", 
@@ -3478,7 +3478,7 @@
       ], 
       "topname": "oplsx"
     }, 
-    "hyp": {
+    "HYP": {
       "atomorder": [
         "n", 
         "ca", 
@@ -3637,7 +3637,7 @@
       ], 
       "topname": "oplsx"
     }, 
-    "ile": {
+    "ILE": {
       "atomorder": [
         "n", 
         "hn", 
@@ -3832,7 +3832,7 @@
       ], 
       "topname": "oplsx"
     }, 
-    "leu": {
+    "LEU": {
       "atomorder": [
         "n", 
         "hn", 
@@ -4027,7 +4027,7 @@
       ], 
       "topname": "oplsx"
     }, 
-    "lys": {
+    "LYS": {
       "atomorder": [
         "n", 
         "hn", 
@@ -4252,7 +4252,7 @@
       ], 
       "topname": "oplsx"
     }, 
-    "m3l": {
+    "M3L": {
       "atomorder": [
         "n", 
         "hn", 
@@ -4567,7 +4567,7 @@
       ], 
       "topname": "oplsx"
     }, 
-    "met": {
+    "MET": {
       "atomorder": [
         "n", 
         "hn", 
@@ -4742,7 +4742,7 @@
       ], 
       "topname": "oplsx"
     }, 
-    "mly": {
+    "MLY": {
       "atomorder": [
         "n", 
         "hn", 
@@ -5027,7 +5027,7 @@
       ], 
       "topname": "oplsx"
     }, 
-    "mlz": {
+    "MLZ": {
       "atomorder": [
         "n", 
         "hn", 
@@ -5282,7 +5282,7 @@
       ], 
       "topname": "oplsx"
     }, 
-    "nep": {
+    "NEP": {
       "atomorder": [
         "n", 
         "hn", 
@@ -5501,7 +5501,7 @@
       ], 
       "topname": "oplsx"
     }, 
-    "phe": {
+    "PHE": {
       "atomorder": [
         "n", 
         "hn", 
@@ -5710,7 +5710,7 @@
       ], 
       "topname": "oplsx"
     }, 
-    "pro": {
+    "PRO": {
       "atomorder": [
         "n", 
         "ca", 
@@ -5859,7 +5859,7 @@
       ], 
       "topname": "oplsx"
     }, 
-    "ptr": {
+    "PTR": {
       "atomorder": [
         "n", 
         "hn", 
@@ -6108,7 +6108,7 @@
       ], 
       "topname": "oplsx"
     }, 
-    "sep": {
+    "SEP": {
       "atomorder": [
         "n", 
         "hn", 
@@ -6253,7 +6253,7 @@
       ], 
       "topname": "oplsx"
     }, 
-    "ser": {
+    "SER": {
       "atomorder": [
         "n", 
         "hn", 
@@ -6368,7 +6368,7 @@
       ], 
       "topname": "oplsx"
     }, 
-    "thr": {
+    "THR": {
       "atomorder": [
         "n", 
         "hn", 
@@ -6513,7 +6513,7 @@
       ], 
       "topname": "oplsx"
     }, 
-    "top": {
+    "TOP": {
       "atomorder": [
         "n", 
         "hn", 
@@ -6688,7 +6688,7 @@
       ], 
       "topname": "oplsx"
     }, 
-    "trp": {
+    "TRP": {
       "atomorder": [
         "n", 
         "hn", 
@@ -6941,7 +6941,7 @@
       ], 
       "topname": "oplsx"
     }, 
-    "typ": {
+    "TYP": {
       "atomorder": [
         "n", 
         "hn", 
@@ -7190,7 +7190,7 @@
       ], 
       "topname": "oplsx"
     }, 
-    "tyr": {
+    "TYR": {
       "atomorder": [
         "n", 
         "hn", 
@@ -7409,7 +7409,7 @@
       ], 
       "topname": "oplsx"
     }, 
-    "tys": {
+    "TYS": {
       "atomorder": [
         "n", 
         "hn", 
@@ -7658,7 +7658,7 @@
       ], 
       "topname": "oplsx"
     }, 
-    "val": {
+    "VAL": {
       "atomorder": [
         "n", 
         "hn", 
