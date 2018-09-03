@@ -14,7 +14,7 @@ def run_pdb2pqr(pdblines):
   tmpf = open(tmpfile, "w")
   for l in pdblines:
     if l.find("XXX") == -1:
-      print >> tmpf, l
+      print(l, file=tmpf)
   tmpf.close()
 
   try:
@@ -51,7 +51,7 @@ def run_pdb2pqr(pdblines):
         result.append(p)
   return result
 
-def update_patches(pdb):
+def update_patches(pdb, top_patches):
   """
   Updates PDB His/Cys patches based on the presence of hydrogens
   """
