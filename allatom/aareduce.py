@@ -240,11 +240,11 @@ def patch_pdb(pdbres, patches):
         elif len(pdbres) > 1 and "p" in res.topology.atomorder: #DNA/RNA
             if res.chainfirst:
                 if res.nter:
-                    res.topology.patch(top_patches["5pho"])
+                    res.topology.patch(top_patches["5PHO"])
                 else:
-                    res.topology.patch(top_patches["5ter"])
+                    res.topology.patch(top_patches["5TER"])
             if res.chainlast:
-                res.topology.patch(top_patches["3ter"])
+                res.topology.patch(top_patches["3TER"])
 
 def check_pdb(pdbres, heavy=False):
     for res in pdbres:

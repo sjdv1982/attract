@@ -38,7 +38,7 @@ Example: oplsx.trans
 		   python parse_cns_top.py <name> <CNS topology file(s)>
 		 Examples:
 		   python parse_cns_top.py oplsx oplsx/topallhdg5.3.pro  > ../oplsx-top.json
-	     python parse_cns_top.py dna-rna oplsx/dna-rna-allatom.top  > ../dna-rna-top.json
+                   python parse_cns_top.py dna-rna oplsx/dna-rna-allatom.top  > ../dna-rna-top.json
 	 AMBER:
 	   Use the parse_amber_lib tool:
 		   python parse_amber_lib.py <name> <AMBER .off/.lib file(s)>
