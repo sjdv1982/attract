@@ -1,6 +1,6 @@
 {
   "patches": {
-    "3ter": [
+    "3TER": [
       [
         "modify_atom", 
         {
@@ -33,7 +33,7 @@
         ]
       ]
     ], 
-    "5pho": [
+    "5PHO": [
       [
         "add_atom", 
         {
@@ -65,7 +65,7 @@
         ]
       ]
     ], 
-    "5ter": [
+    "5TER": [
       [
         "add_atom", 
         {
@@ -110,7 +110,7 @@
         ]
       ]
     ], 
-    "nuc": [
+    "NUC": [
       [
         "add_bond", 
         [
@@ -121,7 +121,7 @@
     ]
   }, 
   "residues": {
-    "da": {
+    "DA": {
       "atomorder": [
         "p", 
         "o1p", 
@@ -458,7 +458,7 @@
       ], 
       "topname": "dna-rna"
     }, 
-    "dc": {
+    "DC": {
       "atomorder": [
         "p", 
         "o1p", 
@@ -771,7 +771,7 @@
       ], 
       "topname": "dna-rna"
     }, 
-    "dg": {
+    "DG": {
       "atomorder": [
         "p", 
         "o1p", 
@@ -1118,7 +1118,7 @@
       ], 
       "topname": "dna-rna"
     }, 
-    "dt": {
+    "DT": {
       "atomorder": [
         "p", 
         "o1p", 
@@ -1451,7 +1451,7 @@
       ], 
       "topname": "dna-rna"
     }, 
-    "ra": {
+    "RA": {
       "atomorder": [
         "p", 
         "o1p", 
@@ -1798,7 +1798,7 @@
       ], 
       "topname": "dna-rna"
     }, 
-    "rc": {
+    "RC": {
       "atomorder": [
         "p", 
         "o1p", 
@@ -2121,7 +2121,7 @@
       ], 
       "topname": "dna-rna"
     }, 
-    "rg": {
+    "RG": {
       "atomorder": [
         "p", 
         "o1p", 
@@ -2478,7 +2478,7 @@
       ], 
       "topname": "dna-rna"
     }, 
-    "ru": {
+    "RU": {
       "atomorder": [
         "p", 
         "o1p", 
