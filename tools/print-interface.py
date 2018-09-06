@@ -5,8 +5,10 @@ usage: python print-interface.py <pdb file> refeA.pdb refeB.pdb \
 
  [--allatoms] [--allresidues] [--output <file>] [--cutoff <interface cutoff, default 10>]
 
+--allresidues: use also the residues outside the 10 A interface region
 --allatoms: use all atoms rather than backbone atoms
---allresidues: use also the residues outside the X A interface region 
+--ca: use CA atoms rather than backbone atoms
+--trace: use CA and P atoms rather than backbone atoms (nucleic acids)
 
 """
 
@@ -27,34 +29,34 @@ atomnames = ("CA","C","O","N")
 
 while 1:
   anr += 1
-      
-  if anr > len(sys.argv)-1: break  
+
+  if anr > len(sys.argv)-1: break
   arg = sys.argv[anr]
 
-  if arg == "--allatoms": 
+  if arg == "--allatoms":
     sys.argv = sys.argv[:anr] + sys.argv[anr+1:]
     opt_allatoms = True
     anr -= 1
     continue
-  
-  if arg == "--allresidues": 
+
+  if arg == "--allresidues":
     sys.argv = sys.argv[:anr] + sys.argv[anr+1:]
     opt_allresidues = True
     anr -= 1
-    continue  
-    
-  if arg == "--ca": 
+    continue
+
+  if arg == "--ca":
     sys.argv = sys.argv[:anr] + sys.argv[anr+1:]
     atomnames = ("CA",)
     anr -= 1
     continue
 
-  if arg == "--nucleic-acid": 
+  if arg == "--trace":
     sys.argv = sys.argv[:anr] + sys.argv[anr+1:]
     atomnames = ("P","CA",)
     anr -= 1
-    continue  
-    
+    continue
+
   if anr <= len(sys.argv)-2 and arg == "--output":
     output = sys.argv[anr+1]
     sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
@@ -68,7 +70,7 @@ while 1:
     continue
 
   if arg.startswith("--"): raise Exception("Unknown option '%s'" % arg)
-    
+
 threshsq = thresh * thresh
 
 if len(sys.argv) < 3:
@@ -80,7 +82,7 @@ if len(boundfiles) == 1 and opt_allresidues == False:
   raise Exception("Cannot determine the interface for a single PDB")
 
 bounds = [rmsdlib.read_pdb(f) for f in boundfiles]
-for p in bounds: 
+for p in bounds:
   p.remove_hydrogens()
 
 allboundatoms = []
@@ -104,15 +106,15 @@ for s in boundsizes:
   ligandmask = selmask[currentligand:currentligand+s]
   ligandmasks.append(ligandmask)
   currentligand += s
-  
+
 f1 = sys.stdout
 if output is not None:
   f1 = open(output,'w')
 
 for strucnr, unbounds in enumerate(rmsdlib.read_multi_pdb(sys.argv[1])):
   assert len(unbounds) == len(bounds), (strucnr+1, len(unbounds))
-  f1.write("MODEL %d\n" % (strucnr+1))  
-  for pnr, p in enumerate(unbounds): 
+  f1.write("MODEL %d\n" % (strucnr+1))
+  for pnr, p in enumerate(unbounds):
     p.remove_hydrogens()
     ligandmask = ligandmasks[pnr]
     atoms = list(p.atoms())
@@ -121,6 +123,4 @@ for strucnr, unbounds in enumerate(rmsdlib.read_multi_pdb(sys.argv[1])):
       if not ligandmask[n]: continue
       atoms[n].write(f1)
     f1.write("TER\n")
-  f1.write("ENDMDL\n")  
-    
-    
+  f1.write("ENDMDL\n")

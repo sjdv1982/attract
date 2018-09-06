@@ -1315,9 +1315,7 @@ echo '**************************************************************'
     if m.rmsd_atoms == "all":
       lrmsdpar += " --allatoms"
     elif m.rmsd_atoms == "trace":
-      mt = m.partners[0].moleculetype
-      if mt == "Protein": lrmsdpar += " --ca"
-      elif mt in ("DNA", "RNA"): lrmsdpar += " --p"
+      lrmsdpar += " --trace"
 
     if '--name' in flexpar2a:
       lrmsd_filenames = aa_rmsd_filenames

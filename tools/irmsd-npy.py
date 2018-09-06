@@ -1,16 +1,23 @@
 """
 Calculate interface RMSD
-usage: python irmsd.py <DAT file> \
- <unbound PDB 1> <bound PDB 1> [<unbound PDB 2> <bound PDB 2>] [...]
- [--allatoms] [--ca] [--trace] [--allresidues] [--cutoff <dist cutoff for interface, in A> ]
-
---allresidues: use also the residues outside the 10 A interface region
+usage: python irmsd-npy.py <npy rec unbound> <pdb rec bound> <npy rec unbound> <pdb rec bound>
+ [--allatoms] [--allresidues] [--cutoff <dist cutoff for interface, in A> ]
 --allatoms: use all atoms rather than backbone atoms
---ca: use CA atoms rather than backbone atoms
---trace: use CA and P atoms rather than backbone atoms (nucleic acids)
---receptor, --imodes, --modes, --name, --ens, --output: ...
-
+--allresidues: use also the residues outside the 10 A interface region
 """
+# TODO
+########################
+parser =argparse.ArgumentParser(description=__doc__,
+                        formatter_class=argparse.RawDescriptionHelpFormatter)
+parser.add_argument('rec_u_npy')
+parser.add_argument('lig_u_npy')
+parser.add_argument('rec_b')
+parser.add_argument('lig_b')
+parser.add_argument('--cutoff', default=5 ,type=float)
+
+args = parser.parse_args()
+########################
+
 thresh = 10.0
 
 import sys
@@ -54,9 +61,9 @@ while 1:
     anr -= 1
     continue
 
-  if arg == "--trace":
+  if arg == "--p":
     sys.argv = sys.argv[:anr] + sys.argv[anr+1:]
-    atomnames = ("P","CA",)
+    atomnames = ("P",)
     anr -= 1
     continue
 

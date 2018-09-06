@@ -2,11 +2,11 @@
 Calculate ligand RMSD
 usage: python lrmsd.py <DAT file> \
  <unbound PDB 1> <bound PDB 1> [<unbound PDB 2> <bound PDB 2>] [...]
- [--allatoms] [--ca] [--p]
+ [--allatoms] [--ca] [--trace]
 
 --allatoms: use all atoms rather than backbone atoms
 --ca: use CA atoms rather than backbone atoms
---p: use P atoms rather than backbone atoms (nucleic acids)
+--trace: use CA and P atoms rather than backbone atoms (nucleic acids)
 --receptor, --imodes, --modes, --name, --ens, --output: ...
 """
 import sys
@@ -17,7 +17,7 @@ sys.path.insert(0, os.environ["ATTRACTTOOLS"])
 import collectlibpy as collectlib
 from _read_struc import read_struc
 import rmsdlib
-  
+
 ensfiles = []
 modefile = None
 imodefile = None
@@ -30,34 +30,28 @@ anr = 0
 output = None
 while 1:
   anr += 1
-      
-  if anr > len(sys.argv)-1: break  
+
+  if anr > len(sys.argv)-1: break
   arg = sys.argv[anr]
 
-  if arg == "--allatoms": 
+  if arg == "--allatoms":
     sys.argv = sys.argv[:anr] + sys.argv[anr+1:]
     opt_allatoms = True
     anr -= 1
     continue
 
-  if arg == "--ca": 
+  if arg == "--ca":
     sys.argv = sys.argv[:anr] + sys.argv[anr+1:]
     atomnames = ("CA",)
     anr -= 1
     continue
 
-  if arg == "--p": 
-    sys.argv = sys.argv[:anr] + sys.argv[anr+1:]
-    atomnames = ("P",)
-    anr -= 1
-    continue
-
-  if arg == "--nucleic-acid": 
+  if arg == "--trace":
     sys.argv = sys.argv[:anr] + sys.argv[anr+1:]
     atomnames = ("P","CA",)
     anr -= 1
-    continue  
-        
+    continue
+
   if anr <= len(sys.argv)-3 and arg == "--ens":
     ensfiles.append((sys.argv[anr+1],sys.argv[anr+2]))
     sys.argv = sys.argv[:anr] + sys.argv[anr+3:]
@@ -69,7 +63,7 @@ while 1:
     sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
     anr -= 2
     continue
-  
+
   if anr <= len(sys.argv)-2 and arg == "--imodes":
     imodefile = sys.argv[anr+1]
     sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
@@ -88,7 +82,7 @@ while 1:
     sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
     anr -= 2
     continue
-    
+
   if anr <= len(sys.argv)-2 and arg == "--output":
     output = sys.argv[anr+1]
     sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
@@ -105,7 +99,7 @@ boundfiles = []
 for n in range(2, len(sys.argv), 2):
   unboundfiles.append(sys.argv[n])
   boundfiles.append(sys.argv[n+1])
-    
+
 bounds = [rmsdlib.read_pdb(f) for f in boundfiles]
 unbounds = [rmsdlib.read_pdb(f) for f in unboundfiles]
 
@@ -128,7 +122,7 @@ if opt_allatoms:
 else:
   unbound_amask = rmsdlib.build_atommask(unbounds, atomnames)
 
-  
+
 unbound_amasks_ligand = []
 for unr, u in enumerate(unbounds):
   if opt_allatoms:
@@ -140,8 +134,8 @@ for unr, u in enumerate(unbounds):
   offsetmask = numpy.zeros(offset, dtype="bool")
   uu = numpy.concatenate((offsetmask, uu),axis=0)
   unbound_amasks_ligand.append(uu)
-  
-for p in unbounds + bounds: 
+
+for p in unbounds + bounds:
   if opt_allatoms:
     p.remove_hydrogens()
   else:
@@ -166,22 +160,22 @@ if output is not None:
 h, strucs = read_struc(sys.argv[1])
 while 1:
   sys.stdout.flush()
-  if name is not None: 
+  if name is not None:
     newargs = initargs + ['--imodes','flexm-'+str(nstruc+1)+name+'.dat']
     if not os.path.exists('flexm-'+str(nstruc+1)+name+'.dat'):
       break
     collectlib.collect_iattract(newargs)
-    
+
   result = collectlib.collect_next()
   if result: break
-  nstruc += 1  
-  
+  nstruc += 1
+
   l1, l2 = strucs.next()
   ll = [float(v) for v in l2[0].split()[ens_receptor:ens_receptor+6]]
   for v in ll:
     if abs(v)> 0.001:
       raise ValueError("Structures have not yet been fitted")
-  
+
   f1.write("l-RMSD")
   coor = collectlib.collect_all_coor()
   coor = numpy.array(coor)[receptor_offset:]
@@ -190,7 +184,7 @@ while 1:
   f1.write(" %.3f" % rmsd)
   if len(unbounds) > 1:
     for n in range(len(unbounds)):
-      fcoor = numpy.compress(unbound_amasks_ligand[n], coor, axis=0)      
+      fcoor = numpy.compress(unbound_amasks_ligand[n], coor, axis=0)
       rmsd = rmsdlib.rmsd(boundatoms[n],fcoor)
       f1.write(" %.3f" % rmsd)
   f1.write("\n")

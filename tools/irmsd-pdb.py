@@ -1,10 +1,12 @@
 """
 Calculate interface RMSD from a multi-model PDB
-usage: python irmsd.py 
- [--allatoms] [--allresidues] [--output <file>] [--cutoff <interface cutoff, default 10>]
+usage: python irmsd.py
+ [--allatoms] [--ca] [--trace] [--allresidues] [--cutoff <dist cutoff for interface, in A> ]
 
+--allresidues: use also the residues outside the 10 A interface region
 --allatoms: use all atoms rather than backbone atoms
---allresidues: use also the residues outside the X A interface region 
+--ca: use CA atoms rather than backbone atoms
+--trace: use CA and P atoms rather than backbone atoms (nucleic acids)
 
 """
 
@@ -25,34 +27,34 @@ atomnames = ("CA","C","O","N")
 
 while 1:
   anr += 1
-      
-  if anr > len(sys.argv)-1: break  
+
+  if anr > len(sys.argv)-1: break
   arg = sys.argv[anr]
 
-  if arg == "--allatoms": 
+  if arg == "--allatoms":
     sys.argv = sys.argv[:anr] + sys.argv[anr+1:]
     opt_allatoms = True
     anr -= 1
     continue
-  
-  if arg == "--allresidues": 
+
+  if arg == "--allresidues":
     sys.argv = sys.argv[:anr] + sys.argv[anr+1:]
     opt_allresidues = True
     anr -= 1
-    continue  
-    
-  if arg == "--ca": 
+    continue
+
+  if arg == "--ca":
     sys.argv = sys.argv[:anr] + sys.argv[anr+1:]
     atomnames = ("CA",)
     anr -= 1
     continue
-    
-  if arg == "--nucleic-acid": 
+
+  if arg == "--trace":
     sys.argv = sys.argv[:anr] + sys.argv[anr+1:]
     atomnames = ("P","CA",)
     anr -= 1
-    continue  
-       
+    continue
+
   if anr <= len(sys.argv)-2 and arg == "--output":
     output = sys.argv[anr+1]
     sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
@@ -66,7 +68,7 @@ while 1:
     continue
 
   if arg.startswith("--"): raise Exception("Unknown option '%s'" % arg)
-    
+
 threshsq = thresh * thresh
 
 if len(sys.argv) < 3:
@@ -78,7 +80,7 @@ if len(boundfiles) == 1 and opt_allresidues == False:
   raise Exception("Cannot determine the interface for a single PDB")
 
 bounds = [rmsdlib.read_pdb(f) for f in boundfiles]
-for p in bounds: 
+for p in bounds:
   p.remove_hydrogens()
 
 allboundatoms = []
@@ -103,18 +105,18 @@ if output is not None:
   f1 = open(output,'w')
 
 for unbounds in rmsdlib.read_multi_pdb(sys.argv[1]):
-  coor = []  
-  for p in unbounds: 
+  coor = []
+  for p in unbounds:
     p.remove_hydrogens()
     for c in p.coordinates():
       coor.append(c)
   coor = numpy.array(coor)
-  
+
   if len(coor) == 0:
     nstruc += 1
     f1.write(str(nstruc)+" None\n")
     continue
-  
+
   rmsdlib.check_pdbs(unbounds, bounds)
   nstruc += 1
   fcoor = numpy.compress(selmask, coor, axis=0)

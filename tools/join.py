@@ -26,6 +26,7 @@ if score:
   for n in range(nrsplit):
     fnam = "%s-%d" % (sys.argv[1], n+1)
     for l in open(fnam).readlines(): 
+      assert not l.startswith("#") #must be .score file, not .dat file!!
       print l,
   sys.exit()
 
