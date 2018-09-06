@@ -1,8 +1,8 @@
 //Applies explicit-axis symmetry to a DOF file
 
-//usage: ./axsymmetry structures.dat 
-// <total number of ligands> <ligand> <symmetry> 
-// <axis x> <axis y> <axis z> 
+//usage: ./axsymmetry structures.dat
+// <total number of ligands> <ligand> <symmetry>
+// <axis x> <axis y> <axis z>
 // <origin x> <origin y> <origin z>
 
 
@@ -13,25 +13,25 @@
 
 extern "C" void print_struc_(
  const int &seed,
- char *label0, 
+ char *label0,
  const double &energy,
  const double *energies,
  const int &nlig,
- const int *ens, 
+ const int *ens,
  const double *phi,
  const double *ssi,
  const double *rot,
  const double *xa,
  const double *ya,
  const double *za,
- const coors2 &locrests, 
+ const coors2 &locrests,
  const double *morph,
  const int *nhm,
  const int *nihm,
- const modes2 &dlig, 
+ const modes2 &dlig,
  const int *has_locrests,
  int len_label
-); 
+);
 
 extern "C" FILE *read_dof_init_(const char *f_, int nlig, int &line, double (&pivot)[3][MAXLIG], int &auto_pivot, int &centered_receptor, int &centered_ligands, int f_len);
 
@@ -60,7 +60,7 @@ bool exists(const char *f) {
 
 int main(int argc, char *argv[]) {
   int i;
-    
+
   int nrens[MAXLIG];
   int nhm[MAXLIG];
   int nihm[MAXLIG];
@@ -82,7 +82,7 @@ int main(int argc, char *argv[]) {
   int symcopies[MAXLIG][24*MAXLIG];
   int nr_symtrans;
   SymTrans symtrans[24*MAXLIG];
-  
+
   double forcefactor[MAXLIG];
   double forcerotation[MAXLIG][9];
   for (int n = 0; n < MAXLIG; n++) {
@@ -91,7 +91,7 @@ int main(int argc, char *argv[]) {
     fr[4] = 1;
     fr[8] = 1;
   }
-  
+
 
   for (int n = 0; n < MAXLIG; n++) {
     nhm[n] = 0;
@@ -103,6 +103,13 @@ int main(int argc, char *argv[]) {
   int has_locrests[MAXLIG];
   memset(has_locrests, 0, MAXLIG*sizeof(int));
 
+  while (1) {
+    if (strcmp(argv[argc-3],"--ens")) break;
+    int lignr = atoi(argv[argc-2]) - 1;
+    nrens[lignr] = atoi(argv[argc-1]);
+    argc -= 3;
+  }
+
   if ((argc-3) % 8) {
     fprintf(stderr, "Wrong number of arguments\n"); usage();
   }
@@ -110,14 +117,14 @@ int main(int argc, char *argv[]) {
     fprintf(stderr, "File %s does not exist\n", argv[1]);
     exit(1);
   }
-  
+
   int nlig0 = atoi(argv[2]);
   for (int n = 0; n < nlig0; n++) {
     nr_symcopies[n] = 1;
     symcopies[n][0] = n;
   }
-   
-  AxSymmetry syms[MAXLIG];  
+
+  AxSymmetry syms[MAXLIG];
   int nr_syms = (argc-3)/8;
   for (int n = 0; n < nr_syms; n++) {
     AxSymmetry &sym = syms[n];
@@ -129,28 +136,28 @@ int main(int argc, char *argv[]) {
     sym.axis[2] = atof(argv[8*n+7]);
     sym.origin[0] = atof(argv[8*n+8]);
     sym.origin[1] = atof(argv[8*n+9]);
-    sym.origin[2] = atof(argv[8*n+10]);  
-  }  
-  
+    sym.origin[2] = atof(argv[8*n+10]);
+  }
+
   //read DOFs and set pivots
   double pivot[3][MAXLIG];
-  memset(pivot,0,sizeof(pivot));  
-  
-  int auto_pivot, centered_receptor, centered_ligands;    
+  memset(pivot,0,sizeof(pivot));
+
+  int auto_pivot, centered_receptor, centered_ligands;
   int line;
-  FILE *fil = read_dof_init_(argv[1], nlig0, line, pivot, auto_pivot, centered_receptor, centered_ligands, strlen(argv[1])); 
-  if (centered_receptor != centered_ligands) { 
+  FILE *fil = read_dof_init_(argv[1], nlig0, line, pivot, auto_pivot, centered_receptor, centered_ligands, strlen(argv[1]));
+  if (centered_receptor != centered_ligands) {
     fprintf(stderr, "Receptor and ligands must be both centered or both uncentered\n");
     exit(1);
-  }  
+  }
   if (!(centered_ligands) && auto_pivot) {
     fprintf(stderr, "With uncentered ligands, pivots must be supplied\n");
     exit(1);
   }
 
 
-  //main loop  
-  int nstruc = 0;  
+  //main loop
+  int nstruc = 0;
   int nlig = prepare_axsym_dof(
    nr_syms,
    syms,
@@ -160,17 +167,17 @@ int main(int argc, char *argv[]) {
    nrens,
    morphing,
    has_locrests,
-   
+
    nr_symcopies,
    symcopies,
    nr_symtrans,
    symtrans,
-   
+
    forcefactor,
    forcerotation
   );
 
-  /*  
+  /*
   for (int i = 0; i < nlig; i++) {
     printf("%d: forcefactor: %.4f\n", i, forcefactor[i]);
     double *m = forcerotation[i];
@@ -187,15 +194,15 @@ int main(int argc, char *argv[]) {
       newpivot[1][target] = pivot[1][i];
       newpivot[2][target] = pivot[2][i];
     }
-  }  
+  }
 
   if (auto_pivot) printf("#pivot auto\n");
   else {
     for (i = 0; i < nlig; i++) {
-      printf("#pivot %d %.3f %.3f %.3f\n", 
+      printf("#pivot %d %.3f %.3f %.3f\n",
 	i+1, newpivot[0][i], newpivot[1][i], newpivot[2][i]);
-    }   	
-  }   
+    }
+  }
   if (centered_receptor) printf("#centered receptor: true\n");
   else printf("#centered receptor: false\n");
   if (centered_ligands) printf("#centered ligands: true\n");
@@ -203,8 +210,8 @@ int main(int argc, char *argv[]) {
 
   while (1) {
 
-    int result = read_dof_(fil, line, nstruc, argv[1], ens, phi, ssi, rot, 
-     xa, ya, za, locrests, 
+    int result = read_dof_(fil, line, nstruc, argv[1], ens, phi, ssi, rot,
+     xa, ya, za, locrests,
      morph, dlig, nlig0, nhm, nihm, nrens, morphing, has_locrests,
      seed, label, 1, strlen(argv[1])
     );
@@ -213,25 +220,25 @@ int main(int argc, char *argv[]) {
      nr_symtrans,
      symtrans,
      morph,
-     ens, 
+     ens,
      phi,
      ssi,
      rot,
      xa,
      ya,
      za,
-     dlig, 
-     has_locrests,      
+     dlig,
+     has_locrests,
      locrests
     );
-    
+
     double dummy = 0;
     int lablen = 0;
     if (label) lablen = strlen(label);
 
     print_struc_(
      seed,
-     label, 
+     label,
      dummy,
      NULL,
      nlig,
