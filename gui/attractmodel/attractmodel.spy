@@ -173,7 +173,7 @@ Type AttractPartnerInterface {
   ## form ensemblize.optiontitles = "Random", "All", "Custom (none)"
 
   Bool has_hydrogens = False
-  ## form has_hydrogens.name = "The PDB file contains all necessary atoms, including polar hydrogens"
+  ## form has_hydrogens.name = "The PDB file contains all necessary atoms (including polar hydrogens if using all-atom docking and/or iATTRACT refinement)"
   Bool charged_termini = False
   ## form charged_termini.name = "Add charged termini to each chain"
 
@@ -554,18 +554,6 @@ Type AttractModel {
     gravity.optiontitles = ("No gravity", "To global origin", "To receptor", "Between all ligands", "Cryo-EM pre-assembly stage gravity", "Cryo-EM assembly stage gravity")
   }
 
-  Enum completion_tool("whatif", "pdb2pqr_whatif") = "pdb2pqr_whatif"
-  form {
-    completion_tool.add_header("External tool for PDB completion and hydrogens")
-    completion_tool.add_header("NOTE: PDB2PQR requires a local installation")
-    completion_tool.add_header("NOTE: PDB2PQR only completes proteins; WHATIF is used for nucleic acids")
-    completion_tool.name = "PDB completion method"
-    completion_tool.optiontitles = (
-      "WHATIF web server",
-      "PDB2PQR",
-    )
-  }
-
   Float rstk_dof = 0.01
   form {
     rstk_dof.name = "Restraining force constant for gravity and non-generative symmetry"
@@ -632,7 +620,6 @@ Type AttractModel {
   form {
     _g = "Energy and interaction parameters"
     gravity.group = _g
-    completion_tool.group = _g
     rstk_dof.group = _g
     rstk_harmonic.group = _g
     rstk_haddock.group = _g
@@ -671,7 +658,7 @@ Type AttractModel {
     assert max_rescore_step >= 0
     if rescore_step: assert rescoring
     if rescore_step: assert max_rescore_step > 0
-    if max_rescore_step > 0: 
+    if max_rescore_step > 0:
         assert rescore_step
         for p in partners:
             assert p.moleculetype in ("Protein", "Peptide") #step
@@ -1115,10 +1102,6 @@ Type AttractModel {
     'for p in partners: assert p.haddock_restraints is None'
     =>
     'HADDOCK active/passive residues are not supported for multi-body docking'
-
-    'if completion_tool is not None: assert completion_tool in ("whatif", "pdb2pqr_whatif", "amber", "cns")'
-    =>
-    ''
 
     'if has_haddock: assert has_active'
     =>

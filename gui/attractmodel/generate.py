@@ -12,12 +12,9 @@ parameterfiledict = {
 }
 
 completion_opt = {
-  ("whatif", "Protein"): "--whatif",
-  ("whatif", "DNA"): "--whatif",
-  ("whatif", "RNA"): "--whatif",
-  ("pdb2pqr_whatif", "Protein"): "--pdb2pqr",
-  ("pdb2pqr_whatif", "DNA"): "--pdb2pqr --whatif",
-  ("pdb2pqr_whatif", "RNA"): "--whatif",
+  "Protein": "--pdb2pqr",
+  "DNA": "--nalib",
+  "RNA": "--nalib",
 }
 
 supported_moleculetype_interactions = (
@@ -66,16 +63,13 @@ fi
   use_gpu = (m.use_gpu != "never")
 
   #determine moleculetype interactions (Protein-protein, protein-RNA, protein-DNA, etc.)
-  nucleic_acid = False
   moleculetype_interactions = set()
   for pnr,p in enumerate(m.partners):
-    if p.moleculetype in ("DNA", "RNA"):
-        nucleic_acid = True        
     for pnr2,p2 in enumerate(m.partners):
       if pnr2 <= pnr: continue
       moleculetype_interaction = tuple(sorted((p.moleculetype, p2.moleculetype)))
       moleculetype_interactions.add(moleculetype_interaction)
-  
+
   for moleculetype_interaction in moleculetype_interactions:
     if moleculetype_interaction in supported_moleculetype_interactions: continue
     if tuple(reversed(moleculetype_interaction)) in supported_moleculetype_interactions: continue
@@ -173,12 +167,12 @@ echo '**************************************************************'
         if p.charged_termini: opts.append("--termini")
         if (use_aa and not p.has_hydrogens) or m.use_iattract:
           opts.append("--dumppatch")
-        if not (m.forcefield == "OPLSX" or m.use_iattract):
+        if not use_aa:
           opts.append("--heavy")
-        elif p.has_hydrogens:
+        if p.has_hydrogens:
           opts.append("--autorefe")
         else:
-          opts.append(completion_opt[m.completion_tool, p.moleculetype])
+          opts.append(completion_opt[p.moleculetype])
         opts = " ".join(opts)
 
         mapping = pdbname3 + ".mapping"
@@ -240,13 +234,13 @@ echo '**************************************************************'
         if p.charged_termini: opts.append("--termini")
         if use_aa and not p.has_hydrogens:
           opts.append("--dumppatch")
-        if not (m.forcefield == "OPLSX" or m.use_iattract):
+        if not use_aa:
           opts.append("--heavy")
         elif mnr > 0:
           opts.append("--reference")
           opts.append(pdbname_reference)
         if not p.has_hydrogens:
-          opts.append(completion_opt[m.completion_tool, p.moleculetype])
+          opts.append(completion_opt[p.moleculetype])
         opts = " ".join(opts)
 
         mapping = "/dev/null"
@@ -589,7 +583,9 @@ echo '**************************************************************'
 """
             has_reduced_rmsd = True
           filenames_aa = []
-          opt = completion_opt[m.completion_tool, p.moleculetype]
+          opt = []
+          if not p.has_hydrogens:
+            opt += completion_opt[p.moleculetype]
           molcode = ""
           if p.moleculetype == "RNA": molcode = " --rna"
           elif p.moleculetype == "DNA": molcode = " --dna"
@@ -630,10 +626,10 @@ echo '**************************************************************'
         flexpar_iattract += " %d" % ensemble_size
     if m.deredundant_ignorens: flexpar1 += " --ignorens"
   if modes_any:
-    flexpar1 += " --modes"    
+    flexpar1 += " --modes"
     for p in m.partners:
       nr_modes = p.nr_modes
-      flexpar1 += " %d" % nr_modes    
+      flexpar1 += " %d" % nr_modes
     for pnr, p in enumerate(m.partners):
       if p.ensemble:
         flexpar_demode += "--ens %d " % (pnr+1)
@@ -1318,10 +1314,10 @@ echo '**************************************************************'
 
     if m.rmsd_atoms == "all":
       lrmsdpar += " --allatoms"
-    elif nucleic_acid:
-      lrmsdpar += " --nucleic-acid"
     elif m.rmsd_atoms == "trace":
-      lrmsdpar += " --ca"
+      mt = m.partners[0].moleculetype
+      if mt == "Protein": lrmsdpar += " --ca"
+      elif mt in ("DNA", "RNA"): lrmsdpar += " --p"
 
     if '--name' in flexpar2a:
       lrmsd_filenames = aa_rmsd_filenames
@@ -1352,10 +1348,7 @@ echo '**************************************************************'
 
     irmsdresult = os.path.splitext(result0)[0] + ".irmsd"
     bbo = ""
-    if m.rmsd_atoms == "all": 
-        bbo = "--allatoms"
-    elif nucleic_acid:
-        bbo = "--nucleic-acid"
+    if m.rmsd_atoms == "all": bbo = "--allatoms"
     irmsd_allfilenames_alts = []
     if '--name' in flexpar2:
       irmsd_allfilenames_alts = list(generate_rmsdargs(aa_filenames, aa_rmsd_refenames))

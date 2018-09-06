@@ -106,24 +106,11 @@ Type AttractPeptideModel {
   ## form use_grids.name = "Perform grid-accelerated docking"
   Bool use_iattract = True
   ## form use_iattract.name = "Perform iATTRACT refinement after the docking"
-  Enum completion_tool("whatif", "pdb2pqr_whatif", "amber", "cns") = "pdb2pqr_whatif"
-  form {
-    completion_tool.add_header("External tool for PDB completion and hydrogens")
-    completion_tool.add_header("NOTE: PDB2PQR, AMBER and CNS require a local installation")
-    completion_tool.add_header("NOTE: PDB2PQR only completes proteins; WHATIF is used for nucleic acids")
-    completion_tool.name = "PDB completion method"
-    completion_tool.optiontitles = (
-      "WHATIF web server",
-      "PDB2PQR",
-      "AMBER",
-      "CNS",
-    )
-  }
+
   form {
     _g = "Energy and interaction parameters"
     use_grids.group = _g
     use_iattract.group = _g
-    completion_tool.group = _g
   }
 
 
@@ -270,10 +257,6 @@ Type AttractPeptideModel {
     'assert np > 0'
     =>
     'Please use at least one core (np=1)for running the docking.'
-
-    'if completion_tool is not None: assert completion_tool in ("whatif", "pdb2pqr_whatif", "amber", "cns")'
-    =>
-    ''
 
   }
 

@@ -92,6 +92,8 @@ def easy2model(emodel):
     if emodel.use_gpu != "never": gravity = 0
     if not has_peptide and not has_na: gravity = 0
     rmsd_atoms = "backbone"
+    if has_na:
+        rmsd_atoms = "all"
     epsilon = 15.0
     if emodel.forcefield == "OPLSX": epsilon = 10.0
 
@@ -133,7 +135,6 @@ def easy2model(emodel):
      np=emodel.np,
      deredundant_ignorens=False,
      demode=True,
-     completion_tool=emodel.completion_tool,
      max_rescore_step=(10000 if rescore_step else 0) ,
      max_filt_analysis=min(emodel.max_analysis, 10000),
      use_iattract=emodel.use_iattract,
@@ -141,7 +142,7 @@ def easy2model(emodel):
      use_gpu=emodel.use_gpu,
      rescore_step=rescore_step
     )
-    if (has_peptide or has_na) and not emodel.clustering and not emodel.analyze_interface:
+    if has_peptide and not emodel.clustering and not emodel.analyze_interface:
         newmodel.demode = False
     if has_peptide or has_na or use_haddock or emodel.position_restraints_file is not None:
         newmodel.search = "random"

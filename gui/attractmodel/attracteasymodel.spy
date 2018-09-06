@@ -145,22 +145,9 @@ Type AttractEasyModel {
   Enum forcefield("ATTRACT", "OPLSX") = "ATTRACT"
   ## form forcefield.add_header("Which forcefield is to be used?")
   ## form forcefield.name = "Forcefield"
-  Enum completion_tool("whatif", "pdb2pqr_whatif", "amber", "cns") = "pdb2pqr_whatif"
-  form {
-    completion_tool.add_header("External tool for PDB completion and hydrogens")
-    completion_tool.add_header("NOTE: PDB2PQR, AMBER and CNS require a local installation")
-    completion_tool.add_header("NOTE: PDB2PQR only completes proteins; WHATIF is used for nucleic acids")
-    completion_tool.name = "PDB completion method"
-    completion_tool.optiontitles = (
-      "WHATIF web server",
-      "PDB2PQR",
-      "AMBER",
-      "CNS",
-    )
-  }
+
   form {
     _g = "Energy and interaction parameters"
-    completion_tool.group = _g
     forcefield.group = _g
     use_grids.group = _g
     rescore_step.group = _g
@@ -357,9 +344,6 @@ Type AttractEasyModel {
     =>
     ''
 
-    'if completion_tool is not None: assert completion_tool in ("whatif", "pdb2pqr_whatif", "amber", "cns")'
-    =>
-    ''
   }
 
 }
