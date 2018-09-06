@@ -11,7 +11,7 @@ c
       integer ongrid(8000),neigh(8000),numneh,ie(8000)
       real xcrd(8000), ycrd(8000), zcrd(8000),srad,cha,ddd
       real radi(8000),csth(400),snth(400),phgh(400),cx,cy,cz
-      real xp(99000),yp(99000),zp(99000),sasa(8000)
+      real xp(300000),yp(300000),zp(300000),sasa(8000)
 c
       real xq,yq,zq,ccdist,ges,rr
       real phigh, costh, sinth
@@ -158,8 +158,8 @@ c      if(.not.coverd.and.kkk.gt.1) then
       end
 c
       subroutine dreieck (xp,yp,zp,ipmax)
-      integer ipmax,neigh(ipmax,30),neimax(ipmax),ielim(ipmax)
-      real xp(ipmax),yp(ipmax),zp(ipmax),dis(ipmax,30)
+      integer ipmax,ielim(ipmax)
+      real xp(ipmax),yp(ipmax),zp(ipmax)
 c check distances and neighbors
       do i=1,ipmax
       ielim(i)=0
