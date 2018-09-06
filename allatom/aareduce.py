@@ -327,7 +327,6 @@ parser.add_argument("--autorefe",help="Analyze the hydrogens of the input PDB to
 parser.add_argument("--dna",help="Automatically interpret nucleic acids as DNA", action="store_true")
 parser.add_argument("--rna",help="Automatically interpret nucleic acids as RNA", action="store_true")
 parser.add_argument("--nalib",help="Use the ATTRACT mononucleotide library to build missing atoms for nucleotides", action="store_true")
-parser.add_argument("--rnalib",help="OBSOLETE. Use the ATTRACT rna mononucl lib to build missing atoms for nucleotides", action="store_true")
 parser.add_argument("--pdb2pqr",help="Use PDB2PQR to complete missing atoms. If no reference has been specified, analyze the hydrogens to determine histidine/cysteine states", action="store_true")
 parser.add_argument("--termini",help="An N-terminus and a C-terminus (5-terminus and 3-terminus for nucleic acids) will be added for each chain", action="store_true")
 parser.add_argument("--nter", "--nterm" , dest="nter",
@@ -384,11 +383,6 @@ if args.nalib:
     if args.dna:
         libname = "dnalib"
 
-if args.rnalib:
-    if not args.rna:
-        raise ValueError("--rnalib requires option --rna")
-    libname = "rnalib"
-
 if args.heavy and (args.autorefe or args.refe):
     raise ValueError("--(auto)refe and --heavy are mutually incompatible")
 
@@ -432,7 +426,7 @@ for f in args.mutatefiles:
         assert len(ll) == 2, l
         mutations[ll[0]] = ll[1]
 
-if args.nalib or args.rnalib:
+if args.nalib:
     nalib = pdbcomplete.load_nalib(libname)
 
 def run(pdbfile):
