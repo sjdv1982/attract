@@ -460,7 +460,7 @@ def run(pdbfile):
         if not args.heavy:
             update_patches(refe, top_patches)
         set_reference(pdb, refe)
-    if args.nalib or args.rnalib:
+    if args.nalib:
         pdbcomplete.apply_nalib(pdb, nalib, args.heavy, args.manual)
     if args.pdb2pqr:
         pdblines = write_pdb(pdb, args.chain, one_letter_na = True)[0]
