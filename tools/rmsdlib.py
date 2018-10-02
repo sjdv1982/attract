@@ -297,7 +297,7 @@ def fit(atoms1, atoms2):
   # are +/-1.0 (and thus products are +/- 1.0 ).
   reflect = float(str(float(numpy.linalg.det(V) * numpy.linalg.det(Wt))))
 
-  if reflect == -1.0:
+  if reflect < -0.99:
           S[-1] = -S[-1]
           V[:,-1] = -V[:,-1]
 
