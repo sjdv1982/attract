@@ -132,7 +132,7 @@ _gridify.so: gridify-pic.o
 	$(CXX) $(CFLAGS) -Wall -shared -fPIC $^ -lm -o $@
 
 max.fin: max.h
-	python make_max.py max.h > max.fin
+	python2 make_max.py max.h > max.fin
 
 #collectlib: collectlib.so
 
