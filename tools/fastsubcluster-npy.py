@@ -1,20 +1,14 @@
+#!/usr/bin/env python2
+
+"""
+fastcluster script
+copyright 2016-2017 Sjoerd de Vries, Isaure Chauvot de Beauchene
+"""
+
 import sys, os, tempfile
 
+
 leafclustmaxsize = 100000
-
-receptor = "/dev/null"
-anr = 0
-while 1:
-    anr += 1
-
-    if anr > len(sys.argv)-1: break
-    arg = sys.argv[anr]
-
-    if anr <= len(sys.argv)-2 and arg == "--receptor":
-        receptor = sys.argv[anr+1]
-        sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
-        anr -= 2
-        continue
 
 npyfile=sys.argv[1]
 clustfile=sys.argv[2]
