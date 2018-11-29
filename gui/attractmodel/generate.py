@@ -585,13 +585,14 @@ echo '**************************************************************'
           filenames_aa = []
           opt = []
           if not p.has_hydrogens:
-            opt += completion_opt[p.moleculetype]
+            opt.append (completion_opt[p.moleculetype])
           molcode = ""
           if p.moleculetype == "RNA": molcode = " --rna"
           elif p.moleculetype == "DNA": molcode = " --dna"
           if len(molcode):
-            opt += molcode
-          if p.charged_termini: opt +=" --termini"
+            opt.append(molcode)
+          if p.charged_termini: opt.append(" --termini")
+          opt = " ".join(opt)
 
           filename_aa = "refe-rmsd-%d.pdb" % (pnr+1)
           ret += "python $ATTRACTDIR/../allatom/aareduce.py %s %s --heavy %s > /dev/null\n" % (filename, filename_aa, opt)
