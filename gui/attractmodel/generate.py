@@ -167,8 +167,11 @@ echo '**************************************************************'
         if p.charged_termini: opts.append("--termini")
         if (use_aa and not p.has_hydrogens) or m.use_iattract:
           opts.append("--dumppatch")
-        if not use_aa:
+        if not use_aa or p.unsafe_pdb:
           opts.append("--heavy")
+        if p.unsafe_pdb:
+          opts.append("--modbase")
+          opts.append("--modres")
         if p.has_hydrogens:
           opts.append("--autorefe")
         else:

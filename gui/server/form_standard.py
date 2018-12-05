@@ -119,10 +119,14 @@ def webform(f, model=None):
     ff.tooltip = "Upload PDB structure file"
     ff.tooltip_doc = "documentation.html#partners-structure_file"
     ff.span = True
+    b.members.append("moleculetype")
     b.members.append("ensemble_size")
     ff = fp.ensemble_size
     ff.tooltip_doc = "documentation.html#partners-ensemble_size"
     ff.span = True
+    b.members.append("has_hydrogens")
+    b.members.append("unsafe_pdb")
+    fp.unsafe_pdb.span = True
     ### END b_struc block
 
     ### START b_modes block
@@ -154,6 +158,7 @@ def webform(f, model=None):
     ff = fp.rmsd_pdb
     ff.name = "Reference RMSD PDB file"
     ### END b_rmsd block
+
   ### END partners category
 
   ### START restraints category
@@ -211,6 +216,7 @@ def webform_easy(f, model=None):
     p.haddock_restraints.type = None
     p.moleculetype.type = None
     p.has_hydrogens.type = None
+    p.unsafe_pdb = None
   f.forcefield.type = None
   f.completion_tool.type = None
   f.nstruc_analyze_interface.type = None
