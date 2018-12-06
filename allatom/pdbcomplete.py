@@ -10,11 +10,6 @@ na_resnames = {"RA","RC","RG","RU","DA","DC","DG","DT","A","T","C","G","U"}
 # check_pdb will chock on it.
 map_atnames = {"HO2'": "H2''"}
 
-def pp(*x):
-    for i in x[:-1]:
-        print(i, file=sys.stderr, end=' ')
-    print(x[-1], file=sys.stderr)
-
 def run_pdb2pqr(pdblines):
   """
   Runs PDB2PQR on the input
@@ -205,7 +200,6 @@ def load_nalib(libname):
 def _apply_matrix(atoms, pivot, rotmat, trans):
   ret = []
   for atom in atoms:
-    pp(atom.shape)
     a = atom-pivot
     atom2 = a.dot(rotmat) + pivot + trans
     ret.append(atom2)
@@ -278,8 +272,6 @@ def apply_nalib(pdb, lib, manual, heavy=True):
                     if aa not in res.coords:
                         missing.add(aa)
                 if not missing: break
-                pp("res %s missing:"%res.resid)
-                pp(missing)
                 nuc = res.resname[1]
                 fixmode = None
                 for fixmode in ("ph", "sugar", "base", "nucl"): #from high to low priority
@@ -310,7 +302,6 @@ def apply_nalib(pdb, lib, manual, heavy=True):
 
                 rmsd_mask = np.array([(a in rmsd_atoms and a in res.coords) for a in atoms])
                 libcoor_rmsd_unfitted = libcoor[:,rmsd_mask]
-                pp(libcoor_rmsd_unfitted.shape, pivots.shape )
                 libcoor_rmsd_fitted = _apply_matrix_multi(libcoor_rmsd_unfitted, pivots, rotmats, offsets)
                 libcoor_fitted = _apply_matrix_multi(libcoor, pivots, rotmats, offsets)
 

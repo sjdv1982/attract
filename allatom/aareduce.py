@@ -447,11 +447,7 @@ def run(pdbfile):
             update_patches(refe, top_patches)
         set_reference(pdb, refe)
     if args.nalib:
-<<<<<<< HEAD
         pdbcomplete.apply_nalib(pdb, nalib, args.manual, args.heavy)
-=======
-        pdbcomplete.apply_nalib(pdb, nalib, args.heavy, args.manual)
->>>>>>> 8d788f6f3cf3ba65a55feaaa1d49a263cee0dcbf
     if args.pdb2pqr:
         pdblines = write_pdb(pdb, args.chain, one_letter_na = True)[0]
         pqrlines = run_pdb2pqr(pdblines)
