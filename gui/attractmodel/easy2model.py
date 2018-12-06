@@ -13,6 +13,7 @@ def easy2model(emodel):
         pp = AttractPartnerInterface.empty()
         pp.pdbfile=p.pdbfile
         pp.has_hydrogens=p.has_hydrogens
+        pp.unsafe_pdb=p.unsafe_pdb
         pp.is_reduced=False
         pp.chain="All"
         pp.haddock_restraints = p.haddock_restraints
@@ -144,7 +145,7 @@ def easy2model(emodel):
     )
     if has_peptide and not emodel.clustering and not emodel.analyze_interface:
         newmodel.demode = False
-    if has_peptide or has_na or use_haddock or emodel.position_restraints_file is not None:
+    if has_peptide or use_haddock or emodel.position_restraints_file is not None:
         newmodel.search = "random"
         if has_na:
             newmodel.structures= 200000

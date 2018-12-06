@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python2
 
 """
 Command line tool to deploy an embedded ATTRACT Spyder model into a directory

@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#!/usr/bin/env python2
 
 import sys
 
@@ -13,27 +13,25 @@ for line in open(h).readlines():
     for item in tmp:
       if '/' in item:
 	break
-      
+
       elif 'const' in item or 'int' in item:
 	continue
-      
+
       else:
 	if ';' in item:
 	  item = item.replace(';','')
-	  
+
 	if 'MAX' in item:
 	  if item in variables:
 	    item = variables[item]
 	  else:
             item = item.lower()
-	  
+
       if item == '':
 	output = ''
 	break
 
       output += ' '+item
-      
+
     if not output == '':
       print output
-	  
-	

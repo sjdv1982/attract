@@ -33,9 +33,9 @@ ln -s ../html/upload-local.html upload.html
 cd ..
 \cp serverconfig-local.py html-local/serverconfig.py
 \cp -d html/index.html html/attract.html html-local/
-python generate-html-full.py $website/attractserver.py > html-local/full.html
-python generate-html-easy.py $website/attractserver-easy.py > html-local/easy.html
-python generate-html-standard.py $website/attractserver-standard.py > html-local/standard.html
-python generate-html-peptide.py $website/attractserver-peptide.py > html-local/peptide.html
-python generate-html-cryo.py $website/attractserver-cryo.py > html-local/cryo.html
-python generate-html-cryo-easy.py $website/attractserver-cryo-easy.py > html-local/cryo_easy.html 
+python2 generate-html-full.py $website/attractserver.py > html-local/full.html
+python2 generate-html-easy.py $website/attractserver-easy.py > html-local/easy.html
+python2 generate-html-standard.py $website/attractserver-standard.py > html-local/standard.html
+python2 generate-html-peptide.py $website/attractserver-peptide.py > html-local/peptide.html
+python2 generate-html-cryo.py $website/attractserver-cryo.py > html-local/cryo.html
+python2 generate-html-cryo-easy.py $website/attractserver-cryo-easy.py > html-local/cryo_easy.html 
