@@ -218,7 +218,6 @@ def webform_easy(f, model=None):
     p.has_hydrogens.type = None
     p.unsafe_pdb.type = None
   f.forcefield.type = None
-  f.completion_tool.type = None
   f.nstruc_analyze_interface.type = None
   f.min_cluster_size.type = None
   f.clustering_cutoff.type = None
