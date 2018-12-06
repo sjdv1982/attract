@@ -3,33 +3,33 @@ header = """<!DOCTYPE html>
 <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
 <!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
-    
+
     <head>
         <title>ATTRACT Online</title>
-        
+
         <meta charset="utf-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
         <meta name="description" content="" />
         <meta name="viewport" content="width=device-width"/>
-        
+
         <!-- Always load normalize CSS first -->
         <link rel="stylesheet" href="css/normalize.min.css">
         <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,600' rel='stylesheet' type='text/css'>
         <link href='http://fonts.googleapis.com/css?family=Lobster' rel='stylesheet' type='text/css'>
         <link rel="stylesheet" href="css/attract.min.css">
     </head>
-    
+
     <body>
         <!--[if lt IE 7]>
             <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
         <![endif]-->
 
         <main id="container" class="col row">
-          
+
           <section id="sidebar" class="col">
             <div id="title"><span class="t1">Attract</span> <span class="t2">online</span></div>
             <div id="logo"></div>
-            
+
             <nav id="form-category-navigation" class="row">
               <ul>
                 <li id="view-page1"><a id="nav-block-partners" class="puzzle-icon">Partners</a></li>
@@ -43,17 +43,17 @@ header = """<!DOCTYPE html>
                 <li id="view-page9"><a id="nav-block-computation" class="computation-icon">Computation</a></li>
               </ul>
             </nav>
-            
+
             <div id="download-button" class="row download-icon" onClick="submitForm();">
               <p>Get configuration</p>
-            </div>  
-            
+            </div>
+
           </section>
-            
+
           <section id="content" class="col">
-            
+
             <header id="header">
-              
+
               <div id="show-hide-sidepanel" class="button menu-icon float-left"><div class="header-tooltip"><p>Hide sidepanel</p></div></div>
               <div id="reload-form" class="button reload-icon-active float-left"><div class="header-tooltip"><p>Restore default values</p></div></div>
               <div id="unfold-all" class="button double-arrow-icon float-left"><div class="header-tooltip"><p>Unfold all form blocks</p></div></div>
@@ -65,18 +65,18 @@ header = """<!DOCTYPE html>
                     <li><a href="documentation.html#contact" target="_blank" class="contact-icon">Contact</a></li>
                     <li><a href="documentation.html" target="_blank" class="help-icon">Help and documentation</a></li>
                   </ul>
-                </nav> 
+                </nav>
               </div>
               <div id="close-app" class="button close-icon-active float-right"></div>
-              
+
             </header>
 """
 
-footer = """           
-            
+footer = """
+
         </section>
-      </main>  
-        
+      </main>
+
       <script src="js/jquery-1.10.2.min.js"></script>
       <script src="js/main.min.js"></script>
 
@@ -102,48 +102,50 @@ def webform(f, model=None,
       gridslength = max(1,len(model.grids))
     if iterationslength is None:
       iterationslength = max(1,len(model.iterations))
-    if symmetrieslength is None:  
+    if symmetrieslength is None:
       symmetrieslength = max(1,len(model.symmetries))
-  else:  
+  else:
     if partnerslength is None: partnerslength = 1
-    if gridslength is None: gridslength = 1  
+    if gridslength is None: gridslength = 1
     if iterationslength is None: iterationslength = 1
     if symmetrieslength is None: symmetrieslength = 1
   import copy
   f = copy.deepcopy(f)
   f.arraymarker = "_clonearraymarker"
   f.resourcefilevar = "_tempresource"
-  
+
   f.partners.length = partnerslength
-  
+
   ### START partners category
   c = f.new_group("c_partners", "category")
   c.page = 1
   c.icon = "puzzle-icon"
   c.title = "Docking partners"
   c.categoryname = "partners"
-  c.description = """Define up to 10 docking partners by uploading a PDB structure file or identifying them by their 
-            RCSB Protein Databank ID. Ensemble structures are allowed.""" 
-  c.members.append("partners")   
+  c.description = """Define up to 10 docking partners by uploading a PDB structure file or identifying them by their
+            RCSB Protein Databank ID. Ensemble structures are allowed."""
+  c.members.append("partners")
   f.partners.clonebutton = "Add partner"
   f.partners.clonelength = 10
-  f.partners.controltitle = "Docking partners"  
+  f.partners.controltitle = "Docking partners"
   for fpnr in range(f.partners.length):
     fp = f.partners[fpnr]
     fp.group = None
-    
+
     ### START b_struc block
     b = fp.new_group("b_struc", "block")
     b.title = "Structure Sources"
     b.has_switch = False
     b.members.append("pdbfile")
     b.members.append("gridname")
-    b.members.append("chain")    
-    b.members.append("moleculetype") 
+    b.members.append("chain")
+    b.members.append("moleculetype")
     ff = fp.pdbfile
     ff.name = "Structure file"
     ff.tooltip = "Upload PDB structure file"
     ff.tooltip_doc = "documentation.html#partners-structure_file"
+    b.members.append("has_hydrogens")
+    b.members.append("unsafe_pdb")
     ff = fp.gridname
     ff.name = "Name of the grid for this molecule"
     ff.tooltip = "Grid name"
@@ -186,6 +188,7 @@ def webform(f, model=None,
     ff = fp.ensemble_size
     ff.min = 1
     ff = fp.ensemblize
+    fp.unsafe_pdb.span = True
     ### END b_ensemble block
 
     ### START b_rmsd block
@@ -226,7 +229,7 @@ def webform(f, model=None,
 
   b = fg.new_group("b_grids", "block")
   b.title = None
-  b.members.append("gridname")  
+  b.members.append("gridname")
   b.members.append("plateau_distance")
   b.members.append("neighbour_distance")
   b.members.append("omp")
@@ -235,10 +238,10 @@ def webform(f, model=None,
   ff = fg.gridname
   ff.placeholder = "name..."
   for n in range(f.grids.length):
-    ff = f.grids[n]      
+    ff = f.grids[n]
   ff = fg.omp
   ff.name = "Calculate grid using OpenMP?"
-  ff = fg.torque  
+  ff = fg.torque
   ff = fg.plateau_distance
   ff = fg.neighbour_distance
   ### END grids category
@@ -267,7 +270,7 @@ def webform(f, model=None,
     ff = fi.vmax
     ff.span = True
     ff = fi.traj
-    ff.span = True 
+    ff.span = True
     fi.memberorder = ["rcut", "vmax", "traj", "mc"]
     b = fi.new_group("b_mc", "block")
     b.insert_at_member = True
@@ -277,7 +280,7 @@ def webform(f, model=None,
     b.members.insert(0, "mc")
     ff = fi.mc
     ff.type = "switch"
-  ### END iteration category  
+  ### END iteration category
 
   ### START sampling category
   c = f.new_group("c_sampling", "category")
@@ -292,7 +295,7 @@ def webform(f, model=None,
   f.use_iattract.add_header("iATTRACT parameters")
   c.members.append("iattract.nstruc")
   c.members.append("iattract.icut")
-  ### END sampling category  
+  ### END sampling category
 
   ### START energy category
   c = f.new_group("c_energy", "category")
@@ -305,22 +308,22 @@ def webform(f, model=None,
   _assign_category(f, c, "Energy and interaction parameters", span = True)
   f.gravity.default = 0
   f.ghost.name = "Enable ghost mode, forcefield is turned off"
-  ### END energy category  
-  
+  ### END energy category
+
   ### START atomdensitygrid category
   c = f.new_group("c_atomdensitygrid", "category")
   c.page = 6
   c.title = "Atom density grids"
-  c.icon = "cryo-icon"  
+  c.icon = "cryo-icon"
   c.categoryname = "atomdensitygrids"
-  c.description = ""  
+  c.description = ""
   c.members.append("atomdensitygrids")
-  ff = f.atomdensitygrids  
+  ff = f.atomdensitygrids
   ff.clonebutton = "Add atom density grid"
   ff.length = 1
   ff.clonelength = 3
   ff.blockname = "atomdensitygrid"
-  ff.controltitle = "Atom density grid"  
+  ff.controltitle = "Atom density grid"
 
   ### START symmetry category
   c = f.new_group("c_symmetry", "category")
@@ -340,7 +343,7 @@ def webform(f, model=None,
           <li>Specify all symmetry partners that are to be restrained</li>
           <li>In the Docking Partner section, specify all partner structures, which must be identical</li>
         </ul>"""
-  c.html_description = True      
+  c.html_description = True
   c.members.append("symmetries")
   f.symmetries.length = symmetrieslength #TODO
   f.symmetries.clonebutton = "Add partner"
@@ -365,7 +368,7 @@ def webform(f, model=None,
   b.members.append("symmetry_axis.z")
   b.members.append("symmetry_origin.z")
   b.members.append("symmetry")
-  ### END symmetry category  
+  ### END symmetry category
 
   ### START analysis category
   c = f.new_group("c_analysis", "category")
@@ -378,10 +381,10 @@ def webform(f, model=None,
   ff = f.rcut_rescoring
   ff.span = True
   ff = f.nr_collect
-  ff.span = True  
+  ff.span = True
   ff = f.deflex
   ff.tooltip = "Remove flexibility"
-  ff.tooltip_doc = "documentation.html#partners-no_flex"  
+  ff.tooltip_doc = "documentation.html#partners-no_flex"
   ### END analysis category
 
   ### START computation category
@@ -408,7 +411,7 @@ def webserverform(webdict, form=None, spydertype=None):
    gridslength = 10,
    symmetrieslength = 10,
    iterationslength = 10,
-  )  
+  )
   nr_iterations = 0
   try:
     nr_iterations = len(webdict["iterations"])
@@ -418,20 +421,20 @@ def webserverform(webdict, form=None, spydertype=None):
   return f
 
 header0 = header
-footer0 = footer  
+footer0 = footer
 def html(form, cgi, spyderobj, newtab=False, header=header0, footer=footer0):
   import random
-  import attracthtmlform 
+  import attracthtmlform
   args = dict (
    obj=spyderobj,
-   form=form, cgi=cgi, 
-   header=header, footer=footer, header_indentation = 12, 
+   form=form, cgi=cgi,
+   header=header, footer=footer, header_indentation = 12,
    newtab=newtab,
   )
   if spyderobj is not None:
     from spyder.formtools import embed
     embed(spyderobj)
-    mydir = "attractrun" + str(random.randint(1,1000000))  
+    mydir = "attractrun" + str(random.randint(1,1000000))
     fname = "attract.web"
     os.chdir("/tmp/")
     os.mkdir(mydir)
@@ -440,4 +443,3 @@ def html(form, cgi, spyderobj, newtab=False, header=header0, footer=footer0):
     args["resourcefilename"] = mydir+"/"+fname
   html = attracthtmlform.htmlform(**args)
   return html
-  

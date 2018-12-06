@@ -7,6 +7,8 @@ Type AttractEasyPartnerInterface {
   ## form moleculetype.name = "What kind of molecule are you docking?"
   Bool has_hydrogens = False
   ## form has_hydrogens.name = "The PDB file contains all necessary atoms, including polar hydrogens"
+  Bool unsafe_pdb = False
+  ## form unsafe_pdb.name = "Ignore errors regarding hydrogen atoms; try to recognize HETATM (at your own risks !)"
 
   *HaddockRestraintsInterface haddock_restraints
   ## form haddock_restraints.name = "Definition of residues for HADDOCK-type distance restraints (optional)"
@@ -145,6 +147,22 @@ Type AttractEasyModel {
   Enum forcefield("ATTRACT", "OPLSX") = "ATTRACT"
   ## form forcefield.add_header("Which forcefield is to be used?")
   ## form forcefield.name = "Forcefield"
+
+  validate {
+    for p in partners:
+      assert not (p.unsafe_pdb and p.has_hydrogens)
+      assert not (p.unsafe_pdb and (use_iattract or forcefield != "ATTRACT") )
+  }
+
+  error {
+    'assert not (p.unsafe_pdb and p.has_hydrogens)'
+    =>
+    'Check "The PDB file contains all necessary atoms..." only if you want to use the hydrogens; if so, you do not want to ignore hydrogen errors.'
+
+    'assert not (p.unsafe_pdb and (use_iattract or forcefield != "ATTRACT") )'
+    =>
+    'Using iattract or a non-ATTRACT forcefield requires to not ignore hydrogen errors'
+  }
 
   form {
     _g = "Energy and interaction parameters"
