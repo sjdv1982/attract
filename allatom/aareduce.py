@@ -5,10 +5,6 @@ This reduced PDB is what is understood by ATTRACT.
 These atoms are parsed from the trans files and topology files derived from the OPLS forcefield
 
 For DNA and RNA nucleotides, "dna-rna-top.json" is read in
-These nucleotides, by default, contain a phosphate before the sugar
-Since this phosphate is often missing for the first nucleotide, the patch "5ter" is applied by default
-To prevent this, use "--patch 1 None"; this will keep the phosphate, but not the O5T
-To keep the O5T as well, use the --termini or --nter option.
 """
 from __future__ import print_function
 import sys, os, json
@@ -72,8 +68,6 @@ class PDBres:
         self.resid = resid
         self.resname = resname
         self.coords = {}
-        self.chainfirst = False
-        self.chainlast = False
         self.nter = False
         self.cter = False
         self.topology = topology
@@ -175,15 +169,12 @@ def read_pdb(pdblines, pdbname, add_termini=False,modbase=False,modres=False):
         z = float(l[46:54])
         newres = False
         nter = False
-        chainfirst = False
         if curr_res is None:
             newres = True
-            chainfirst = True
-            if add_termini: nter = True
+            if add_termini:
+                nter = True
         elif chain != curr_res.chain:
             newres = True
-            chainfirst = True
-            curr_res.chainlast = True
             if add_termini:
                 nter = True
                 curr_res.cter = True
@@ -196,7 +187,6 @@ def read_pdb(pdblines, pdbname, add_termini=False,modbase=False,modres=False):
             except KeyError:
                 raise KeyError("Residue type %s not known by the topology file" % resname)
             curr_res = PDBres(chain, resid, resname, topr)
-            if chainfirst: curr_res.chainfirst = True
             if nter: curr_res.nter = True
             pdbres.append(curr_res)
         curr_res.coords[atomcode] = (x,y,z)
@@ -204,7 +194,6 @@ def read_pdb(pdblines, pdbname, add_termini=False,modbase=False,modres=False):
             if atomcode != pin: continue
             curr_res.coords[pout] = (x,y,z)
     if curr_res is not None:
-        curr_res.chainlast = True
         if add_termini:
             curr_res.cter = True
     return pdbres
@@ -238,12 +227,9 @@ def patch_pdb(pdbres, patches):
             if res.cter:
                 res.topology.patch(top_patches["CTER2"])
         elif len(pdbres) > 1 and "p" in res.topology.atomorder: #DNA/RNA
-            if res.chainfirst:
-                if res.nter:
-                    res.topology.patch(top_patches["5PHO"])
-                else:
-                    res.topology.patch(top_patches["5TER"])
-            if res.chainlast:
+            if res.nter:
+                res.topology.patch(top_patches["5PHO"])
+            if res.cter:
                 res.topology.patch(top_patches["3TER"])
 
 def check_pdb(pdbres, heavy=False):
@@ -330,10 +316,10 @@ parser.add_argument("--nalib",help="Use the ATTRACT mononucleotide library to bu
 parser.add_argument("--pdb2pqr",help="Use PDB2PQR to complete missing atoms. If no reference has been specified, analyze the hydrogens to determine histidine/cysteine states", action="store_true")
 parser.add_argument("--termini",help="An N-terminus and a C-terminus (5-terminus and 3-terminus for nucleic acids) will be added for each chain", action="store_true")
 parser.add_argument("--nter", "--nterm" , dest="nter",
-                    help="Add an N-terminus (5-terminus for nucleic acids) for the specified residue number", action="append",
+                    help="Add an N-terminal H+ (5-terminal phosphate OH for nucleic acids) for the specified residue number", action="append",
                     type=int, default=[])
 parser.add_argument("--cter","--cterm", dest="cter",
-                    help="Add a C-terminus (3-terminus for nucleic acids) for the specified residue number", action="append",
+                    help="Add a C-terminal OH- (3-terminal H for nucleic acids) for the specified residue number", action="append",
                     type=int, default=[])
 parser.add_argument("--manual",help="""Enables manual mode.
 In automatic mode (default), aareduce tries to produce a PDB file that can be used directly by ATTRACT. In case of missing atoms, a number of
