@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python2
 import sys
 from _read_struc import read_struc
 import random

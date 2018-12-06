@@ -180,19 +180,19 @@ echo '**************************************************************'
 
         mapping = pdbname3 + ".mapping"
         mappings.append(mapping)
-        partnercode += "python $ATTRACTDIR/../allatom/aareduce.py %s %s %s > %s\n" % (pdbname4, pdbname_aa, opts, mapping)
+        partnercode += "python2 $ATTRACTDIR/../allatom/aareduce.py %s %s %s > %s\n" % (pdbname4, pdbname_aa, opts, mapping)
         if aa_rmsd:
           readpatch = ''
           if "--dumppatch" in opts:
             readpatch = " --readpatch "
-          partnercode += "python $ATTRACTDIR/../allatom/aareduce.py %s %s --heavy %s > /dev/null\n" % (pdbname_aa, pdbname_aa_rmsd, opts0+readpatch)
+          partnercode += "python2 $ATTRACTDIR/../allatom/aareduce.py %s %s --heavy %s > /dev/null\n" % (pdbname_aa, pdbname_aa_rmsd, opts0+readpatch)
         if m.rescore_step:
           pdbname_gaa = pdbname3 + "-gaa.pdb"
-          partnercode += "grep -v OXT %s | python $ATTRACTTOOLS/redatom.py --pdb /dev/stdin --atomtypefile $ATTRACTDIR/../atomtypes_gaa.dat --output %s\n" % (pdbname_aa, pdbname_gaa)
+          partnercode += "grep -v OXT %s | python2 $ATTRACTTOOLS/redatom.py --pdb /dev/stdin --atomtypefile $ATTRACTDIR/../atomtypes_gaa.dat --output %s\n" % (pdbname_aa, pdbname_gaa)
           gaa_filenames.append(pdbname_gaa)
         if m.forcefield == "ATTRACT":
           pdbname_reduced = pdbname3 + "r.pdb"
-          partnercode += "python $ATTRACTTOOLS/reduce.py %s %s %s > /dev/null\n" % (pdbname_aa, pdbname_reduced, opts0)
+          partnercode += "python2 $ATTRACTTOOLS/reduce.py %s %s %s > /dev/null\n" % (pdbname_aa, pdbname_reduced, opts0)
         elif m.forcefield == "OPLSX":
           pdbname_reduced = pdbname_aa
         pdbnames.append(pdbname)
@@ -250,17 +250,17 @@ echo '**************************************************************'
         if mnr == 0:
           mapping = pdbname3 + ".mapping"
           mappings.append(mapping)
-        partnercode += "python $ATTRACTDIR/../allatom/aareduce.py %s %s %s > %s\n" % (mname1, mname2aa, opts, mapping)
+        partnercode += "python2 $ATTRACTDIR/../allatom/aareduce.py %s %s %s > %s\n" % (mname1, mname2aa, opts, mapping)
         if aa_rmsd:
           readpatch = ''
           if "--dumppatch" in opts:
             readpatch = " --readpatch "
-          partnercode += "python $ATTRACTDIR/../allatom/aareduce.py %s %s --heavy %s > /dev/null\n" % (mname2aa, mname2aa_rmsd,readpatch)
+          partnercode += "python2 $ATTRACTDIR/../allatom/aareduce.py %s %s --heavy %s > /dev/null\n" % (mname2aa, mname2aa_rmsd,readpatch)
         if m.rescore_step:
-          partnercode += "grep -v OXT %s | python $ATTRACTTOOLS/redatom.py --pdb /dev/stdin --atomtypefile $ATTRACTDIR/../atomtypes_gaa.dat --output %s\n" % (mname2aa, mname2_gaa)
+          partnercode += "grep -v OXT %s | python2 $ATTRACTTOOLS/redatom.py --pdb /dev/stdin --atomtypefile $ATTRACTDIR/../atomtypes_gaa.dat --output %s\n" % (mname2aa, mname2_gaa)
           partnercode += "echo %s >> %s\n" % (mname2_gaa, ensemble_list_gaa)
         if m.forcefield == "ATTRACT":
-          partnercode += "python $ATTRACTTOOLS/reduce.py %s %s %s > /dev/null\n" % (mname2aa, mname2, opts0)
+          partnercode += "python2 $ATTRACTTOOLS/reduce.py %s %s %s > /dev/null\n" % (mname2aa, mname2, opts0)
         elif m.forcefield == "OPLSX":
           mname2 = mname2aa
 
@@ -346,13 +346,13 @@ cat /dev/null > hm-all.dat
           opts.append(aa_filenames[pnr])
 
         opts = " ".join(opts)
-        partnercode += "python $ATTRACTTOOLS/modes.py %s %s %d > %s\n" % (filenames[pnr], opts, p.nr_modes, modes_file_name)
+        partnercode += "python2 $ATTRACTTOOLS/modes.py %s %s %d > %s\n" % (filenames[pnr], opts, p.nr_modes, modes_file_name)
         if need_aa_modes:
           aa_modes_file_name = "partner%d-hm-aa.dat" % (pnr+1)
-          partnercode += "python $ATTRACTTOOLS/modes.py %s %s %d > %s\n" % (aa_filenames[pnr], opts, p.nr_modes, aa_modes_file_name)
+          partnercode += "python2 $ATTRACTTOOLS/modes.py %s %s %d > %s\n" % (aa_filenames[pnr], opts, p.nr_modes, aa_modes_file_name)
         if aa_rmsd:
           aa_rmsd_modes_file_name = "partner%d-hm-heavy.dat" % (pnr+1)
-          partnercode += "python $ATTRACTTOOLS/modes.py %s %s %d > %s\n" % (aa_rmsd_filenames[pnr], opts, p.nr_modes, aa_rmsd_modes_file_name)
+          partnercode += "python2 $ATTRACTTOOLS/modes.py %s %s %d > %s\n" % (aa_rmsd_filenames[pnr], opts, p.nr_modes, aa_rmsd_modes_file_name)
 
       if not p.generate_modes:
         partnercode += "echo 0 >> hm-all.dat\n"
@@ -551,7 +551,7 @@ parals="%s"
 
   ret += """
 #see if pypy is installed
-PYPY=python
+PYPY=python2
 command -v pypy >/dev/null 2>&1 && PYPY=pypy
 
 """
@@ -598,17 +598,17 @@ echo '**************************************************************'
           opt = " ".join(opt)
 
           filename_aa = "refe-rmsd-%d.pdb" % (pnr+1)
-          ret += "python $ATTRACTDIR/../allatom/aareduce.py %s %s --heavy %s > /dev/null\n" % (filename, filename_aa, opt)
+          ret += "python2 $ATTRACTDIR/../allatom/aareduce.py %s %s --heavy %s > /dev/null\n" % (filename, filename_aa, opt)
           filenames_aa.append(filename_aa)
 
           if p.rmsd_pdb_alt is not None:
             filename_aa = "refe-rmsd-alt-%d.pdb" % (pnr+1)
-            ret += "python $ATTRACTDIR/../allatom/aareduce.py %s %s --heavy %s > /dev/null\n" % (p.rmsd_pdb_alt.name, filename_aa, opt)
+            ret += "python2 $ATTRACTDIR/../allatom/aareduce.py %s %s --heavy %s > /dev/null\n" % (p.rmsd_pdb_alt.name, filename_aa, opt)
             filenames_aa.append(filename_aa)
 
           if p.rmsd_pdb_alt2 is not None:
             filename_aa = "refe-rmsd-alt2-%d.pdb" % (pnr+1)
-            ret += "python $ATTRACTDIR/../allatom/aareduce.py %s %s --heavy %s > /dev/null\n" % (p.rmsd_pdb_alt2.name, filename_aa, opt)
+            ret += "python2 $ATTRACTDIR/../allatom/aareduce.py %s %s --heavy %s > /dev/null\n" % (p.rmsd_pdb_alt2.name, filename_aa, opt)
             filenames_aa.append(filename_aa)
 
         else:
@@ -667,7 +667,7 @@ echo '**************************************************************'
       if m.forcefield == "ATTRACT": dist = 3.0
       chance_removal = m.haddock_random_removal
       k = m.rstk_haddock
-      ret += "python $ATTRACTTOOLS/air.py %s %s %s %s > %s\n" % (" ".join(air_filenames), chance_removal, dist, k, air_restraints_file)
+      ret += "python2 $ATTRACTTOOLS/air.py %s %s %s %s > %s\n" % (" ".join(air_filenames), chance_removal, dist, k, air_restraints_file)
       rest += "--rest %s" % air_restraints_file
       if m.use_iattract:
         dist = 2.0
@@ -688,7 +688,7 @@ echo '**************************************************************'
             air_filenames.append(mappings[pnr])
             air_filenames.append("\\\n" + " " * 27)
 
-        ret += "python $ATTRACTTOOLS/air.py %s %s %s %s > %s\n" % (" ".join(air_filenames), chance_removal, dist, k, aa_air_restraints_file)
+        ret += "python2 $ATTRACTTOOLS/air.py %s %s %s %s > %s\n" % (" ".join(air_filenames), chance_removal, dist, k, aa_air_restraints_file)
 
   if m.harmonic_restraints_file or m.haddock_restraints_file or m.position_restraints_file:
     tbl_pdbs = " ".join(filenames)
@@ -719,10 +719,10 @@ echo 'Generate harmonic restraints...'
 echo '**************************************************************'
 """
     tbl = m.harmonic_restraints_file.name
-    ret += "python $ATTRACTTOOLS/tbl2attract.py %s --mode harmonic --pdbs %s --mappings %s --k %s > %s\n" % \
+    ret += "python2 $ATTRACTTOOLS/tbl2attract.py %s --mode harmonic --pdbs %s --mappings %s --k %s > %s\n" % \
       (tbl, tbl_pdbs, tbl_mappings, m.rstk_harmonic, harmonic_restraints_file)
     if m.use_iattract:
-      ret += "python $ATTRACTTOOLS/tbl2attract.py %s --mode harmonic --pdbs %s --mappings %s --k %s > %s\n" % \
+      ret += "python2 $ATTRACTTOOLS/tbl2attract.py %s --mode harmonic --pdbs %s --mappings %s --k %s > %s\n" % \
       (tbl, tbl_aa_pdbs, tbl_mappings, m.rstk_harmonic, aa_harmonic_restraints_file)
 
 
@@ -733,10 +733,10 @@ echo 'Generate custom HADDOCK restraints...'
 echo '**************************************************************'
 """
     tbl = m.haddock_restraints_file.name
-    ret += "python $ATTRACTTOOLS/tbl2attract.py %s --mode haddock --pdbs %s --mappings %s --k %s --softsquare %s --chance_removal %s > %s\n" % \
+    ret += "python2 $ATTRACTTOOLS/tbl2attract.py %s --mode haddock --pdbs %s --mappings %s --k %s --softsquare %s --chance_removal %s > %s\n" % \
       (tbl, tbl_pdbs, tbl_mappings, m.rstk_haddock, m.haddock_softsquare, m.haddock_random_removal,haddock_restraints_file)
     if m.use_iattract:
-      ret += "python $ATTRACTTOOLS/tbl2attract.py %s --mode haddock --pdbs %s --mappings %s --k %s --softsquare %s --chance_removal %s > %s\n" % \
+      ret += "python2 $ATTRACTTOOLS/tbl2attract.py %s --mode haddock --pdbs %s --mappings %s --k %s --softsquare %s --chance_removal %s > %s\n" % \
       (tbl, tbl_aa_pdbs, tbl_mappings, m.rstk_haddock, m.haddock_softsquare, m.haddock_random_removal,aa_haddock_restraints_file)
 
   if m.position_restraints_file:
@@ -746,10 +746,10 @@ echo 'Generate position restraints...'
 echo '**************************************************************'
 """
     tbl = m.position_restraints_file.name
-    ret += "python $ATTRACTTOOLS/tbl2attract.py %s --mode position --pdbs %s --mappings %s --k %s > %s\n" % \
+    ret += "python2 $ATTRACTTOOLS/tbl2attract.py %s --mode position --pdbs %s --mappings %s --k %s > %s\n" % \
       (tbl, tbl_pdbs, tbl_mappings, m.rstk_position, position_restraints_file)
     if m.use_iattract:
-      ret += "python $ATTRACTTOOLS/tbl2attract.py %s --mode position --pdbs %s --mappings %s --k %s > %s\n" % \
+      ret += "python2 $ATTRACTTOOLS/tbl2attract.py %s --mode position --pdbs %s --mappings %s --k %s > %s\n" % \
       (tbl, tbl_aa_pdbs, tbl_mappings, m.rstk_position, aa_position_restraints_file)
 
   if m.search == "syst" or m.search == "custom":
@@ -893,7 +893,7 @@ function gpuconf {
   echo "running GPU-accelerated ATTRACT on conformer $conf ..."
   conflig=`awk -v conf=$conf 'NR == conf{print $0; exit}' partner2-ensemble.list`
   $ATTRACTDIR/emATTRACT --dof $inp $gpuparams0 -l $conflig $gpugridparams -a $alphabet > $GPUTEMP-$outp-$conf-A
-  python $ATTRACTTOOLS/depivotize.py $GPUTEMP-$outp-$conf-A %s > $GPUTEMP-$outp-$conf-B
+  python2 $ATTRACTTOOLS/depivotize.py $GPUTEMP-$outp-$conf-A %s > $GPUTEMP-$outp-$conf-B
   $PYPY $ATTRACTTOOLS/set-conformer.py $GPUTEMP-$outp-$conf-B 2 $conf > $GPUTEMP-$outp-$conf
   \\rm $GPUTEMP-$outp-$conf-A $GPUTEMP-$outp-$conf-B
 }
@@ -910,7 +910,7 @@ function gpuconf {
   $PYPY $ATTRACTTOOLS/de-ensemblize.py $GPUTEMP-$inp-$conf-A 2 > $GPUTEMP-$inp-$conf-B
   conflig=`awk -v conf=$conf 'NR == conf{print $0; exit}' partner2-ensemble.list`
   $ATTRACTDIR/emATTRACT --dof $GPUTEMP-$inp-$conf-B $gpuparams0 -l $conflig $gpugridparams -a $alphabet > $GPUTEMP-$outp-$conf-A
-  python $ATTRACTTOOLS/depivotize.py $GPUTEMP-$outp-$conf-A > $GPUTEMP-$outp-$conf-B
+  python2 $ATTRACTTOOLS/depivotize.py $GPUTEMP-$outp-$conf-A > $GPUTEMP-$outp-$conf-B
   $PYPY $ATTRACTTOOLS/set-conformer.py $GPUTEMP-$outp-$conf-B 2 $conf %s > $GPUTEMP-$outp-$conf
   \\rm $GPUTEMP-$inp-$conf-A $GPUTEMP-$inp-$conf-B $GPUTEMP-$outp-$conf-A $GPUTEMP-$outp-$conf-B
 }
@@ -961,7 +961,7 @@ echo '**************************************************************'
       itparams += " --restweight %s" % it.restweight
 
     if m.np > 1:
-      attract = "python $ATTRACTDIR/../protocols/attract.py"
+      attract = "python2 $ATTRACTDIR/../protocols/attract.py"
       tail = "$parals --output"
     else:
       attract = "$ATTRACTDIR/attract"
@@ -1017,7 +1017,7 @@ echo 'Final rescoring'
 echo '**************************************************************'
 """
     if m.np > 1:
-      attract = "python $ATTRACTDIR/../protocols/attract.py"
+      attract = "python2 $ATTRACTDIR/../protocols/attract.py"
       tail = "$parals --output"
     else:
       attract = "$ATTRACTDIR/attract"
@@ -1081,9 +1081,9 @@ echo '**************************************************************'
     result = outp
     outp = "out_$name-scored-GRADSCOPT.score"
     ret += "cat /dev/null > %s\n" % outp
-    ret += "python $ATTRACTTOOLS/split.py %s %s %d\n" % (result, result, m.np)
+    ret += "python2 $ATTRACTTOOLS/split.py %s %s %d\n" % (result, result, m.np)
     ret += "for i in `seq %d`; do\n" % m.np
-    ret += " python $ATTRACTDIR/stepscore.py %s-$i %s | awk '{print \"Energy:\", $1}' > %s-$i &\n" % (result, stepscore_params, outp)
+    ret += " python2 $ATTRACTDIR/stepscore.py %s-$i %s | awk '{print \"Energy:\", $1}' > %s-$i &\n" % (result, stepscore_params, outp)
     ret += "done\n"
     ret += "wait\n"
     ret += "for i in `seq %d`; do\n" % m.np
@@ -1131,7 +1131,7 @@ echo '**************************************************************'
       iname = "i$name"
     else:
       iname = "iattract-$name"
-    ret += "python $ATTRACTDIR/../protocols/iattract.py %s --name %s --output %s\n" % (iattract_params, iname, iattract_output)
+    ret += "python2 $ATTRACTDIR/../protocols/iattract.py %s --name %s --output %s\n" % (iattract_params, iname, iattract_output)
     result = iattract_output
     if m.demode:
       ret += "$PYPY $ATTRACTTOOLS/demode.py %s %s > %s\n" % (iattract_output, iattract_params_demode, iattract_output_demode)
@@ -1154,12 +1154,12 @@ echo '**************************************************************'
     interface = os.path.splitext(result)[0] +".interface"
     result0 = os.path.splitext(result)[0] +"-top-interface.dat"
     ret += "$ATTRACTTOOLS/top %s %d > %s\n" % (result, m.nstruc_analyze_interface, result0)
-    ret += "python $ATTRACTDIR/analyze_interface.py %s %s %s > %s\n" % (result0, m.analyze_interface_cutoff, if_params, interface)
+    ret += "python2 $ATTRACTDIR/analyze_interface.py %s %s %s > %s\n" % (result0, m.analyze_interface_cutoff, if_params, interface)
     ret += "ln -s %s result.interface\n" % interface
     for n in range(len(m.partners)):
       inp = aa_rmsd_filenames[n]
       outp = "partner-%d-interface.pdb" % (n+1)
-      ret += "awk '$1==%d{print substr($0,3)}' %s | python $ATTRACTTOOLS/fill-bfactor.py %s /dev/stdin > %s\n" % (n+1,interface,inp,outp)
+      ret += "awk '$1==%d{print substr($0,3)}' %s | python2 $ATTRACTTOOLS/fill-bfactor.py %s /dev/stdin > %s\n" % (n+1,interface,inp,outp)
     ret += "\n"
 
   if m.clustering:
@@ -1181,7 +1181,7 @@ echo '**************************************************************'
     ret += "$ATTRACTDIR/cluster_struc %s-matrix-lrmsd %s %d > %s-clusters\n" % \
       (result, m.clustering_cutoff, m.min_cluster_size, result)
     result0 = "out_$name-clustered.dat"
-    ret += "python $ATTRACTTOOLS/cluster2dat.py %s-clusters %s --best > %s\n" % (result, result, result0)
+    ret += "python2 $ATTRACTTOOLS/cluster2dat.py %s-clusters %s --best > %s\n" % (result, result, result0)
     result = result0
 
     if m.sort and not m.use_iattract:
@@ -1330,13 +1330,13 @@ echo '**************************************************************'
     lrmsd_allfilenames_alts = list(generate_rmsdargs(lrmsd_filenames[1:], lrmsd_refenames[1:]))
     if len(lrmsd_allfilenames_alts) == 1:
       lrmsd_allfilenames = lrmsd_allfilenames_alts[0]
-      ret += "python $ATTRACTDIR/lrmsd.py %s %s%s %s > %s\n" % (result, lrmsd_allfilenames, flexpar2, lrmsdpar, lrmsdresult)
+      ret += "python2 $ATTRACTDIR/lrmsd.py %s %s%s %s > %s\n" % (result, lrmsd_allfilenames, flexpar2, lrmsdpar, lrmsdresult)
     else:
       lrmsdresult_alts = []
       for altnr, lrmsd_allfilenames in enumerate(lrmsd_allfilenames_alts):
         lrmsdresult_alt = os.path.splitext(result0)[0] + "-refe%d.lrmsd" % (altnr+1)
         lrmsdresult_alts.append(lrmsdresult_alt)
-        ret += "python $ATTRACTDIR/lrmsd.py %s %s%s %s > %s\n" % (result, lrmsd_allfilenames, flexpar2, lrmsdpar, lrmsdresult_alt)
+        ret += "python2 $ATTRACTDIR/lrmsd.py %s %s%s %s > %s\n" % (result, lrmsd_allfilenames, flexpar2, lrmsdpar, lrmsdresult_alt)
       ret += "$ATTRACTTOOLS/best-lrmsd %s > %s\n" % (" ".join(lrmsdresult_alts), lrmsdresult)
     ret += "ln -s %s result.lrmsd\n" % lrmsdresult
     ret += "\n"
@@ -1359,13 +1359,13 @@ echo '**************************************************************'
 
     if len(irmsd_allfilenames_alts) == 1:
       irmsd_allfilenames = irmsd_allfilenames_alts[0]
-      ret += "python $ATTRACTDIR/irmsd.py %s %s%s %s > %s\n" % (result, irmsd_allfilenames, flexpar2, bbo, irmsdresult)
+      ret += "python2 $ATTRACTDIR/irmsd.py %s %s%s %s > %s\n" % (result, irmsd_allfilenames, flexpar2, bbo, irmsdresult)
     else:
       irmsdresult_alts = []
       for altnr, irmsd_allfilenames in enumerate(irmsd_allfilenames_alts):
         irmsdresult_alt = os.path.splitext(result0)[0] + "-refe%d.irmsd" % (altnr+1)
         irmsdresult_alts.append(irmsdresult_alt)
-        ret += "python $ATTRACTDIR/irmsd.py %s %s%s %s > %s\n" % (result, irmsd_allfilenames, flexpar2, bbo, irmsdresult_alt)
+        ret += "python2 $ATTRACTDIR/irmsd.py %s %s%s %s > %s\n" % (result, irmsd_allfilenames, flexpar2, bbo, irmsdresult_alt)
       ret += "$ATTRACTTOOLS/best-irmsd %s > %s\n" % (" ".join(irmsdresult_alts), irmsdresult)
     ret += "ln -s %s result.irmsd\n" % irmsdresult
     ret += "\n"
@@ -1385,13 +1385,13 @@ echo '**************************************************************'
 
     if len(fnat_allfilenames_alts) == 1:
       fnat_allfilenames = fnat_allfilenames_alts[0]
-      ret += "python $ATTRACTDIR/fnat.py %s 5 %s%s > %s\n" % (result, fnat_allfilenames, flexpar2, fnatresult)
+      ret += "python2 $ATTRACTDIR/fnat.py %s 5 %s%s > %s\n" % (result, fnat_allfilenames, flexpar2, fnatresult)
     else:
       fnatresult_alts = []
       for altnr, fnat_allfilenames in enumerate(fnat_allfilenames_alts):
         fnatresult_alt = os.path.splitext(result0)[0] + "-refe%d.fnat" % (altnr+1)
         fnatresult_alts.append(fnatresult_alt)
-        ret += "python $ATTRACTDIR/fnat.py %s 5 %s%s > %s\n" % (result, fnat_allfilenames, flexpar2, fnatresult_alt)
+        ret += "python2 $ATTRACTDIR/fnat.py %s 5 %s%s > %s\n" % (result, fnat_allfilenames, flexpar2, fnatresult_alt)
       ret += "$ATTRACTTOOLS/best-fnat %s > %s\n" % (" ".join(fnatresult_alts), fnatresult)
     ret += "ln -s %s result.fnat\n" % fnatresult
     ret += "\n"

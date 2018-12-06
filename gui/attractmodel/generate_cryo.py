@@ -1,11 +1,11 @@
 from __future__ import print_function
 from math import *
 
-cmd_dock = """python %(protocol)s $inp $dock0 $stage --chunks $threads  --np $threads --output $outp"""
+cmd_dock = """python2 %(protocol)s $inp $dock0 $stage --chunks $threads  --np $threads --output $outp"""
 
-cmd_dockmin = """python %(protocol)s $inp $dock0 $stage --chunks $threads  --np $threads --output $outp-unfiltered
-python $ATTRACTDIR/../protocols/attract.py $outp-unfiltered $dock0 $stagemin --chunks $threads  --np $threads --output $outp-min
-python $ATTRACTTOOLS/filter-energy.py $outp-min $energy_threshold > $outp
+cmd_dockmin = """python2 %(protocol)s $inp $dock0 $stage --chunks $threads  --np $threads --output $outp-unfiltered
+python2 $ATTRACTDIR/../protocols/attract.py $outp-unfiltered $dock0 $stagemin --chunks $threads  --np $threads --output $outp-min
+python2 $ATTRACTTOOLS/filter-energy.py $outp-min $energy_threshold > $outp
 """
 
 script_score = """score() {
@@ -20,25 +20,25 @@ script_score = """score() {
 
 """
 
-script_gvm_noaxsym = """      python $ATTRACTDIR/gvm.py $mapfile $score_threshold $outp $complex | awk '{print "Energy:", $1}' > $outp-gvm1
-      python $ATTRACTTOOLS/fill-energies.py $outp $outp-gvm1 > $outp-gvm2
-      python $ATTRACTTOOLS/sort.py $outp-gvm2 --rev > $sorted"""
+script_gvm_noaxsym = """      python2 $ATTRACTDIR/gvm.py $mapfile $score_threshold $outp $complex | awk '{print "Energy:", $1}' > $outp-gvm1
+      python2 $ATTRACTTOOLS/fill-energies.py $outp $outp-gvm1 > $outp-gvm2
+      python2 $ATTRACTTOOLS/sort.py $outp-gvm2 --rev > $sorted"""
 
 script_gvm_axsym = """      ./axsym.sh $outp > $outp-axsym
-      python $ATTRACTDIR/gvm.py $mapfile $score_threshold $outp-axsym $complex | awk '{print "Energy:", $1}' > $outp-gvm1
-      python $ATTRACTTOOLS/fill-energies.py $outp $outp-gvm1 > $outp-gvm2
-      python $ATTRACTTOOLS/sort.py $outp-gvm2 --rev > $sorted"""
+      python2 $ATTRACTDIR/gvm.py $mapfile $score_threshold $outp-axsym $complex | awk '{print "Energy:", $1}' > $outp-gvm1
+      python2 $ATTRACTTOOLS/fill-energies.py $outp $outp-gvm1 > $outp-gvm2
+      python2 $ATTRACTTOOLS/sort.py $outp-gvm2 --rev > $sorted"""
 
 
 script_prepare="""prepare(){
   topstruc=$1
   inp=$2
   if [ ! -s $inp ]; then
-    python $ATTRACTTOOLS/swapcombine.py $topstruc > $topstruc-combined
-    python $ATTRACTDIR/gvm.py $mapfile $score_threshold $topstruc-combined $complex | awk '{print "Energy:", $1}' > $topstruc-gvm1
-    python $ATTRACTTOOLS/fill-energies.py $topstruc-combined $topstruc-gvm1 > $topstruc-gvm2
-    python $ATTRACTTOOLS/topcombined.py $topstruc-gvm2 $nstruc --rev > $topstruc-topcombined
-    python $ATTRACTTOOLS/monte.py $topstruc-topcombined $noclone > $inp
+    python2 $ATTRACTTOOLS/swapcombine.py $topstruc > $topstruc-combined
+    python2 $ATTRACTDIR/gvm.py $mapfile $score_threshold $topstruc-combined $complex | awk '{print "Energy:", $1}' > $topstruc-gvm1
+    python2 $ATTRACTTOOLS/fill-energies.py $topstruc-combined $topstruc-gvm1 > $topstruc-gvm2
+    python2 $ATTRACTTOOLS/topcombined.py $topstruc-gvm2 $nstruc --rev > $topstruc-topcombined
+    python2 $ATTRACTTOOLS/monte.py $topstruc-topcombined $noclone > $inp
   fi
 }
 
@@ -49,7 +49,7 @@ script_prepare_one_molecule ="""prepare(){
   topstruc=$1
   inp=$2
   if [ ! -s $inp ]; then
-    python $ATTRACTTOOLS/monte.py $topstruc $clone > $inp
+    python2 $ATTRACTTOOLS/monte.py $topstruc $clone > $inp
   fi
 }
 
@@ -67,7 +67,7 @@ script_tabufilter="""tabufilter() {
   done
   wait
   tabus=`seq $ntabu | awk -v inp=$inp '{print inp "-rmsd-tabu" $1}'`
-  python $ATTRACTTOOLS/filter-tabu.py $inp %.6f $tabus > $outp-filtered
+  python2 $ATTRACTTOOLS/filter-tabu.py $inp %.6f $tabus > $outp-filtered
   $ATTRACTTOOLS/top $outp-filtered $ntop > $outp
 }
 
@@ -96,13 +96,13 @@ script_refine = """refine() {
 
     newinp=$pattern-preit$it.dat
     if [ ! -s $newinp ]; then
-      python $ATTRACTTOOLS/monte.py $inp $clone > $newinp
+      python2 $ATTRACTTOOLS/monte.py $inp $clone > $newinp
     fi
     outp=$pattern-it$it.dat
     sorted=$pattern-it$it-sorted.dat
     topstruc=$pattern-it$it-topstruc.dat
     if [ ! -s $outp ]; then
-      python $ATTRACTDIR/../protocols/attract.py $newinp $dock0 $dock_stage5 --chunks $threads  --np $threads --output $outp
+      python2 $ATTRACTDIR/../protocols/attract.py $newinp $dock0 $dock_stage5 --chunks $threads  --np $threads --output $outp
     fi
     if [ ! -s $topstruc ]; then
 %s
@@ -167,7 +167,7 @@ if [ ! -s monocombine.dat ]; then
   for run in `seq %d`; do
     for lig in `seq %d`; do
       f=monocombine-refine$run-lig$lig.dat
-      python $ATTRACTTOOLS/monocombine.py $lig dock-run1-it1-sorted.dat best-refine$run.dat > $f
+      python2 $ATTRACTTOOLS/monocombine.py $lig dock-run1-it1-sorted.dat best-refine$run.dat > $f
       echo $f >> monocombine.list
     done
   done
@@ -181,7 +181,7 @@ fi
 if [ ! -s monocombine-start.dat ]; then
       outp=monocombine-tabu-dock.dat
       sorted=monocombine-tabu-dock-sorted.dat
-      python $ATTRACTDIR/../protocols/attract.py monocombine-tabu.dat $dock0 $dock_stage5 --chunks $threads  --np $threads --output $outp
+      python2 $ATTRACTDIR/../protocols/attract.py monocombine-tabu.dat $dock0 $dock_stage5 --chunks $threads  --np $threads --output $outp
 %s
       $ATTRACTTOOLS/top monocombine-tabu-dock-sorted.dat $ntop2 > monocombine-start.dat
 fi
@@ -205,7 +205,7 @@ collect $inp refine1
 %(runs_tabu1)s
 %(recombination)s
 %(runs_tabu2)s
-python $ATTRACTTOOLS/select-em.py %(nruns)d $iter > result-all.dat
+python2 $ATTRACTTOOLS/select-em.py %(nruns)d $iter > result-all.dat
 $ATTRACTTOOLS/top result-all.dat 100 > result-top100.dat
 """
 
@@ -259,9 +259,9 @@ set -u -e
         if pdbname not in pdbnames:
             if pdbname4 != pdbname:
                 ret += "cat %s > %s\n" % (pdbname, pdbname4)
-            ret += "$ATTRACTDIR/center %s > %s-centered\n" % (pdbname4, pdbname4)    
-            ret += "python $ATTRACTDIR/../allatom/aareduce.py --heavy --chain %s %s-centered %s > /dev/null\n" % (chain, pdbname4, pdbname_heavy)
-            ret += "python $ATTRACTTOOLS/reduce.py --chain %s %s %s > /dev/null\n" % (chain, pdbname_heavy, pdbname_reduced)
+            ret += "$ATTRACTDIR/center %s > %s-centered\n" % (pdbname4, pdbname4)
+            ret += "python2 $ATTRACTDIR/../allatom/aareduce.py --heavy --chain %s %s-centered %s > /dev/null\n" % (chain, pdbname4, pdbname_heavy)
+            ret += "python2 $ATTRACTTOOLS/reduce.py --chain %s %s %s > /dev/null\n" % (chain, pdbname_heavy, pdbname_reduced)
         pdbnames.append(pdbname)
         filenames.append(pdbname_reduced)
         tabu_pdbnames.append(pdbname_reduced)
@@ -269,7 +269,7 @@ set -u -e
     ret += "echo %d > partners.pdb\n" % np
     for f in filenames:
         ret += "cat %s >> partners.pdb\n" % f
-        ret += "echo TER >> partners.pdb\n"        
+        ret += "echo TER >> partners.pdb\n"
     ret += "\n"
 
     structure_partners = open("partners.dat", "w")
@@ -328,15 +328,15 @@ set -u -e
         ret += "complex=partners.pdb\n"
 
     if m.mapmass is None:
-        ret += "mapmass=`python $ATTRACTTOOLS/mass.py $complex`\n"
+        ret += "mapmass=`python2 $ATTRACTTOOLS/mass.py $complex`\n"
     else:
         ret += "mapmass=%.6f\n" % m.mapmass
-    ret += "python $ATTRACTTOOLS/em/mapsumset-smart.py $mapfile0 $mapfile $mapmass\n"
+    ret += "python2 $ATTRACTTOOLS/em/mapsumset-smart.py $mapfile0 $mapfile $mapmass\n"
     ret += "mask1=map-scale-mask1.mask\n"
     ret += "mask2=map-scale-mask2.mask\n"
     ret += "if [ ! -s $mask1 ]; then\n"
-    ret += " python $ATTRACTTOOLS/em/situs2mask.py $mapfile $mapmask_threshold %.6f %.6f $mask1 ${mask1%%%%.*}.sit\n" % (m.mapmask1_voxelsize, m.mapmask1_dimension)
-    ret += " python $ATTRACTTOOLS/em/situs2mask.py $mapfile $mapmask_threshold %.6f %.6f $mask2 ${mask2%%%%.*}.sit\n" % (m.mapmask2_voxelsize, m.mapmask2_dimension)
+    ret += " python2 $ATTRACTTOOLS/em/situs2mask.py $mapfile $mapmask_threshold %.6f %.6f $mask1 ${mask1%%%%.*}.sit\n" % (m.mapmask1_voxelsize, m.mapmask1_dimension)
+    ret += " python2 $ATTRACTTOOLS/em/situs2mask.py $mapfile $mapmask_threshold %.6f %.6f $mask2 ${mask2%%%%.*}.sit\n" % (m.mapmask2_voxelsize, m.mapmask2_dimension)
     ret += "fi\n"
 
     ret += "\n#iteration parameters\n"
@@ -405,7 +405,7 @@ set -u -e
     if len(m.partners) > 1: fast = " --fast"
     radius = ""
     if m.randsearch_radius != 35: radius = " --radius %.6f" % m.randsearch_radius
-    ret += "\nif [ ! -s randsearch.dat ]; then\n python $ATTRACTTOOLS/randsearch.py %d $nstruc%s%s > randsearch.dat\nfi\n"  % (len(m.partners), fast, radius)
+    ret += "\nif [ ! -s randsearch.dat ]; then\n python2 $ATTRACTTOOLS/randsearch.py %d $nstruc%s%s > randsearch.dat\nfi\n"  % (len(m.partners), fast, radius)
     ret += "\n"
     return ret, filenames, tabu_pdbnames, collectnames_final
 

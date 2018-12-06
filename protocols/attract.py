@@ -11,8 +11,8 @@ def get_energy(f):
   for l in f0.readlines():
     if l.lstrip().startswith("Energy:"): ret += 1
   return ret
-    
-def get_struc(f):  
+
+def get_struc(f):
   if not os.path.exists(f): return 0
   ret = 0
   f0 = open(f)
@@ -22,7 +22,7 @@ def get_struc(f):
       v = int(l[1:])
     except ValueError:
       continue
-    if v > ret: ret = v  
+    if v > ret: ret = v
   f0.close()
   return ret
 
@@ -36,16 +36,16 @@ def finished(f, nstruc):
 
 processes = []
 def run(command, thread=False):
-  print command  
+  print command
   def func():
     p = subprocess.Popen([command], shell=True)
     processes.append(p)
-    p.wait()    
+    p.wait()
   if thread:
     t = threading.Thread(target=func)
     t.start()
   else:
-    func()  
+    func()
 
 np = 1
 output = None
@@ -57,14 +57,14 @@ attractversion = ""
 while 1:
   anr += 1
 
-  if anr > len(sys.argv)-1: break  
+  if anr > len(sys.argv)-1: break
   arg = sys.argv[anr]
   if arg == "--infinite":
     attractversion = "-infinite"
     sys.argv = sys.argv[:anr] + sys.argv[anr+1:]
     anr -= 1
-    continue  
-  
+    continue
+
   if anr >= len(sys.argv)-1: break
   arg, nextarg = sys.argv[anr],sys.argv[anr+1]
 
@@ -77,7 +77,7 @@ while 1:
     try:
       np = int(nextarg)
       if np <= 0: raise ValueError
-    except ValueError: 
+    except ValueError:
       raise ValueError("Invalid number of processors: %s" % nextarg)
     sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
     anr -= 1
@@ -86,7 +86,7 @@ while 1:
     try:
       jobsize = int(nextarg)
       if jobsize <= 0: raise ValueError
-    except ValueError: 
+    except ValueError:
       raise ValueError("Invalid jobsize: %s" % nextarg)
     sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
     anr -= 1
@@ -95,7 +95,7 @@ while 1:
     try:
       chunks = int(nextarg)
       if chunks <= 0: raise ValueError
-    except ValueError: 
+    except ValueError:
       raise ValueError("Invalid chunks: %s" % nextarg)
     sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
     anr -= 1
@@ -140,10 +140,10 @@ while 1:
   if (pat == pat2): continue
   if os.path.exists("%s-1" % pat): continue
   if os.path.exists("%s-1" % pat2): continue
-  break  
+  break
 
 try:
-  com = "python %s/split.py %s %s %d" % (tooldir, strucfile, pat, chunks); run(com)
+  com = "python2 %s/split.py %s %s %d" % (tooldir, strucfile, pat, chunks); run(com)
   done = 0
   current = 1
   processes = []
@@ -151,7 +151,7 @@ try:
     for vnr in range(np):
       v = queue[vnr]
       if v is None: continue
-      if finished(v, nstrucs[vnr]): 
+      if finished(v, nstrucs[vnr]):
 	done += 1
 	if done == chunks: break
 	queue[vnr] = None
@@ -180,9 +180,9 @@ try:
   o.close()
   score = ""
   if scoremode:
-    score = "--score"  
-  com = "python %s/join.py %s %s >> %s" % (tooldir, pat2, score, output) 
-  run(com)  
+    score = "--score"
+  com = "python2 %s/join.py %s %s >> %s" % (tooldir, pat2, score, output) 
+  run(com)
 finally:
   for p in processes:
     if p.returncode is None: #process is still running
