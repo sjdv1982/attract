@@ -3,33 +3,33 @@ header = """<!DOCTYPE html>
 <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
 <!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
-    
+
     <head>
         <title>ATTRACT Peptide Online</title>
-        
+
         <meta charset="utf-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
         <meta name="description" content="" />
         <meta name="viewport" content="width=device-width"/>
-        
+
         <!-- Always load normalize CSS first -->
         <link rel="stylesheet" href="css/normalize.min.css">
         <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,600' rel='stylesheet' type='text/css'>
         <link href='http://fonts.googleapis.com/css?family=Lobster' rel='stylesheet' type='text/css'>
         <link rel="stylesheet" href="css/attract.min.css">
     </head>
-    
+
     <body>
         <!--[if lt IE 7]>
             <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
         <![endif]-->
 
         <main id="container" class="col row">
-          
+
           <section id="sidebar" class="col">
             <div id="title"><span class="t1">Attract</span> <span class="t2">online</span></div>
             <div id="logo"></div>
-            
+
             <nav id="form-category-navigation" class="row">
               <ul>
                 <li id="view-page1"><a id="nav-block-partners" class="puzzle-icon">Partners</a></li>
@@ -38,17 +38,17 @@ header = """<!DOCTYPE html>
                 <li id="view-page4"><a id="nav-block-computation" class="computation-icon">Computation</a></li>
               </ul>
             </nav>
-            
+
             <div id="download-button" class="row download-icon" onClick="submitForm();">
               <p>Get configuration</p>
-            </div>  
-            
+            </div>
+
           </section>
-            
+
           <section id="content" class="col">
-            
+
             <header id="header">
-              
+
               <div id="show-hide-sidepanel" class="button menu-icon float-left"><div class="header-tooltip"><p>Hide sidepanel</p></div></div>
               <div id="reload-form" class="button reload-icon-active float-left"><div class="header-tooltip"><p>Restore default values</p></div></div>
               <div id="unfold-all" class="button double-arrow-icon float-left"><div class="header-tooltip"><p>Unfold all form blocks</p></div></div>
@@ -60,18 +60,18 @@ header = """<!DOCTYPE html>
                     <li><a href="documentation.html#contact" target="_blank" class="contact-icon">Contact</a></li>
                     <li><a href="documentation.html" target="_blank" class="help-icon">Help and documentation</a></li>
                   </ul>
-                </nav> 
+                </nav>
               </div>
               <div id="close-app" class="button close-icon-active float-right"></div>
-              
+
             </header>
 """
 
-footer = """           
-            
+footer = """
+
         </section>
-      </main>  
-        
+      </main>
+
       <script src="js/jquery-1.10.2.min.js"></script>
       <script src="js/main.min.js"></script>
 
@@ -89,12 +89,9 @@ def _assign_category(f, category, groupname, span = False):
 
 def webform(f, model=None):
   import copy
-  f = copy.deepcopy(f)  
+  f = copy.deepcopy(f)
   f.resourcefilevar = "_tempresource"
   f.arraymarker = "_clonearraymarker"
-
-
-  f.completion_tool.type = None #hide in web interface
   
   ### START partners category
   c = f.new_group("c_partners", "category")
@@ -102,23 +99,23 @@ def webform(f, model=None):
   c.icon = "puzzle-icon"
   c.title = "Docking partners"
   c.categoryname = "partners"
-  c.description = """Define protein and peptide by uploading a PDB structure file and a sequence.""" 
-  
+  c.description = """Define protein and peptide by uploading a PDB structure file and a sequence."""
+
   bp1 = f.new_group("bp1","block")
   c.members.append("bp1")
   bp1.title = "Protein"
   bp2 = f.new_group("bp2","block")
   c.members.append("bp2")
   bp2.title = "Peptide"
-  
-  
-  bp1.members.append("p1")   
+
+
+  bp1.members.append("p1")
   f.p1.controltitle = ""
   f.p1.name = ""
   f.p1.has_hydrogens.type = None #hide in web interface
-  
+
   fp = f.p1
-  fp.group = None  
+  fp.group = None
   b = fp.new_group("b_struc","block")
   b.title = "Structure Sources"
   b.has_switch = False
@@ -144,13 +141,13 @@ def webform(f, model=None):
   b.members.append("rmsd_pdb")
   ff = fp.use_rmsd
   ff.default = False
-  ff.type = "switch" 
+  ff.type = "switch"
   ff.name = "RMSD calculation"
   ff = fp.rmsd_pdb
   ff.name = "Reference RMSD PDB file"
   ### END b_rmsd block
 
-  
+
 
   bp2.members.append("p2")
   f.p2.controltitle = ""
@@ -162,7 +159,7 @@ def webform(f, model=None):
   b.title = "Structure Sources"
   b.has_switch = False
   b.members.append("sequence")
-  ff = fp.sequence  
+  ff = fp.sequence
   ff.tooltip = "Give peptide sequence in single letter code"
   ff.span = True
   ### END b_struc block
@@ -175,13 +172,13 @@ def webform(f, model=None):
   b.members.append("rmsd_pdb")
   ff = fp.use_rmsd
   ff.default = False
-  ff.type = "switch" 
+  ff.type = "switch"
   ff.name = "RMSD calculation"
   ff = fp.rmsd_pdb
   ff.name = "Reference RMSD PDB file"
   ### END b_rmsd block
 
- 
+
 
   ### START energy category
   c = f.new_group("c_energy", "category")
@@ -192,7 +189,7 @@ def webform(f, model=None):
   c.categoryname = "energy"
   c.description = ""
   _assign_category(f, c, "Energy and interaction parameters", span = True)
-  ### END energy category  
+  ### END energy category
 
   ### START analysis category
   c = f.new_group("c_analysis", "category")
@@ -204,7 +201,7 @@ def webform(f, model=None):
   c.description = ""
   _assign_category(f, c, "Analysis")
   ff = f.nr_collect
-  ff.span = True  
+  ff.span = True
   ### END analysis category
 
   ### START computation category
@@ -225,7 +222,7 @@ def webserverform(webdict, form=None, spydertype=None):
   if spydertype is not None: form = spydertype._form()
   f = webform(form)
   return f
-  
+
 def html(form, cgi, spyderobj, newtab=False):
   from form_model import html
   return html(form, cgi, spyderobj, newtab, header=header)
