@@ -1,7 +1,19 @@
+#!/usr/bin/env python2
+
 from __future__ import print_function
-import sys, os, tempfile
+import sys, os, tempfile, numpy as np
 
 currdir = os.path.abspath(os.path.split(__file__)[0])
+
+na_resnames = {"RA","RC","RG","RU","DA","DC","DG","DT","A","T","C","G","U"}
+# pdb2pqr returns another atom name for that RNA atom than the opls ff.
+# check_pdb will chock on it.
+map_atnames = {"HO2'": "H2''"}
+
+def pp(*x):
+    for i in x[:-1]:
+        print(i, file=sys.stderr, end=' ')
+    print(x[-1], file=sys.stderr)
 
 def run_pdb2pqr(pdblines):
   """
@@ -133,140 +145,227 @@ class nalib(object):pass
 class FixError(Exception):pass
 
 def load_nalib(libname):
-  import numpy
-  lib = nalib()
-  lib.dir = currdir + "/" + libname
-  lib.sugar = numpy.load(lib.dir + "/sugar.npy")
-  lib.sugaratoms = [l[12:16].strip() for l in open(lib.dir + "/sugar.pdb") if l.startswith("ATOM")]
-  lib.phatoms_fit  = ["P", "O1P", "O2P", "O5'", "C5'", "C4'"]  #atoms to fit on
-  lib.phatoms_rmsd = ["P", "O1P", "O2P", "O5'", "C5'", "C4'", "C5"]  # to compute best RMSD (avoid base-phosphate clashes)
-  lib.phatoms_all  = ["P", "O1P", "O2P", "O5'", "C5'", "C4'"]    # for completion
-  lib.base = {}
-  lib.baseatoms = {}
-  lib.mono = {}
-  lib.monoatoms = {}
-  lib.ph = {}
-  bases = ["A","C","G","U"]
-  if libname == "dnalib":
-      bases = ["A","C","G","T"]
-  for nuc in bases:
-    lib.mono[nuc] = numpy.load(lib.dir + "/%s.npy" % nuc)
-    lib.monoatoms[nuc] = [l[12:16].strip() for l in open(lib.dir + "/%s.pdb" % nuc) if l.startswith("ATOM")]
-    #lib.base[nuc] = numpy.array([(float(l[30:38]),float(l[38:46]),float(l[46:54])) for l in open(base) if l.startswith("ATOM")])
-    lib.base[nuc] = numpy.load(lib.dir + "/base%s.npy" % nuc)
-    lib.baseatoms[nuc] = [l[12:16].strip() for l in open(lib.dir + "/base%s.pdb" % nuc) if l.startswith("ATOM")]
-    #lib.ph[nuc] = numpy.load(lib.dir + "/%s.npy" % nuc)
-    ph = set(lib.phatoms_fit + lib.phatoms_rmsd + lib.phatoms_all)
-    lib.ph[nuc] = [ c for a, c in zip(lib.monoatoms[nuc], lib.mono[nuc]) if a in ph]
-  return lib
+    lib = nalib()
+    lib.dir = currdir + "/" + libname
+    sugar = {
+        "coor": np.load(lib.dir + "/sugar.npy"),
+        "atoms": [l[12:16].strip() for l in open(lib.dir + "/sugar.pdb") if l.startswith("ATOM")]
+    }
+    sugar["fit_atoms"] = sugar["atoms"]
+    sugar["rmsd_atoms"] = sugar["atoms"]
+
+    ph = {
+        "atoms":     ["P", "O1P", "O2P", "O5'", "C5'", "C4'"], # for completion
+        "fit_atoms": ["P", "O1P", "O2P", "O5'", "C5'", "C4'"], #atoms to fit on
+        "rmsd_atoms": ["P", "O1P", "O2P", "O5'", "C5'", "C4'", "C5"] # to compute best RMSD (avoid base-phosphate clashes),
+    }
+    pho5 = {
+        "coor": np.load(lib.dir + "/5PHO.npy"),
+        "atoms": [l[12:16].strip() for l in open(lib.dir + "/5PHO.pdb") if l.startswith("ATOM")]
+    }
+    pho5["fit_atoms"] = pho5["atoms"]
+    pho5["rmsd_atoms"] = pho5["atoms"]
+
+    lib.sugar = {}
+    lib.base = {}
+    lib.nucl = {}
+    lib.ph = {}
+    lib.pho5 = {}
+    bases = ["A","C","G","U"]
+    if libname == "dnalib":
+        bases = ["A","C","G","T"]
+    for nuc in bases:
+        lib.sugar[nuc] = sugar
+        lib.nucl[nuc] = {
+            "coor": np.load(lib.dir + "/%s.npy" % nuc)
+        }
+        nuclatoms = [l[12:16].strip() for l in open(lib.dir + "/%s.pdb" % nuc) if l.startswith("ATOM")]
+        lib.nucl[nuc]["atoms"] = nuclatoms
+        lib.nucl[nuc]["fit_atoms"] = lib.sugar[nuc]["atoms"]
+        lib.nucl[nuc]["rmsd_atoms"] =  lib.sugar[nuc]["atoms"]
+
+        lib.base[nuc] = {}
+        #lib.base[nuc]["coor"] = np.array([(float(l[30:38]),float(l[38:46]),float(l[46:54])) for l in open(base) if l.startswith("ATOM")])
+        lib.base[nuc]["coor"] = np.load(lib.dir + "/base%s.npy" % nuc)[None]
+        baseatoms = [l[12:16].strip() for l in open(lib.dir + "/base%s.pdb" % nuc) if l.startswith("ATOM")]
+        lib.base[nuc]["atoms"] = baseatoms
+        lib.base[nuc]["fit_atoms"] = baseatoms
+        lib.base[nuc]["rmsd_atoms"] = baseatoms
+
+        lib.ph[nuc] = ph.copy()
+        #lib.ph[nuc]["coor"] = np.load(lib.dir + "/%s.npy" % nuc)
+        phlist = set(lib.ph[nuc]["atoms"] + lib.ph[nuc]["rmsd_atoms"] + lib.ph[nuc]["fit_atoms"])
+        ph_indices = [ anr for anr,a in enumerate(lib.nucl[nuc]["atoms"]) if a in phlist]
+        lib.ph[nuc]["coor"] = lib.nucl[nuc]["coor"][:, ph_indices]
+
+        lib.pho5[nuc] = pho5
+    return lib
 
 #taken from fit.py
 def _apply_matrix(atoms, pivot, rotmat, trans):
   ret = []
   for atom in atoms:
+    pp(atom.shape)
     a = atom-pivot
     atom2 = a.dot(rotmat) + pivot + trans
     ret.append(atom2)
   return ret
 
-def apply_nalib(pdb, lib, heavy, manual):
-  """
-  Adds missing atoms using a nucleotides lib
-  """
-  assert heavy == True #TODO: remove this when the rna library has hydrogens
-  import numpy
-  syspath = list(sys.path)
-  sys.path.insert(0, os.environ["ATTRACTTOOLS"])
-  import rmsdlib
-  from scipy.spatial.distance import cdist
-  sys.path[:] = syspath
-  for nr, res in enumerate(pdb):
-    #print >> sys.stderr, ("residue %i"%nr)
-    if res.resname not in ("RA","RC","RG","RU","DA","DC","DG","DT"): continue
-    try:
-        while 1: #keep fixing as long as we can
-            missing = set()
-            top = res.topology
-            for a in top.atomorder:
-                aa = a.upper()
-                if heavy and aa[0].startswith("H"): continue
-                if aa not in res.coords:
-                    missing.add(aa)
-            if not missing: break
-            #print >> sys.stderr, ("missing", missing)
-            nuc = res.resname[1]
-            fixmode = None
-            for fmode, fatoms in (
-                ("ph", lib.phatoms_fit),   #highest priority
-                ("sugar", lib.sugaratoms),
-                ("base", lib.baseatoms[nuc]),
-                ("nucleotide", lib.monoatoms[nuc]),  #lowest priority
-                ):
-                #we can fix if there are any missing atoms, and there are at least three non-lacking atoms
-                fatoms_fit = fatoms
-                if fmode == "nucleotide":
-                    fatoms_fit = lib.sugaratoms     #in nucleotide mode, fit on the sugar
-                if any([(m in fatoms) for m in missing]) and \
-                 len([a for a in fatoms_fit if a in res.coords]) >= 3:
-                   fixmode = fmode
-                   fit_atoms = fatoms_fit
-                   break
-            if fixmode is None:
-                msg = 'residue %s could not be fixed'%res.resid
-                raise FixError(msg)
-            if fixmode == "base":
-                libcoor = lib.base[nuc][numpy.newaxis]
-                atoms = lib.baseatoms[nuc]
-                #print >> sys.stderr,  lib.baseatoms[nuc], nuc
-            elif fixmode == "sugar":
-                libcoor = lib.sugar
-                atoms = lib.sugaratoms
-            elif fixmode == "ph":
-                libcoor = lib.ph[nuc]
-                atoms = lib.phatoms_all
-            elif fixmode == "nucleotide":
-                libcoor = lib.mono[nuc]
-                atoms = lib.monoatoms[nuc]
-            rmsd_atoms = fit_atoms
-            #print >> sys.stderr,  fixmode, rmsd_atoms
-            #print >> sys.stderr, (fixmode, res.topology)
-            if fixmode == "ph":
-                rmsd_atoms = lib.phatoms_rmsd
-            coor_atoms = [a for a in atoms if a in res.coords and a in fit_atoms]
-            coor = numpy.array([res.coords[a] for a in atoms if a in res.coords and a in fit_atoms])
-            mask = numpy.array([(a in fit_atoms and a in res.coords) for a in atoms])
+def _apply_matrix_multi(atoms_array, pivots, rotmats, offsets):
+    cen = (atoms_array - pivots[:, None, :])
+    newcoor = np.einsum("ijk,ikl->ijl", cen, rotmats) #diagonally broadcasted form of cen.dot(rotmats)
+    newcoor += (pivots + offsets)[:, None, :]
+    return newcoor
 
-            refecoor = numpy.compress(mask, libcoor, axis=1) #or: refecoor = libcoor[:,mask] (slower)
-            rotmat, offset, rmsd = rmsdlib.fit(refecoor[0],coor)
-            pivot = numpy.sum(coor,axis=0) / float(len(coor))
-            fitcoor = numpy.array(_apply_matrix(coor, pivot, rotmat, offset))
-            fitcoor = fitcoor.flatten()[numpy.newaxis]
-            refecoor = refecoor.reshape((len(refecoor), 3 * len(coor)))
 
-            mask2 = numpy.array([(a in rmsd_atoms and a in res.coords) for a in atoms])
-            refecoor2 = numpy.compress(mask2, libcoor, axis=1) #or: refecoor2 = libcoor[:,mask2] (slower)
-            coor2 = numpy.array([res.coords[a] for a in atoms if a in res.coords and a in rmsd_atoms])
-            rmsdcoor = numpy.array(_apply_matrix(coor2, pivot, rotmat, offset))
-            rmsdcoor = rmsdcoor.flatten()[numpy.newaxis]
-            refecoor2 = refecoor2.reshape((len(refecoor2), 3 * len(coor)))
+def apply_nalib(pdb, lib, manual, heavy=True):
+    """
+    Adds missing atoms using a nucleotides lib
+    """
+    print("apply_nalib", file=sys.stderr)
+    #assert heavy == True #TODO: remove this when the rna library has hydrogens
+    syspath = list(sys.path)
+    sys.path.insert(0, os.environ["ATTRACTTOOLS"])
+    import rmsdlib
+    from scipy.spatial.distance import cdist
+    from scipy.spatial import cKDTree
+    sys.path[:] = syspath
+    any_missing = False
+    #check if any missing atoms in the whole PDB
+    for nr, res in enumerate(pdb):
+        top = res.topology
+        for a in top.atomorder:
+            aa = a.upper()
+            if aa[0].startswith("H"): continue
+            if aa not in res.coords:
+                any_missing = True
+                break
+        if any_missing:
+            break
+    if not any_missing:
+        return
+    atom_to_residue = []
+    #other_coor = coord toward which one should test clashes
+    other_coor = []
+    #If any atom missing, then process the PDB
+    for nr, res in enumerate(pdb):
+        top = res.topology
+        for a in top.atomorder:
+            aa = a.upper()
+            if aa[0].startswith("H"): continue
+            if aa not in res.coords:
+                continue
+            xyz = res.coords[aa]
+            other_coor.append(xyz)
+            atom_to_residue.append(nr)
+    other_coor = np.array(other_coor)
+    atom_to_residue = np.array(atom_to_residue)
+    tree  = cKDTree(other_coor)
+    new_at = []
+    for nr, res in enumerate(pdb):
+    #for (nr, res) in [( 0, pdb[0])]:
+        #print >> sys.stderr, ("residue %i"%nr)
+        if res.resname not in na_resnames: continue
+        try:
+            while 1: #keep fixing as long as we can
+                #print('res %s'%res.resid, file=sys.stderr)
+                missing = set()
+                top = res.topology
+                for a in top.atomorder:
+                    aa = a.upper()
+                    #if aa[0].startswith("H"): continue ###
+                    if aa.startswith("H") or aa == '5pho': continue ###
+                    if aa not in res.coords:
+                        missing.add(aa)
+                if not missing: break
+                pp("res %s missing:"%res.resid)
+                pp(missing)
+                nuc = res.resname[1]
+                fixmode = None
+                for fixmode in ("ph", "sugar", "base", "nucl"): #from high to low priority
+                    #we can fix if there are any missing atoms, and there are at least three non-lacking atoms
+                    sublib = getattr(lib, fixmode) # lib.ph or lib.sugar or ...
+                    atoms = sublib[nuc]["atoms"]
+                    fit_atoms = sublib[nuc]["fit_atoms"]
+                    rmsd_atoms = sublib[nuc]["rmsd_atoms"]
+                    libcoor = sublib[nuc]["coor"]
+                    if any([(m in atoms) for m in missing]) and \
+                     len([a for a in fit_atoms if a in res.coords]) >= 3:
+                        break
+                else:
+                    msg = 'residue %s could not be fixed'%res.resid
+                    print(missing) ####################
+                    break
+                    #raise FixError(msg)
+                coor_atoms = [a for a in atoms if a in res.coords and a in fit_atoms]
+                coor = np.array([res.coords[a] for a in atoms if a in res.coords and a in fit_atoms])
+                fit_mask = np.array([(a in fit_atoms and a in res.coords) for a in atoms])
+                #fit  the nucl to repair on the mononucl lib
+                libcoor_fit = libcoor[:,fit_mask]
+                rotmats, offsets, rmsds = rmsdlib.multifit(libcoor_fit,coor)
+                rotmats = rotmats.swapaxes(1,2)
+                offsets = -offsets
+                x = rmsds.argsort()
+                pivots = libcoor_fit.sum(axis=1)/libcoor_fit.shape[1]
 
-            #d = cdist(fitcoor, refecoor, 'sqeuclidean')[0]
-            d = cdist(rmsdcoor, refecoor2, 'sqeuclidean')[0]
-            libconfnr = numpy.argmin(d)
-            libconf = libcoor[libconfnr]
-            libconf = _apply_matrix(libconf, pivot+offset, rotmat.T, -offset)
-            for anr, a in enumerate(atoms):
-                if a in missing or fixmode == "base":
-                    #print "FIX", a, fixmode
-                    x,y,z = libconf[anr]
-                    res.coords[a] = x,y,z
-            if fixmode == "nucleotide": break
-    except FixError as err:
-        if manual:
-            e = "\n" + "!"*60 + "\n"
-            print(e + "WARNING: " + err.args[0] + e, file=sys.stderr)
-        else:
-            raise
+                rmsd_mask = np.array([(a in rmsd_atoms and a in res.coords) for a in atoms])
+                libcoor_rmsd_unfitted = libcoor[:,rmsd_mask]
+                pp(libcoor_rmsd_unfitted.shape, pivots.shape )
+                libcoor_rmsd_fitted = _apply_matrix_multi(libcoor_rmsd_unfitted, pivots, rotmats, offsets)
+                libcoor_fitted = _apply_matrix_multi(libcoor, pivots, rotmats, offsets)
+
+                coor_rmsd = np.array([res.coords[a] for a in atoms if a in res.coords and a in rmsd_atoms])
+                dist = libcoor_rmsd_fitted - coor_rmsd
+                d = np.einsum("ijk,ijk->i", dist, dist)
+                lib_indices = np.argsort(d)
+                #print((lib_indices[:3], fixmode, d.min()))
+                libcoor_fitted_sorted = libcoor_fitted[lib_indices]
+                lib_complete_indices = []
+                for anr, a in enumerate(atoms):
+                    if a in missing or fixmode == "base":
+                        lib_complete_indices.append(anr)
+                #TODO: change clashing threshold when not --heavy
+                #optimize: if clashes, take next nucleotide in mononucl_library
+                print('optimize', file=sys.stderr)
+                for nl, libconf in enumerate(libcoor_fitted_sorted):
+                    #for nl, libconf in [(0, libcoor_fitted_sorted[0])]:
+                    lib_complete = libconf[lib_complete_indices]
+                    # get clashes with any original residue
+                    neighbors = tree.query_ball_point(lib_complete, r=2)
+                    neighbors = np.concatenate(neighbors).astype(int)
+                    # the completed residue is "clashing" w. himself
+                    clash_res = np.unique(atom_to_residue[neighbors])
+                    # get clashes with other added atom
+                    new_clash = 0
+                    if len(new_at):
+                        new_atoms = np.array(new_at)
+                        dd = new_atoms[None,:,:] - lib_complete[:,None,:]
+                        dist_new = np.sum(dd*dd, axis=2)
+                        new_clash = np.sum(dist_new < 4)
+                        #m = np.min(dist_new)
+                        #print('nb new clash: %i, min %f'%(new_clash, m))
+                    print(clash_res, file=sys.stderr)
+                    # if no clashes, break
+                    if len(clash_res) < 2 and not new_clash:
+                        break
+                    nconf = len(libcoor_fitted) - nl
+                    if nl == 0:
+                        print('repairing resid %s'%(res.resid), file=sys.stderr)
+                else:
+                    raise FixError("all lib conformer clash")
+                #
+                for anr, a in enumerate(atoms):
+                    if anr in lib_complete_indices:
+                        x,y,z = libconf[anr]
+                        res.coords[a] = x,y,z
+                        new_at.append([x,y,z])
+                if fixmode == "nucleotide" : break
+        except FixError as err:
+            if manual:
+                e = "\n" + "!"*60 + "\n"
+                print(e + "WARNING: " + err.args[0] + e, file=sys.stderr)
+            else:
+                raise
 
 def pdb_lastresort(pdb):
   """
