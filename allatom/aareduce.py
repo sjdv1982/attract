@@ -89,7 +89,33 @@ def parse_transfile(transfile, topname):
             code_to_type[code, topname] = type
             code_to_type[str(code), str(topname)] = type
 
-mutations = {}
+def mutate(atomcode, resname):
+    pu = ["A", "DA", "RA", "G", "DG", "RG"]
+    py = ["C", "DC", "RC", "U", "RU", "T", "DT"]
+    py2pu = {"N1":"N9", "C2":"C4", "C6":"C8" }
+    pu2py = {"N9":"N1", "C4":"C2", "C8":"C6" }
+    if resname in ["HIE", "HIP", "HSD", "HSE"]: resname="HIS"
+    if resname=="HYP" and atomcode=='OD1':atomcode='OG1'
+    if resname=="HYP" and atomcode=='HD1':atomcode='HG1'
+    if resname in mutations:
+        new = mutations[resname]
+        if resname in pu and new in py:
+            print((resname, new))
+            #purine => pyrimidine mutation
+            if len(atomcode) == 2: # base atom
+                if atomcode in pu2py:
+                    atomcode = pu2py[atomcode]
+                else:
+                    return None, None
+        if resname in py and new in pu:
+            #pyrimidine => purine mutation
+            if len(atomcode) == 2: # base atom
+                if atomcode in py2pu:
+                    atomcode = py2pu[atomcode]
+                else:
+                    return None, None
+        resname = new
+    return atomcode, resname
 
 def read_filelist(filelist):
     ret = []
@@ -100,35 +126,24 @@ def read_filelist(filelist):
         ret.append(l)
     return ret
 
-def read_pdb(pdblines, pdbname, add_termini=False,modbase=False,modres=False):
-    repl = (
-      ("H","HN"),
-      ("HT1","HN"),
-      ("OP1","O1P"),
-      ("OP2","O2P"),
-      ("H1","HN"),
-      ("OP3","O5T"),
-      ("HO5'","H5T"),
-      ("HO3'","H3T"),
-    )
-    pdbres = []
-    curr_res = None
-    atomlines = []
-
+def get_atomlines(pdblines, modbase=False,modres=False):
     if (modbase or modres):
         res0 = {}
         pdblines = list(pdblines)
         for l in pdblines:
             if l.startswith("ATOM") or l.startswith("HETATM"):
                 resid = l[22:27]
-                if resid not in res0: res0[resid] = set()
+                if resid not in res0:
+                    res0[resid] = set()
                 atomcode = l[12:16].strip()
                 res0[resid].add(atomcode)
         res_ok = set()
         for r in res0:
             ratoms = res0[r]
+            #recognise amino-acid
             if modres and "CA" in ratoms and "C" in ratoms and "N" in ratoms:
                 res_ok.add(r)
+            #recognise nucleotides
             elif modbase:
                 cp = 0
                 for n in range(5):
@@ -142,32 +157,55 @@ def read_pdb(pdblines, pdbname, add_termini=False,modbase=False,modres=False):
                 resid = l[22:27]
                 if resid in res_ok:
                     atomlines.append(l)
+    #ignore HETATM
     else:
         atomlines = [l for l in pdblines if l.startswith("ATOM")]
+    #
+    return atomlines
 
+def check_nucl(resname):
+    global mapnuc
+    if resname in mapnuc:
+        if args.dna:
+            resname = mapnuc[resname][0]
+        elif args.rna:
+            resname = mapnuc[resname][1]
+        else:
+            raise ValueError("PDB contains a nucleic acid named \"%s\", but it could be either RNA or DNA. Please specify the --dna or --rna option" % resname)
+            if resname is None:
+                if args.dna: na = "DNA"
+                if args.rna: na = "RNA"
+                raise ValueError("'%s' can't be %s" % (l[17:20].strip(), na))
+    return resname
+
+def read_pdb(pdblines, pdbname, add_termini=False,modbase=False,modres=False):
+    repl = (
+      ("H","HN"),
+      ("HT1","HN"),
+      ("OP1","O1P"),
+      ("OP2","O2P"),
+      ("H1","HN"),
+      ("OP3","O5T"),
+      ("HO5'","H5T"),
+      ("HO3'","H3T"),
+      )
+    pdbres = []
+    curr_res = None
+    atomlines = []
+    #try to recognize HETATM as nucleotide or amino-acid
+    atomlines = get_atomlines(pdblines, modbase, modres)
     if len(atomlines) == 0:
         raise ValueError("PDB '%s' contains no ATOM records" % pdbname )
-
     for l in atomlines:
         atomcode = l[12:16].strip()
         if l[16] not in (" ", "A"): continue #only keep the first of alternative conformations
         if l[30:38] == " XXXXXXX": continue #missing atom from --manual mode
         resname = l[17:20].strip()
-        if resname in ["HIE", "HIP", "HSD", "HSE"]: resname="HIS"
-        if resname=="HYP" and atomcode=='OD1':atomcode='OG1'
-        if resname=="HYP" and atomcode=='HD1':atomcode='HG1'
-        if resname in mutations: resname = mutations[resname]
-        if resname in mapnuc:
-            if args.dna:
-                resname = mapnuc[resname][0]
-            elif args.rna:
-                resname = mapnuc[resname][1]
-            else:
-                raise ValueError("PDB contains a nucleic acid named \"%s\", but it could be either RNA or DNA. Please specify the --dna or --rna option" % resname)
-            if resname is None:
-                if args.dna: na = "DNA"
-                if args.rna: na = "RNA"
-                raise ValueError("'%s' can't be %s" % (l[17:20].strip(), na))
+        # try to fix a nucleotide name
+        resname = check_nucl(resname)
+        atomcode, resname = mutate(atomcode, resname)
+        if atomcode == None:
+            continue
         chain = l[21]
         resid = l[22:27]
         x = float(l[30:38])
@@ -177,10 +215,12 @@ def read_pdb(pdblines, pdbname, add_termini=False,modbase=False,modres=False):
         nter = False
         chainfirst = False
         if curr_res is None:
+            # 1st residue in 1st chain
             newres = True
             chainfirst = True
             if add_termini: nter = True
         elif chain != curr_res.chain:
+            # 1st residue in new chain
             newres = True
             chainfirst = True
             curr_res.chainlast = True
@@ -188,6 +228,7 @@ def read_pdb(pdblines, pdbname, add_termini=False,modbase=False,modres=False):
                 nter = True
                 curr_res.cter = True
         elif resid != curr_res.resid or resname != curr_res.resname:
+            # new residue in same chain
             newres = True
         if newres:
             try:
@@ -416,6 +457,7 @@ for f in transfiles:
     name = os.path.splitext(os.path.split(f)[1])[0]
     parse_transfile(f, name)
 
+mutations={}
 for f in args.mutatefiles:
     assert os.path.exists(f), f
     for l in open(f):
