@@ -150,7 +150,7 @@ def load_nalib(libname):
     sugar["rmsd_atoms"] = sugar["atoms"]
 
     ph = {
-        "atoms":     ["P", "O1P", "O2P", "O5'", "C5'", "C4'"], # for completion
+        "atoms":     ["P", "O1P", "O2P", "O5'", "C4'"], # for completion
         "fit_atoms": ["P", "O1P", "O2P", "O5'", "C5'", "C4'"], #atoms to fit on
         "rmsd_atoms": ["P", "O1P", "O2P", "O5'", "C5'", "C4'", "C5"] # to compute best RMSD (avoid base-phosphate clashes),
     }

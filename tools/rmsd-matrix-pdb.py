@@ -3,34 +3,7 @@ import sys
 import numpy as np
 from math import *
 import rmsdlib
-from multiprocessing import Pool, Queue
-
-def apply_matrix(atoms, pivot, rotmat, trans):
-  ret = []
-  for atom in atoms:
-    a = atom-pivot
-    atom2 = a.dot(rotmat) + pivot + trans
-    ret.append(atom2)
-  return ret
-
-def write_pdb(outputfile, lines, atoms, extralines):
-  outp = open(outputfile, "w")
-  count = 0
-  pos = 0
-  data = zip(lines, atoms)
-  while 1:
-    while pos < len(extralines):
-      p,d = extralines[pos]
-      if count < p: break
-      print >> outp, d.rstrip("\n")
-      pos += 1
-    if count == len(data): break
-    l,a = data[count]
-    ll = l[:30] + "%8.3f%8.3f%8.3f" % (a[0],a[1],a[2]) + l[54:].rstrip("\n")
-    print >> outp, ll
-    count += 1
-  outp.close()
-
+from multiprocessing import Pool
 import sys
 import argparse
 a = argparse.ArgumentParser(prog="rmsd-matrix-pdb.py")
