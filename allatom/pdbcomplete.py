@@ -150,9 +150,9 @@ def load_nalib(libname):
     sugar["rmsd_atoms"] = sugar["atoms"]
 
     ph = {
-        "atoms":     ["P", "O1P", "O2P", "O5'", "C5'", "C4'"], # for completion
+        "atoms":     ["P", "O1P", "O2P", "O5'", "C4'"], # for completion
         "fit_atoms": ["P", "O1P", "O2P", "O5'", "C5'", "C4'"], #atoms to fit on
-        "rmsd_atoms": ["P", "O1P", "O2P", "O5'", "C5'", "C4'", "C5"] # to compute best RMSD (avoid base-phosphate clashes),
+        "rmsd_atoms": ["P", "O1P", "O2P", "O5'", "C5'", "C4'", "C3'", "C5"] # to compute best RMSD (avoid base-phosphate clashes),
     }
     pho5 = {
         "coor": np.load(lib.dir + "/5PHO.npy"),
@@ -210,7 +210,6 @@ def _apply_matrix_multi(atoms_array, pivots, rotmats, offsets):
     newcoor = np.einsum("ijk,ikl->ijl", cen, rotmats) #diagonally broadcasted form of cen.dot(rotmats)
     newcoor += (pivots + offsets)[:, None, :]
     return newcoor
-
 
 def apply_nalib(pdb, lib, manual, heavy=True):
     """
@@ -317,7 +316,7 @@ def apply_nalib(pdb, lib, manual, heavy=True):
                         lib_complete_indices.append(anr)
                 #TODO: change clashing threshold when not --heavy
                 #optimize: if clashes, take next nucleotide in mononucl_library
-                print('optimize', file=sys.stderr)
+                print('optimize resid %s %s'%(res.resname, res.resid), file=sys.stderr)
                 for nl, libconf in enumerate(libcoor_fitted_sorted):
                     #for nl, libconf in [(0, libcoor_fitted_sorted[0])]:
                     lib_complete = libconf[lib_complete_indices]
@@ -340,10 +339,11 @@ def apply_nalib(pdb, lib, manual, heavy=True):
                     if len(clash_res) < 2 and not new_clash:
                         break
                     nconf = len(libcoor_fitted) - nl
-                    if nl == 0:
-                        print('repairing resid %s'%(res.resid), file=sys.stderr)
-                else:
-                    raise FixError("all lib conformer clash")
+                    #if nl == 0:
+                        #print('repaired resid %s %s'%(res.resname, res.resid), file=sys.stderr)
+                #else:
+                if nl == len(libconf):
+                    raise FixError("all lib conformer clash on resid %s %s"%(res.resname, res.resid))
                 #
                 for anr, a in enumerate(atoms):
                     if anr in lib_complete_indices:

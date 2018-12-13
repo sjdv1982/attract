@@ -320,7 +320,7 @@ def multifit(array_atoms1, atoms2):
 
   assert len(atoms2) > 0
   assert array_atoms1.shape[2] == atoms2.shape[1] == 3
-  assert len(atoms2) == array_atoms1.shape[1]
+  assert len(atoms2) == array_atoms1.shape[1], (atoms2.shape, array_atoms1.shape)
   L = len(atoms2)
 
   # must alway center the two proteins to avoid
