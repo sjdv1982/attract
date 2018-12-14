@@ -150,7 +150,8 @@ def load_nalib(libname):
     ph = {
         # !!! keep the order of atoms in the library!
         "atoms":     ["P", "O1P", "O2P", "O5'"], # for completion
-        "fit_atoms": ["P", "O1P", "O2P", "O5'", "C5'", "C4'", "C3'"], #atoms to fit on
+        #"fit_atoms": ["P", "O1P", "O2P", "O5'", "C5'", "C4'", "C3'"], #atoms to fit on
+        "fit_atoms": ["P", "O1P", "O2P", "O5'"], #atoms to fit on
         "rmsd_atoms": ["P", "O1P", "O2P", "O5'", "C5'", "C4'", "N3", "C5", "C3'"], # to compute best RMSD (avoid base-phosphate clashes),
         "max_missing": 4,
         }
@@ -256,8 +257,6 @@ def check_clashes(nl, libconf, lib_complete_indices, new_at, tree, atom_to_resid
         new_clash = np.sum(dist_new < 4)
         #m = np.min(dist_new)
         #print('nb new clash: %i, min %f'%(new_clash, m))
-    print(clash_res, file=sys.stderr)
-    # if no clashes, break
     if len(clash_res) < 2 and not new_clash:
         return 0
     return 1
@@ -271,10 +270,7 @@ def rank_library(res, libcoor, fit_atoms, rmsd_atoms, atoms):
     #select atoms in the order of the library atoms
     coor_atoms = [a for a in atoms if a in res.coords and a in fit_atoms]
     coor = np.array([res.coords[a] for a in atoms if a in res.coords and a in fit_atoms])
-    fit_mask = np.array([(a in res.coords) for a in fit_atoms])
-    print(fit_mask)
-    print(fit_atoms)
-    print(res.coords.keys())
+    fit_mask = np.array([(a in fit_atoms and a in res.coords) for a in atoms])
     #fit the mononucl lib on the nucl to repair:
     ## get the rotation-translation to apply to the rank_library
     libcoor_fit = libcoor[:,fit_mask]
@@ -284,18 +280,16 @@ def rank_library(res, libcoor, fit_atoms, rmsd_atoms, atoms):
     x = rmsds.argsort()
     pivots = libcoor_fit.sum(axis=1)/libcoor_fit.shape[1]
     ## fit on fit_atoms and evaluate the rmsd on the rmsd_atoms
-    common_atoms = set([a for a in rmsd_atoms[:4] if a in res.coords]) ### :4
+    common_atoms = set([a for a in rmsd_atoms if a in res.coords])
     rmsd_mask = np.array([(a in common_atoms) for a in rmsd_atoms])
     libcoor_rmsd_unfitted = libcoor[:,rmsd_mask]
     libcoor_rmsd_fitted = _apply_matrix_multi(libcoor_rmsd_unfitted, pivots, rotmats, offsets)
     coor_rmsd = np.array([res.coords[a] for a in rmsd_atoms if a in common_atoms])
     dist = libcoor_rmsd_fitted - coor_rmsd
     d = np.einsum("ijk,ijk->i", dist, dist)
-    d = rmsds ### use the fit rmsds as an approx. for debugging
+    ### d = rmsds ### use the fit rmsds as an approx. for debugging
     # sort library indices by RMSD
     lib_indices = np.argsort(d)
-    #print(("rmsd", (min(d)/sum(rmsd_mask))**0.5 ))
-    #import pdb as pdblib; pdblib.set_trace()
     libcoor_fitted = _apply_matrix_multi(libcoor, pivots, rotmats, offsets)
     libcoor_fitted_sorted = libcoor_fitted[lib_indices]
     return libcoor_fitted_sorted
@@ -319,10 +313,11 @@ def apply_nalib(pdb, lib, manual, heavy=True):
     if any_missing:
         #coordinates toward which one should test clashes
         other_coor, atom_to_residue = process_pdb(pdb)
-    tree  = cKDTree(other_coor)
-    new_at = []
+        tree  = cKDTree(other_coor)
+    new_at_all = []
     for nr, res in enumerate(pdb):
         if res.resname not in na_resnames: continue
+        new_at = []
         try:
             while 1: #keep fixing as long as we can
                 missing = set()
@@ -336,8 +331,9 @@ def apply_nalib(pdb, lib, manual, heavy=True):
                 if not missing: break
                 nuc = res.resname[1]
                 fixmode = None
-                for fixmode in ("sugar", "ph", "base", "nucl"): #from high to low priority
+                for fixmode in ("ph", "sugar", "base", "nucl"): #from high to low priority
                     #we can fix if there are any missing atoms, and there are at least three non-lacking atoms
+                    #if fixmode == "sugar": continue
                     sublib = getattr(lib, fixmode) # lib.ph or lib.sugar or ...
                     atoms = sublib[nuc]["atoms"]
                     fit_atoms = sublib[nuc]["fit_atoms"]
@@ -362,19 +358,17 @@ def apply_nalib(pdb, lib, manual, heavy=True):
                 #optimize: if clashes, take next nucleotide in mononucl_library
                 print('optimize resid %s %s'%(res.resname, res.resid), file=sys.stderr)
                 for nl, libconf in enumerate(libcoor_fitted_sorted):
-                    clashing = check_clashes(nl, libconf, lib_complete_indices, new_at, tree, atom_to_residue)
+                    clashing = check_clashes(nl, libconf, lib_complete_indices, new_at_all, tree, atom_to_residue)
                     if not clashing:
                         break
                 if nl == len(libconf):
                     raise FixError("all lib conformer clash on resid %s %s"%(res.resname, res.resid))
                 #
                 for anr, a in enumerate(atoms):
-                    if anr in lib_complete_indices or 1: # add "or 1" to replace all atoms, for debugging
+                    if anr in lib_complete_indices: # add "or 1" to replace all atoms, for debugging
                         x,y,z = libconf[anr]
                         res.coords[a] = x,y,z
                         new_at.append([x,y,z])
-                print("atoms")
-                print([a for a in atoms if a in res.coords])
                 if fixmode == "nucleotide" : break
         except FixError as err:
             if manual:
@@ -382,6 +376,8 @@ def apply_nalib(pdb, lib, manual, heavy=True):
                 print(e + "WARNING: " + err.args[0] + e, file=sys.stderr)
             else:
                 raise
+        for a in new_at:
+            new_at_all.append(a)
 
 def pdb_lastresort(pdb):
   """

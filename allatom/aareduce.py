@@ -121,6 +121,7 @@ def read_filelist(filelist):
     return ret
 
 def get_atomlines(pdblines, modbase=False,modres=False):
+    atomlines = []
     if (modbase or modres):
         res0 = {}
         pdblines = list(pdblines)
