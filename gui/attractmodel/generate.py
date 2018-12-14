@@ -237,7 +237,7 @@ echo '**************************************************************'
         if p.charged_termini: opts.append("--termini")
         if use_aa and not p.has_hydrogens:
           opts.append("--dumppatch")
-        if not use_aa:
+        if not use_aa or p.unsafe_pdb:
           opts.append("--heavy")
         elif mnr > 0:
           opts.append("--reference")
