@@ -94,7 +94,7 @@ def mutate(atomcode, resname):
     if resname in mutations:
         new = mutations[resname]
         if resname in pu and new in py:
-            print((resname, new))
+            #print((resname, new))
             #purine => pyrimidine mutation
             if len(atomcode) == 2: # base atom
                 if atomcode in pu2py:
