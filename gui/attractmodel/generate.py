@@ -44,9 +44,13 @@ if [ ! -f $ATTRACTDIR/../version ] ||  [ `awk '{print ($1 < %s)}' $ATTRACTDIR/..
   exit 1
 fi
 """ % req_attract2_version
-  attractclean = ["$ATTRACTDIR/shm-clean"]
+  attractclean = [
+    "for f in $shmfiles; do",
+    "  $ATTRACTDIR/shm-clean 0 `awk '$1 == \"#shm\"{print(substr($0,6))}' $f`",
+    "done"
+  ]
+  ret0 += 'shmfiles=""\n'
   ret0 += 'trap "kill -- -$BASHPID; attractclean" ERR EXIT\n'
-  ret0 += "$ATTRACTDIR/shm-clean\n\n"
   results = "result.dat result.pdb result.lrmsd result.irmsd result.fnat result.interface"
   ret0 += "rm -rf %s >& /dev/null\n" % results
   ret = ""
@@ -869,10 +873,15 @@ echo '**************************************************************'
     if m.dielec == "cdie": tail += " --cdie"
     if m.epsilon != 15: tail += " --epsilon %s" % (str(m.epsilon))
     if g.calc_potentials == False: tail += " -calc-potentials=0"
+    if m.np > 1:
+      gridshmfile = "%s.shmfile" % g.gridname.strip() 
+      ret += 'shmfiles=$shmfiles" "%s\n' % gridshmfile
+      if not use_gpu:
+        tail += " > %s" % gridshmfile
     ret += "$ATTRACTDIR/make-grid%s %s %s %s %s %s %s\n" % \
      (tomp, f, ffpar, g.plateau_distance, g.neighbour_distance, gridfile, tail)
     if m.np > 1 and use_gpu:
-      ret += "$ATTRACTDIR/shm-grid %s %s" % (gridfile, gridfile+"header")
+      ret += "$ATTRACTDIR/shm-grid %s %s > %s" % (gridfile, gridfile+"header", gridshmfile)
     ret += "\n"
   ret += """
 echo '**************************************************************'
