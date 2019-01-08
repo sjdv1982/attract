@@ -183,6 +183,7 @@ def read_pdb(pdblines, pdbname, add_termini=False,modbase=False,modres=False):
       ("OP3","O5T"),
       ("HO5'","H5T"),
       ("HO3'","H3T"),
+      ("H2''", "HO2'")
       )
     pdbres = []
     curr_res = None
