@@ -94,7 +94,7 @@ def mutate(atomcode, resname):
     if resname in mutations:
         new = mutations[resname]
         if resname in pu and new in py:
-            print((resname, new))
+            #print((resname, new))
             #purine => pyrimidine mutation
             if len(atomcode) == 2: # base atom
                 if atomcode in pu2py:
@@ -183,6 +183,7 @@ def read_pdb(pdblines, pdbname, add_termini=False,modbase=False,modres=False):
       ("OP3","O5T"),
       ("HO5'","H5T"),
       ("HO3'","H3T"),
+      ("H2''", "HO2'")
       )
     pdbres = []
     curr_res = None
