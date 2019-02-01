@@ -472,8 +472,9 @@ name=%s
   for p in m.partners:
     if p.haddock_restraints is not None:
       has_air_restraints = True
-      rest.append("--rest " + air_restraints_file)
-      aa_rest.append("--rest " + aa_air_restraints_file)
+  if has_air_restraints:
+    rest.append("--rest " + air_restraints_file)
+    aa_rest.append("--rest " + aa_air_restraints_file)
   if m.harmonic_restraints_file:
     rest.append("--rest " + harmonic_restraints_file)
     aa_rest.append("--rest " + aa_harmonic_restraints_file)
