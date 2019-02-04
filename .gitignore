@@ -34,3 +34,4 @@ gui/server/cgi-local
 bin/ScoringClient.log
 html/upload.html
 attract-em-gpu/_axsym.cpp
+!Dockerfile

@@ -1,8 +1,8 @@
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include <memory>
 #include <sys/mman.h>
-
 
 char *files[1000];
 int nrfiles;
