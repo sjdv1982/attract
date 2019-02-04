@@ -50,6 +50,29 @@ class Residue(object):
             else:
                 raise ValueError(mode)
 
+    def get_angles(self):
+        connectivity = {}
+        angles = []
+        for atom1, atom2 in self.bonds:
+            a1 = self.atomorder.index(atom1)
+            a2 = self.atomorder.index(atom2)
+            if atom1 not in connectivity: connectivity[atom1] = set()
+            if atom2 not in connectivity: connectivity[atom2] = set()
+            con1 = connectivity[atom1]
+            con2 = connectivity[atom2]
+            con1.add(a2)
+            con2.add(a1)
+        for atom in connectivity.keys():
+            con = connectivity[atom]
+            for a1 in con:
+                atom1 = self.atomorder[a1]
+                for a2 in con:
+                    if a2 <= a1: continue
+                    atom2 = self.atomorder[a2]
+                    angles.append((atom1, atom, atom2))
+        return angles
+
+
 def load(d):
     residues = {}
     for resname, resdata in d["residues"].items():

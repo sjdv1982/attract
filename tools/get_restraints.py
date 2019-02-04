@@ -8,10 +8,23 @@ import math
 import os
 import re
 import cPickle as pickle
+import json
+from copy import deepcopy
 currdir = os.path.abspath(os.path.split(__file__)[0])
 allatomdir = currdir + "/../allatom"
 sys.path.append(allatomdir)
-from parse_cns_top import *
+import topology as topology_lib
+topfiles = [ allatomdir + "/oplsx-top.json",
+              allatomdir + "/dna-rna-top.json",
+            ]
+topologies = []
+for f in topfiles:
+    try:
+        topologies.append(topology_lib.load(json.load(open(f))))
+    except:
+        print >> sys.stderr, f
+        raise
+topology = topology_lib.merge(topologies)
 
 def make_interfacelist(ilist, pdb):
      # Read interface residues from files
@@ -56,7 +69,7 @@ def make_model(filelist,residues,presidues,nlistcut=30):
         natom = atomid[atom-1][2]
         resn = atomid[atom-1][0]
         resi = int(atomid[atom-1][1])
-        a = residues[resn.lower().replace(' ','')].copy()
+        a = deepcopy(residues[resn.upper().replace(' ','')])
         tmp = [x for x in patches if int(x[0]) == resi]
         if len(tmp):
 	  if tmp[0][1] == 'disu':
@@ -224,5 +237,4 @@ if __name__ == "__main__":
         
     else: 
         parse_stream(open(sys.argv[1]))
-        topology = residues, presidues #importted from parse_cns_top
         make_restraints(topology,*sys.argv[2:])
