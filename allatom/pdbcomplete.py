@@ -90,7 +90,7 @@ def pdbcomplete(pdb, other):
   """
   Completes a PDB by taking missing coordinates from the other PDB
   """
-  assert len(pdb) == len(other)
+  assert len(pdb) == len(other), (len(pdb), len(other))
   for r1, r2 in zip(pdb, other):
     for atom in r2.coords:
       if atom not in r1.coords:
@@ -149,9 +149,9 @@ def load_nalib(libname):
     lib.pho5 = {}
     ph = {
         # !!! keep the order of atoms in the library!
+        "all_atoms":     ["P", "O1P", "O2P", "O5'", "C5'", "C4'", "N3", "C5", "C3'"], # for masking (corresponds to "coor")
         "atoms":     ["P", "O1P", "O2P", "O5'"], # for completion
-        #"fit_atoms": ["P", "O1P", "O2P", "O5'", "C5'", "C4'", "C3'"], #atoms to fit on
-        "fit_atoms": ["P", "O1P", "O2P", "O5'"], #atoms to fit on
+        "fit_atoms": ["P", "O1P", "O2P", "O5'", "C5'", "C4'", "C3'"], #atoms to fit on
         "rmsd_atoms": ["P", "O1P", "O2P", "O5'", "C5'", "C4'", "N3", "C5", "C3'"], # to compute best RMSD (avoid base-phosphate clashes),
         "max_missing": 4,
         }
@@ -167,6 +167,7 @@ def load_nalib(libname):
         "atoms": [l[12:16].strip() for l in open(lib.dir + "/sugar.pdb") if l.startswith("ATOM")],
         "max_missing": 2,
         }
+    sugar["all_atoms"] = sugar["atoms"]
     sugar["fit_atoms"] = sugar["atoms"]
     sugar["rmsd_atoms"] = sugar["atoms"]
     bases = ["A","C","G","U"]
@@ -179,8 +180,9 @@ def load_nalib(libname):
             "missing": 23,
         }
         nuclatoms = [l[12:16].strip() for l in open(lib.dir + "/%s.pdb" % nuc) if l.startswith("ATOM")]
+        lib.nucl[nuc]["all_atoms"] = nuclatoms
         lib.nucl[nuc]["atoms"] = nuclatoms
-        lib.nucl[nuc]["fit_atoms"] = ["C4'", "O4'", "C1'", "C2'", "C3'"]
+        lib.nucl[nuc]["fit_atoms"] = lib.sugar[nuc]["atoms"]
         lib.nucl[nuc]["rmsd_atoms"] = nuclatoms
 
         lib.base[nuc] = {}
@@ -194,9 +196,9 @@ def load_nalib(libname):
 
         lib.ph[nuc] = ph.copy()
         lib.ph[nuc]["coor"] = np.load(lib.dir + "/%s.npy" % nuc)
-        phlist = set(lib.ph[nuc]["atoms"] + lib.ph[nuc]["rmsd_atoms"] + lib.ph[nuc]["fit_atoms"])
-        ph_indices = [ anr for anr,a in enumerate(lib.nucl[nuc]["atoms"]) if a in phlist]
-        #lib.ph[nuc]["coor"] = lib.nucl[nuc]["coor"][:, ph_indices]
+        phlist = set(lib.ph[nuc]["all_atoms"])
+        ph_indices = [ anr for anr,a in enumerate(lib.nucl[nuc]["all_atoms"]) if a in phlist]
+        lib.ph[nuc]["coor"] = lib.nucl[nuc]["coor"][:, ph_indices]
 
         lib.pho5[nuc] = pho5
     return lib
@@ -261,16 +263,16 @@ def check_clashes(nl, libconf, lib_complete_indices, new_at, tree, atom_to_resid
         return 0
     return 1
 
-def rank_library(res, libcoor, fit_atoms, rmsd_atoms, atoms):
+def rank_library(res, libcoor, fit_atoms, rmsd_atoms, all_atoms):
     '''
     rank nucleotides in library by best-fitting to our target residue
     '''
     import rmsdlib
     from scipy.spatial.distance import cdist
     #select atoms in the order of the library atoms
-    coor_atoms = [a for a in atoms if a in res.coords and a in fit_atoms]
-    coor = np.array([res.coords[a] for a in atoms if a in res.coords and a in fit_atoms])
-    fit_mask = np.array([(a in fit_atoms and a in res.coords) for a in atoms])
+    coor_atoms = [a for a in all_atoms if a in res.coords and a in fit_atoms]
+    coor = np.array([res.coords[a] for a in all_atoms if a in res.coords and a in fit_atoms])
+    fit_mask = np.array([(a in fit_atoms and a in res.coords) for a in all_atoms])
     #fit the mononucl lib on the nucl to repair:
     ## get the rotation-translation to apply to the rank_library
     libcoor_fit = libcoor[:,fit_mask]
@@ -336,9 +338,11 @@ def apply_nalib(pdb, lib, manual, heavy=True):
                     #if fixmode == "sugar": continue
                     sublib = getattr(lib, fixmode) # lib.ph or lib.sugar or ...
                     atoms = sublib[nuc]["atoms"]
+                    all_atoms = sublib[nuc]["all_atoms"]
                     fit_atoms = sublib[nuc]["fit_atoms"]
                     rmsd_atoms = sublib[nuc]["rmsd_atoms"]
                     libcoor = sublib[nuc]["coor"]
+                    assert libcoor.shape[-2] == len(all_atoms)
                     if any([(m in atoms) for m in missing]) and \
                      len([a for a in fit_atoms if a in res.coords]) >= 3:
                         break
@@ -349,9 +353,9 @@ def apply_nalib(pdb, lib, manual, heavy=True):
                     break
                     #raise FixError(msg)
                 print("fixing %s"%fixmode, file=sys.stderr)
-                libcoor_fitted_sorted = rank_library(res, libcoor, fit_atoms, rmsd_atoms, atoms)
+                libcoor_fitted_sorted = rank_library(res, libcoor, fit_atoms, rmsd_atoms, all_atoms)
                 lib_complete_indices = []
-                for anr, a in enumerate(atoms):
+                for anr, a in enumerate(all_atoms):
                     if a in missing or fixmode == "base":
                         lib_complete_indices.append(anr)
                 #TODO: change clashing threshold when not --heavy
