@@ -199,6 +199,7 @@ def read_pdb(pdblines, pdbname, add_termini=False,modbase=False,modres=False):
         # try to fix a nucleotide name
         resname = check_nucl(resname)
         atomcode, resname = mutate(atomcode, resname)
+        resname = check_nucl(resname)
         if atomcode == None:
             continue
         chain = l[21]
