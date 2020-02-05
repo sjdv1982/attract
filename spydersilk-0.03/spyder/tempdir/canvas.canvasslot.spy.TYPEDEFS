@@ -1,0 +1,8 @@
+662595981
+3411427295
+CanvasSlotArray
+[]
+CanvasSlot
+{'form': 'slottype.typeinfo = "type"\n', 'deleted_members': [], '__init__': 'color\n', 'members': [('String', 'canvasname', ''), ('String', 'slotname', ''), ('String', 'slottype', ''), ('Box2D', 'box', ''), ('Color4F', 'color', '')]}
+CanvasSlotArrayArray
+[]

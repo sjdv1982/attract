@@ -1,0 +1,178 @@
+# Copyright 2007, Luis Sergio Moura
+# adapted by Sjoerd de Vries
+# This file is part of the Spyder module: "models3d" 
+# For licensing information, see LICENSE.txt 
+
+Type Bolt3D:ThreeDee {
+  """Sergio Moura's Bolt"""
+  Float radius
+  Integer divisions
+  Float step
+  Integer loops
+  Float ident
+  Bool crease_inside = False
+  Bool crease_outside = False
+  Bool crease_cap = False
+  AxisSystem axis = AxisSystem()
+  Material material = "defaultmaterial"
+  validate {
+    assert radius > 0
+    assert ident >= 0
+    assert ident < radius
+    assert divisions >= 3
+    assert loops >= 3
+    #prevent normal flipping 
+    assert step > 0 
+  }
+  form {
+    self.matrix = "axis"
+    radius.default = 1
+    radius.min = 0.01
+    radius.max = 10
+    divisions.default = 8
+    divisions.min = 4
+    divisions.max = 100
+    step.default = 0.2
+    step.min = 0.01
+    step.max = 10  
+    loops.default = 5
+    loops.min = 3
+    loops.max = 100
+    ident.default = 0.1
+    ident.min = 0.01
+    ident.max = 10
+  }
+}
+
+Define Object3D(Bolt3D b) {
+  radius, sub, step, loops, ident, increase, outcrease, capcrease = ( b.radius,
+    b.divisions,
+    b.step,
+    b.loops,
+    b.ident,
+    b.crease_inside,
+    b.crease_outside,
+    b.crease_cap,
+  )
+  verts = []
+  faces = []
+  
+  # VERTS
+  #cap
+  unit = Coordinate(0,1,0)
+  inradius = radius - ident
+  zstep = float(step) / sub
+  ang = 360.0 / sub
+  rotmat = AxisSystem().rotateZ(ang)
+
+  axis = AxisSystem().rotateZ(-ang)
+  verts.append(inradius * unit * axis)
+  for i in range(sub-1):
+    axis *= rotmat #axis.rotateZ(ang)
+    verts.append(radius*unit*axis)
+
+  #1st loop
+  axis1 = AxisSystem() * inradius
+  axis2 = AxisSystem() * radius
+  space = 0
+  for i in range(sub):
+    axis1.origin.z += 0.5*zstep
+    verts.append(unit * axis1)
+    axis1 *= rotmat #axis1.rotateZ(ang)
+    
+    axis2.origin.z += zstep
+    verts.append(unit * axis2)
+    axis2 *= rotmat #axis2.rotateZ(ang)
+
+  #other loops
+  for j in range(loops-1):
+    #make sure that we have rotated exactly 360 degrees (eliminate accumulated rounding error)
+    axis1 = AxisSystem(origin=(0,0,axis1.origin.z)) * inradius
+    axis2 = AxisSystem(origin=(0,0,axis2.origin.z)) * radius
+    for i in range(sub):
+      if j < loops - 2: axis1.origin.z += zstep
+      else: axis1.origin.z += 0.5 * zstep
+      verts.append(unit * axis1)
+      axis1 *= rotmat #axis1.rotateZ(ang)
+
+      if j < loops - 2: axis2.origin.z += zstep
+      verts.append(unit * axis2)
+      axis2 *= rotmat #axis2.rotateZ(ang)
+    
+  #one pair of vertices too many
+  verts = verts[:-2]
+
+  #FACES 
+  #cap / 1st loop
+  faces.append([1,0,sub])
+  faces.append([0,sub+1,sub])
+  
+  for i in range(sub-1):
+    ii = sub+2*i
+    nexti = i + 2
+    if (nexti) == sub: nexti = 0
+    faces.append([nexti, i+1, ii, ii+2])
+    faces.append([ii+2,ii,ii+1, ii+3])
+  
+  #2nd to n
+  lastcorner = 0
+  vcount = sub * 3 - 2
+  for j in range(loops-1):
+    for i in range(sub):
+      nextcorner = sub + 2*(sub*j+i) + 1
+      othercorner = vcount + 2*(sub*j+i)
+      faces.append([nextcorner, lastcorner, othercorner, othercorner+2])
+      faces.append([othercorner+2, othercorner, othercorner+1, othercorner+3])
+      lastcorner = nextcorner
+
+  #one pair of faces too many
+  faces = faces[:-2]
+  
+  # last pair of faces
+  eol = 2*sub*(loops-2) + vcount + 1 #stands for end of line
+  faces.append([eol, nextcorner-2, othercorner])
+  faces.append([eol, othercorner, othercorner+1])
+
+  edges0 = set()
+  #extract all edges from the faces
+  for f in faces:
+    lastv = f[-1]
+    for v in f:
+      v1 = min((lastv,v))
+      v2 = max((lastv,v))
+      edges0.add((v1,v2))
+      lastv = v
+
+  #calculate edge creases
+  def is_inner(e,eol,sub):    
+    for v in e:
+      if v == 0 or v == eol: continue
+      if v < sub: return False      
+      if (v - sub) % 2: return False
+    return True
+      
+  def is_outer(e,eol,sub):    
+    for v in e:
+      if v == 0 or v == eol: continue
+      if v < sub: return False            
+      if (v - sub - 1) % 2: return False
+    return True
+    
+  def is_cap(e,eol,sub):
+    for v in e:
+      if v < sub: continue
+      if v < eol: return False
+      if v > eol + 2 * sub: return False
+      if (v - eol) % 2: return False
+    return True
+
+  edges = []
+  for e in edges0:
+    crease = None
+    if increase > 0 and is_inner(e,eol,sub): crease = 255 * increase
+    if outcrease > 0 and is_outer(e,eol,sub): crease = 255 * outcrease
+    if capcrease > 0 and is_cap(e,eol,sub): crease = 255 * capcrease
+    if crease == None: edges.append(e)
+    else: edges.append((e[0], e[1], crease))
+  return Object3D(vertices=verts, faces=faces, edges=edges, material = b.material,axis=b.axis)
+}

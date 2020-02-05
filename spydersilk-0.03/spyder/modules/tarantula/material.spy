@@ -1,0 +1,90 @@
+# Copyright 2007, Sjoerd de Vries
+# This file is part of the Spyder module: "tarantula" 
+# For licensing information, see LICENSE.txt 
+
+Type Color {
+  Integer r
+  Integer g
+  Integer b
+  validate {
+    assert r >= 0 and r <= 255
+    assert g >= 0 and g <= 255
+    assert b >= 0 and b <= 255
+  }
+} 
+
+Type Color4:Color {
+  Float a
+  validate {
+    assert a >= 0 and a <= 255
+  }
+}
+
+Type ColorF {
+  Float r
+  Float g
+  Float b
+  validate {
+    assert r >= 0 and r <= 1
+    assert g >= 0 and g <= 1
+    assert b >= 0 and b <= 1
+  }
+} 
+
+Type Color4F:ColorF {
+  Float a
+  validate {
+    assert a >= 0 and a <= 1
+  }
+}
+
+
+Type NewMaterial:Degenerate { 
+  """This class defines object materials
+   A new material must be defined as NewMaterial
+    and then show()'ed
+   Within an object, its material can then be 
+    defined to as Material(pname)
+   Any material can be accessed as 
+    spyder.modules.tarantula.get_material(pname)
+
+   Currently, only the color property is implemented
+   Textures and transparency will be implemented soon
+  """
+  String pname
+  *Color color
+  *Filename texture
+  Float transparency = 0
+  validate {
+    #assert color != None or texture != None  ## will be enabled when textures are supported
+    assert color != None
+  }
+  form {
+    color.default = (0,0,0)
+    texture.type = None
+    transparency.type = None
+  }
+}
+
+#Type Material:String {}
+
+Type SingleMaterial:Degenerate { 
+  """This class defines materials that are used only once
+
+   Currently, only the color property is implemented
+   Textures and transparency will be implemented soon
+  """
+  String pname
+  *Color color
+  *Filename texture
+  Float transparency = 0
+  validate {
+    #assert color != None or texture != None  ## will be enabled when textures are supported
+    assert color != None
+  }
+  form {
+    color.default = (0,0,0)
+    texture.type = "none"
+    transparency.type = "none"
+  }
+}

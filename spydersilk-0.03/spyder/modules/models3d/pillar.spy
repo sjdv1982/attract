@@ -1,0 +1,45 @@
+# Copyright 2007-2009, Sjoerd de Vries
+# This file is part of the Spyder module: "models3d" 
+# For licensing information, see LICENSE.txt 
+
+Type Pillar3D:Cylinder {
+  """3D object class for a simple pillar
+   The pillar is oriented along the Z axis
+   A Pillar is constructed in the same way as a Cylinder,
+   but it is rendered as a cylinder capped at each side
+  """
+}
+
+Define Object3DArray(Pillar3D p) {
+  footheight1 = 1
+  footheight2 = 1.5
+
+  pp = Pillar3D(p)
+  pp.radius *= 0.5
+  pp.height -= footheight1 + footheight2
+  pp.axis = AxisSystem(p.axis.origin,p.axis.x,p.axis.y,p.axis.z)
+  a = Cylinder(pp).convert(Object3D)
+  pp.radius = p.radius*0.9
+  pp.height = footheight2
+  shift = 0.5*p.height-footheight1 -0.5*footheight2
+  pp0 = Pillar3D(pp)
+  pp.axis.origin += shift*pp.axis.z
+  b = Cylinder(pp).convert(Object3D)
+  pp = Pillar3D(pp0)
+  pp.axis.origin -= shift*pp.axis.z
+  c = Cylinder(pp).convert(Object3D)
+
+  shift = 0.5*p.height-0.5*footheight1
+  blockpos = Coordinate(p.axis.origin)
+  blockpos -= shift*pp.axis.z
+  d = Block3D((2*p.radius,2*p.radius,footheight1),axis=p.axis,material=p.material)
+  d.axis.origin = blockpos
+  d = d.convert(Object3D)
+  blockpos = Coordinate(p.axis.origin)
+  blockpos += shift*pp.axis.z
+  e = Block3D((2*p.radius,2*p.radius,footheight1),axis=p.axis,material=p.material)
+  e.axis.origin = blockpos
+  e = e.convert(Object3D)
+  a.lighting, b.lighting, c.lighting, d.lighting, e.lighting = "smooth", "smooth","smooth","flat","flat"
+  return Object3DArray(a,b,c,d,e)
+}

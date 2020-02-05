@@ -1,0 +1,128 @@
+662595981
+1401879234
+Object3DArrayArray
+[]
+GridCoordinate2DArray
+[]
+Coordinate2D
+{'deleted_members': [], 'form': 'x.default = 0\ny.default = 0    \nx.digits = 3\ny.digits = 3\n', 'members': [('Float', 'x', ''), ('Float', 'y', '')]}
+Polygon
+{'length': 'return len(vertices)\n', 'validate': 'assert texturecoords == None or len(texturecoords) == len(vertices)\nassert vertexnormals == None or len(vertexnormals) == len(vertices)\n', 'deleted_members': [], '__init__': 'texturecoords\nnormal\nvertexnormals\n', 'members': [('CoordinateArray', 'vertices', ''), ('Material', 'material = "defaultmaterial"', ''), ('AxisSystem', 'axis = AxisSystem()', ''), ('CoordinateArray', 'texturecoords', ''), ('Vector', 'normal', ''), ('VectorArray', 'vertexnormals', '')]}
+VertexArray
+[]
+GridCoordinate2D
+{'deleted_members': [], 'members': [('Integer', 'x', ''), ('Integer', 'y', '')]}
+Block3DArray
+[]
+Circle64
+{'deleted_members': [], 'members': [('Float', 'radius', ''), ('Coordinate', 'origin', ''), ('Material', 'material = "defaultmaterial"', ''), ('Vector', 'normal = (0,0,1)', '')]}
+MultiDisplayListArray
+[]
+VertexArrayArray
+[]
+Cylinder16ArrayArray
+[]
+Circle32Array
+[]
+Object3D
+{'validate': 'if lighting is not None: assert lighting in ("smooth", "flat")\n', 'deleted_members': [], 'form': 'lighting.options = "smooth", "flat"\n', 'members': [('VertexArray', 'vertices = []', ''), ('Face3DArray', 'faces = []', ''), ('Material', 'material = "defaultmaterial"', ''), ('AxisSystem', 'axis = AxisSystem()', ''), ('Edge3DArray', 'edges = []', ''), ('String', 'lighting = "flat"', '')]}
+Coordinate2DArrayArray
+[]
+Circle64ArrayArray
+[]
+Edge3DArrayArray
+[]
+Object3DArray
+[]
+VectorArrayArray
+[]
+Circle
+{'deleted_members': [], 'members': [('Float', 'radius', ''), ('Coordinate', 'origin', ''), ('Material', 'material = "defaultmaterial"', ''), ('Vector', 'normal = (0,0,1)', '')]}
+Face3DArray
+[]
+Block3DArrayArray
+[]
+Edge3D
+{'validate': 'assert crease >= 0 and crease < 256\n', 'deleted_members': [], 'members': [('Integer', 'v1', ''), ('Integer', 'v2', ''), ('Integer', 'crease = 0', '')]}
+PolygonArrayArray
+[]
+Cylinder64
+{'deleted_members': [], 'members': [('Float', 'radius', ''), ('Float', 'height', ''), ('AxisSystem', 'axis = AxisSystem()', ''), ('Material', 'material = "defaultmaterial"', '')]}
+CircleArray
+[]
+Cylinder32Array
+[]
+Vertex
+{'__init__': 'texturecoords\n', 'deleted_members': [], 'form': 'x.default = 0\ny.default = 0    \nz.default = 0    \nx.digits = 3\ny.digits = 3\nz.digits = 3\n', 'members': [('Float', 'x', ''), ('Float', 'y', ''), ('Float', 'z', ''), ('Coordinate2D', 'texturecoords', '')], '__endclass': '  def __mul__(self, a): \n    """Multiplication with either:\n      a Float (scaling)\n      a Coordinate (dot product) \n      or an AxisSystem (vector-matrix multiplication)\n    """\n    types = (Float, Coordinate, AxisSystem)\n    for t in types:  \n      try:\n        a = t(a)\n      except:\n        continue\n      break\n    else:\n      raise TypeError("Unknown type")\n    if t == Float: #scale\n      return Coordinate(a*self.x,a*self.y, a*self.z)\n    elif t == Coordinate: #dot product\n      return a.x*self.x+a.y*self.y+a.z*self.z\n    elif t == AxisSystem: #vector-matrix multiplication\n      ret = Coordinate(a.origin)\n      ret += self.x * a.x\n      ret += self.y * a.y\n      ret += self.z * a.z\n      return ret\n  def __rmul__(self, a):  \n    """Inline multiplication"""\n    return self * a\n  def __truediv__(self, a):\n    """Division by Float: equivalent to 1/a multiplication"""\n    a = Float(a)\n    return self * (1/a)\n  def __div__(self, a):\n    """Division by Float: equivalent to 1/a multiplication"""\n    a = Float(a)\n    return self * (1/a)\n  def __rtruediv__(self, a):\n    """Inline division by Float"""\n    a = Float(a)\n    return self * (1/a)\n  def __rdiv__(self, a):\n    """Inline division by Float"""\n    a = Float(a)\n    return self * (1/a)\n  def size(self):\n    """The scalar length of the Coordinate"""\n    return sqrt(self.x**2+self.y**2+self.z**2)\n  def normalize(self):\n    """Re-scale the Coordinate length to 1 \n    , returns Vector"""\n    v = Coordinate(self)\n    size = v.size()\n    if size > 0: v /= size\n    else: v = (1,0,0)\n    return Vector(v)    \n  def crossproduct(self, v):\n    """Returns a Coordinate perpendicular both to this one and to v"""\n    v = Coordinate(v)\n    x = self.y * v.z - self.z * v.y\n    y = self.z * v.x - self.x * v.z\n    z = self.x * v.y - self.y * v.x\n    return Coordinate(x,y,z).normalize()\n  def __xor__(self,v): ## ^, cross product\n    """Symbol ^, equivalent to crossproduct"""\n    return self.crossproduct(v)\n  def __neg__(self):\n    """Negation, returns -self"""\n    return type(self)(-self.x,-self.y,-self.z)\n  def __add__(self, a):\n    """Addition of another Coordinate"""\n    a = Coordinate(a)\n    return Coordinate(self.x+a.x, self.y+a.y, self.z+a.z)\n  def __iadd__(self,a):\n    """Inline addition"""\n    self = type(self)(self + a)\n    return self\n  def __sub__(self,a):\n    """Subtraction of another Coordinate"""\n    return self + -a\n  def __isub__(self,a):\n    """Inline subtraction"""\n    self = type(self)(self - a)\n    return self\n'}
+CircleArrayArray
+[]
+VectorArray
+[]
+GridCoordinate2DArrayArray
+[]
+MultiDisplayListArrayArray
+[]
+DisplayListArray
+[]
+Face3D
+{'validate': 'assert texturecoords == None or len(texturecoords) == len(vertices)\nassert vertexnormals == None or len(vertexnormals) == len(vertices)\n', 'deleted_members': [], '__init__': 'material\ntexturecoords\nnormal\nvertexnormals\n', 'members': [('IntegerArray', 'vertices', ''), ('Material', 'material', ''), ('Coordinate2DArray', 'texturecoords', ''), ('Vector', 'normal', ''), ('VectorArray', 'vertexnormals', '')]}
+CoordinateArray
+[]
+Cylinder32ArrayArray
+[]
+Cylinder64Array
+[]
+CylinderArray
+[]
+Cylinder16Array
+[]
+DisplayList
+{'deleted_members': [], 'members': [('Integer', 'displaylist', ''), ('AxisSystem', 'axis = AxisSystem()', '')]}
+CylinderArrayArray
+[]
+Circle32
+{'deleted_members': [], 'members': [('Float', 'radius', ''), ('Coordinate', 'origin', ''), ('Material', 'material = "defaultmaterial"', ''), ('Vector', 'normal = (0,0,1)', '')]}
+CoordinateArrayArray
+[]
+Circle16
+{'deleted_members': [], 'members': [('Float', 'radius', ''), ('Coordinate', 'origin', ''), ('Material', 'material = "defaultmaterial"', ''), ('Vector', 'normal = (0,0,1)', '')]}
+Vector
+{'validate': 'assert abs(x**2+y**2+z**2 - 1) < 0.001\n', 'deleted_members': [], 'form': 'x.min = -1\nx.max = 1\nx.default = 0\ny.min = -1\ny.max = 1\ny.default = 0    \nz.min = -1\nz.max = 1\nz.default = 0        \n', 'members': [('Float', 'x', ''), ('Float', 'y', ''), ('Float', 'z', '')], '__endclass': '  def __mul__(self, a): \n    """Multiplication with either:\n      a Float (scaling)\n      a Coordinate (dot product) \n      or an AxisSystem (vector-matrix multiplication)\n    """\n    types = (Float, Coordinate, AxisSystem)\n    for t in types:  \n      try:\n        a = t(a)\n      except:\n        continue\n      break\n    else:\n      raise TypeError("Unknown type")\n    if t == Float: #scale\n      return Coordinate(a*self.x,a*self.y, a*self.z)\n    elif t == Coordinate: #dot product\n      return a.x*self.x+a.y*self.y+a.z*self.z\n    elif t == AxisSystem: #vector-matrix multiplication\n      ret = Coordinate(a.origin)\n      ret += self.x * a.x\n      ret += self.y * a.y\n      ret += self.z * a.z\n      return ret\n  def __rmul__(self, a):  \n    """Inline multiplication"""\n    return self * a\n  def __truediv__(self, a):\n    """Division by Float: equivalent to 1/a multiplication"""\n    a = Float(a)\n    return self * (1/a)\n  def __div__(self, a):\n    """Division by Float: equivalent to 1/a multiplication"""\n    a = Float(a)\n    return self * (1/a)\n  def __rtruediv__(self, a):\n    """Inline division by Float"""\n    a = Float(a)\n    return self * (1/a)\n  def __rdiv__(self, a):\n    """Inline division by Float"""\n    a = Float(a)\n    return self * (1/a)\n  def size(self):\n    """The scalar length of the Coordinate"""\n    return sqrt(self.x**2+self.y**2+self.z**2)\n  def normalize(self):\n    """Re-scale the Coordinate length to 1 \n    , returns Vector"""\n    v = Coordinate(self)\n    size = v.size()\n    if size > 0: v /= size\n    else: v = (1,0,0)\n    return Vector(v)    \n  def crossproduct(self, v):\n    """Returns a Coordinate perpendicular both to this one and to v"""\n    v = Coordinate(v)\n    x = self.y * v.z - self.z * v.y\n    y = self.z * v.x - self.x * v.z\n    z = self.x * v.y - self.y * v.x\n    return Coordinate(x,y,z).normalize()\n  def __xor__(self,v): ## ^, cross product\n    """Symbol ^, equivalent to crossproduct"""\n    return self.crossproduct(v)\n  def __neg__(self):\n    """Negation, returns -self"""\n    return type(self)(-self.x,-self.y,-self.z)\n  def __add__(self, a):\n    """Addition of another Coordinate"""\n    a = Coordinate(a)\n    return Coordinate(self.x+a.x, self.y+a.y, self.z+a.z)\n  def __iadd__(self,a):\n    """Inline addition"""\n    self = type(self)(self + a)\n    return self\n  def __sub__(self,a):\n    """Subtraction of another Coordinate"""\n    return self + -a\n  def __isub__(self,a):\n    """Inline subtraction"""\n    self = type(self)(self - a)\n    return self\n'}
+Coordinate2DArray
+[]
+Coordinate
+{'deleted_members': [], 'form': 'x.default = 0\ny.default = 0    \nz.default = 0    \nx.digits = 3\ny.digits = 3\nz.digits = 3\n', 'members': [('Float', 'x', ''), ('Float', 'y', ''), ('Float', 'z', '')], '__endclass': '  def __mul__(self, a): \n    """Multiplication with either:\n      a Float (scaling)\n      a Coordinate (dot product) \n      or an AxisSystem (vector-matrix multiplication)\n    """\n    types = (Float, Coordinate, AxisSystem)\n    for t in types:  \n      try:\n        a = t(a)\n      except:\n        continue\n      break\n    else:\n      raise TypeError("Unknown type")\n    if t == Float: #scale\n      return Coordinate(a*self.x,a*self.y, a*self.z)\n    elif t == Coordinate: #dot product\n      return a.x*self.x+a.y*self.y+a.z*self.z\n    elif t == AxisSystem: #vector-matrix multiplication\n      ret = Coordinate(a.origin)\n      ret += self.x * a.x\n      ret += self.y * a.y\n      ret += self.z * a.z\n      return ret\n  def __rmul__(self, a):  \n    """Inline multiplication"""\n    return self * a\n  def __truediv__(self, a):\n    """Division by Float: equivalent to 1/a multiplication"""\n    a = Float(a)\n    return self * (1/a)\n  def __div__(self, a):\n    """Division by Float: equivalent to 1/a multiplication"""\n    a = Float(a)\n    return self * (1/a)\n  def __rtruediv__(self, a):\n    """Inline division by Float"""\n    a = Float(a)\n    return self * (1/a)\n  def __rdiv__(self, a):\n    """Inline division by Float"""\n    a = Float(a)\n    return self * (1/a)\n  def size(self):\n    """The scalar length of the Coordinate"""\n    return sqrt(self.x**2+self.y**2+self.z**2)\n  def normalize(self):\n    """Re-scale the Coordinate length to 1 \n    , returns Vector"""\n    v = Coordinate(self)\n    size = v.size()\n    if size > 0: v /= size\n    else: v = (1,0,0)\n    return Vector(v)    \n  def crossproduct(self, v):\n    """Returns a Coordinate perpendicular both to this one and to v"""\n    v = Coordinate(v)\n    x = self.y * v.z - self.z * v.y\n    y = self.z * v.x - self.x * v.z\n    z = self.x * v.y - self.y * v.x\n    return Coordinate(x,y,z).normalize()\n  def __xor__(self,v): ## ^, cross product\n    """Symbol ^, equivalent to crossproduct"""\n    return self.crossproduct(v)\n  def __neg__(self):\n    """Negation, returns -self"""\n    return type(self)(-self.x,-self.y,-self.z)\n  def __add__(self, a):\n    """Addition of another Coordinate"""\n    a = Coordinate(a)\n    return Coordinate(self.x+a.x, self.y+a.y, self.z+a.z)\n  def __iadd__(self,a):\n    """Inline addition"""\n    self = type(self)(self + a)\n    return self\n  def __sub__(self,a):\n    """Subtraction of another Coordinate"""\n    return self + -a\n  def __isub__(self,a):\n    """Inline subtraction"""\n    self = type(self)(self - a)\n    return self\n'}
+Edge3DArray
+[]
+Cylinder32
+{'deleted_members': [], 'members': [('Float', 'radius', ''), ('Float', 'height', ''), ('AxisSystem', 'axis = AxisSystem()', ''), ('Material', 'material = "defaultmaterial"', '')]}
+AxisSystemArray
+[]
+Cylinder
+{'deleted_members': [], 'members': [('Float', 'radius', ''), ('Float', 'height', ''), ('AxisSystem', 'axis = AxisSystem()', ''), ('Material', 'material = "defaultmaterial"', '')]}
+MultiDisplayList
+{'deleted_members': [], 'members': [('Integer', 'displaylist', ''), ('AxisSystemArray', 'instances', '')]}
+Block3D
+{'validate': 'if pivot is not None: assert pivot in ("center", "corner")\n', 'deleted_members': [], 'form': 'pivot.options = "center", "corner"\nself.matrix = "axis"\ndimensions.default = Coordinate(1,1,1)\n', 'members': [('Coordinate', 'dimensions', ''), ('Material', 'material = "defaultmaterial"', ''), ('AxisSystem', 'axis = AxisSystem()', ''), ('String', 'pivot = "center"', '')]}
+Cylinder16
+{'deleted_members': [], 'members': [('Float', 'radius', ''), ('Float', 'height', ''), ('AxisSystem', 'axis = AxisSystem()', ''), ('Material', 'material = "defaultmaterial"', '')]}
+PolygonArray
+[]
+Circle16ArrayArray
+[]
+Cylinder64ArrayArray
+[]
+Face3DArrayArray
+[]
+Circle32ArrayArray
+[]
+Circle64Array
+[]
+DisplayListArrayArray
+[]
+AxisSystem
+{'form': 'self.subtype = "column"\n', 'deleted_members': [], '__endclass': '  def __mul__(self,a):\n    """Multiplication with either:\n     a Float (scaling)\n     a Coordinate (vector-matrix multiplication)\n     or an AxisSystem (matrix-matrix multiplication)\n    """ \n    types = (Float, Coordinate, AxisSystem)\n    for t in types:  \n      try:\n        a = t(a)\n      except:\n        continue\n      break\n    else:\n      raise TypeError("Unknown type")\n    if t == Float:\n      ret = AxisSystem(self.origin, self.x*a, self.y*a, self.z*a)\n      return ret\n    if t == Coordinate:\n      return t * self\n    if t == AxisSystem:\n      ret = AxisSystem()\n      b = self\n      ret.x = a.x * b.x.x + a.y * b.x.y + a.z * b.x.z \n      ret.y = a.x * b.y.x + a.y * b.y.y + a.z * b.y.z\n      ret.z = a.x * b.z.x + a.y * b.z.y + a.z * b.z.z\n      ret.origin = a.x * b.origin.x + a.y * b.origin.y + a.z * b.origin.z + a.origin\n      return ret\n  def rotateAxis(self, axis ,ang, full=False):  \n    """Rotate around an arbitrary axis by an angle in degrees\n    if full == True, rotate the axis origin as well """\n    a = Coordinate(axis).normalize()\n    x, y, z = a.x, a.y, a.z\n    radang = ang/180.0 * pi\n    c = cos(radang)\n    s = sin(radang)\n    t = 1 - c\n    v1,v2,v3 = (Vector(t*x*x+c, t*x*y-s*z, t*x*z+s*y),\n               Vector(t*y*x+s*z, t*y*y+c, t*y*z-s*x),\n               Vector(t*x*z-s*y, t*y*z+s*x, t*z*z+c))\n    mat = AxisSystem((0,0,0),v1,v2,v3)\n    ret = self * mat\n    self.x,self.y,self.z = ret.x,ret.y,ret.z\n    if full:\n      self.origin = self.origin * mat    \n    return self\n  def rotateX(self,ang): \n    """Rotate around the global X axis by an angle in degrees"""\n    return self.rotateAxis((1,0,0),ang)\n  def rotateY(self,ang): \n    """Rotate around the global Y axis by an angle in degrees"""\n    return self.rotateAxis((0,1,0),ang)\n  def rotateZ(self,ang): \n    """Rotate around the global Z axis by an angle in degrees"""\n    return self.rotateAxis((0,0,1),ang)\n  def rotateXFull(self,ang): \n    """Rotate around the global X axis by an angle in degrees\n     and rotate the axis origin as well"""\n    return self.rotateAxis((1,0,0),ang,True)\n  def rotateYFull(self,ang): \n    """Rotate around the global Y axis by an angle in degrees\n     and rotate the axis origin as well"""\n    return self.rotateAxis((0,1,0),ang,True)\n  def rotateZFull(self,ang): \n    """Rotate around the global Z axis by an angle in degrees\n     and rotate the axis origin as well"""\n    return self.rotateAxis((0,0,1),ang,True)\n  def rotateLocalX(self,ang): \n    """Rotate around the local X axis by an angle in degrees"""\n    return self.rotateAxis(self.x,ang)\n  def rotateLocalY(self,ang): \n    """Rotate around the local Y axis by an angle in degrees"""\n    return self.rotateAxis(self.y,ang)\n  def rotateLocalZ(self,ang): \n    """Rotate around the local Z axis by an angle in degrees"""\n    return self.rotateAxis(self.z,ang)\n  def rotateLocalXFull(self,ang): \n    """Rotate around the local X axis by an angle in degrees\n     and rotate the axis origin as well"""\n    return self.rotateAxis(self.x,ang,True)\n  def rotateLocalYFull(self,ang): \n    """Rotate around the local Y axis by an angle in degrees\n     and rotate the axis origin as well"""\n    return self.rotateAxis(self.y,ang,True)\n  def rotateLocalZFull(self,ang): \n    """Rotate around the local Z axis by an angle in degrees\n     and rotate the axis origin as well"""\n    return self.rotateAxis(self.z,ang,True)\n', 'members': [('Coordinate', 'origin = (0,0,0)', ''), ('Coordinate', 'x = (1,0,0)', ''), ('Coordinate', 'y = (0,1,0)', ''), ('Coordinate', 'z = (0,0,1)', '')]}
+Circle16Array
+[]
+AxisSystemArrayArray
+[]

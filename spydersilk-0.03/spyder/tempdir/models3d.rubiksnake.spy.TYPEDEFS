@@ -1,0 +1,14 @@
+662595981
+1480420963
+RubikSnake
+{'validate': 'for t in turns:\n  assert t in range(0,4)\ndir1,dir2,dir3 = 1,3,5\nposx,posy,posz = 0,0,0\npositions = {}\npositions[(posx,posy,posz)] = (dir1,dir2)\nfor t in turns:\n  posx,posy,posz = rubiksnakecode.move(posx,posy,posz,dir1)\n  dir1,dir2,dir3 = rubiksnakecode.turn(dir1,dir2,dir3,t)\n  if (posx,posy,posz) in positions:\n    opposite = rubiksnakecode.get_opposite(positions[(posx,posy,posz)])\n    if dir1 != opposite[0] or dir2 != opposite[1]: \n      raise ValidationError("Clash detected")\n  positions[(posx,posy,posz)] = (dir1,dir2)\n', 'deleted_members': [], 'form': 'self.matrix = "axis"\nsize.default = 1\nsize.range = 1\nturns[None].min = -1\nturns[None].max = 4\nturns[None].default = 0\n', 'members': [('IntegerArray', 'turns = (0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)', ''), ('Float', 'size', 'the size of each segment\n'), ('AxisSystem', 'axis = AxisSystem()', '')], '__endclass': '  @staticmethod\n  def blenderevent(self,blenderdata,currobj,currobjtype,currblenderdata,signalhead,signal,event=None,eventval=None,handles=None):\n    if (signalhead, signal) == ("turns", "value-change"):\n      v = currblenderdata["buttons"]["value"]\n      if v.val == 4: v.val = 0\n      if v.val == -1: v.val = 3      \n    return self.blendereventpass(self,blenderdata,currobj,currobjtype,currblenderdata,signalhead,signal,event,eventval,handles)\n'}
+RubikSnakeCodeArrayArray
+[]
+RubikSnakeCode
+{'deleted_members': [], 'form': 'self.matrix = "axis"\ncode.default = ""\ncode.length = 100\nsize.default = 1\nsize.range = 1\n', 'members': [('String', 'code', ''), ('Float', 'size', ''), ('AxisSystem', 'axis = AxisSystem()', '')]}
+RubikSnakeArray
+[]
+RubikSnakeCodeArray
+[]
+RubikSnakeArrayArray
+[]

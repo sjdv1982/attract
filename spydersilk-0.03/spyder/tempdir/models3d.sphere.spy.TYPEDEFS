@@ -1,0 +1,14 @@
+662595981
+2450646256
+SphereCloud3DArrayArray
+[]
+Sphere3D
+{'validate': 'assert radius >= 0\nassert subdivisions >= 0 and subdivisions <= 10\n', 'deleted_members': [], 'form': 'self.matrix = "axis"\nradius.min = 0\nradius.max = 100\nradius.default = 10\nsubdivisions.min = 0\nsubdivisions.max = 10\nsubdivisions.default = 0\n', 'members': [('Float', 'radius', ''), ('Integer', 'subdivisions', ''), ('AxisSystem', 'axis = AxisSystem()', ''), ('Material', 'material = "defaultmaterial"', '')]}
+SphereCloud3DArray
+[]
+Sphere3DArrayArray
+[]
+Sphere3DArray
+[]
+SphereCloud3D
+{'validate': 'assert radius >= 0\nassert nrpoints >= 8\n', 'deleted_members': [], 'form': 'self.matrix = "axis"\nradius.min = 0\nradius.max = 100\nradius.default = 10\nnrpoints.range = 8\nnrpoints.default = 16\n', 'members': [('Float', 'radius', ''), ('Integer', 'nrpoints', ''), ('AxisSystem', 'axis = AxisSystem()', '')]}

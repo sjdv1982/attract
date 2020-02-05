@@ -1,0 +1,8 @@
+662595981
+375970568
+Chunk3D
+{'validate': 'assert len(plane1) > 2\nassert len(plane2) == len(plane1)\n', 'deleted_members': [], 'members': [('CoordinateArray', 'plane1', ''), ('CoordinateArray', 'plane2', ''), ('AxisSystem', 'axis = AxisSystem()', ''), ('Material', 'material = "defaultmaterial"', '')]}
+Chunk3DArray
+[]
+Chunk3DArrayArray
+[]

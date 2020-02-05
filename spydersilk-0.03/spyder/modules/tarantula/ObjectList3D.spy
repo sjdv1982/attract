@@ -1,0 +1,71 @@
+# Copyright 2008, Sjoerd de Vries
+# This file is part of the Spyder module: "tarantula" 
+# For licensing information, see LICENSE.txt 
+
+Type ObjectList3D:ObjectList,ThreeDee {
+  validate {
+    for onr,o in enumerate(self):
+      while 1:
+        typ = type(o)
+        if o.typename() == None:
+          typ = o._typev
+        if not typ.typename().endswith("Array"): break
+        if len(o) == 0: break
+        o = o[0]
+      if not isinstance(o, ThreeDee): raise ValidationError
+  }
+}
+
+Define None(ObjectList3D) SPLIT
+
+Type ObjectGroup3D:ThreeDee {
+  ObjectList3D group
+  AxisSystem axis = AxisSystem()
+  form {
+    group.default = []
+  }
+}
+
+Type MultiInstance3D:ThreeDee {
+  """Specifies duplicates of "object", each with its own
+  AxisSystem. "object" is rendered with for every
+  instance, its axis system applied to it."""
+  ObjectList3D object
+  AxisSystemArray instances
+  form { 
+    object.default = []
+    instances.default = []
+    instances.eledefault = AxisSystem()
+  }
+}
+
+Define ObjectGroup3DArray(MultiInstance3D mi) {
+  ret = ObjectGroup3DArray()
+  for instance in mi.instances:
+    ret.append(ObjectGroup3D(axis=instance,group=[mi.object]))
+  return ret
+}
+
+Define Object3DArray(MultiInstance3D mi) {
+  ret = Object3DArray()
+  for inst in mi.instances:
+    for o in mi.object:
+      oo = o.convert(Object3DArray)
+      for obj in oo:
+        obj.axis *= inst
+      ret += oo
+  return ret
+}
+
+Define ObjectList3D(ObjectGroup3D og) {
+  def update_matrix(obj, mat, recurse):    
+    try:
+      obj.axis = obj.axis * mat
+    except:
+      for o in obj:
+        update_matrix(o,mat,recurse+1)
+        
+  ret = ObjectList3D(og.group)
+  update_matrix(ret, og.axis, 0)
+  return ret
+}

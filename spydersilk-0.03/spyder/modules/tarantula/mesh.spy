@@ -1,0 +1,97 @@
+Type Mesh {
+  String pname
+  String filename
+  String format
+  StringArray animations = []
+  form {
+    animations.length = 5
+  }
+}
+
+Type Model3D:ThreeDee {
+  String meshfilename
+  String meshformat
+  *AxisSystem axis
+  *Material material
+  *String entityname
+}
+
+Type ModelInstance3D:ThreeDee,Degenerate {
+  String meshname
+  *AxisSystem axis
+  *Material material
+  *String entityname
+}
+
+Type Actor3D:ThreeDee {
+  String meshfilename
+  String meshformat
+  MeshArray animations = []
+  *AxisSystem axis
+  *Material material
+  *String entityname
+  form {
+    animations.length = 5
+  }  
+}
+
+Type ActorClass3D:ThreeDee {
+  String meshfilename
+  String meshformat
+  MeshArray animations = []
+  *AxisSystem axis
+  *Material material
+  *String actorclassname
+  form {
+    animations.length = 5
+  }  
+}
+
+Type ActorInstanceAnimation {
+  String pname
+  String meshname
+}
+
+Type ActorInstance3D:ThreeDee,Degenerate  {
+  String meshname
+  ActorInstanceAnimationArray animations = []
+  *AxisSystem axis
+  *Material material
+  *String entityname
+  form {
+    animations.length = 5
+  }  
+}
+
+Type Entity3D:ThreeDee,Degenerate  {
+  String entityname
+  ObjectList objects = []
+  form {
+    objects.type = "none"
+  }
+}
+
+Type EntityClass3D:ThreeDee,Degenerate {
+  String entityclassname
+  ObjectList objects = []
+  *AxisSystem axis
+  *Material material
+  form {
+    objects.type = "none"
+  }
+}
+
+Type MultiEntityInstance3D:MultiInstance3D {
+  StringArray entitynames
+  validate { 
+    assert len(entitynames) == len(instances)
+  }
+}
+
+Type DataBlock3D {
+  ObjectList object
+  *String pname
+  validate {
+    assert len(object) == 1
+  }
+}

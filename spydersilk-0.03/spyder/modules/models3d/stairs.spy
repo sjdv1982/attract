@@ -1,0 +1,65 @@
+# Copyright 2007-2009, Sjoerd de Vries
+# This file is part of the Spyder module: "models3d" 
+# For licensing information, see LICENSE.txt 
+
+Type Stairs3D:ThreeDee {
+  """3D object for simple ascending clockwise winding stairs
+    steprotation in degrees
+   The stairs ascend in the Z direction
+  """
+  Integer steps
+  Float steprotation
+  Float stepheight
+  Float innerradius
+  Float outerradius
+  Float stepoverlap
+  Material material = "defaultmaterial"
+  AxisSystem axis = AxisSystem()
+  validate {
+    assert steps > 0
+    assert innerradius > 0
+    assert innerradius < outerradius
+    assert stepheight > 0
+    assert steprotation > 0
+    assert stepoverlap >= 0
+  }
+  form {
+    steps.default = 10
+    steps.range = 10
+    innerradius.default = 3
+    innerradius.range = 3
+    outerradius.default = 5
+    outerradius.range = 5
+    stepheight.default = 1
+    stepheight.range = 1
+    steprotation.default = 10
+    steprotation.range = 10
+    stepoverlap.default = 0
+    stepoverlap.min = 0
+    stepoverlap.max = 100
+  }
+}
+
+Define ObjectGroup3D(Stairs3D s){
+  i = s.innerradius
+  o = s.outerradius
+  h = s.stepheight
+  rot = s.steprotation
+  #Just a shorter way to refer to these values
+
+  vertices1=CoordinateArray((i,0,0),(o,0,0),(o,0,h), (i,0,h))
+  axis = AxisSystem()
+  rotsize = rot + s.stepoverlap/100 * rot
+  axis.rotateZ(rotsize)
+  vertices2 = CoordinateArray()
+  for v in vertices1: vertices2.append(v*axis)
+  o = Chunk3D(vertices1, vertices2,material=s.material)
+  a = AxisSystem()
+  matrices = []
+  for n in range(s.steps):
+    matrices.append(AxisSystem(a))
+    a.rotateZ(rot)
+    a.origin.z += h
+  mi = MultiInstance3D(instances=matrices,object=o)
+  return ObjectGroup3D(mi,s.axis)
+}

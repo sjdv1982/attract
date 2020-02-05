@@ -1,0 +1,14 @@
+662595981
+1891124660
+PropertyArrayArray
+[]
+PropertyTree
+{'deleted_members': [], 'members': [('PropertyArray', 'properties', '')]}
+PropertyArray
+[]
+PropertyTreeArray
+[]
+Property
+{'validate': 'assert pvalue == None or len(pvalue) == 1\nassert value[0].typename() == "String" or value[0].typename() == "PropertyTree"\n', 'deleted_members': [], 'form': 'pvalue.length = 1\npvalue.form = "hard"\n', 'members': [('String', 'pname', ''), ('ObjectList', 'pvalue', '')]}
+PropertyTreeArrayArray
+[]
