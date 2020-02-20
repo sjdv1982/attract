@@ -14,6 +14,6 @@ RUN pip install spydersilk-0.03.tar.gz
 #RUN tar xvzf attract.tgz
 ADD . /attract
 RUN cd attract/bin; make clean; make all -j4; exit 0
-RUN ls ./attract
+RUN ls ./attract && chmod -R a+r+w+x /attract
 RUN cd ../attract/gui; python -c 'import spyder, attractmodel'
 
