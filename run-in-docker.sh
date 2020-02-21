@@ -9,4 +9,4 @@ docker run --rm \
   --user $(id -u):$(id -g) \
   --shm-size 4GB \
   -t -i \
-  rpbs/attract bash $*
+  rpbs/attract $*
