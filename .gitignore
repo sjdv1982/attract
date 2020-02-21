@@ -3,6 +3,7 @@
 
 # Unignore all with extensions
 !*.*
+!spydersilk-0.03/**
 
 # Unignore all dirs
 !*/
