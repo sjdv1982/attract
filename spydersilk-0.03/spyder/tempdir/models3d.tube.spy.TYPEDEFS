@@ -1,0 +1,8 @@
+662595981
+3941895275
+Tube3D
+{'validate': 'assert(innersize > 0)\nassert(innersize < outersize)\nassert radialsegments >= 3\n', 'deleted_members': [], 'form': 'self.matrix = "axis"\nself.matrixmode = "mono"\ninnersize.default = 0.5\ninnersize.range = 1\noutersize.default = 1\noutersize.range = 1\nradialsegments.tooltip = "The slices of the circle that forms the tube"\nradialsegments.default = 8\nradialsegments.min = 3\nradialsegments.max = 100\ntlength.tooltip = "The tube\'s length (X axis)"\ntlength.default = 5    \ntlength.min = 0.01\ntlength.max = 100\nlengthsegments.default = 1\nlengthsegments.tooltip = "The number of pieces the tube is cut into"\nlengthsegments.min = 1\nlengthsegments.max = 100\n', 'members': [('Float', 'innersize', ''), ('Float', 'outersize', ''), ('Integer', 'radialsegments', ''), ('Float', 'tlength', ''), ('Integer', 'lengthsegments = 1', ''), ('Material', 'material = "defaultmaterial"', ''), ('AxisSystem', 'axis = AxisSystem()', '')]}
+Tube3DArrayArray
+[]
+Tube3DArray
+[]

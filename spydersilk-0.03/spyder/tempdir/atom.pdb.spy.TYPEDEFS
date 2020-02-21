@@ -1,0 +1,38 @@
+662595981
+830224923
+PDBCodeArray
+[]
+PDBDataArrayArray
+[]
+PDBCodeArrayArray
+[]
+Data_PDBArrayArray
+[]
+File_PDBArrayArray
+[]
+File_PDB
+{'validate': 'assert self.format().typename() == "Data_PDB"\n', 'deleted_members': [], 'members': []}
+File_PDBArray
+[]
+PDBData
+{'form': 'mode.name = "Where is the structure provided?"\nmode.options = "submit", "download"\nmode.optiontitles = "I am submitting it", "Download it from the PDB"\nchain.name = "Which chain of the structure must be used?"\nchain.options = "All", "A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"\npdbfile.file = "Data_PDB"\npdbfile.name = "PDB structure to submit"\ncode.name = "or: PDB code to download"\ncode.length = 4\npdbdata.type = "textarea"\npdbdata.name = "PDB structure data to submit"\nself.memberorder = ["mode", "chain", "pdbdata", "code"]\n', 'validate': 'if not (mode != "submit" or (pdbdata!= None and code == None)):\n   raise AtomValidationError("Please upload a PDB file, or select \\"Download\\" and provide a PDB code")\nif not (mode != "download" or (pdbdata == None and code != None)):\n   raise AtomValidationError("Please provide a PDB code, or select \\"Submit\\" and upload a PDB file")\n', 'deleted_members': ['pdbfile'], '__init__': 'pdbfile\ncode\npdbdata\n', 'members': [('String', 'mode', ''), ('String', 'chain', ''), ('PDBCode', 'code', ''), ('String', 'pdbdata', '')]}
+PDBCodeChainArray
+[]
+Data_PDBArray
+[]
+PDBInterfaceArrayArray
+[]
+PDBCodeChainArrayArray
+[]
+PDBDataArray
+[]
+PDBInterface
+{'__init__': 'pdbfile\ncode\n', 'validate': 'if mode is not None: assert mode in ("submit", "download")\nif not (mode != "submit" or (pdbfile != None and code == None)):\n   raise AtomValidationError("Please upload a PDB file, or select \\"Download it from the PDB\\" and provide a PDB code")\nif not (mode != "download" or (pdbfile == None and code != None)):\n   raise AtomValidationError("Please provide a PDB code, or select \\"I am submitting it\\" and upload a PDB file")\nif chain not in ("All", "A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"):\n   raise AtomValidationError("Please provide a chain")\n', 'deleted_members': [], 'form': 'mode.name = "Where is the structure provided?"\nmode.options = "submit", "download"\nmode.optiontitles = "I am submitting it", "Download it from the PDB"\nchain.name = "Which chain of the structure must be used?"\nchain.options = "All", "A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"\npdbfile.file = "Data_PDB"\npdbfile.name = "PDB structure to submit"\ncode.name = "or: PDB code to download"\ncode.length = 4\n', 'members': [('String', 'mode', ''), ('String', 'chain', ''), ('File_PDB', 'pdbfile', ''), ('PDBCode', 'code', '')]}
+PDBCodeChain
+{'validate': 'if len(self) != 5 or not self[0].isdigit() or not self[1:4].isalnum() or (not self[4].isalpha() and self[4] != "_"):\n  raise AtomValidationError("Invalid PDB code + chain %s\\nPlease specify as e.g. 1AVXA, 1ACB_" % self)\n', 'deleted_members': [], 'members': []}
+PDBCode
+{'validate': 'if len(self) != 4 or not self[0].isdigit() or not self[1:].isalnum(): \n  raise AtomValidationError("Invalid PDB code %s" % self)\n', 'deleted_members': [], 'members': []}
+Data_PDB
+{'deleted_members': [], 'members': []}
+PDBInterfaceArray
+[]

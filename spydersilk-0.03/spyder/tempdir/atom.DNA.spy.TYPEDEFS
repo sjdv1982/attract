@@ -1,0 +1,20 @@
+662595981
+3929542292
+DNABasePuckerGroupArray
+[]
+DNABaseDihedralGroup
+{'__init__': 'alpha\nbeta\ngamma\ndelta\nepsilon\nzeta\n', 'validate': 'if nform is not None: assert nform in ("a-form", "b-form", "other")\nassert (alpha != None) == (beta != None)\nassert (alpha != None) == (gamma != None)\nassert (alpha != None) == (delta != None)\nassert (alpha != None) == (epsilon != None)\nassert (alpha != None) == (zeta != None)\n', 'deleted_members': [], 'form': 'nform.options = "a-form", "b-form", "other"\n', 'members': [('String', 'nform = "b-form"', ''), ('Range', 'range', ''), ('AngleErr', 'alpha', ''), ('AngleErr', 'beta', ''), ('AngleErr', 'gamma', ''), ('AngleErr', 'delta', ''), ('AngleErr', 'epsilon', ''), ('AngleErr', 'zeta', '')]}
+DNA_definitionArrayArray
+[]
+DNABaseDihedralGroupArray
+[]
+DNABasePuckerGroup
+{'__init__': 'nu2\nnu3\nnu4\n', 'validate': 'if nform is not None: assert nform in ("a-form", "b-form", "other")\nassert (nu2 != None) == (nu3 != None)\nassert (nu2 != None) == (nu4 != None)\n', 'deleted_members': [], 'form': 'nform.options = "a-form", "b-form", "other"\n', 'members': [('String', 'nform = "b-form"', ''), ('Range', 'range', ''), ('AngleErr', 'nu2', ''), ('AngleErr', 'nu3', ''), ('AngleErr', 'nu4', '')]}
+DNA_definition
+{'validate': 'assert puckergroup == None or len(puckergroup) == 4\nassert dihedralgroup == None or len(dihedralgroup) == 4\nassert(dna_pick_wc != basepair_planar)\nfor g in puckergroup:\n  mustexist = (dna_pick_pucdih == False and g.nform == "other")\n  assert mustexist == (nu2 != None)\nfor g in dihedralgroup:\n  mustexist = (dna_pick_bacdih == False and g.nform == "other")\n  assert mustexist == (alpha != None)      \n', 'deleted_members': [], 'form': 'puckergroup.length = 4\npuckergroup.form = "hard"\ndihedralgroup.length = 4\ndihedralgroup.form = "hard"\nbp.type = "text"\n', 'members': [('Bool', 'basepair_planar = True', ''), ('Bool', 'dna_pick_wc = False', ''), ('Bool', 'dna_pick_dih = True', ''), ('Float', 'wc_low = 0.05', ''), ('Float', 'wc_up = 0.05', ''), ('Float', 'wc_low_uri = 0.01', ''), ('Float', 'wc_up_uri = 0.01', ''), ('Float', 'c1_low = 0.05', ''), ('Float', 'c1_up = 0.05', ''), ('BasePlanarSpecification', 'bases_planar', ''), ('Bool', 'dna_pick_puckdih = False', ''), ('DNABasePuckerGroupArray', 'puckergroup', ''), ('DNABaseDihedralGroupArray', 'dihedralgroup', ''), ('BasePairArray', 'bp', '')]}
+DNABaseDihedralGroupArrayArray
+[]
+DNABasePuckerGroupArrayArray
+[]
+DNA_definitionArray
+[]

@@ -1,0 +1,8 @@
+662595981
+1359846296
+POrbitalArray
+[]
+POrbitalArrayArray
+[]
+POrbital
+{'validate': 'assert rx > 0\nassert ry > 0\nassert rrx >= 0\nassert rry >= 0\nassert planesegments >= 2\nassert rotationsegments >= 2\n', 'deleted_members': [], 'form': 'self.matrix = "axis"\nrx.default = 1\nrx.min = 0.01\nrx.max = 5\nry.default = 1\nry.min = 0.01\nry.max = 5\nrrx.default = 1\nrrx.min = 0\nrrx.max = 5\nrry.default = 1\nrry.min = 0\nrry.max = 5\nplanesegments.default = 8\nplanesegments.min = 2\nplanesegments.max = 100\nrotationsegments.default = 8\nrotationsegments.min = 2\nrotationsegments.max = 100\n', 'members': [('Float', 'rx', ''), ('Float', 'ry', ''), ('Float', 'rrx', ''), ('Float', 'rry', ''), ('Integer', 'planesegments', ''), ('Integer', 'rotationsegments', ''), ('AxisSystem', 'axis = AxisSystem()', '')]}

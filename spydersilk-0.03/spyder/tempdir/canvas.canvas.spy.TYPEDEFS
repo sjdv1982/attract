@@ -1,0 +1,26 @@
+662595981
+3710221543
+ImageArray
+[]
+ImageArrayArray
+[]
+MouseAreaArray
+[]
+Box2DArrayArray
+[]
+MouseAreaArrayArray
+[]
+Image
+{'deleted_members': [], 'members': [('String', 'image', ''), ('String', 'identifier', ''), ('Box2D', 'box', ''), ('Bool', 'transparency = False', '')]}
+MouseArea
+{'deleted_members': [], 'members': [('String', 'identifier', ''), ('Box2D', 'box', '')]}
+Box2DArray
+[]
+Box2D
+{'validate': 'if mode is not None: assert mode in ("pixels","standard","aspect")\n', 'deleted_members': [], 'form': 'mode.options = "pixels","standard","aspect"\n', 'members': [('Integer', 'x', ''), ('Integer', 'y', ''), ('Integer', 'sizex', ''), ('Integer', 'sizey', ''), ('String', 'mode = "pixels"', '')]}
+IconArrayArray
+[]
+IconArray
+[]
+Icon
+{'deleted_members': [], 'members': [('String', 'image', ''), ('String', 'identifier', ''), ('Box2D', 'box', ''), ('Bool', 'transparency = False', '')]}

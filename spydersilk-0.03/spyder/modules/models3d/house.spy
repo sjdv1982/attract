@@ -1,0 +1,226 @@
+# Copyright 2007-2009, Sjoerd de Vries
+# This file is part of the Spyder module: "models3d" 
+# For licensing information, see LICENSE.txt 
+
+Type House3DDoor:ThreeDee {
+  Integer position
+  Integer width
+  Integer height
+  validate {
+    assert position >= 0
+    assert width > 0
+    assert height > 0
+  }
+  form {
+    position.default = 2
+    position.min = 0
+    position.max = 100
+    width.default = 2
+    width.min = 0
+    width.max = 100
+    height.default = 2
+    height.min = 0
+    height.max = 100    
+  }
+}
+
+Type House3DWallWindow:House3DDoor {
+  Integer verticalposition
+  validate {
+    assert verticalposition > 0
+  }
+  form {
+    verticalposition.default = 2
+    verticalposition.min = 0
+    verticalposition.max = 100  
+  }
+}
+Type House3DWall:ThreeDee {    
+  Integer width
+  Integer height
+  Integer thickness
+  House3DDoorArray doors = []
+  House3DWallWindowArray windows = []
+  AxisSystem axis = AxisSystem()
+  Material material = "defaultmaterial"
+  form {
+    self.matrix = "axis"
+    width.default = 10
+    width.min = 0
+    width.max = 100
+    thickness.default = 2
+    thickness.min = 0
+    thickness.max = 100          
+    height.default = 5
+    height.min = 0
+    height.max = 100
+  }
+  validate {
+    for w in windows:
+      assert w.verticalposition + w.height <= height 
+    poswidth = list(windows)
+    poswidth += list(doors)
+    poswidth.sort(lambda a,b: cmp(a.position, b.position))
+    for n in range(len(poswidth)):
+      if n < len(poswidth) - 1: nextpos = poswidth[n+1].position
+      else: nextpos = width
+      assert poswidth[n].position + poswidth[n].width <= nextpos
+  }
+}
+
+Define ObjectGroup3D(House3DWall wall) {
+  poswidth = list(wall.windows)
+  poswidth += list(wall.doors)
+  poswidth.sort(lambda a,b: cmp(a.position, b.position))
+  blocks = Block3DArray()
+  currwidth = 0
+  for o in poswidth:
+    y = o.position-currwidth
+    if y > 0: blocks.append(Block3D((wall.thickness,o.position-currwidth,wall.height),axis=AxisSystem(origin=(0,currwidth,0)),pivot="corner",material=wall.material))
+    bottom = 0
+    if o.typename() == "House3DWallWindow": 
+      bottom = o.verticalposition    
+    blocks.append(Block3D((wall.thickness,o.width,wall.height-(bottom+o.height)),axis=AxisSystem(origin=(0,o.position,bottom+o.height)),pivot="corner",material=wall.material))
+    if o.typename() == "House3DWallWindow": 
+      blocks.append(Block3D((wall.thickness,o.width,bottom),axis=AxisSystem(origin=(0,o.position,0)),pivot="corner",material=wall.material))     
+    currwidth = o.position + o.width
+  blocks.append(Block3D((wall.thickness,wall.width-currwidth,wall.height),axis=AxisSystem(origin=(0,currwidth,0)),pivot="corner",material=wall.material))
+  group = ObjectList3D(blocks)  
+  return ObjectGroup3D(group=group,axis=wall.axis)
+}
+
+Type House3DFloor:ThreeDee {
+  House3DWallWindowArray northwindows = [] 
+  House3DWallWindowArray eastwindows = []
+  House3DWallWindowArray southwindows = []
+  House3DWallWindowArray westwindows = []
+}
+
+Type House3DGroundFloor:ThreeDee {
+  House3DDoorArray northdoors = []
+  House3DWallWindowArray northwindows = [] 
+  House3DDoorArray eastdoors = []
+  House3DWallWindowArray eastwindows = []
+  House3DDoorArray southdoors = []
+  House3DWallWindowArray southwindows = []
+  House3DDoorArray westdoors = []
+  House3DWallWindowArray westwindows = []
+}
+
+Type House3D:ThreeDee{
+  House3DGroundFloor groundfloor = House3DGroundFloor()
+  House3DFloorArray floors = []
+  Integer width
+  Integer height
+  Integer thickness  
+  AxisSystem axis = AxisSystem()
+  Integer floorthickness = 1
+  Integer roofheight = 5
+  Integer roofmargin = 1  
+  Material wallmaterial = "brick"
+  Material floormaterial = "white marble"
+  Material roofmaterial = "black limestone"
+  form {
+    self.matrix = "axis"
+    width.default = 10
+    width.min = 0
+    width.max = 100
+    thickness.default = 2
+    thickness.min = 0
+    thickness.max = 100          
+    height.default = 5
+    height.min = 0
+    height.max = 100
+    floors[None].default = House3DFloor()
+    floorthickness.default = 1
+    floorthickness.min = 0
+    floorthickness.max = 10
+    roofheight.default = 5
+    roofheight.min = 0
+    roofheight.max = 10    
+    roofmargin.default = 1
+    roofmargin.min = 0
+    roofmargin.max = 5            
+  }
+  validate {
+    assert width > 2 * thickness
+  }
+}
+
+Type Pyramid:ThreeDee{
+  Float plength
+  Float width
+  Float height
+  AxisSystem axis
+  Material material = "defaultmaterial"
+}
+Define Object3D(Pyramid p) {
+  x = -0.5*p.plength
+  y = -0.5*p.width
+  vertices = (
+    (-x,-y, 0),
+    (-x,y,0),
+    (x,y,0),
+    (x,-y,0),
+    (0,0,p.height),
+  )
+  faces = ((0,1,2,3),(1,0,4), (2,1,4), (3,2,4), (0,3,4))
+  return Object3D(faces=faces,vertices=vertices,axis=p.axis, material = p.material)
+}
+
+Define ObjectGroup3D(House3D house) {
+  NewMaterial("brick", color=(205,90,90)).show()
+  NewMaterial("white marble", color=(180,180,180)).show()
+  NewMaterial("black limestone", color=(65,55,65)).show()
+
+  mw = (house.width-house.thickness)
+  walls = ObjectList3D()
+  z = 0
+  ground = True
+  for floor in [house.groundfloor] + house.floors:
+    w = House3DWall(
+      house.width,house.height,house.thickness,
+      windows = floor.northwindows,
+      axis = AxisSystem(origin=(0.5*mw,0.5*mw,z),x=(0,1,0),y=(-1,0,0)),
+      material=house.wallmaterial,
+    )
+    if ground: w.doors = floor.northdoors
+    walls.append(w)    
+    w = House3DWall(
+      house.width,house.height,house.thickness,
+      windows = floor.eastwindows,
+      axis = AxisSystem(origin=(0.5*mw,-0.5*mw,z)),
+      material=house.wallmaterial,
+    )
+    if ground: w.doors = floor.eastdoors    
+    walls.append(w)    
+    w = House3DWall(
+      house.width,house.height,house.thickness,
+      windows = floor.southwindows,
+      axis = AxisSystem(origin=(-0.5*mw,-0.5*mw,z),x=(0,-1,0),y=(1,0,0)),
+      material=house.wallmaterial,
+    )
+    if ground: w.doors = floor.southdoors
+    walls.append(w)           
+    w = House3DWall(
+      house.width,house.height,house.thickness,
+      windows = floor.westwindows,
+      axis = AxisSystem(origin=(-0.5*mw,0.5*mw,z),x=(-1,0,0),y=(0,-1,0)),
+      material=house.wallmaterial,
+    )
+    if ground: w.doors = floor.westdoors
+    walls.append(w)       
+    
+    ground = False      
+    z += house.height
+  group = walls
+  group.append(Block3D((house.width+house.thickness,house.width+house.thickness,house.floorthickness),axis=AxisSystem(origin=(0,0,-.5*house.floorthickness)),material=house.floormaterial))
+  z = 0
+  for floor in house.floors:
+    z += house.height
+    group.append(Block3D((house.width,house.width,house.floorthickness),axis=AxisSystem(origin=(0,0,-.5*house.floorthickness+z)),material=house.floormaterial))
+  z += house.height
+  x = house.width+house.roofmargin+house.thickness
+  group.append(Pyramid(x,x,house.roofheight,axis=AxisSystem(origin=(0,0,z)),material=house.roofmaterial))
+  return ObjectGroup3D(group=group,axis=house.axis)
+}

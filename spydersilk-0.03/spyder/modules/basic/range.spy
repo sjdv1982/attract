@@ -1,0 +1,43 @@
+# Copyright 2009, Sjoerd de Vries
+# This file is part of the Spyder module: "basic" 
+# For licensing information, see LICENSE.txt 
+
+Type Range {
+  Integer start
+  Integer end
+  validate {
+    assert end >= start
+  }
+  form {
+    start.name = "First number"
+    end.name = "Last number"    
+  }
+  error {
+    'assert end >= start'
+    =>
+    'Cannot construct a range of numbers when the first number {start} is larger than the last number {end}'
+  }
+ 
+}
+
+Type OptionalRange {
+  *Integer start
+  *Integer end
+  validate {
+    assert (start != None) == (end != None)
+    assert start is None or end >= start
+  }
+  form {
+    start.name = "First number"
+    end.name = "Last number"
+  }
+  error {
+    'assert (start != None) == (end != None)'
+    =>
+    'Must define both start and end, or neither'
+
+    'assert start is None or end >= start'
+    =>
+    'Cannot construct a range of numbers when the first number {start} is larger than the last number {end}'
+  }  
+}

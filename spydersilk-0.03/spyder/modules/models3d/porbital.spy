@@ -1,0 +1,113 @@
+# Copyright 2007-2009, Sjoerd de Vries
+# This file is part of the Spyder module: "models3d" 
+# For licensing information, see LICENSE.txt 
+
+Type POrbital:ThreeDee {
+  Float rx
+  Float ry
+  Float rrx
+  Float rry
+  Integer planesegments
+  Integer rotationsegments
+  AxisSystem axis = AxisSystem()
+  validate {
+    assert rx > 0
+    assert ry > 0
+    assert rrx >= 0
+    assert rry >= 0
+    assert planesegments >= 2
+    assert rotationsegments >= 2
+  }
+  form {
+    self.matrix = "axis"
+    rx.default = 1
+    rx.min = 0.01
+    rx.max = 5
+    ry.default = 1
+    ry.min = 0.01
+    ry.max = 5
+    rrx.default = 1
+    rrx.min = 0
+    rrx.max = 5
+    rry.default = 1
+    rry.min = 0
+    rry.max = 5
+    planesegments.default = 8
+    planesegments.min = 2
+    planesegments.max = 100
+    rotationsegments.default = 8
+    rotationsegments.min = 2
+    rotationsegments.max = 100
+  }
+}
+
+Define Object3D(POrbital p) {
+  pi = math.pi
+  alpha = math.asin(p.rrx / (p.rx + p.rrx))
+  ypos = (p.ry + p.rry) * math.cos(alpha)
+  angles1 = [0.5*pi]
+  angles2 = [0]
+  for n in range(p.planesegments-1):
+    angles1.append((n+1)*(0.5*pi-alpha)/p.planesegments+0.5*pi)
+  for n in range(p.planesegments-1):
+    angles2.append((n+1)*(0.5*pi)/p.planesegments)
+  vertices = []
+  data = (
+    (angles2,p.rx,p.ry,0,0),
+    (angles1,p.rx,p.ry,0,0),
+    (angles1,-p.rrx,-p.rry,-p.rrx,-ypos),
+    (angles1,-p.rrx,p.rry,-p.rrx,-ypos),
+    (angles1,p.rx,-p.ry,0,-2*ypos),
+    (angles2,p.rx,-p.ry,0,-2*ypos),
+  )
+  for angles,xrad,yrad,xp,yp in data:
+    verts = []
+    for a in angles:
+      x = xrad * -math.sin(a) + xp
+      y = yrad * math.cos(a) + yp
+      verts.append((x,y))
+    vertices.append(verts)
+  vertices[2].reverse()
+  vertices[4].reverse()
+  vertices[5].reverse()
+  allvertices = reduce(lambda a,b: a+b, vertices)
+  allvertices2 = []
+  vlen = len(allvertices)
+  for pnr in range(vlen-1):
+    for n in (1,):
+      if allvertices[pnr][0] != allvertices[pnr+1][0]: break
+      if allvertices[pnr][1] != allvertices[pnr+1][1]: break
+    else:
+      continue
+    allvertices2.append(allvertices[pnr])
+  allvertices = allvertices2 + allvertices[-1:]
+  #s = '\n'.join([' '.join([str(vv) for vv in v]) for v in allvertices]) +'\n'
+  #print Stream(s) | "xmgrace -pipe"
+  vertices3d = []
+  for r in range(p.rotationsegments):
+    angle = r*2*pi/p.rotationsegments
+    sinang = math.sin(angle)
+    cosang = math.cos(angle)
+    for v in allvertices:
+      vertices3d.append((v[0] * sinang,v[1], v[0]*cosang))
+  faces = []
+  vlen = len(allvertices)
+  for pnr in range(vlen-1):
+    for r in range(p.rotationsegments):
+      nextr = r+1
+      if nextr==p.rotationsegments: nextr = 0
+      v1 = pnr + r * vlen
+      v2 = pnr + r * vlen + 1
+      v3 = pnr + nextr * vlen + 1
+      v4 = pnr + nextr * vlen
+      currface = [v1,v2]
+      if allvertices[pnr+1][0] != 0:
+        currface.append(v3)
+      if allvertices[pnr][0] != 0:
+        currface.append(v4)
+      faces.append(currface)
+  o1 = Object3D(faces=faces, vertices=vertices3d,axis=p.axis)
+  return o1
+}
+
+

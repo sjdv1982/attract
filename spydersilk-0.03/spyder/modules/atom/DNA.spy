@@ -1,0 +1,69 @@
+# Copyright 2008, 2009 Sjoerd de Vries
+# This file is part of the Spyder module: "atom" 
+# For licensing information, see LICENSE.txt 
+
+Type DNABasePuckerGroup {
+  """
+  TODO documentation
+  """
+  Enum nform("a-form", "b-form", "other") = "b-form"
+  Range range
+  *AngleErr nu2
+  *AngleErr nu3
+  *AngleErr nu4
+  validate {
+    assert (nu2 != None) == (nu3 != None)
+    assert (nu2 != None) == (nu4 != None)
+  }
+}
+
+Type DNABaseDihedralGroup {
+  """
+  TODO documentation
+  """
+  Enum nform("a-form", "b-form", "other") = "b-form"
+  Range range
+  *AngleErr alpha
+  *AngleErr beta
+  *AngleErr gamma
+  *AngleErr delta
+  *AngleErr epsilon
+  *AngleErr zeta
+  validate {
+    assert (alpha != None) == (beta != None)
+    assert (alpha != None) == (gamma != None)
+    assert (alpha != None) == (delta != None)
+    assert (alpha != None) == (epsilon != None)
+    assert (alpha != None) == (zeta != None)
+  }
+}
+
+Type DNA_definition {
+  """
+  TODO documentation
+  """
+  Bool basepair_planar = True
+  Bool dna_pick_wc = False
+  Bool dna_pick_dih = True  
+  Float wc_low = 0.05
+  Float wc_up = 0.05
+  Float wc_low_uri = 0.01
+  Float wc_up_uri = 0.01
+  Float c1_low = 0.05
+  Float c1_up = 0.05    
+  BasePlanarSpecification bases_planar 
+  Bool dna_pick_puckdih = False  
+  DNABasePuckerGroupArray puckergroup[4]  
+  DNABaseDihedralGroupArray dihedralgroup[4]
+  ## form bp.type = "text"
+  BasePairArray bp
+  validate {
+    assert(dna_pick_wc != basepair_planar)
+    for g in puckergroup:
+      mustexist = (dna_pick_pucdih == False and g.nform == "other")
+      assert mustexist == (nu2 != None)
+    for g in dihedralgroup:
+      mustexist = (dna_pick_bacdih == False and g.nform == "other")
+      assert mustexist == (alpha != None)      
+  }
+}

@@ -1,0 +1,14 @@
+662595981
+2487692923
+OptionalRangeArrayArray
+[]
+Range
+{'validate': 'assert end >= start\n', 'deleted_members': [], 'form': 'start.name = "First number"\nend.name = "Last number"    \n', 'members': [('Integer', 'start', ''), ('Integer', 'end', '')], 'error': "'assert end >= start'\n=>\n'Cannot construct a range of numbers when the first number {start} is larger than the last number {end}'\n"}
+OptionalRange
+{'form': 'start.name = "First number"\nend.name = "Last number"\n', 'deleted_members': [], 'members': [('Integer', 'start', ''), ('Integer', 'end', '')], 'error': "'assert (start != None) == (end != None)'\n=>\n'Must define both start and end, or neither'\n'assert start is None or end >= start'\n=>\n'Cannot construct a range of numbers when the first number {start} is larger than the last number {end}'\n", 'validate': 'assert (start != None) == (end != None)\nassert start is None or end >= start\n', '__init__': 'start\nend\n'}
+RangeArray
+[]
+RangeArrayArray
+[]
+OptionalRangeArray
+[]

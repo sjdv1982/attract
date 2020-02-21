@@ -1,0 +1,8 @@
+662595981
+2367875832
+Pillar3D
+{'deleted_members': [], 'members': [('Float', 'radius', ''), ('Float', 'height', ''), ('AxisSystem', 'axis = AxisSystem()', ''), ('Material', 'material = "defaultmaterial"', '')]}
+Pillar3DArray
+[]
+Pillar3DArrayArray
+[]

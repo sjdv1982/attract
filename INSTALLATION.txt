@@ -1,3 +1,15 @@
+========================================================================================
+
+UPDATE: ATTRACT uses Python 2, which is reaching its end of life
+The easiest way to use ATTRACT is from a Docker container
+Install Docker, and then obtain the ATTRACT image :
+    docker pull rpbs/attract
+Then run your ATTRACT shell script (from the web interface, or hand-written): 
+    ./run-in-docker.sh my-attract-shell-script.sh
+
+========================================================================================
+
+
 ATTRACT is developed under Linux. It should work under Mac OSX, but this has not been tested.
 It does not work under Microsoft Windows.
 Note that ATTRACT's Python scripts are written for Python2.7, not for Python3.

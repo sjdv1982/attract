@@ -1,0 +1,75 @@
+# Copyright 2007-2009, Sjoerd de Vries
+# This file is part of the Spyder module: "models3d" 
+# For licensing information, see LICENSE.txt 
+
+Type Chunk3D:ThreeDee {
+  """
+  Quick way to construct a three-dimensional segment or chunk,
+  consisting of two planes of an equal number of sides,
+  with an edge between point 1 of plane 1 and point 1 of plane 2, etc.
+  """
+  CoordinateArray plane1
+  CoordinateArray plane2
+  AxisSystem axis = AxisSystem()
+  Material material = "defaultmaterial"
+  validate {
+    assert len(plane1) > 2
+    assert len(plane2) == len(plane1)
+  }
+}
+
+Define Object3D(Chunk3D ch) {
+  planelen = len(ch.plane1)  
+  avg1 = reduce(lambda a,b: a+b, ch.plane1, Coordinate(0,0,0))/planelen
+  avg2 = reduce(lambda a,b: a+b, ch.plane2, Coordinate(0,0,0))/planelen
+  dif = avg2 - avg1
+  
+  normals = []
+  for plane, d in ((ch.plane1, dif), (ch.plane2,-dif)):
+    v1 = plane[1] - plane[0]
+    sum = Coordinate(0,0,0)
+    nr2 = 1
+    for n in range(planelen):
+      nr3 = (n + 2) % (planelen)
+      v2 = plane[nr3] - plane[nr2]
+      cross = v1.crossproduct(v2)
+      if cross * d > 0: cross *= -1
+      sum += cross
+      nr2 = nr3
+      v1 = v2
+    sum = sum.normalize()
+    normals.append(sum)
+  verts = []
+  for v in ch.plane1:
+    vv = v - avg1
+    v2 = (vv - vv * (vv * normals[0])).normalize()
+    verts.append(v2)
+  vertorder = [0]   
+  for n in range(1,planelen):
+    currvert = verts[vertorder[-1]]
+    recordnr = -1
+    record = -999999
+    for nn in range(planelen):
+      if nn in vertorder: continue
+      v = verts[nn]
+      if currvert.crossproduct(v) * normals[0] < 0: continue
+      dotp = v * currvert
+      if dotp > record:
+        record = dotp
+        recordnr = nn
+    vertorder.append(recordnr)
+  edges = [(n,planelen+n) for n in range(planelen)] + \
+          [[n,n+1] for n in range(planelen-1)] + [(planelen-1,0)] + \
+          [[planelen+n,planelen+n+1] for n in range(planelen-1)] + [(2*planelen-1,planelen)]
+  vertices = [ch.plane1[n] for n in vertorder] + [ch.plane2[n] for n in vertorder]
+  faces = [range(planelen)] + [reversed(range(planelen,2*planelen))] + \
+          [[n+1,n,n+planelen,n+planelen+1] for n in range(planelen-1)] + \
+          [[0, planelen-1, 2*planelen-1, planelen]]
+  return Object3D(vertices=vertices, 
+                  faces=faces, 
+                  edges=edges, 
+                  material = ch.material,
+                  axis = ch.axis
+                 )                  
+}
+  

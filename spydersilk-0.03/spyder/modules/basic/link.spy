@@ -1,0 +1,10 @@
+Type FunctionLink:String{}
+Type ModuleLink:String{}
+Type ObjectLink:String{}
+
+Type SpyderConverter {
+  String inp
+  String outp
+  FunctionLink converter  
+}
+
