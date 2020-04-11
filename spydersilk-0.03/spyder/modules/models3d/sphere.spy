@@ -1,0 +1,94 @@
+# Copyright 2007-2009, Sjoerd de Vries
+# This file is part of the Spyder module: "models3d" 
+# For licensing information, see LICENSE.txt 
+
+Type Sphere3D:ThreeDee {
+  Float radius
+  Integer subdivisions
+  AxisSystem axis = AxisSystem()
+  Material material = "defaultmaterial"
+  validate {
+    assert radius >= 0
+    assert subdivisions >= 0 and subdivisions <= 10
+  }
+ form {
+    self.matrix = "axis"
+    radius.min = 0
+    radius.max = 100
+    radius.default = 10
+    subdivisions.min = 0
+    subdivisions.max = 10
+    subdivisions.default = 0
+  }
+}
+
+Define Object3D(Sphere3D s) {
+  a = 0.5
+  points = [[-a,0,0],[a,0,0],[0,-a,0],[0,a,0],[0,0,-a],[0,0,a]]
+  faces = [[0,5,3],[5,1,3],[1,4,3],[4,0,3],[2,5,0],[2,1,5],[2,4,1],[2,0,4]]
+  points = CoordinateArray(points)  
+  edges = []
+  for f in faces:
+    for n in f:
+      for nn in f:
+        if n != nn and (n,nn) not in edges and (nn,n) not in edges: edges.append((n,nn))
+  for i in range(s.subdivisions):
+    newfaces = []
+    newedges = []
+    emap = {}
+    for v1,v2 in edges:      
+      avg = (points[v1] + points[v2]) / 2
+      lp = len(points)
+      emap[v1,v2] = lp
+      emap[v2,v1] = lp
+      newedges.append((v1,lp))
+      newedges.append((v2,lp))
+      points.append(avg)            
+    for f in faces:
+      e1 = emap[f[0],f[1]]
+      e2 = emap[f[1],f[2]]
+      e3 = emap[f[2],f[0]]
+      newfaces.append([e3,f[0],e1])
+      newfaces.append([e1,f[1],e2])
+      newfaces.append([e2,f[2],e3])
+      newfaces.append([e1,e2,e3])
+      newedges.append([e1,e2])
+      newedges.append([e2,e3])
+      newedges.append([e3,e1])
+    faces = newfaces
+    edges = newedges
+  for pnr in range(len(points)):
+    points[pnr] = points[pnr]  * (s.radius/points[pnr].size()) 
+  return Object3D(vertices=points, faces=faces,axis=s.axis,material=s.material)
+}
+
+Type SphereCloud3D:ThreeDee {
+  Float radius
+  Integer nrpoints
+  AxisSystem axis = AxisSystem()
+  validate {
+    assert radius >= 0
+    assert nrpoints >= 8
+  }
+  form {
+    self.matrix = "axis"
+    radius.min = 0
+    radius.max = 100
+    radius.default = 10
+    nrpoints.range = 8
+    nrpoints.default = 16
+
+  }
+}
+Define Block3DArray(SphereCloud3D sphere) { 
+  points = spheresample(sphere.nrpoints)
+  points = CoordinateArray(points)
+  for pnr in range(len(points)): points[pnr] *= sphere.radius
+  ret = Block3DArray()
+  for p in points:
+    b = Block3D((.3,.3,.3),axis=sphere.axis)
+    b.axis.origin += p
+    ret.append(b)
+  return ret
+}
+

@@ -1,0 +1,120 @@
+Type PDBCode:String {
+  validate {
+    if len(self) != 4 or not self[0].isdigit() or not self[1:].isalnum(): 
+      raise AtomValidationError("Invalid PDB code %s" % self)
+  }
+}
+
+Type PDBCodeChain:String {
+  validate {
+    if len(self) != 5 or not self[0].isdigit() or not self[1:4].isalnum() or (not self[4].isalpha() and self[4] != "_"):
+      raise AtomValidationError("Invalid PDB code + chain %s\nPlease specify as e.g. 1AVXA, 1ACB_" % self)
+  }
+}
+
+
+Type Data_PDB:Data {
+  """
+  Data in Protein Data Bank (PDB) format
+  """
+}
+
+Type File_PDB:File {
+  """
+  File in Protein Data Bank (PDB) format
+  """
+  validate {
+    assert self.format().typename() == "Data_PDB"
+  }
+}
+
+Type PDBInterface {
+  """
+  Interface to specify Protein Data Bank (PDB) files
+  Either a file (mode "submit") or a PDB code (mode "download") is specified
+  The user can restrict the PDB to a specific chain, or else "All" must be specified as chain
+  """
+  ## form mode.name = "Where is the structure provided?"
+  Enum mode("submit", "download")
+  ## form mode.optiontitles = "I am submitting it", "Download it from the PDB"
+  ## form chain.name = "Which chain of the structure must be used?"
+  ## form chain.options = "All", "A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"
+  String chain
+  ## form pdbfile.file = "Data_PDB"
+  ## form pdbfile.name = "PDB structure to submit"
+  *File_PDB pdbfile
+  ## form code.name = "or: PDB code to download"
+  *PDBCode code
+  ## form code.length = 4
+  validate {
+    if not (mode != "submit" or (pdbfile != None and code == None)):
+       raise AtomValidationError("Please upload a PDB file, or select \"Download it from the PDB\" and provide a PDB code")
+    if not (mode != "download" or (pdbfile == None and code != None)):
+       raise AtomValidationError("Please provide a PDB code, or select \"I am submitting it\" and upload a PDB file")
+    if chain not in ("All", "A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"):
+       raise AtomValidationError("Please provide a chain")
+  }
+}
+
+Type PDBData {
+  """
+  Data model to represent Protein Data Bank (PDB) data
+  This replaces PDBInterface's pdbfile with a pdbdata string,
+   allowing serialization without external dependencies
+  """
+  Include PDBInterface
+  Delete pdbfile
+  *String pdbdata
+  ## form pdbdata.type = "textarea"
+  ## form pdbdata.name = "PDB structure data to submit"  
+  Delete validate
+  form {
+    self.memberorder = ["mode", "chain", "pdbdata", "code"]
+  }
+  validate {
+    if not (mode != "submit" or (pdbdata!= None and code == None)):
+       raise AtomValidationError("Please upload a PDB file, or select \"Download\" and provide a PDB code")
+    if not (mode != "download" or (pdbdata == None and code != None)):
+       raise AtomValidationError("Please provide a PDB code, or select \"Submit\" and upload a PDB file")
+  }  
+}
+
+Define PDBData(PDBInterface p) {
+  d = p.dict()
+  s = p.pdbfile.data().data()  
+  if p.chain != "All":
+    s = "\n".join([l for l in s.splitlines() if (len(l) >= 22 and l[21] == p.chain) or not (l.startswith("ATOM") or l.startswith("HETATM"))])
+  d["pdbdata"] = s
+  return PDBData(d)
+}
+
+Define Data_PDB(PDBInterface p) {
+  """
+  This converter downloads a PDB from the PDB site
+  WARNING: this function does not work under Windows
+   since "gunzip" must be available on the command line
+  Current Python compression libraries cannot deal with the .Z format
+  """
+  code = p.code    
+  if code == None: return None
+  try:
+    #new archive
+    pdb = File("ftp://ftp.wwpdb.org/pub/pdb/data/structures/all/pdb/pdb%s.ent.gz" % code.lower(), Data).cast(Stream) 
+    if len(pdb.out) == 0: raise Exception("PDB code %s not found" % code)
+  except:
+    #old archive
+    pdb = File("ftp://ftp.rcsb.org/pub/pdb/data/structures/all/pdb/pdb%s.ent.Z" % code.lower(), Data).cast(Stream)   
+    if len(pdb.out) == 0: raise Exception("PDB code %s not found" % code)
+  pdb = pdb | "gunzip"        
+  
+  if len(pdb.err) > 0: raise Exception(pdb.err.textdata())
+  return Data_PDB(pdb.out)
+}
+
+Define Data_PDB(PDBData p) {
+  if p.pdbdata != None: 
+    s = p.pdbdata
+    if p.chain != "All":            
+      s = "\n".join([l for l in s.splitlines() if (len(l) >= 22 and l[21] == p.chain) or not (l.startswith("ATOM") or l.startswith("HETATM"))])
+    return Data_PDB(s)
+}

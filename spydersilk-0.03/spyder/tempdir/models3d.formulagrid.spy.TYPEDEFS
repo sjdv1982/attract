@@ -1,0 +1,14 @@
+662595981
+682540857
+CoordinateGrid2D
+{'validate': 'assert x >= 2\nassert y >= 2\nassert len(vertices) == x * y\n', 'deleted_members': [], 'members': [('CoordinateArray', 'vertices', ''), ('Integer', 'x', ''), ('Integer', 'y', ''), ('Bool', 'xwrap = False', ''), ('Bool', 'ywrap = False', ''), ('Material', 'material = "defaultmaterial"', ''), ('AxisSystem', 'axis = AxisSystem()', '')]}
+FormulaGrid2DArray
+[]
+CoordinateGrid2DArrayArray
+[]
+FormulaGrid2DArrayArray
+[]
+FormulaGrid2D
+{'validate': 'assert umin < umax\nassert usteps >= 2\nassert vmin < vmax\nassert vsteps >= 2   \nf = formula.formula(xformula,["u","v"]) \nassert f != None\nassert f(0,0) != None\nf = formula.formula(yformula,["u","v"]) \nassert f != None\nassert f(0,0) != None\nf = formula.formula(zformula,["u","v"]) \nassert f != None\nassert f(0,0) != None\n', 'deleted_members': [], 'form': 'xformula.default = "sin(2*pi*u)*(2+(0.5*sin(2*pi*v)))"\nxformula.length = 100\nyformula.default = "cos(2*pi*u)*(2+(0.5*sin(2*pi*v)))"\nyformula.length = 100    \nzformula.default = "cos(2*pi*v)*0.5"\nzformula.length = 100\numin.type = "number"\numin.default = 0\numin.min = -1000\numin.max = 1000\numax.type = "number"\numax.default = 1\numax.min = -1000\numax.max = 1000    \nusteps.default = 64\nusteps.min = 2\nusteps.max = 10000\nvmin.type = "number"\nvmin.default = 0\nvmin.min = -1000\nvmin.max = 1000\nvmax.type = "number"\nvmax.default = 1\nvmax.min = -1000\nvmax.max = 1000  \nvsteps.default = 32  \nvsteps.min = 2\nvsteps.max = 10000    \n', 'members': [('String', 'xformula', ''), ('String', 'yformula', ''), ('String', 'zformula', ''), ('Float', 'umin', ''), ('Float', 'umax', ''), ('Integer', 'usteps', ''), ('Float', 'vmin', ''), ('Float', 'vmax', ''), ('Integer', 'vsteps', ''), ('Bool', 'uwrap = True', ''), ('Bool', 'vwrap = True', '')]}
+CoordinateGrid2DArray
+[]

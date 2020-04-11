@@ -1,0 +1,8 @@
+662595981
+2690939616
+Bolt3DArray
+[]
+Bolt3D
+{'validate': 'assert radius > 0\nassert ident >= 0\nassert ident < radius\nassert divisions >= 3\nassert loops >= 3\n#prevent normal flipping \nassert step > 0 \n', 'deleted_members': [], 'form': 'self.matrix = "axis"\nradius.default = 1\nradius.min = 0.01\nradius.max = 10\ndivisions.default = 8\ndivisions.min = 4\ndivisions.max = 100\nstep.default = 0.2\nstep.min = 0.01\nstep.max = 10  \nloops.default = 5\nloops.min = 3\nloops.max = 100\nident.default = 0.1\nident.min = 0.01\nident.max = 10\n', 'members': [('Float', 'radius', ''), ('Integer', 'divisions', ''), ('Float', 'step', ''), ('Integer', 'loops', ''), ('Float', 'ident', ''), ('Bool', 'crease_inside = False', ''), ('Bool', 'crease_outside = False', ''), ('Bool', 'crease_cap = False', ''), ('AxisSystem', 'axis = AxisSystem()', ''), ('Material', 'material = "defaultmaterial"', '')]}
+Bolt3DArrayArray
+[]

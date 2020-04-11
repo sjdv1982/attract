@@ -1,0 +1,11 @@
+Type CanvasSlot {
+  String canvasname
+  String slotname
+  String slottype
+  Box2D box
+  *Color4F color
+  form {
+    slottype.typeinfo = "type"
+  }
+}
+Method make_bee(CanvasSlot) reserve_slot

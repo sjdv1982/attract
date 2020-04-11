@@ -1,0 +1,8 @@
+662595981
+23472062
+Stairs3DArrayArray
+[]
+Stairs3D
+{'validate': 'assert steps > 0\nassert innerradius > 0\nassert innerradius < outerradius\nassert stepheight > 0\nassert steprotation > 0\nassert stepoverlap >= 0\n', 'deleted_members': [], 'form': 'steps.default = 10\nsteps.range = 10\ninnerradius.default = 3\ninnerradius.range = 3\nouterradius.default = 5\nouterradius.range = 5\nstepheight.default = 1\nstepheight.range = 1\nsteprotation.default = 10\nsteprotation.range = 10\nstepoverlap.default = 0\nstepoverlap.min = 0\nstepoverlap.max = 100\n', 'members': [('Integer', 'steps', ''), ('Float', 'steprotation', ''), ('Float', 'stepheight', ''), ('Float', 'innerradius', ''), ('Float', 'outerradius', ''), ('Float', 'stepoverlap', ''), ('Material', 'material = "defaultmaterial"', ''), ('AxisSystem', 'axis = AxisSystem()', '')]}
+Stairs3DArray
+[]

@@ -153,6 +153,7 @@ int main(int argc, char*argv[]) {
     g.shm_energrads = new_shm_id();
     g.shm_neighbours = new_shm_id();  
   }
+  printf("#shm %d %d\n", g.shm_energrads, g.shm_neighbours);
   WRITE(argv[5]);
 }  
 

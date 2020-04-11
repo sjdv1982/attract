@@ -9,15 +9,17 @@ class Residue(object):
         self.patches = []
 
     def add_atom(self, atom):
-        if atom["name"] not in self.atomorder:
-            self.atomorder.append(atom["name"])
-        self.atoms[atom["name"]] = atom
+        name = str(atom["name"])
+        if name not in self.atomorder:
+            self.atomorder.append(name)
+        self.atoms[name] = atom
 
     def add_bond(self, bond):
         atom1, atom2 = bond
-        self.bonds.append((atom1, atom2))
+        self.bonds.append((str(atom1), str(atom2)))
 
     def delete_atom(self, name):
+        name = str(name)
         try:
             del self.atoms[name]
             self.atomorder.remove(name)
@@ -30,8 +32,9 @@ class Residue(object):
         self.bonds = bonds2
 
     def modify_atom(self, atom):
-        assert atom["name"] in self.atoms, atom["name"]
-        self.atoms[atom["name"]].update(atom)
+        name = str(atom["name"])
+        assert name in self.atoms, name
+        self.atoms[name].update(atom)
 
     def patch(self, patch):
         name, commands = patch
@@ -49,6 +52,32 @@ class Residue(object):
                 self.delete_atom(obj)
             else:
                 raise ValueError(mode)
+
+    def get_angles(self):
+        connectivity = {}
+        angles = []
+        for atom1, atom2 in self.bonds:
+            try:
+              a1 = self.atomorder.index(atom1)
+              a2 = self.atomorder.index(atom2)
+            except ValueError:
+              pass
+            if atom1 not in connectivity: connectivity[atom1] = set()
+            if atom2 not in connectivity: connectivity[atom2] = set()
+            con1 = connectivity[atom1]
+            con2 = connectivity[atom2]
+            con1.add(a2)
+            con2.add(a1)
+        for atom in connectivity.keys():
+            con = connectivity[atom]
+            for a1 in con:
+                atom1 = self.atomorder[a1]
+                for a2 in con:
+                    if a2 <= a1: continue
+                    atom2 = self.atomorder[a2]
+                    angles.append((atom1, atom, atom2))
+        return angles
+
 
 def load(d):
     residues = {}

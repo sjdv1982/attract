@@ -1,0 +1,38 @@
+662595981
+2225296013
+Color4ArrayArray
+[]
+NewMaterialArrayArray
+[]
+Color4FArray
+[]
+ColorF
+{'validate': 'assert r >= 0 and r <= 1\nassert g >= 0 and g <= 1\nassert b >= 0 and b <= 1\n', 'deleted_members': [], 'members': [('Float', 'r', ''), ('Float', 'g', ''), ('Float', 'b', '')]}
+Color
+{'validate': 'assert r >= 0 and r <= 255\nassert g >= 0 and g <= 255\nassert b >= 0 and b <= 255\n', 'deleted_members': [], 'members': [('Integer', 'r', ''), ('Integer', 'g', ''), ('Integer', 'b', '')]}
+Color4FArrayArray
+[]
+NewMaterial
+{'form': 'color.default = (0,0,0)\ntexture.type = None\ntransparency.type = None\n', 'validate': '#assert color != None or texture != None  ## will be enabled when textures are supported\nassert color != None\n', 'deleted_members': [], '__init__': 'color\ntexture\n', 'members': [('String', 'pname', ''), ('Color', 'color', ''), ('Filename', 'texture', ''), ('Float', 'transparency = 0', '')]}
+ColorFArrayArray
+[]
+ColorArrayArray
+[]
+Color4Array
+[]
+SingleMaterialArrayArray
+[]
+NewMaterialArray
+[]
+SingleMaterialArray
+[]
+ColorFArray
+[]
+Color4
+{'validate': 'assert r >= 0 and r <= 255\nassert g >= 0 and g <= 255\nassert b >= 0 and b <= 255\nassert a >= 0 and a <= 255\n', 'deleted_members': [], 'members': [('Integer', 'r', ''), ('Integer', 'g', ''), ('Integer', 'b', ''), ('Float', 'a', '')]}
+ColorArray
+[]
+Color4F
+{'validate': 'assert r >= 0 and r <= 1\nassert g >= 0 and g <= 1\nassert b >= 0 and b <= 1\nassert a >= 0 and a <= 1\n', 'deleted_members': [], 'members': [('Float', 'r', ''), ('Float', 'g', ''), ('Float', 'b', ''), ('Float', 'a', '')]}
+SingleMaterial
+{'form': 'color.default = (0,0,0)\ntexture.type = "none"\ntransparency.type = "none"\n', 'validate': '#assert color != None or texture != None  ## will be enabled when textures are supported\nassert color != None\n', 'deleted_members': [], '__init__': 'color\ntexture\n', 'members': [('String', 'pname', ''), ('Color', 'color', ''), ('Filename', 'texture', ''), ('Float', 'transparency = 0', '')]}

@@ -3,6 +3,7 @@
 
 # Unignore all with extensions
 !*.*
+!spydersilk-0.03/**
 
 # Unignore all dirs
 !*/
@@ -34,3 +35,4 @@ gui/server/cgi-local
 bin/ScoringClient.log
 html/upload.html
 attract-em-gpu/_axsym.cpp
+!Dockerfile

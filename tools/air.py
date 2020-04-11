@@ -19,7 +19,7 @@ def load_pdb(pdb):
     if not l.startswith("ATOM "): continue
     ret[2] += 1
     aa = int(l[22:27])
-    if aa is not curr:
+    if aa != curr:
       curr = aa
       ret[0][curr] = []
       ret[1][curr] = l[17]+l[18:20].lower()

@@ -1,0 +1,5 @@
+Type ThreeDee{
+  """
+  Base class for three-dimensional objects
+  """
+}

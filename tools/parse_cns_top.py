@@ -1,0 +1,1 @@
+../allatom/tools/parse_cns_top.py
