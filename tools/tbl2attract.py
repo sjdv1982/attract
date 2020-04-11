@@ -229,7 +229,7 @@ for node in tree.children:
     rest.vector = parse_vector(vector)
     maskindex = evaluate_top_atom_selection(sele)
     rest.maskindices.append(maskindex)
-  else: #"harmonic", "haddock"
+  else: #"harmonic", "haddock", "bump", "step"
     maskindex1 = evaluate_top_atom_selection(sele1)
     rest.maskindices.append(maskindex1)
     maskindex2 = evaluate_top_atom_selection(sele2)
@@ -252,7 +252,7 @@ for rest in restraints:
     x, y, z = rest.vector.x, rest.vector.y, rest.vector.z
     r = "selection%d 7 %s %s %s %s %s %s %s" % (rest.maskindices[0]+1, mindist, maxdist, args.k, rest.typ, x, y, z)
     print r
-  else: # "harmonic", "haddock", "step"
+  else: # "harmonic", "haddock", "step", "bump"
     r = "selection%d selection%d" % (rest.maskindices[0]+1, rest.maskindices[1]+1)  
     if args.mode == "haddock": 
       if mindist > 0:
@@ -260,11 +260,11 @@ for rest in restraints:
       print r + " 2 %s %s %s %s" % (maxdist, args.k, args.softsquare, args.chance_removal)
     elif args.mode== "step":
       if mindist < 0 or maxdist < 0:
-	raise Exception("Step potential restraints with limits < 0 are not supported")
+        raise Exception("Step potential restraints with limits < 0 are not supported")
       print r + " 6 %s %s %s" % (maxdist, args.k, mindist)
     elif args.mode=="bump":
       if mindist < 0 or maxdist < 0:
-	raise Exception("Bump potential restraints with limits < 0 are not supported")
+        raise Exception("Bump potential restraints with limits < 0 are not supported")
       print r + " 8 %s %s %s %s" % (mindist, rest.distance, rest.dplus, args.k)
     else: #harmonic
       if mindist == maxdist:
