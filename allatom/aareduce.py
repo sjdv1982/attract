@@ -198,7 +198,6 @@ def read_pdb(pdblines, pdbname, add_termini=False,modbase=False,modres=False):
         if l[30:38] == " XXXXXXX": continue #missing atom from --manual mode
         resname = l[17:20].strip()
         # try to fix a nucleotide name
-        resname = check_nucl(resname)
         atomcode, resname = mutate(atomcode, resname)
         resname = check_nucl(resname)
         if atomcode == None:
