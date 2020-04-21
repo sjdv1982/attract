@@ -6,10 +6,10 @@ Author: Sjoerd de Vries
 import sys
 
 if len(sys.argv) not in (9,10,11,12):
-  print >> sys.stderr, "Usage: air.py <protein 1 active residue list> <protein 1 passive residue list>"  
-  print >> sys.stderr, "              <protein 1 reduced PDB> <protein 1 residue mapping file>"  
-  print >> sys.stderr, "              <protein 2 active residue list> <protein 2 passive residue list>"  
-  print >> sys.stderr, "              <protein 2 reduced PDB> <protein 2 residue mapping file>"    
+  print >> sys.stderr, "Usage: air.py <protein 1 active residue list> <protein 1 passive residue list>"
+  print >> sys.stderr, "              <protein 1 reduced PDB> <protein 1 residue mapping file>"
+  print >> sys.stderr, "              <protein 2 active residue list> <protein 2 passive residue list>"
+  print >> sys.stderr, "              <protein 2 reduced PDB> <protein 2 residue mapping file>"
   sys.exit()
 
 def load_pdb(pdb):
@@ -25,7 +25,7 @@ def load_pdb(pdb):
       ret[1][curr] = l[17]+l[18:20].lower()
     ret[0][curr].append(lnr+1)
   return ret
-    
+
 def load_map(mapfile):
   ret = {}
   for l in open(mapfile).readlines():
@@ -36,7 +36,15 @@ def load_map(mapfile):
     except:
       raise ValueError(l)
   return ret
-    
+
+def names_check(names):
+    """The restraints generator assumes that residue names are three letters long.
+    For RNA it's 2 letters. This function removes extra space before the residue names."""
+    for key in names:
+      names[key] = names[key].strip()
+    return names
+
+
 act1 = [l.strip() for l in open(sys.argv[1]).readlines()]
 pass1 = [l.strip() for l in open(sys.argv[2]).readlines()]
 pdb1,names1,pdb1len = load_pdb(sys.argv[3])
@@ -51,6 +59,9 @@ map2 = load_map(sys.argv[8])
 act2a = [map2[r] for r in act2]
 pass2a = [map2[r] for r in pass2]
 
+names1 = names_check(names1)
+names2 = names_check(names2)
+
 actpass1 = []
 for a in act1a+pass1a:
   actpass1 += pdb1[a]
@@ -64,7 +75,7 @@ for a in act2a+pass2a:
 print "B_actpass", len(actpass2),
 for nr in sorted(actpass2): print nr+pdb1len,
 print
-  
+
 for r in act1:
   nrs = pdb1[map1[r]]
   print "A_"+names1[map1[r]]+r,len(nrs),
@@ -80,7 +91,7 @@ print
 
 chance_removal = 0.5
 dist = 2.0
-k = 1.0 
+k = 1.0
 if len(sys.argv) >= 10: chance_removal = float(sys.argv[9])
 if len(sys.argv) >= 11: dist = float(sys.argv[10])
 if len(sys.argv) >= 12: k = float(sys.argv[11])
@@ -88,11 +99,10 @@ params = 2, dist, k, dist, chance_removal
 
 
 for r in act1:
-  print "A_"+names1[map1[r]]+r, "B_actpass", 
+  print "A_"+names1[map1[r]]+r, "B_actpass",
   for p in params: print p,
   print
 for r in act2:
-  print "B_"+names2[map2[r]]+r, "A_actpass", 
+  print "B_"+names2[map2[r]]+r, "A_actpass",
   for p in params: print p,
   print
-  
