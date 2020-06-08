@@ -46,7 +46,8 @@ struct CartState {
   double we[TOTMAXATOM];   //occupancy/weight (current, after lambda)
   double we0[TOTMAXATOM];   //occupancy/weight (original)
   double chai[TOTMAXATOM];  //charge * occupancy
-
+  int use_softcore;		//use softcore potential if set to 1, zero otherwise
+  double softcore;	    
   /* modes */
   int nhm[MAXLIG];          //number of modes per ligand
   double val[MAXLIG][MAXMODE];  //force constant per mode
