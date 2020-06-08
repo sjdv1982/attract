@@ -90,7 +90,11 @@ c      Handle variables: cartstate
        real*8 cmorphl, cmorphdl
        pointer(ptr_cmorphdl,cmorphdl)
        dimension cmorphdl(3*maxatom)
-     
+c      variables to integrate softcore potential
+       integer use_softcore
+       pointer(ptr_use_softcore,use_softcore)
+       real*8 softcore
+       pointer(ptr_softcore,softcore)
 
 c      Handle variables: forcefield parameters
        integer potshape, cdie
@@ -215,7 +219,7 @@ c select deformed coordinates: select non-pivotized coordinates for receptor
      
        call cartstate_get_parameters(cartstatehandle,
      1  ptr_rbc,ptr_rc,ptr_ac,ptr_emin,ptr_rmin2,ptr_ipon,potshape,
-     2  cdie,epsilon,swi_on, swi_off)
+     2  cdie,epsilon,swi_on, swi_off, ptr_use_softcore, ptr_softcore)
             
        xnull = 0.0d0   
        do 10 i=1,6+maxmode+maxindexmode
@@ -303,9 +307,15 @@ c      rotate delta-translate back into global frame
        call molpair_get_values(molpairhandle,idr,idl,
      1  ptr_iactr,ptr_iactl,nonp,ptr_nonr,ptr_nonl) 
 c       write(ERROR_UNIT,*), xl(3*132+1:3*132+3), xr(3*1704+1:3*1704+3)
-       call nonbon8(iab,xl,xr,fl,fr,wel,wer,chair,chail,ac,rc,
-     1  emin,rmin2,iacir,iacil,nonr,nonl,ipon,nonp,
-     2  potshape,cdie,swi_on,swi_off,enon,epote,natomr,natoml)
+       if (use_softcore.eq.0) then
+      call nonbon8(iab,xl,xr,fl,fr,wel,wer,chair,chail,ac,rc,
+     1     emin,rmin2,iacir,iacil,nonr,nonl,ipon,nonp,
+     2     potshape,cdie,swi_on,swi_off,enon,epote,natomr,natoml)
+       else
+       call nonbon_soft(iab,xl,xr,fl,fr,wel,wer,chair,chail,ac,rc,
+     1     emin,rmin2,iacir,iacil,nonr,nonl,ipon,nonp,
+     2     potshape, cdie, swi_on,swi_off, enon,epote, softcore)
+       endif
        endif
        
        energies(1) = enon
