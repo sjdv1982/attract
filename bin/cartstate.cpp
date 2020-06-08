@@ -159,7 +159,7 @@ extern "C" void cartstate_get_forces_(const int &handle,double *&f, int &nall3) 
 
 extern "C" void cartstate_get_parameters_(const int &handle,double *&rbc, 
 double *&rc,double *&ac,double *&emin,double *&rmin2,int *&ipon, int &potshape, 
-int &cdie, double &epsilon, float &swi_on, float &swi_off) 
+int &cdie, double &epsilon, float &swi_on, float &swi_off, int *&use_softcore, double *&softcore) 
 {
   CartState &cartstate = *cartstates[handle-9990]; 
   rbc = &(cartstate.rbc[0][0]);
@@ -173,6 +173,8 @@ int &cdie, double &epsilon, float &swi_on, float &swi_off)
   epsilon = cartstate.epsilon;
   swi_on = cartstate.swi_on;
   swi_off = cartstate.swi_off;  
+  softcore = &cartstate.softcore;
+  use_softcore = &cartstate.use_softcore;
 }
 
 extern "C" void cartstate_get_pivot_(const int &handle,double *&pivot) {

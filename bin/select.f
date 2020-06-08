@@ -58,7 +58,9 @@ c      Handle variables: cartstate
        dimension ncopr(0:10,0:20,maxres), ncopl(0:10,0:20,maxres)
        pointer(ptr_ncopr,ncopr)
        pointer(ptr_ncopl,ncopl)
-
+c define paramters for use of softcore potential
+       integer use_softcore
+       real*8 softcore
 c      Handle variables: forcefield parameters
        integer potshape
        real swi_on, swi_off
