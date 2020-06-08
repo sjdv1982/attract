@@ -103,7 +103,7 @@ c      Local variables
      3  ptr_nmaxcol,ptr_natcol, false)
        call cartstate_get_parameters(cartstatehandle,
      1  ptr_rbc,ptr_rc,ptr_ac,ptr_emin,ptr_rmin2,ptr_ipon,potshape,
-     2  dmmy1,dmmy2,swi_on, swi_off)
+     2  dmmy1,dmmy2,swi_on, swi_off, use_softcore, softcore)
           
 c This subroutine goes through all residues and all side chain copies
 c The atoms belonging to the energetically most favorable side chain copy
