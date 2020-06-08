@@ -106,7 +106,7 @@ void parse_restraintfile(MiniState &ms, const char *restfile) {
       }
       else {
         r.type = atoi(fields[2]);
-        if (r.type > 8 || r.type == 7) {
+        if (r.type > 10 || r.type == 7) {
           fprintf(stderr, "Reading error in %s, line %d: Restraint type %s not supported\n", restfile, line, fields[2]);
           exit(1);      
         }
@@ -123,7 +123,7 @@ void parse_restraintfile(MiniState &ms, const char *restfile) {
       }  
       r.maxindex = maxindex;
 
-      if (r.type > 8) {
+      if (r.type > 10) {
         fprintf(stderr, "Reading error in %s, line %d: Restraint type %s not supported\n", restfile, line, fields[2]);
 	exit(1);      
       }
@@ -137,6 +137,8 @@ void parse_restraintfile(MiniState &ms, const char *restfile) {
       if (r.type == 6 && nf != 6) wrong = 1;
       if (r.type == 7 && nf != 9) wrong = 1;
       if (r.type == 8 && nf != 7) wrong = 1;
+      if (r.type == 9 && nf != 5) wrong = 1;
+      if (r.type == 10 && nf != 5) wrong = 1;
       if (wrong) {
         fprintf(stderr, "Reading error in %s, line %d: Wrong number of parameters for restraint type %d\n", restfile, line, r.type);
 	exit(1);      
@@ -168,6 +170,18 @@ void parse_restraintfile(MiniState &ms, const char *restfile) {
       if (r.type == 8) {
         if (r.s1 != 1 || r.s2 != 1) {
           fprintf(stderr, "Reading error in %s, line %d: bump potential requires single-atom selections\n", restfile, line);
+          exit(1);
+        }
+      } 
+      if (r.type == 9) {
+        if (r.s1 != 3 ) {
+          fprintf(stderr, "Reading error in %s, line %d: angle potential requires 3-atom selections\n", restfile, line);
+          exit(1);
+        }
+      } 
+      if (r.type == 10) {
+        if (r.s1 != 4 ) {
+          fprintf(stderr, "Reading error in %s, line %d: torsion potential requires 4-atom selections\n", restfile, line);
           exit(1);
         }
       } 
