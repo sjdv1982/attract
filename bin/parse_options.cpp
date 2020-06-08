@@ -2,6 +2,7 @@
 #include <cstdio>
 #include <cstring>
 #include <cstdlib>
+#include <stdexcept>
 
 extern bool exists(const char *);
 extern void parse_restraintfile(MiniState &ms, const char *restfile);
@@ -258,6 +259,18 @@ void parse_options(int ministatehandle, int cartstatehandle, int nlig, int argc,
       ms.itra = 0;
       ms.iori = 0;
     }    
+    else if (!strcmp(arg,"--use-softcore")) {
+
+	c.use_softcore = 1; //MANU softcore wird benutzt
+	n += 1;
+	try{
+		c.softcore = atof(argv[n]); //gewünschten softcore aus commandline ziehen und in cartstate Variable softcore schreiben	
+	}
+	catch(const std::invalid_argument &e){
+		n = n-1;
+		c.softcore = 5.0;	//Standartwert 5 in Cartstatevariable Softcore schreiben	
+	}   
+      }   
     else if ((!strcmp(arg,"--grid"))||(!strcmp(arg,"--torquegrid"))) {
       bool torquegrid = 0;
       if (!strcmp(arg,"--torquegrid")) torquegrid = 1;
