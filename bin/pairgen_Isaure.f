@@ -58,7 +58,9 @@ c      Handle variables: cartstate
        dimension ncopr(0:10,0:20,maxres), ncopl(0:10,0:20,maxres)
        pointer(ptr_ncopr,ncopr)
        pointer(ptr_ncopl,ncopl)
-
+c      paramters for softcore potential
+       integer use_softcore
+       real*8 softcore
 c      Handle variables: forcefield parameters
        integer potshape
        real swi_on, swi_off
@@ -96,7 +98,7 @@ c     Local variables
      3  ptr_nmaxcol,ptr_natcol,false)
        call cartstate_get_parameters(cartstatehandle,
      1  ptr_rbc,ptr_rc,ptr_ac,ptr_emin,ptr_rmin2,ptr_ipon,potshape,
-     2  dmmy1,dmmy2,swi_on, swi_off)
+     2  dmmy1,dmmy2,swi_on, swi_off, use_softcore, softcore)
 
 
 c This subroutine generates a ligand-receptor pairlist
