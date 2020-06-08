@@ -19,6 +19,8 @@ c      Handle variables: molpair
        pointer(ptr_nonr,nonr)
        pointer(ptr_nonl,nonl)
 
+       integer use_softcore
+       real*8 softcore
 c      Handle variables: cartstate       
        real*8 xr,wer,chair,fr,pivotr
        dimension xr(maxatom),wer(maxatom),chair(maxatom)
@@ -96,7 +98,7 @@ c     Local variables
      3  ptr_nmaxcol,ptr_natcol,false)
        call cartstate_get_parameters(cartstatehandle,
      1  ptr_rbc,ptr_rc,ptr_ac,ptr_emin,ptr_rmin2,ptr_ipon,potshape,
-     2  dmmy1,dmmy2,swi_on, swi_off)
+     2  dmmy1,dmmy2,swi_on, swi_off, use_softcore, softcore)
 
 
 c This subroutine generates a ligand-receptor pairlist
