@@ -33,6 +33,36 @@ restraint types:
     minimum distance-slope and maximum distance-slope. Slope and force constant determine the
     height of the potential well/bump. Attractive for negative force constant.
 
+9: angle restraint: <equilibrium minimum angle> <force constant>
+    quadratic potential with single minimum angle and force constant 
+    the angle is calculated as the angle between the three atoms in the associated group
+
+    example: 
+
+    label 3 34 37 41
+    (angle is defined as angle between atoms 34,37,41)
+
+    label label 9 2.12 25.5     
+    (angle is calculated for the group of atoms in "label", equi-angle: 2.12 radians, 
+    force constant:25.5 kcal/mol/rad**2)
+
+10: dihedral angle restraint: <equilibrium diedral angle> <force constant>
+    quadratic potential with single minimum dihedral angle and force constant
+    the dihedral angle is calculated as between the four atoms in the associated group
+
+    example: 
+
+    label 4 34 37 41 55
+    (dihedral angle is defined between atoms 34,37,41,55)
+
+    label label 10 1.24 25.5     
+    (dihedral is calculated for the group of atoms in "label", equi-dihedral: 1.24 radians, 
+    force constant:25.5 kcal/mol/rad**2)
+
+
+
+
+
 The "chance of random removal" indicates the chance that a restraint is not used at all.
 This is determined by a random number generated from a structure's seed. Therefore, the same seed with the same restraint file causes the same restraints to be enabled or disabled within every docking stage.
 Orthogonality issue: the seed number is also used in pure MC mode.
