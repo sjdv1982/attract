@@ -479,6 +479,174 @@ inline void restrain_type_8(const Restraint &r, int iab, const Coor *x, Coor *f,
     }
   }
 }
+inline void restrain_type_9(double weight, const Restraint &r, int iab, const Coor *x, Coor *f, double &energy) {
+  //ANGLE-type restaint between 3 atoms
+  if (r.s1 == 3 ) {
+    int atomnr1 = r.selection1[0]-1;
+    const Coor &a1 = x[atomnr1];
+    int atomnr2 = r.selection1[1]-1;
+    const Coor &a2 = x[atomnr2];
+    int atomnr3 = r.selection1[2]-1;
+    const Coor &a3 = x[atomnr3];
+    double x12= a1[0]-a2[0];
+    double y12= a1[1]-a2[1];
+    double z12= a1[2]-a2[2];
+    double x32= a3[0]-a2[0];
+    double y32= a3[1]-a2[1];
+    double z32= a3[2]-a2[2];
+    double  dis2 = 1.0/(x12*x12+y12*y12+z12*z12);
+    double  dis = sqrt(dis2);
+    double  des2 = 1.0/(x32*x32+y32*y32+z32*z32);
+    double  des = sqrt(des2);
+    double  skalar = x12*x32+y12*y32+z12*z32;
+    double  winkel = acos(skalar*des*dis);
+    double  diff = winkel-r.par1;
+    double  cforce = r.par2;
+    double  fdiff = cforce*diff;
+    energy += weight *  fdiff * diff;
+//   printf("W %.3f %3f %3f %3f \n", winkel,cforce,r.par1,r.par2);
+    if (iab) {
+      diff=dis*des;
+      dis=skalar*diff;
+      double factor = -2.0*fdiff/sqrt(1.0 - dis*dis);
+      diff=factor*diff;
+      double diffdis=factor*dis*dis2;
+      Coor force1 = {weight * (x32*diff-diffdis*x12),
+                    weight * (y32*diff-diffdis*y12),
+                    weight * (z32*diff-diffdis*z12)};
+      Coor &f1 = f[atomnr1];
+      f1[0] -= force1[0];
+      f1[1] -= force1[1];
+      f1[2] -= force1[2];
+      Coor &f2 = f[atomnr2];
+      f2[0] += force1[0];
+      f2[1] += force1[1];
+      f2[2] += force1[2];
+      double diffdes=factor*dis*des2;
+      Coor force2 = {weight * (x12*diff-diffdes*x32),
+                    weight * (y12*diff-diffdes*y32),
+                    weight * (z12*diff-diffdes*z32)};
+      Coor &f3 = f[atomnr3];
+      f3[0] -= force2[0];
+      f3[1] -= force2[1];
+      f3[2] -= force2[2];
+      f2[0] += force2[0];
+      f2[1] += force2[1];
+      f2[2] += force2[2];
+    }
+  }
+}
+inline void restrain_type_10(double weight, const Restraint &r, int iab, const Coor *x, Coor *f, double &energy) {
+  //Dihedral-type restaint between 4 atoms
+  if (r.s1 == 4 ) {
+    int atomnr1 = r.selection1[0]-1;
+    const Coor &a1 = x[atomnr1];
+    int atomnr2 = r.selection1[1]-1;
+    const Coor &a2 = x[atomnr2];
+    int atomnr3 = r.selection1[2]-1;
+    const Coor &a3 = x[atomnr3];
+    int atomnr4 = r.selection1[3]-1;
+    const Coor &a4 = x[atomnr4];
+    double x21= a2[0]-a1[0];
+    double y21= a2[1]-a1[1];
+    double z21= a2[2]-a1[2];
+    double x32= a2[0]-a3[0];
+    double y32= a2[1]-a3[1];
+    double z32= a2[2]-a3[2];
+    double x31= a3[0]-a1[0];
+    double y31= a3[1]-a1[1];
+    double z31= a3[2]-a1[2];
+    double x43= a4[0]-a3[0];
+    double y43= a4[1]-a3[1];
+    double z43= a4[2]-a3[2]; 
+    double x42= a4[0]-a2[0];
+    double y42= a4[1]-a2[1];
+    double z42= a4[2]-a2[2];
+    double r13x=z21*y32-y21*z32;
+    double r13y=x21*z32-z21*x32;
+    double r13z=y21*x32-x21*y32;
+    double r24x=z32*y43-y32*z43;
+    double r24y=x32*z43-z32*x43;
+    double r24z=y32*x43-x32*y43;
+    double  r13n = 1.0/sqrt(r13x*r13x+r13y*r13y+r13z*r13z);
+    double  r24n = 1.0/sqrt(r24x*r24x+r24y*r24y+r24z*r24z);
+    r13x=r13x*r13n;
+    r13y=r13y*r13n;
+    r13z=r13z*r13n;
+    r24x=r24x*r24n;
+    r24y=r24y*r24n;
+    r24z=r24z*r24n;
+    double cijkl=r13x*r24x+r13y*r24y+r13z*r24z;
+    if (cijkl >= 1.0) cijkl=0.999999999;
+    if (cijkl < -1.0) cijkl=-0.999999999;
+    double sijkl=x32*(r13z*r24y-r13y*r24z)+y32*(r13x*r24z-r13z*r24x)+z32*(r13y*r24x-r13x*r24y);
+    if (sijkl < 0 ) sijkl=-1.0; else sijkl=1.0;
+    double  winkel = sijkl*acos(cijkl);
+    if (winkel >= 0 && winkel < 0.000001) winkel = 0.000001;
+    if (winkel < 0 && winkel > -0.000001) winkel = -0.000001;
+    double  delwink = winkel-r.par1;      
+    if(delwink > 3.141592654) delwink=delwink-6.283185307;
+    if(delwink < -3.141592654) delwink=delwink+6.283185307;
+    double factor=r.par2*delwink;
+    energy += weight * factor*delwink;
+//    printf("W %.3f %3f %3f %3f \n", winkel,r.par1,r.par2,delwink);
+    if (iab) {
+      factor=2.0 * weight * factor/sin(winkel);
+      double v1x=r13x-cijkl*r24x;
+      double v1y=r13y-cijkl*r24y;
+      double v1z=r13z-cijkl*r24z;
+      double v2x=r24x-cijkl*r13x;
+      double v2y=r24y-cijkl*r13y;
+      double v2z=r24z-cijkl*r13z;
+      double v3x=z32*v2y-y32*v2z;
+      double v3y=x32*v2z-z32*v2x;
+      double v3z=y32*v2x-x32*v2y;
+      Coor fi = {factor * r13n * v3x,
+                 factor * r13n * v3y,
+                 factor * r13n * v3z};
+      v3x=z31*v2y-y31*v2z;
+      v3y=x31*v2z-z31*v2x;
+      v3z=y31*v2x-x31*v2y;
+      double v4x=z43*v1y-y43*v1z;
+      double v4y=x43*v1z-z43*v1x;
+      double v4z=y43*v1x-x43*v1y;
+      Coor fj = {factor * ( r13n * v3x - r24n * v4x),
+                 factor * ( r13n * v3y - r24n * v4y),
+                 factor * ( r13n * v3z - r24n * v4z)};
+      v3x=z42*v1y-y42*v1z;
+      v3y=x42*v1z-z42*v1x;
+      v3z=y42*v1x-x42*v1y;
+      v4x=z21*v2y-y21*v2z;
+      v4y=x21*v2z-z21*v2x;
+      v4z=y21*v2x-x21*v2y;
+      Coor fk = {factor * ( r24n * v3x - r13n * v4x),
+                 factor * ( r24n * v3y - r13n * v4y),
+                 factor * ( r24n * v3z - r13n * v4z)};
+      v3x=z32*v1y-y32*v1z;
+      v3y=x32*v1z-z32*v1x;
+      v3z=y32*v1x-x32*v1y;
+      Coor fl = {factor *  r24n * v3x,
+                factor *  r24n * v3y,
+                factor *  r24n * v3z };
+      Coor &f1 = f[atomnr1];
+      f1[0] -= fi[0];
+      f1[1] -= fi[1];
+      f1[2] -= fi[2];
+      Coor &f2 = f[atomnr2];
+      f2[0] -= fj[0];
+      f2[1] -= fj[1];
+      f2[2] -= fj[2];
+      Coor &f3 = f[atomnr3];
+      f3[0] -= fk[0];
+      f3[1] -= fk[1];
+      f3[2] -= fk[2];
+      Coor &f4 = f[atomnr4];
+      f4[0] -= fl[0];
+      f4[1] -= fl[1];
+      f4[2] -= fl[2];
+    }
+  }
+}
 
 extern "C" void restrain_(const int &ministatehandle, const int &cartstatehandle, const int &seed, const int &iab, double &energy) {
   MiniState &ms = ministate_get(ministatehandle);
@@ -501,5 +669,7 @@ extern "C" void restrain_(const int &ministatehandle, const int &cartstatehandle
     if (r.type == 6) restrain_type_6(r,iab,x,f,energy);
     if (r.type == 7) restrain_type_7(weight, r,iab,x,f,energy);
     if (r.type == 8) restrain_type_8(r,iab,x,f,energy);
+    if (r.type == 9) restrain_type_9(weight,r,iab,x,f,energy);
+    if (r.type == 10) restrain_type_10(weight,r,iab,x,f,energy);  
   }
 }
