@@ -169,7 +169,7 @@ c check distances and neighbors
       if(ielim(i).eq.0) then
       do j=i+1,ipmax
       dd=(xp(i)-xp(j))**2+(yp(i)-yp(j))**2+(zp(i)-zp(j))**2 
-      if(dd.lt.200.0) then
+      if(dd.lt.50.0) then
       ielim(j)=1 
       k=k+1
       endif
