@@ -1,0 +1,13 @@
+set -u -e
+
+docker run --rm \
+  --env PATH=$PATH \
+  --network=host \
+  --shm-size=8gb \
+  -v /home:/home \
+  --workdir `pwd` \
+  -v /tmp:/tmp \
+  --workdir `pwd` \
+  -it \
+  $* \
+  rpbs/attract bash
