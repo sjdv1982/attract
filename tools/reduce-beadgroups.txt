@@ -1,7 +1,7 @@
 #The format of reduce.dat is as follows:
 #
 # <One-,two- or three-letter residue code>
-# <atom type> <bead name> <names of the atom(s) that comprise the bead> [charge of the bead] 
+# <atom type> <bead name> <names of the atom(s) that comprise the bead> [charge of the bead]
 # <atom type> <bead name> <names of the atom(s) that comprise the bead> [charge of the bead]
 # ...
 
@@ -13,7 +13,7 @@ ALA
 99 CA CA
 99 C C
 31 O O
-2 CSE CA CB 
+2 CSE CA CB
 
 CYS
 30 N N
@@ -43,7 +43,7 @@ PHE
 99 C C
 31 O O
 20 CSE CB CG
-21 CSE CD1 CD2 CE1 CE2 CZ
+21 CSF CD1 CD2 CE1 CE2 CZ
 
 GLY
 30 N N
@@ -57,7 +57,7 @@ HIS
 99 C C
 31 O O
 12 CSE CB CG
-13 CSE ND1 CD2 NE2 CE1
+13 CSF ND1 CD2 NE2 CE1
 
 ILE
 30 N N
@@ -87,7 +87,7 @@ MET
 99 C C
 31 O O
 18 CSE CB CG
-19 CSE SD CE
+19 CSF SD CE
 
 ASN
 30 N N
@@ -154,7 +154,7 @@ TYR
 99 C C
 31 O O
 27 CSE CB CG
-28 CSE CD1 CD2 CE1 CE2 CZ OH
+28 CSF CD1 CD2 CE1 CE2 CZ OH
 
 #modified amino acids
 
@@ -171,7 +171,7 @@ SEP
 99 C C
 31 O O
 23 CSE CA CB OG
-1  CSE P O1P O2P O3P OG -2.0
+1  CSF P O1P O2P O3P OG -2.0
 
 TOP
 30 N N
@@ -179,7 +179,7 @@ TOP
 99 C C
 31 O O
 24 CSE CA CB OG1 CG2
-1  CSE P O1P O2P O3P OG1 -2.0
+1  CSF P O1P O2P O3P OG1 -2.0
 
 TYP
 30 N N
@@ -196,8 +196,8 @@ TYS
 99 C C
 31 O O
 27 CSE CB CG
-28 CSE CD1 CD2 CE1 CE2 CZ OH
-19 CSE S O1S O2S O3S OH -2.0
+28 CSF CD1 CD2 CE1 CE2 CZ OH
+19 CSG S O1S O2S O3S OH -2.0
 
 NEP
 30 N N
@@ -205,8 +205,8 @@ NEP
 99 C C
 31 O O
 12 CSE CB CG
-13 CSE ND1 CD2 NE2 CE1
-1  CSE P O1P O2P O3P -1.0
+13 CSF ND1 CD2 NE2 CE1
+1  CSG P O1P O2P O3P -1.0
 
 CSP
 30 N N
@@ -214,7 +214,7 @@ CSP
 99 C C
 31 O O
 7 CSE CA CB SG
-1 CSE P O1P O2P O3P -2.0
+1 CSF P O1P O2P O3P -2.0
 
 ALY
 30 N N
@@ -242,7 +242,7 @@ MLY
 16 CB CG
 17 CE CE 1.0
 2 CSE CM2
-2 CSE CM3
+2 CSF CM3
 
 M3L
 30 N N
@@ -252,8 +252,8 @@ M3L
 16 CB CG
 17 CE CE 1.0
 2 CSE CM1
-2 CSE CM2
-2 CSE CM3
+2 CSF CM2
+2 CSG CM3
 
 #RNA nucleic acids
 RA

@@ -6,11 +6,14 @@ import sys, os
 datfile=sys.argv[1]
 ligpdbfile=sys.argv[2]
 outfile=sys.argv[3]
-nr_dump_atoms = int(sys.argv[4])
+if len(sys.argv) > 4:
+  nr_dump_atoms = int(sys.argv[4])
+else:
+  nr_dump_atoms = -1
 if nr_dump_atoms == -1:
   dump_atoms = None
   rest = sys.argv[5:]
-else:  
+else:
   dump_atoms = [int(v) for v in sys.argv[5:5+nr_dump_atoms]]
   rest = sys.argv[5+nr_dump_atoms:]
 
@@ -37,7 +40,7 @@ for n in range(natom):
   sel = False
   if dump_atoms is None or n+1 in dump_atoms: sel=True
   for n in range(3): mask.append(sel)
-  
+
 mask = numpy.array(mask, dtype=bool)
 allcoor[0,:] = coor[mask]
 nstruc = 1
@@ -50,5 +53,6 @@ while 1:
   nstruc += 1
   if nstruc == maxstruc:
     maxstruc = int(maxstruc * 1.2 + 0.99999) #grow allcoor with 20%
-    allcoor.resize(maxstruc,3*nr_dump_atoms)    
+    allcoor.resize(maxstruc,3*nr_dump_atoms)
+allcoor = allcoor.reshape((len(allcoor), -1, 3))
 numpy.save(outfile, allcoor[:nstruc])
