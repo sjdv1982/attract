@@ -1,7 +1,6 @@
 set -u -e
 
 docker run --rm \
-  --env PATH=$PATH \
   --network=host \
   --shm-size=8gb \
   -v /home/$USER:/home/$USER \
