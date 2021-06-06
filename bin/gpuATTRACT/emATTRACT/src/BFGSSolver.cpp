@@ -26,6 +26,8 @@
 
 using std::cerr;
 using std::endl;
+using std::isnan;
+using std::isinf;
 
 ema::BFGSSolver::Options ema::BFGSSolver::settings;
 
