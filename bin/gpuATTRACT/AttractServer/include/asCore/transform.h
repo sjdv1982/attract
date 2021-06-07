@@ -39,12 +39,15 @@ namespace asCore {
  */
 __global__ void d_DOF2Pos(const unsigned protId,
 		const unsigned numDOFs, const as::DOF* dofs,
+		unsigned short *confTr,
 		float* xTr, float* yTr, float* zTr);
 
 
 __global__ void d_DOF2Pos_modes(const unsigned protId,
 		const unsigned numDOFs, const as::DOF* dofs,
+		unsigned short *confTr,
 		float* xTr, float* yTr, float* zTr,
+		unsigned short *confDef,
 		float* xDef, float* yDef, float* zDef);
 
 /*
@@ -95,8 +98,8 @@ inline void  euler2rotmat(const float& phi, const float& ssi, const float& rot, 
  ** @brief: rotates the array components in-place = overwriting existing coordinates
  ** @remark: needs verification!!!
  */
-inline void rotate(const unsigned& numAtoms, float* x, float* y, float* z, const asUtils::RotMatf& rotmat) {
-	for (unsigned i = 0; i < numAtoms; ++i) {
+inline void rotate(const unsigned& nAtoms, float* x, float* y, float* z, const asUtils::RotMatf& rotmat) {
+	for (unsigned i = 0; i < nAtoms; ++i) {
 		float x_tmp = x[i];
 		float y_tmp = y[i];
 		float z_tmp = z[i];
@@ -110,11 +113,11 @@ inline void h_DOF2Pos(const float* x, const float* y, const float* z,
 		const float &xPos, const float &yPos, const float &zPos,
 		const float* defVecX, const float* defVecY, const float* defVecZ,
 		const asUtils::RotMatf& rotmat, const float* scaleFacMode,
-		const unsigned &numAtoms, const unsigned &numModes,
+		const unsigned &nAtoms, const unsigned &numModes,
 		float* xTr, float* yTr, float* zTr,
 		float* xTrDef, float* yTrDef, float* zTrDef)
 {
-	for (unsigned i = 0; i < numAtoms; ++i) {
+	for (unsigned i = 0; i < nAtoms; ++i) {
 		float pos[3];
 
 		pos[0] = x[i];
@@ -158,11 +161,11 @@ inline void h_DOF2Pos(const float* x, const float* y, const float* z,
 inline void h_DOF2Deform(const float* x, const float* y, const float* z,
 		const float* defVecX, const float* defVecY, const float* defVecZ,
 		const float* scaleFacMode,
-		const unsigned &numAtoms, const unsigned &numModes,
+		const unsigned &nAtoms, const unsigned &numModes,
 		float* xTrDef, float* yTrDef, float* zTrDef)
 {
 	assert(numModes > 0);
-	for (unsigned i = 0; i < numAtoms; ++i) {
+	for (unsigned i = 0; i < nAtoms; ++i) {
 		float pos[3];
 		pos[0] = x[i];
 		pos[1] = y[i];

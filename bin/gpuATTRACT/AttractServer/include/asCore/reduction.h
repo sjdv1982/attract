@@ -42,6 +42,7 @@ namespace asCore {
 template <class T>
 __host__ void reduceAll(const unsigned& threads, const unsigned& blocks,
 		const unsigned& protId, const unsigned& size,
+		const unsigned short *d_conf,
 		T *d_fx, T *d_fy, T *d_fz, T *d_eVdW, T *d_eEl,
 		T *d_odata,
 		const cudaStream_t& stream);
@@ -109,7 +110,7 @@ inline __host__ void euler2torquemat(const float& phi, const float& ssi, const f
 const float ForceLim = 1.0e18;
 inline void redPotForce(const float* fx, const float* fy, const float* fz,
 		const float* energies0, const float* energies1,
-		const unsigned &numAtoms,
+		const unsigned &nAtoms,
 		float &accFx, float &accFy, float &accFz, float &energy0, float &energy1)
 {
 	accFx = 0;
@@ -117,7 +118,7 @@ inline void redPotForce(const float* fx, const float* fy, const float* fz,
 	accFz = 0;
 	energy0 = 0;
 	energy1 = 0;
-	for(unsigned i = 0; i < numAtoms; ++i) {
+	for(unsigned i = 0; i < nAtoms; ++i) {
 		accFx += fx[i];
 		accFy += fy[i];
 		accFz += fz[i];
@@ -142,7 +143,7 @@ inline void redPotForce(const float* fx, const float* fy, const float* fz,
  */
 inline void redTorque(const float* x, const float* y, const float* z,
 		const float* fx, const float* fy, const float* fz ,
-		const unsigned &numAtoms, const float torqueMat[3][3][3],
+		const unsigned &nAtoms, const float torqueMat[3][3][3],
 		float &torPhi, float &torSsi, float &torRot)
 {
 	torPhi = 0;
@@ -150,7 +151,7 @@ inline void redTorque(const float* x, const float* y, const float* z,
 	torRot = 0;
 
 	float torque[3][3] = {0};
-	for (unsigned i = 0; i < numAtoms; ++i) {
+	for (unsigned i = 0; i < nAtoms; ++i) {
 		torque[0][0] += x[i]*fx[i];
 		torque[0][1] += y[i]*fx[i];
 		torque[0][2] += z[i]*fx[i];
@@ -176,10 +177,10 @@ inline void redTorque(const float* x, const float* y, const float* z,
  */
 inline void redModes(const float* xModes, const float* yModes, const float* zModes,
 		const float* fx, const float* fy, const float* fz ,
-		const unsigned &numAtoms, const unsigned &numModes,
+		const unsigned &nAtoms, const unsigned &numModes,
 		float* modes)
 {
-	for (unsigned i = 0; i < numAtoms; ++i) {
+	for (unsigned i = 0; i < nAtoms; ++i) {
 		unsigned idx = i*numModes;
 		for (unsigned modeId = 0; modeId < numModes; ++modeId) {
 			unsigned mode = idx + modeId;

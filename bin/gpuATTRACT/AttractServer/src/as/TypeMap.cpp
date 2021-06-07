@@ -30,12 +30,12 @@ const as::TypeMap as::TypeMap::defaultTypeMap = DEFAULT_TYPEMAP_INITIALIZERLIST;
 as::TypeMap::TypeMap(std::initializer_list<std::pair<keyType const, valueType>> initList):
 	_map(initList) {}
 
-void as::applyMapping(const TypeMap& map, unsigned numAtoms, TypeMap::keyType const * typesIn, TypeMap::keyType* typesOut) {
-	for (unsigned i = 0; i < numAtoms; ++i) {
+void as::applyMapping(const TypeMap& map, unsigned nAtoms, TypeMap::keyType const * typesIn, TypeMap::keyType* typesOut) {
+	for (unsigned i = 0; i < nAtoms; ++i) {
 		typesOut[i] = map.getValue(typesIn[i]);
 	}
 }
 
-void as::applyDefaultMapping(unsigned numAtoms, TypeMap::keyType const * typesIn, TypeMap::keyType* typesOut) {
-	applyMapping(TypeMap::defaultTypeMap, numAtoms, typesIn, typesOut);
+void as::applyDefaultMapping(unsigned nAtoms, TypeMap::keyType const * typesIn, TypeMap::keyType* typesOut) {
+	applyMapping(TypeMap::defaultTypeMap, nAtoms, typesIn, typesOut);
 }

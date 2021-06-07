@@ -114,7 +114,7 @@ void as::CPUWorker::run ()
 
 			//DEBUG
 //			if(count++ == 18494 &&  true) {
-//				h_trafoLig.printEl(lig->numAtoms(), 0);
+//				h_trafoLig.printEl(lig->nAtoms(), 0);
 //				return;
 //			}
 
@@ -124,7 +124,7 @@ void as::CPUWorker::run ()
 //			if(count++ == 18494 &&  true) {
 //				h_potLigNL.resetHostData();
 //				IP.h_PotForce(grid,lig, &h_trafoLig, &h_potLigNL);
-//				h_potLigNL.printEl(lig->numAtoms(), 0);
+//				h_potLigNL.printEl(lig->nAtoms(), 0);
 ////				return;
 //			}
 
@@ -137,7 +137,7 @@ void as::CPUWorker::run ()
 //			if(count++ == 18494 && true) {
 //				h_potLigNL.resetHostData();
 //				IP.h_NLPotForce(grid, rec, lig, simPar, table, &h_trafoLig, &h_potLigNL);
-//				h_potLigNL.printEl(lig->numAtoms(), 0);
+//				h_potLigNL.printEl(lig->nAtoms(), 0);
 ////				return;
 //			}
 
@@ -194,12 +194,13 @@ void as::CPUWorker::run ()
 	const GridUnion* grid = getGridUnion(item->globGridId());
 	const AttrParamTable* table = getParamTable();
 
-	unsigned atomBufferSize = lig->numAtoms();
+	unsigned atomBufferSize = lig->ntotAtoms();
 	Comp3_HD<float, HOSTONLY> h_trafoLig(atomBufferSize);
 	h_trafoLig.initHost();
 
 	Comp3_HD<float, HOST_PINNED> d_trafoLig(atomBufferSize);
 	d_trafoLig.initDevice();
+	d_trafoLig.set_h_conf(h_trafoLig.h_conf());
 	d_trafoLig.set_h_x(h_trafoLig.h_x());
 	d_trafoLig.set_h_y(h_trafoLig.h_y());
 	d_trafoLig.set_h_z(h_trafoLig.h_z());
@@ -209,6 +210,7 @@ void as::CPUWorker::run ()
 
 	Comp5_HD<float, HOST_PINNED> d_potLig(atomBufferSize);
 	d_potLig.initDevice();
+	d_potLig.set_h_conf(h_potLig.h_conf());
 	d_potLig.set_h_x(h_potLig.h_x());
 	d_potLig.set_h_y(h_potLig.h_y());
 	d_potLig.set_h_z(h_potLig.h_z());

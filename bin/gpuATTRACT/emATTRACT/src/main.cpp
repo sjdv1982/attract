@@ -144,6 +144,8 @@ int main (int argc, char *argv[]) {
 		TCLAP::ValueArg<unsigned> rq_maxConcObjsArg("","maxConcurrency", "Max. number of concurrent structures that may be processed at the same time. (Default: 20000)", false, 20000, "uint", cmd);
 		TCLAP::ValueArg<unsigned> rq_numChunksArg("","numChunks", "Number of request chunks. (Default: 2)", false, 2, "uint", cmd);
 		TCLAP::ValueArg<int> num2ConsiderArg("","num", "Number of configurations to consider (1 - num). (Default: All)", false, -1, "int", cmd);
+		
+		TCLAP::SwitchArg ligand_ens("","ligand-ens","Does the ligand contain an ensemble", cmd);
 
 		desc.str(""); // clear contents
 		desc << "Consider only the specified configuration. (Default: -1)" << endl
@@ -328,13 +330,13 @@ int main (int argc, char *argv[]) {
 		std::vector<unsigned> mapVec = asDB::readGridAlphabetFromFile(recGridAlphabetName);
 		as::TypeMap typeMap = as::createTypeMapFromVector(mapVec);
 		as::Protein* prot = server.getProtein(ligId);
-		as::applyDefaultMapping(prot->numAtoms(), prot->type(), prot->type());
-		as::applyMapping(typeMap, prot->numAtoms(), prot->type(), prot->mappedTypes());
+		as::applyDefaultMapping(prot->nAtoms(), prot->type(), prot->type());
+		as::applyMapping(typeMap, prot->nAtoms(), prot->type(), prot->mappedTypes());
 	} else {
 		log->warning() << "No grid alphabet specified. Applying default mapping." << endl;
 		as::Protein* prot = server.getProtein(ligId);
-		as::applyDefaultMapping(prot->numAtoms(), prot->type(), prot->type());
-		as::applyDefaultMapping(prot->numAtoms(), prot->type(), prot->mappedTypes());
+		as::applyDefaultMapping(prot->nAtoms(), prot->type(), prot->type());
+		as::applyDefaultMapping(prot->nAtoms(), prot->type(), prot->mappedTypes());
 	}
 
 	/* transform ligand dofs assuming that the receptor is always centered in the origin */

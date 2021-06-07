@@ -72,11 +72,12 @@ public:
 			as::Comp3_HD<float, as::HOSTONLY>* posTr,
 			const unsigned& shift = 0)
 	{
-		asCore::h_DOF2Pos(prot->xPos(),prot->yPos(), prot->zPos(),
+		*(posTr->h_conf() + shift) = dof.conf;
+		asCore::h_DOF2Pos(prot->xPos(dof.conf),prot->yPos(dof.conf), prot->zPos(dof.conf),
 				dof.pos.x, dof.pos.y, dof.pos.z,
 				prot->xModes(),prot->yModes(), prot->zModes(),
 				rotmat, dof.modes,
-				prot->numAtoms(), prot->numModes(),
+				prot->nAtoms(), prot->numModes(),
 				posTr->h_x() + shift, posTr->h_y() + shift, posTr->h_z() + shift,
 				NULL, NULL, NULL);
 	}
@@ -87,11 +88,13 @@ public:
 			as::Comp3_HD<float, as::HOSTONLY>* posDef,
 			const unsigned& shift = 0)
 	{
-		asCore::h_DOF2Pos(prot->xPos(),prot->yPos(), prot->zPos(),
+		*(posTr->h_conf() + shift) = dof.conf;
+		*(posDef->h_conf() + shift) = dof.conf;
+		asCore::h_DOF2Pos(prot->xPos(dof.conf),prot->yPos(dof.conf), prot->zPos(dof.conf),
 				dof.pos.x, dof.pos.y, dof.pos.z,
 				prot->xModes(),prot->yModes(), prot->zModes(),
 				rotmat, dof.modes,
-				prot->numAtoms(), prot->numModes(),
+				prot->nAtoms(), prot->numModes(),
 				posTr->h_x() + shift, posTr->h_y() + shift, posTr->h_z() + shift,
 				posDef->h_x() + shift, posDef->h_y() + shift, posDef->h_z() + shift);
 	}
@@ -104,10 +107,10 @@ public:
 			as::Comp3_HD<float, as::HOSTONLY>* posDef,
 			const unsigned& shift = 0)
 	{
-		asCore::h_DOF2Deform(prot->xPos(),prot->yPos(), prot->zPos(),
+		asCore::h_DOF2Deform(prot->xPos(dof.conf),prot->yPos(dof.conf), prot->zPos(dof.conf),
 				prot->xModes(),prot->yModes(), prot->zModes(),
 				dof.modes,
-				prot->numAtoms(), prot->numModes(),
+				prot->nAtoms(), prot->numModes(),
 				posDef->h_x() + shift, posDef->h_x() + shift, posDef->h_x() + shift);
 
 	}
@@ -123,14 +126,14 @@ public:
 			as::EnGrad& gradEn,
 			const unsigned& shift = 0)
 	{
-		const unsigned& numAtoms = prot->numAtoms();
+		const unsigned& nAtoms = prot->nAtoms();
 		asCore::redPotForce(
 				outPotForce->h_x() + shift,
 				outPotForce->h_y() + shift,
 				outPotForce->h_z() + shift,
 				outPotForce->h_w() + shift,
 				outPotForce->h_v() + shift,
-				numAtoms,
+				nAtoms,
 				gradEn.pos.x, gradEn.pos.y, gradEn.pos.z, gradEn.E_VdW, gradEn.E_El);
 
 		float torqueMat[3][3][3];
@@ -138,11 +141,11 @@ public:
 
 		const unsigned& numModes = prot->numModes();
 		if (numModes <= 0) {
-			asCore::redTorque(prot->xPos(), prot->yPos(), prot->zPos(),
+			asCore::redTorque(prot->xPos(dof.conf), prot->yPos(dof.conf), prot->zPos(dof.conf),
 				outPotForce->h_x() + shift,
 				outPotForce->h_y() + shift,
 				outPotForce->h_z() + shift,
-				numAtoms, torqueMat,
+				nAtoms, torqueMat,
 				gradEn.ang.x, gradEn.ang.y, gradEn.ang.z);
 		} else {
 			// verification needed! Was never tested!
@@ -151,20 +154,20 @@ public:
 				outPotForce->h_x() + shift,
 				outPotForce->h_y() + shift,
 				outPotForce->h_z() + shift,
-				numAtoms, torqueMat,
+				nAtoms, torqueMat,
 				gradEn.ang.x, gradEn.ang.y, gradEn.ang.z);
 
 			/* invert rotmat */
 			asUtils::RotMatf invMat = rotmat.getInv();
 
 			/* in-place Rotation! */
-			asCore::rotate(numAtoms, posDef->h_x(), posDef->h_y(), posDef->h_z(), invMat);
+			asCore::rotate(nAtoms, posDef->h_x(), posDef->h_y(), posDef->h_z(), invMat);
 
 			asCore::redModes(prot->xModes(), prot->yModes(), prot->zModes(),
 				outPotForce->h_x() + shift,
 				outPotForce->h_y() + shift,
 				outPotForce->h_z() + shift,
-				numAtoms, numModes,
+				nAtoms, numModes,
 				gradEn.modes);
 		}
 	}

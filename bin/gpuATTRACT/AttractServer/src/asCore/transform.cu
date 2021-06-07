@@ -6,24 +6,31 @@ extern __constant__ as::deviceProteinDesc c_Proteins[DEVICE_MAXPROTEINS];
 
 __global__ void asCore::d_DOF2Pos(const unsigned protId,
 		const unsigned numDOFs, const as::DOF* dofs,
+		unsigned short *confTr,
 		float* xTr, float* yTr, float* zTr)
 
 {
 	/* calculate element index that is to be prcessed */
 	const unsigned idx = blockDim.x * blockIdx.x + threadIdx.x;
 	/* get number of ligand atoms from constant memory */
-	const unsigned numAtoms = c_Proteins[protId].numAtoms;
+	const unsigned nAtoms = c_Proteins[protId].nAtoms;	
 
-	if (idx < numAtoms*numDOFs) {
+	if (idx < nAtoms*numDOFs) {
 		/* load DOF from global memory */
-		unsigned DOFidx = idx / numAtoms;
+		unsigned DOFidx = idx / nAtoms;
 		as::DOF dof = dofs[DOFidx];
+
+		if (idx % nAtoms == 0) {
+			confTr[DOFidx] = dof.conf;
+		}
+
+		const unsigned int conf_base = dof.conf * c_Proteins[protId].nAtoms;
 
 		/* load original position from global memory */
 		float pos[3];
-		pos[0] = c_Proteins[protId].xPos[idx % numAtoms];
-		pos[1] = c_Proteins[protId].yPos[idx % numAtoms];
-		pos[2] = c_Proteins[protId].zPos[idx % numAtoms];
+		pos[0] = c_Proteins[protId].xPos[conf_base + idx % nAtoms];
+		pos[1] = c_Proteins[protId].yPos[conf_base + idx % nAtoms];
+		pos[2] = c_Proteins[protId].zPos[conf_base + idx % nAtoms];
 
 		/* calculate rotation matrix */
 		//first rotate using rot
@@ -78,24 +85,32 @@ __global__ void asCore::d_DOF2Pos(const unsigned protId,
 
 __global__ void asCore::d_DOF2Pos_modes(const unsigned protId,
 		const unsigned numDOFs, const as::DOF* dofs,
+		unsigned short *confTr,
 		float* xTr, float* yTr, float* zTr,
+		unsigned short *confDef,
 		float* xDef, float* yDef, float* zDef)
 
 {
 
 	const unsigned idx = blockDim.x * blockIdx.x + threadIdx.x;
-	const unsigned numAtoms = c_Proteins[protId].numAtoms;
-	if (idx < numAtoms*numDOFs) {
+	const unsigned nAtoms = c_Proteins[protId].nAtoms;
+	if (idx < nAtoms*numDOFs) {
 
-		unsigned DOFidx = idx / numAtoms;
+		unsigned DOFidx = idx / nAtoms;
 		const as::DOF dof = dofs[DOFidx];
 
-		/* fetch original position */
-		float pos[3];
-		pos[0] = c_Proteins[protId].xPos[idx % numAtoms];
-		pos[1] = c_Proteins[protId].yPos[idx % numAtoms];
-		pos[2] = c_Proteins[protId].zPos[idx % numAtoms];
+		if (idx % nAtoms == 0) {
+			confTr[DOFidx] = dof.conf;
+			confDef[DOFidx] = dof.conf;
+		}
+		const unsigned int conf_base = dof.conf * c_Proteins[protId].nAtoms;
 
+		/* load original position from global memory */
+		float pos[3];
+		pos[0] = c_Proteins[protId].xPos[conf_base + idx % nAtoms];
+		pos[1] = c_Proteins[protId].yPos[conf_base + idx % nAtoms];
+		pos[2] = c_Proteins[protId].zPos[conf_base + idx % nAtoms];
+		
 		/* deform protein if necessary */
 		const unsigned numModes = c_Proteins[protId].numModes;
 		for (uint mode = 0; mode < numModes; ++mode) {
@@ -161,17 +176,19 @@ __global__ void asCore::d_DOF2Deform(const unsigned protId,
 		float* xTrDef, float* yTrDef, float* zTrDef)
 {
 	const unsigned idx = blockDim.x * blockIdx.x + threadIdx.x;
-	const unsigned numAtoms = c_Proteins[protId].numAtoms;
-	if (idx < numAtoms*numDOFs) {
+	const unsigned nAtoms = c_Proteins[protId].nAtoms;
+	if (idx < nAtoms*numDOFs) {
 
-		unsigned DOFidx = idx / numAtoms;
+		unsigned DOFidx = idx / nAtoms;
 		const as::DOF dof = dofs[DOFidx];
 
-		/* fetch original position */
+		const unsigned int conf_base = dof.conf * c_Proteins[protId].nAtoms;
+
+		/* load original position from global memory */
 		float pos[3];
-		pos[0] = c_Proteins[protId].xPos[idx % numAtoms];
-		pos[1] = c_Proteins[protId].yPos[idx % numAtoms];
-		pos[2] = c_Proteins[protId].zPos[idx % numAtoms];
+		pos[0] = c_Proteins[protId].xPos[conf_base + idx % nAtoms];
+		pos[1] = c_Proteins[protId].yPos[conf_base + idx % nAtoms];
+		pos[2] = c_Proteins[protId].zPos[conf_base + idx % nAtoms];
 
 
 		/* deform protein */
