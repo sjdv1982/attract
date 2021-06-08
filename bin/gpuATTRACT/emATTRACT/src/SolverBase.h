@@ -63,6 +63,8 @@ public:
 	SolverBase() : coro(nullptr){}
 	virtual ~SolverBase() { delete coro;}
 
+	virtual void set_vmax(unsigned int vmax) {};
+
 	/* make object not copyable, but movealble only */
 	SolverBase(const SolverBase& ) = delete;
 	SolverBase& operator= (const SolverBase& ) = delete;

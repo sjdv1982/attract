@@ -86,6 +86,7 @@ int main (int argc, char *argv[]) {
 	string paramsFileName;
 	string recGridAlphabetName;
 	bool ligandEns;
+	unsigned int vmax;
 
 	string solverName;
 
@@ -148,6 +149,7 @@ int main (int argc, char *argv[]) {
 		TCLAP::ValueArg<int> num2ConsiderArg("","num", "Number of configurations to consider (1 - num). (Default: All)", false, -1, "int", cmd);
 		
 		TCLAP::SwitchArg ligand_ens("","ligand-ens","Does the ligand contain an ensemble", cmd);
+		TCLAP::ValueArg<unsigned> vmaxArg("","vmax", "Maximum number of iterations (for VA13/minfor). (Default: 500)", false, 500, "uint", cmd);
 
 		desc.str(""); // clear contents
 		desc << "Consider only the specified configuration. (Default: -1)" << endl
@@ -187,6 +189,7 @@ int main (int argc, char *argv[]) {
 		stats = statsArg.getValue();
 		recGridAlphabetName = gridAlphabet.getValue();
 		ligandEns = ligand_ens.getValue();
+		vmax = vmaxArg.getValue();
 
 	} catch (TCLAP::ArgException &e){
 		cerr << "error: " << e.error() << " for arg " << e.argId() << endl;
@@ -396,6 +399,7 @@ int main (int argc, char *argv[]) {
 	reqHandler.setNumConcurrentObjects(rh_maxNumConcurrentObjects);
 	reqHandler.setServerOptions({gridId, recId, ligId, serverMode});
 	reqHandler.init(server, solverName, DOF_molecules[1]);
+	reqHandler.set_vmax(vmax);
 	if (stats > 0)
 		ema::SolverBase::enableStats();
 	reqHandler.run();

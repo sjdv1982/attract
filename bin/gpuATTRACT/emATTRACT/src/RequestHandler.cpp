@@ -92,6 +92,15 @@ void ema::RequestHandler::init(extServer& server, std::string const& solverName,
 	}
 }
 
+void ema::RequestHandler::set_vmax(unsigned int vmax) {
+	for (auto& chunk : _chunkList) {
+		auto &cont = chunk.getContainer();
+		auto iter = cont.begin();
+		SharedSolver solver = iter->second;
+		solver->set_vmax(vmax);		
+	}
+}
+
 //#define H_IO
 
 void ema::RequestHandler::run() {

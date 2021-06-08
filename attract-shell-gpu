@@ -3,6 +3,7 @@ set -u -e
 docker run --rm \
   --network=host \
   --shm-size=8gb \
+  --env HOME=$HOME \
   -v /home/$USER:/home/$USER \
   --workdir `pwd` \
   -v /tmp:/tmp \
