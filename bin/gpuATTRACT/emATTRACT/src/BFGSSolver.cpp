@@ -39,7 +39,7 @@ int sign(T val) {
 void ema::BFGSSolver::run(coro_t_push &ca) {
 
 	/* Algorithm 6.1, J. Nocedal, S. J. Wright, Numerical Optimization (2nd Edition), page 140 */
-	Vector x_curr = getState();
+	Vector x_curr = getVecState();
 	Vector x_next;
 	const unsigned DIM = x_curr.rows();
 	Matrix H = Matrix::Identity(DIM, DIM);
