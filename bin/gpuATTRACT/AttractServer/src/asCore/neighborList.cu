@@ -142,7 +142,7 @@ __global__ void asCore::d_NLPotForce(const unsigned gridId,
 		float* outLigand_eVdW)
 {
 	const unsigned i = blockDim.x * blockIdx.x + threadIdx.x;
-	const unsigned LigNumEl = c_Proteins[LigId].numAtoms;
+	const unsigned LigNumEl = c_Proteins[LigId].nAtoms;
 	if (i < LigNumEl*numDOFs) {
 		const unsigned LigAttrIdx = i % LigNumEl;
 
@@ -321,9 +321,9 @@ void asCore::h_NLPotForce(const as::NLGrid *grid,
 	//DEBUG
 //	nlTotCount = grid->neighborListSize();
 
-	const unsigned numAtomsLig = lig->numAtoms();
+	const unsigned nAtomsLig = lig->nAtoms();
 	/* loop over all elements in input/output */
-	for (unsigned i = 0; i < numAtomsLig; ++i) {
+	for (unsigned i = 0; i < nAtomsLig; ++i) {
 		const unsigned atomTypeLig = lig->type()[i];
 
 		if (atomTypeLig == 0)
@@ -364,9 +364,9 @@ void asCore::h_NLPotForce(const as::NLGrid *grid,
 					dy = posLigY - RecPosY[nIdx];
 					dz = posLigZ - RecPosZ[nIdx];
 				} else {
-					dx = posLigX - rec->xPos()[nIdx];
-					dy = posLigY - rec->yPos()[nIdx];
-					dz = posLigZ - rec->zPos()[nIdx];
+					dx = posLigX - rec->xPos(0)[nIdx];
+					dy = posLigY - rec->yPos(0)[nIdx];
+					dz = posLigZ - rec->zPos(0)[nIdx];
 				}
 
 				const float dr2 = dx * dx + dy * dy + dz * dz;

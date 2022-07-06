@@ -152,7 +152,8 @@ typedef struct cudaGridUnionDesc {
 
 
 typedef struct deviceProteinDesc {
-	unsigned numAtoms; 	/** number of atoms/particles */
+	unsigned nAtoms; // number of atoms of a single molecular conformer
+	unsigned ntotAtoms; // total number of atoms of the protein (all conformers)
 
 	float *xPos;	/** Cartesian coordinates in cm-frame*/
 	float *yPos;
@@ -167,9 +168,6 @@ typedef struct deviceProteinDesc {
 	float* yModes;
 	float* zModes;
 
-//	deviceProteinDesc () : numAtoms(0), xPos(NULL), yPos(NULL), zPos(NULL),
-//			type(NULL), charge(NULL), numModes(0), xModes(NULL), yModes(NULL),
-//			zModes(NULL) {}
 } deviceProteinDesc;
 
 typedef deviceProteinDesc hostProteinResource;
@@ -206,6 +204,7 @@ struct DOF_t {
 	float3 pos;
 	float3 ang;
 	float modes[T];
+	ushort conf;
 
 	template <unsigned S>
 	friend std::ostream& operator <<(std::ostream& outStream,
@@ -213,6 +212,7 @@ struct DOF_t {
 
 	DOF_t() = default;
 	DOF_t(float value) {
+		conf = 0;
 		pos = make_float3(value, value, value);
 		ang = make_float3(value, value, value);
 	}

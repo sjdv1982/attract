@@ -10,5 +10,6 @@ docker run --rm \
   --workdir `pwd` \
   -it \
   -u `id -u`:`id -g` \
+  --gpus all \
   $* \
   rpbs/attract bash

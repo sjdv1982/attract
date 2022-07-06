@@ -66,7 +66,7 @@ void init_logger( bool use_file = true) {
 
 
 /* printing results to stdout */
-void printResultsOutput(unsigned numDofs, as::DOF* dofs, as::EnGrad* enGrads, std::vector<asUtils::Vec3f>& pivots);
+void printResultsOutput(unsigned numDofs, as::DOF* dofs, as::EnGrad* enGrads, std::vector<asUtils::Vec3f>& pivots, bool ligandEns);
 
 int main (int argc, char *argv[]) {
 	using namespace std;
@@ -85,6 +85,8 @@ int main (int argc, char *argv[]) {
 	string recFileName;
 	string paramsFileName;
 	string recGridAlphabetName;
+	bool ligandEns;
+	unsigned int vmax;
 
 	string solverName;
 
@@ -102,6 +104,7 @@ int main (int argc, char *argv[]) {
 
 	int stats;
 
+	std::vector<bool> has_ens;
 	/* catch command line exceptions */
 	try {
 
@@ -134,16 +137,16 @@ int main (int argc, char *argv[]) {
 
 		TCLAP::ValueArg<unsigned> cpusArg("c","cpus","Number of CPU threads to be used. (Default: 0)", false, 0, "uint");
 
-		int numDevicesAvailable = 0; CUDA_CHECK(cudaGetDeviceCount(&numDevicesAvailable));
-		vector<int> allowedDevices(numDevicesAvailable); std::iota(allowedDevices.begin(), allowedDevices.end(), 0);
-		TCLAP::ValuesConstraint<int> vc(allowedDevices);
-		TCLAP::MultiArg<int> deviceArg("d","device","Device ID of serverMode to be used. Must be between 0 and the number of available GPUs minus one.", false, &vc);
+		TCLAP::MultiArg<int> deviceArg("d","device","Device ID of serverMode to be used. Must be between 0 and the number of available GPUs minus one.", false, "uint", cmd);
 
 		TCLAP::ValueArg<unsigned> chunkSizeArg("","chunkSize", "Number of concurrently processed structures at the server. (Default: 0 (auto))", false, 0, "uint", cmd);
 
 		TCLAP::ValueArg<unsigned> rq_maxConcObjsArg("","maxConcurrency", "Max. number of concurrent structures that may be processed at the same time. (Default: 20000)", false, 20000, "uint", cmd);
 		TCLAP::ValueArg<unsigned> rq_numChunksArg("","numChunks", "Number of request chunks. (Default: 2)", false, 2, "uint", cmd);
 		TCLAP::ValueArg<int> num2ConsiderArg("","num", "Number of configurations to consider (1 - num). (Default: All)", false, -1, "int", cmd);
+		
+		TCLAP::SwitchArg ligand_ens("","ligand-ens","Does the ligand contain an ensemble", cmd);
+		TCLAP::ValueArg<unsigned> vmaxArg("","vmax", "Maximum number of iterations (for VA13/minfor). (Default: 500)", false, 500, "uint", cmd);
 
 		desc.str(""); // clear contents
 		desc << "Consider only the specified configuration. (Default: -1)" << endl
@@ -173,6 +176,16 @@ int main (int argc, char *argv[]) {
 		paramsFileName 	= paramArg.getValue();
 		dofName 	= dofArg.getValue();
 		devices 	= deviceArg.getValue();
+		if (devices.size()) {
+			int numDevicesAvailable = 0; CUDA_CHECK(cudaGetDeviceCount(&numDevicesAvailable));
+			for (auto it = devices.begin(); it != devices.end(); it++) {
+				if ((*it) > numDevicesAvailable) {
+					fprintf(stderr, "Requesting GPUs beyond number of available devices");
+					exit(1);
+				}
+			}
+
+		}
 		numCPUs 	= cpusArg.getValue();
 		chunkSize 	= chunkSizeArg.getValue();
 		rh_maxNumConcurrentObjects = rq_maxConcObjsArg.getValue();
@@ -182,6 +195,8 @@ int main (int argc, char *argv[]) {
 		solverName = solverTypeArg.getValue();
 		stats = statsArg.getValue();
 		recGridAlphabetName = gridAlphabet.getValue();
+		ligandEns = ligand_ens.getValue();
+		vmax = vmaxArg.getValue();
 
 	} catch (TCLAP::ArgException &e){
 		cerr << "error: " << e.error() << " for arg " << e.argId() << endl;
@@ -193,6 +208,7 @@ int main (int argc, char *argv[]) {
 	log->info() << "parName=" << paramsFileName 	<< endl;
 	log->info() << "dofName=" << dofName	 	<< endl;
 	log->info() << "recGridAlphabetName" << recGridAlphabetName << endl;
+	log->info() << "ligandEns" << ligandEns << endl;
 	log->info() << "numCPUs=" << numCPUs 		<< endl;
 	log->info() << "devices=[ "; for (auto device : devices) *log << device << " "; *log << "]"<<  endl;
 	log->info() << "chunkSize=" << chunkSize 	<< endl;
@@ -237,9 +253,12 @@ int main (int argc, char *argv[]) {
 		exit(EXIT_FAILURE);
 	}
 
+	has_ens.push_back(0);  // receptor ensemble not supported
+	has_ens.push_back(ligandEns);
+
 	/* read dofs */
 	std::vector<std::vector<as::DOF>> DOF_molecules;
-	asDB::readDOFFromFile(dofName, DOF_molecules);
+	asDB::readDOFFromFile(dofName, DOF_molecules, has_ens);
 
 	/* check file. only one receptor-ligand pair (no multi-bodies!) is allowed */
 	if(DOF_molecules.size() != 2) {
@@ -328,13 +347,13 @@ int main (int argc, char *argv[]) {
 		std::vector<unsigned> mapVec = asDB::readGridAlphabetFromFile(recGridAlphabetName);
 		as::TypeMap typeMap = as::createTypeMapFromVector(mapVec);
 		as::Protein* prot = server.getProtein(ligId);
-		as::applyDefaultMapping(prot->numAtoms(), prot->type(), prot->type());
-		as::applyMapping(typeMap, prot->numAtoms(), prot->type(), prot->mappedTypes());
+		as::applyDefaultMapping(prot->nAtoms(), prot->type(), prot->type());
+		as::applyMapping(typeMap, prot->nAtoms(), prot->type(), prot->mappedTypes());
 	} else {
 		log->warning() << "No grid alphabet specified. Applying default mapping." << endl;
 		as::Protein* prot = server.getProtein(ligId);
-		as::applyDefaultMapping(prot->numAtoms(), prot->type(), prot->type());
-		as::applyDefaultMapping(prot->numAtoms(), prot->type(), prot->mappedTypes());
+		as::applyDefaultMapping(prot->nAtoms(), prot->type(), prot->type());
+		as::applyDefaultMapping(prot->nAtoms(), prot->type(), prot->mappedTypes());
 	}
 
 	/* transform ligand dofs assuming that the receptor is always centered in the origin */
@@ -387,6 +406,7 @@ int main (int argc, char *argv[]) {
 	reqHandler.setNumConcurrentObjects(rh_maxNumConcurrentObjects);
 	reqHandler.setServerOptions({gridId, recId, ligId, serverMode});
 	reqHandler.init(server, solverName, DOF_molecules[1]);
+	reqHandler.set_vmax(vmax);
 	if (stats > 0)
 		ema::SolverBase::enableStats();
 	reqHandler.run();
@@ -446,7 +466,7 @@ int main (int argc, char *argv[]) {
 	}
 
 	/* print results to stdout*/
-	printResultsOutput(numDofs, DOF_molecules[0].data(), enGrads.data(), pivots);
+	printResultsOutput(numDofs, DOF_molecules[0].data(), enGrads.data(), pivots, ligandEns);
 
 
 	/* remove all data from host and devices that correspond to the client id */
@@ -459,7 +479,7 @@ int main (int argc, char *argv[]) {
 }
 
 /* printing results to stdout */
-void printResultsOutput(unsigned numDofs, as::DOF* dofs, as::EnGrad* enGrads, std::vector<asUtils::Vec3f>& pivots)
+void printResultsOutput(unsigned numDofs, as::DOF* dofs, as::EnGrad* enGrads, std::vector<asUtils::Vec3f>& pivots, bool ligandEns)
 {
 	using namespace std;
 
@@ -483,6 +503,9 @@ void printResultsOutput(unsigned numDofs, as::DOF* dofs, as::EnGrad* enGrads, st
 		cout << "## " << enGrad.E_VdW << " " << enGrad.E_El << endl;
 		cout << 0.0 << " " << 0.0 << " " << 0.0 << " "
 			 << 0.0 << " " << 0.0 << " " << 0.0 << endl;
+		if (ligandEns) {
+			cout << dof.conf + 1 << " ";	
+		}
 		cout << dof.ang.x << " " << dof.ang.y << " " << dof.ang.z << " "
 			 << dof.pos.x + pivot_diff[0]<< " " << dof.pos.y + pivot_diff[1] << " " << dof.pos.z + pivot_diff[2] << endl;
 	}

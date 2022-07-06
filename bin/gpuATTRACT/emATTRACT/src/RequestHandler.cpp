@@ -43,7 +43,7 @@ void ema::RequestHandler::init(extServer& server, std::string const& solverName,
 		SharedSolver solver;
 		solver = factory->createSolverByName(solverName);
 
-		solver->setState(dofs[i]);
+		solver->setDOFState(dofs[i]);
 		_objects.emplace_hint(_objects.end(), i, solver);
 	}
 
@@ -79,9 +79,9 @@ void ema::RequestHandler::init(extServer& server, std::string const& solverName,
 	}
 
 	unsigned count = 0;
-	for (auto& chunk : _chunkList) {
-		ObjMapIter mapIter = _objects.begin();
-		for (unsigned i = 0; i < chunkSizes[count]; ++i, ++mapIter) {
+	for (auto& chunk : _chunkList) {		
+		for (unsigned i = 0; i < chunkSizes[count]; ++i) {
+			ObjMapIter mapIter = _objects.begin();
 			chunk.getContainer().push_back(std::move(*mapIter));
 			_objects.erase(mapIter);
 			assert(mapIter != _objects.end());
@@ -89,6 +89,15 @@ void ema::RequestHandler::init(extServer& server, std::string const& solverName,
 		assert(count < _numChunks);
 		++count;
 
+	}
+}
+
+void ema::RequestHandler::set_vmax(unsigned int vmax) {
+	for (auto& chunk : _chunkList) {
+		auto &cont = chunk.getContainer();
+		auto iter = cont.begin();
+		SharedSolver solver = iter->second;
+		solver->set_vmax(vmax);		
 	}
 }
 
@@ -107,7 +116,7 @@ void ema::RequestHandler::run() {
 		for (auto& obj : chunk.getContainer()) {
 			SharedSolver& solver = obj.second;
 			solver->start();
-			_collectedRequests.push_back(Vector2extDOF(solver->getState()));
+			_collectedRequests.push_back(solver->getDOFState());
 		}
 		nvtxRangePop();
 
@@ -201,12 +210,12 @@ void ema::RequestHandler::run() {
 						SharedSolver& newSolver = iter->second;
 						newSolver->start();
 						/* collect new request */
-						_collectedRequests.push_back(Vector2extDOF(newSolver->getState()));
+						_collectedRequests.push_back(newSolver->getDOFState());
 						++iter;
 					}
 				} else {
 					/* collect new request */
-					_collectedRequests.push_back(Vector2extDOF(solver->getState()));
+					_collectedRequests.push_back(solver->getDOFState());
 					++iter;
 				}
 
@@ -246,7 +255,7 @@ void ema::RequestHandler::run() {
 std::vector<ema::extDOF> ema::RequestHandler::getResultStates() {
 	std::vector<extDOF> stateVec(_finishedObjects.size());
 	for (unsigned i = 0; i < _finishedObjects.size(); ++i) {
-		stateVec[i] = Vector2extDOF(_finishedObjects[i]->getState());
+		stateVec[i] = _finishedObjects[i]->getDOFState();
 	}
 	return stateVec;
 }

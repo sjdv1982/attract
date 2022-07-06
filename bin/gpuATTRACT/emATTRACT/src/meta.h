@@ -28,7 +28,7 @@
 
 #define OBJGRAD(dof, energy)	\
 	do { 						\
-		/*std::cout << "\t" << "request=" << Vector2extDOF(dof) << std::endl;*/ \
+		/*std::cout << "\t" << "request=" << buildextDOF(dof, 0) << std::endl;*/ \
 		state = dof;			\
 		ca();					\
 		energy = objective;		\
@@ -77,8 +77,9 @@ inline Vector extDOF2Vector(const extDOF& dof) {
 	return vec;
 }
 
-inline extDOF Vector2extDOF(const Vector& vec) {
+inline extDOF buildextDOF(const Vector& vec, unsigned short conf) {
 	extDOF dof;
+	dof.conf = conf;
 	dof.ang.x = vec(0);
 	dof.ang.y = vec(1);
 	dof.ang.z = vec(2);

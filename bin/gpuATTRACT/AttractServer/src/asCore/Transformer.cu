@@ -20,6 +20,7 @@ void asCore::Transformer::d_DOF2Pos(const unsigned& protId,
 	cudaVerifyKernel((
 			asCore::d_DOF2Pos<<<_gridSize, _blockSize, 0, stream>>>(protId,
 				numDOFs, dofs->d_data(),
+				posTr->d_conf(),
 				posTr->d_x(), posTr->d_y(), posTr->d_z())
 			));
 }
@@ -33,7 +34,9 @@ void asCore::Transformer::d_DOF2Pos_modes(const unsigned& protId,
 	cudaVerifyKernel((
 			asCore::d_DOF2Pos_modes<<<_gridSize, _blockSize, 0, stream>>>(protId,
 				numDOFs, dofs->d_data(),
+				posTr->d_conf(),
 				posTr->d_x(), posTr->d_y(), posTr->d_z(),
+				posDef->d_conf(),
 				posDef->d_x(), posDef->d_y(), posDef->d_z())
 	));
 }
@@ -66,6 +69,7 @@ void asCore::Transformer::d_partForce2GradAll(const unsigned& protId,
 	unsigned threads  = (sizeLigand < _blockSizeRed*2) ? asUtils::nextPow2((sizeLigand + 1)/ 2) : _blockSizeRed;
 	unsigned blocks = numDOFs;
 	asCore::reduceAll(threads, blocks, protId, sizeLigand,
+			outPotForce->d_conf(),
 			outPotForce->d_x(),
 		    outPotForce->d_y(),
 		    outPotForce->d_z(),

@@ -33,23 +33,26 @@
  */
 struct ProteinDesc {
 	char id[MAXIDL];	/** identifier */
-	unsigned numAtoms; /** number of atoms/particles */
+	unsigned nAtoms; // number of atoms of a single molecular conformer
+	unsigned ntotAtoms; // total number of atoms of the protein (all conformers)
 
 	/*
 	 ** @data layout:
 	 ** pos
-	 ** size: 3*numAtoms
+	 ** size: 3*ntotAtoms
 	 ** {x0,x1,...,xN,y0,y1,...,yN,z0,z1,...zN}
 	 ** N: number of atoms/particles
+	 ** the first nAtoms values are for conformer 1, then for conformer 2, etc.
 	 */
 	float *pos;	/** Cartesian coordinates */
 
 	/*
 	 ** @data layout:
 	 ** type & charge
-	 ** size: numAtoms
+	 ** size: ntotAtoms
 	 ** {e1,e2,...,eN}
-	 ** N: numAtoms
+	 ** N: ntotAtoms
+	 ** the first nAtoms values are for conformer 1, then for conformer 2, etc.
 	 */
 	unsigned* type; 	/** atom type */
 	float* charge;	/** charge of the atoms/particle */
@@ -59,7 +62,7 @@ struct ProteinDesc {
 	/*
 	 ** @data layout:
 	 ** modes:
-	 ** size: 3*numModes*numAtoms
+	 ** size: 3*numModes*nAtoms
 	 ** {x0_0,x0_1,...,x0_(M-1),  x1_0,x1_1,...,x1_(M-1),...,  x(N-1)_0,x(N-1)_1,...,xN_(M-1),
 	 **  y0_0,y0_1,...,y0_(M-1),  y1_0,y1_1,...,y1_(M-1),...,  y(N-1)_0,y(N-1)_1,...,yN_(M-1),
 	 **  z0_0,z0_1,...,z0_(M-1),  z1_0,z1_1,...,z1_(M-1),...,  z(N-1)_0,z(N-1)_1,...,zN_(M-1)}

@@ -222,21 +222,6 @@ void MC_accept(as::DOF& oldDOF, as::EnGrad& oldEnGrad, as::DOF &newDOF, as::EnGr
 //	}
 }
 
-unsigned readProteinSizeFromFile (std::string name) {
-	using namespace std;
-
-	string filename = name;
-
-	ifstream file(filename.c_str(), ios::in | ios::binary);
-	ProteinDesc desc;
-
-	if (!file.read((char*)&desc.numAtoms, sizeof(unsigned))) {
-		cerr << "Error read: numAtoms" << endl;
-		exit(EXIT_FAILURE);
-	}
-	return desc.numAtoms;
-}
-
 /* printing results to stdout */
 void printResultsOutput(unsigned numDofs, as::DOF* dofs, as::EnGrad* enGrads, std::vector<asUtils::Vec3f>& pivots)
 {
@@ -468,13 +453,13 @@ int main (int argc, char *argv[]) {
 		std::vector<unsigned> mapVec = asDB::readGridAlphabetFromFile(recGridAlphabetName);
 		as::TypeMap typeMap = as::createTypeMapFromVector(mapVec);
 		as::Protein* prot = server.getProtein(ligId);
-		as::applyDefaultMapping(prot->numAtoms(), prot->type(), prot->type());
-		as::applyMapping(typeMap, prot->numAtoms(), prot->type(), prot->mappedTypes());
+		as::applyDefaultMapping(prot->nAtoms(), prot->type(), prot->type());
+		as::applyMapping(typeMap, prot->nAtoms(), prot->type(), prot->mappedTypes());
 	} else {
 		log->warning() << "No grid alphabet specified. Applying default mapping." << endl;
 		as::Protein* prot = server.getProtein(ligId);
-		as::applyDefaultMapping(prot->numAtoms(), prot->type(), prot->type());
-		as::applyDefaultMapping(prot->numAtoms(), prot->type(), prot->mappedTypes());
+		as::applyDefaultMapping(prot->nAtoms(), prot->type(), prot->type());
+		as::applyDefaultMapping(prot->nAtoms(), prot->type(), prot->mappedTypes());
 	}
 
 	/* transform ligand dofs assuming that the receptor is always centered in the origin */

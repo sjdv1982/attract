@@ -72,6 +72,7 @@ int main (int argc, char *argv[]) {
 	string recName;
 	string paramsName;
 	string recGridAlphabetName;
+	bool ligandEns;
 
 	int numCPUs;
 	vector<int> devices;
@@ -80,6 +81,8 @@ int main (int argc, char *argv[]) {
 
 	int numToConsider;
 	int whichToTrack;
+	
+	std::vector<bool> has_ens;
 	/* catch command line exceptions */
 	try {
 
@@ -104,15 +107,14 @@ int main (int argc, char *argv[]) {
 
 		TCLAP::ValueArg<int> cpusArg("c","cpus","Number of CPU threads to be used. (Default: 0)", false, 0, "int", cmd);
 
-		int numDevicesAvailable = 0; CUDA_CHECK(cudaGetDeviceCount(&numDevicesAvailable));
-		vector<int> allowedValues(numDevicesAvailable); std::iota(allowedValues.begin(), allowedValues.end(), 0);
-		TCLAP::ValuesConstraint<int> vc(allowedValues);
-		TCLAP::MultiArg<int> deviceArg("d","device","Device ID of GPU to be used.", false, &vc, cmd);
+		TCLAP::MultiArg<int> deviceArg("d","device","Device ID of serverMode to be used. Must be between 0 and the number of available GPUs minus one.", false, "uint");
 		TCLAP::ValueArg<int> chunkSizeArg("","chunkSize", "Number of concurrently processed structures", false, 1000, "int", cmd);
 		TCLAP::ValueArg<int> maxItemsArg("","maxItems", "Max. number of item per submit", false, 10000, "int", cmd);
 
 		TCLAP::ValueArg<int> num2ConsiderArg("","num", "Number of configurations to consider (1 - num). (Default: All)", false, -1, "int", cmd);
 		TCLAP::ValueArg<int> which2TrackArg("","focusOn", "Condider only this configuration. (Default: -1)", false, -1, "int", cmd);
+
+		TCLAP::SwitchArg ligand_ens("","ligand-ens","Does the ligand contain an ensemble", cmd);
 
 
 		// parse cmd-line input
@@ -125,12 +127,23 @@ int main (int argc, char *argv[]) {
 		paramsName 	= paramArg.getValue();
 		dofName 	= dofArg.getValue();
 		devices 	= deviceArg.getValue();
+		if (devices.size()) {
+			int numDevicesAvailable = 0; CUDA_CHECK(cudaGetDeviceCount(&numDevicesAvailable));
+			for (auto it = devices.begin(); it != devices.end(); it++) {
+				if ((*it) > numDevicesAvailable) {
+					fprintf(stderr, "Requesting GPUs beyond number of available devices");
+					exit(1);
+				}
+			}
+
+		}
 		numCPUs 	= cpusArg.getValue();
 		chunkSize 	= chunkSizeArg.getValue();
 		maxItemsPerSubmit = maxItemsArg.getValue();
 		numToConsider = num2ConsiderArg.getValue();
 		whichToTrack = which2TrackArg.getValue();
 		recGridAlphabetName = gridAlphabet.getValue();
+		ligandEns = ligand_ens.getValue();
 
 	} catch (TCLAP::ArgException &e){
 		cerr << "error: " << e.error() << " for arg " << e.argId() << endl;
@@ -143,6 +156,7 @@ int main (int argc, char *argv[]) {
 	log->info() << "parName=" << paramsName 	<< endl;
 	log->info() << "dofName=" << dofName	 	<< endl;
 	log->info() << "recGridAlphabetName" << recGridAlphabetName << endl;
+	log->info() << "ligandEns" << ligandEns << endl;
 	log->info() << "numCPUs=" << numCPUs 		<< endl;
 	log->info() << "devices=[ "; for (auto device : devices) *log << device << " "; *log << "]"<<  endl;
 	log->info() << "chunkSize=" << chunkSize 	<< endl;
@@ -172,12 +186,15 @@ int main (int argc, char *argv[]) {
 		exit(EXIT_FAILURE);
 	}
 
+	has_ens.push_back(0);  // receptor ensemble not supported
+	has_ens.push_back(ligandEns);
+
 	/* read dofs */
 	std::vector<std::vector<as::DOF>> DOF_molecules;
-	asDB::readDOFFromFile(dofName, DOF_molecules);
+	asDB::readDOFFromFile(dofName, DOF_molecules, has_ens);
 	/* check file. only one receptor-ligand pair (no multi-bodies!) is allowed */
 	if(DOF_molecules.size() != 2) {
-		log->error() << "DOF-file contains defintions for more than two molecules. Multi-body docking is not supported." << endl;
+		log->error() << "DOF-file contains definitions for more than two molecules. Multi-body docking is not supported." << endl;
 		exit(EXIT_FAILURE);
 	}
 
@@ -262,13 +279,13 @@ int main (int argc, char *argv[]) {
 		std::vector<unsigned> mapVec = asDB::readGridAlphabetFromFile(recGridAlphabetName);
 		as::TypeMap typeMap = as::createTypeMapFromVector(mapVec);
 		as::Protein* prot = server.getProtein(ligId);
-		as::applyDefaultMapping(prot->numAtoms(), prot->type(), prot->type());
-		as::applyMapping(typeMap, prot->numAtoms(), prot->type(), prot->mappedTypes());
+		as::applyDefaultMapping(prot->nAtoms(), prot->type(), prot->type());
+		as::applyMapping(typeMap, prot->nAtoms(), prot->type(), prot->mappedTypes());
 	} else {
 		log->warning() << "No grid alphabet specified. Applying default mapping." << endl;
 		as::Protein* prot = server.getProtein(ligId);
-		as::applyDefaultMapping(prot->numAtoms(), prot->type(), prot->type());
-		as::applyDefaultMapping(prot->numAtoms(), prot->type(), prot->mappedTypes());
+		as::applyDefaultMapping(prot->nAtoms(), prot->type(), prot->type());
+		as::applyDefaultMapping(prot->nAtoms(), prot->type(), prot->mappedTypes());
 	}
 
 	if (true){
