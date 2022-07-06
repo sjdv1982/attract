@@ -107,10 +107,7 @@ int main (int argc, char *argv[]) {
 
 		TCLAP::ValueArg<int> cpusArg("c","cpus","Number of CPU threads to be used. (Default: 0)", false, 0, "int", cmd);
 
-		int numDevicesAvailable = 0; CUDA_CHECK(cudaGetDeviceCount(&numDevicesAvailable));
-		vector<int> allowedValues(numDevicesAvailable); std::iota(allowedValues.begin(), allowedValues.end(), 0);
-		TCLAP::ValuesConstraint<int> vc(allowedValues);
-		TCLAP::MultiArg<int> deviceArg("d","device","Device ID of GPU to be used.", false, &vc, cmd);
+		TCLAP::MultiArg<int> deviceArg("d","device","Device ID of serverMode to be used. Must be between 0 and the number of available GPUs minus one.", false, "uint");
 		TCLAP::ValueArg<int> chunkSizeArg("","chunkSize", "Number of concurrently processed structures", false, 1000, "int", cmd);
 		TCLAP::ValueArg<int> maxItemsArg("","maxItems", "Max. number of item per submit", false, 10000, "int", cmd);
 
@@ -130,6 +127,16 @@ int main (int argc, char *argv[]) {
 		paramsName 	= paramArg.getValue();
 		dofName 	= dofArg.getValue();
 		devices 	= deviceArg.getValue();
+		if (devices.size()) {
+			int numDevicesAvailable = 0; CUDA_CHECK(cudaGetDeviceCount(&numDevicesAvailable));
+			for (auto it = devices.begin(); it != devices.end(); it++) {
+				if ((*it) > numDevicesAvailable) {
+					fprintf(stderr, "Requesting GPUs beyond number of available devices");
+					exit(1);
+				}
+			}
+
+		}
 		numCPUs 	= cpusArg.getValue();
 		chunkSize 	= chunkSizeArg.getValue();
 		maxItemsPerSubmit = maxItemsArg.getValue();
