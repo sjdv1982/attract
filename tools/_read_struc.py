@@ -29,7 +29,7 @@ def read_next_struc(lines, firstline):
         yield ret0,ret1
 
 def read_struc(fil):
-    lines = open(fil).xreadlines()
+    lines = open(fil)
     header = []
     centeredlen = 0
     firstline = None
