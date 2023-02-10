@@ -28,6 +28,17 @@ In ATTRACT, the formulas are as follows:
 
 i, j are the atom types
 
+The stored parameters are abc, rbc and ipon/iflo (the last one is 1=attractive or 0=repulsive)
+ac(i,j)=abc(i,j)*rbc(i,j)**6
+rc(i,j)=abc(i,j)*rbc(i,j)**potshape
+
+From these base parameters, the following derived parameters are computed:
+For potshape=8:
+  emin(i,j)=-27.0d0*ac(i,j)**4/(256.0d0*rc(i,j)**3)
+  rmin2(i,j)=4.0d0*rc(i,j)/(3.0d0*ac(i,j))
+
+How is this formula applied at runtime?
+
 r2 = distance^2
 rrd = rr23 = distance^-6 (for potshape 12)
 
