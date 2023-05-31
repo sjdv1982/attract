@@ -130,7 +130,7 @@ def print_res(mapping=True):
   global rescounter, atomcounter, rescoor
   if not len(rescoor): return  
   rescounter += 1
-  if mapping: print res[1:].strip(), rescounter
+  if mapping: print(res[1:].strip(), rescounter)
   for l in ff[resname]:
     if (l[0], l[1]) not in rescoor: continue
     c = rescoor[(l[0], l[1])]
@@ -142,7 +142,7 @@ def print_res(mapping=True):
     if len(atomname) < 4:
         atomname = " " + atomname + "   "[len(atomname):]
     line = (atomcounter, atomname, resname, chain, rescounter, x, y, z, l[0], l[3], 1.0)
-    print >> outp, "ATOM%7d %4s %3s %s%4d    %8.3f%8.3f%8.3f%5d%8.3f 0%5.2f" % line
+    print("ATOM%7d %4s %3s %s%4d    %8.3f%8.3f%8.3f%5d%8.3f 0%5.2f" % line, file=outp)
   rescoor = {}
   
 ff = read_forcefield(reducedat)
