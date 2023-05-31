@@ -22,6 +22,8 @@ lib.collect_init.argtypes = [c_int, POINTER(c_char_p)]
 def collect_init(args):
   global nlig, ieins, x, coor, coor_raw
   args =  ["collect"] + args
+  if sys.version_info.major == 3:
+    args = [a.encode() for a in args]
   args = (c_char_p * len(args))(*args)
   lib.collect_init(len(args), args )
   nlig = c_int.in_dll(lib, "nlig").value

@@ -177,7 +177,10 @@ while 1:
   if result: break
   nstruc += 1
 
-  l1, l2 = strucs.next()
+  if sys.version_info.major == 2:
+    l1, l2 = strucs.next()
+  else:
+    l1, l2 = next(strucs)
   ll = [float(v) for v in l2[0].split()[ens_receptor:ens_receptor+6]]
   for v in ll:
     if abs(v)> 0.001:
