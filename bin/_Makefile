@@ -16,7 +16,7 @@ FF=gfortran
 #1. for final release
 #FLAG= -g -O3 -fno-automatic -ffast-math -fcray-pointer
 #2. for standard development
-FLAG= -g -p -O3 -fno-automatic -ffast-math -fcray-pointer
+FLAG= -g -O3 -fno-automatic -ffast-math -fcray-pointer
 #2. for heavy debugging
 #FLAG= -g -p -O0 -fno-automatic -ffast-math -fcray-pointer
 
@@ -28,7 +28,7 @@ CC        = gcc
 #1. For final release
 #CFLAGS = -g -O3 -ffast-math -Wno-unused-result
 #2. For standard development
-CFLAGS = -g -p -O3 -ffast-math -Wall
+CFLAGS = -g -O3 -ffast-math -Wall
 #3. For heavy debugging
 #CFLAGS = -g -p -O0 -fno-inline -Wall -ffast-math
 
