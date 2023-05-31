@@ -1,0 +1,67 @@
+"""Define SurfaceAccessibilityArray(Data_PDB p) {
+  \"\"\"
+  Computes surface accessibility using NACCESS
+  \"\"\"
+  tempfile = p.totempfile()
+  tempnam = tempfile.name
+  td, tail = os.path.split(tempnam)
+  body = os.path.splitext(tail)[0]
+  cwd = os.getcwd()
+  os.chdir(td)
+  Stream() | "$NACCESS/naccess %s" % tail
+  os.remove("%s.asa" % body)
+  os.remove("%s.log" % body)
+  os.chdir(cwd)
+  ret = []
+  for l in File(td + "/" + body+".rsa", Data).data().data().split('\n'):
+    if len(l) == 0 or l[:3] != "RES": continue
+    try:
+      int(l[9:13])
+    except:
+      continue
+    sa = SurfaceAccessibility(
+      int(l[9:13]), 
+      float(l[15:22]), float(l[22:28]),
+      float(l[28:35]), float(l[35:41]),
+      float(l[41:48]), float(l[48:54]),
+    )
+    ret.append(sa)
+  os.remove("%s/%s.rsa" % (td, body))
+  tempfile.delete()
+  return ret
+}"""
+def spyderconverterfunction_5(p):
+  """
+  Computes surface accessibility using NACCESS
+  """
+  tempfile = p.totempfile()
+  tempnam = tempfile.name
+  td, tail = os.path.split(tempnam)
+  body = os.path.splitext(tail)[0]
+  cwd = os.getcwd()
+  os.chdir(td)
+  Stream() | "$NACCESS/naccess %s" % tail
+  os.remove("%s.asa" % body)
+  os.remove("%s.log" % body)
+  os.chdir(cwd)
+  ret = []
+  for l in File(td + "/" + body+".rsa", Data).data().data().split('\n'):
+    if len(l) == 0 or l[:3] != "RES": continue
+    try:
+      int(l[9:13])
+    except:
+      continue
+    sa = SurfaceAccessibility(
+      int(l[9:13]), 
+      float(l[15:22]), float(l[22:28]),
+      float(l[28:35]), float(l[35:41]),
+      float(l[41:48]), float(l[48:54]),
+    )
+    ret.append(sa)
+  os.remove("%s/%s.rsa" % (td, body))
+  tempfile.delete()
+  return ret
+
+spyder.core.defineconverter("Data_PDB","SurfaceAccessibilityArray",spyderconverterfunction_5)
+
+del spyderconverterfunction_5

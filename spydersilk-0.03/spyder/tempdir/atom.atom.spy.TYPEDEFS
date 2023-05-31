@@ -1,0 +1,44 @@
+662595981
+2963866268
+LabeledRangeArrayArray
+[]
+BasePlanarSpecificationArray
+[]
+InterResidueDistanceArrayArray
+[]
+BasePair
+{'deleted_members': [], 'members': [('Integer', 'a', ''), ('Integer', 'b', '')]}
+RasmolSelection
+{'deleted_members': [], 'members': []}
+InterResidueDistance
+{'deleted_members': [], 'members': [('Integer', 'residue1', ''), ('Integer', 'residue2', ''), ('Float', 'distance', '')]}
+SurfaceAccessibilityArray
+[]
+BasePlanarSpecification
+{'deleted_members': [], 'members': [('Range', 'a', ''), ('Range', 'b', '')]}
+RasmolSelectionArrayArray
+[]
+BasePlanarSpecificationArrayArray
+[]
+LabeledRange
+{'validate': 'assert end >= start\nif chain is not None: assert chain in ("All", "A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z")\n', 'deleted_members': [], 'form': 'start.name = "First number"\nend.name = "Last number"    \nchain.options = "All", "A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"\nchain.name = "Chain"\n', 'members': [('Integer', 'start', ''), ('Integer', 'end', ''), ('String', 'chain', '')], 'error': "'assert end >= start'\n=>\n'Cannot construct a range of numbers when the first number {start} is larger than the last number {end}'\n"}
+SurfaceAccessibilityArrayArray
+[]
+LabeledRangeArray
+[]
+BasePairArray
+[]
+AngleErrArrayArray
+[]
+AngleErrArray
+[]
+RasmolSelectionArray
+[]
+AngleErr
+{'validate': 'assert error >= 0\n', 'deleted_members': [], 'members': [('Float', 'angle', ''), ('Float', 'error', '')]}
+BasePairArrayArray
+[]
+InterResidueDistanceArray
+[]
+SurfaceAccessibility
+{'validate': 'assert absolute == None or absolute >= 0\nassert absolute_sidechain == None or absolute_sidechain >= 0\nassert absolute_mainchain == None or absolute_mainchain >= 0\n', 'deleted_members': [], '__init__': 'absolute\nrelative\nabsolute_sidechain\nrelative_sidechain\nabsolute_mainchain\nrelative_mainchain\n', 'members': [('Integer', 'residue', ''), ('Float', 'absolute', ''), ('Float', 'relative', ''), ('Float', 'absolute_sidechain', ''), ('Float', 'relative_sidechain', ''), ('Float', 'absolute_mainchain', ''), ('Float', 'relative_mainchain', '')]}

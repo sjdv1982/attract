@@ -21,13 +21,15 @@ sys.path.append(allatomdir)
 sys.path.append(tooldir)
 sys.path.append(attractdir)
 import imodes, get_restraints
-import parse_cns_top
+import json
 import collectlibpy as collectlib
 import neighbortree
 
-topstream = [(allatomdir + "/topallhdg5.3.pro", "oplsx"),
-             (allatomdir + "/dna-rna-allatom.top", "dna-rna")
+import topology as topology_lib
+topfiles = [ allatomdir + "/oplsx-top.json",
+              allatomdir + "/dna-rna-top.json",
             ]
+
 
 def get_energy(f):
   if not os.path.exists(f): return 0
@@ -88,10 +90,9 @@ def prepare_input(topology,start,ligands,current,name,coor,ligandrange,ligandato
     restraints = []
     for ligand in currligands:
       if not os.path.exists(os.path.splitext(ligand)[0]+'_'+current+name+'.rest'):
-	check = False
+	      check = False
       else:
-	restraints.append(os.path.splitext(ligand)[0]+'_'+current+name+'.rest')
-
+	      restraints.append(os.path.splitext(ligand)[0]+'_'+current+name+'.rest')
     if check:
       return ('flexm-'+current+name+'.dat',restraints)
 
@@ -160,25 +161,24 @@ def run_docking(datain):
     if len(ligands) > 2:
       newargs = []
       for i, item in enumerate(args):
-	if not item in ligands:
-	  newargs.append(item)
-
+        if not item in ligands:
+          newargs.append(item)
       args = newargs[:1]+['partners-aa.pdb']+newargs[1:]
 
     for i, item in enumerate(args):
       if item == '--ens':
-	ensemblefiles.append((args[i+1],args[i+2]))
+	      ensemblefiles.append((args[i+1],args[i+2]))
 
       elif item == '--modes':
-	modefile = args[i+1]
+	      modefile = args[i+1]
 
     imodefile, restfiles = prepare_input(topology,start,ligands,current,name,coor,ligandrange,ligandatoms,ensemblefiles,modefile,otf,noflex,icut)
 
     if imodefile == '':
-	com = "cp %s %s" %(start,outp)
-	print "No flexible residues for %s, skipping..." % start
-	run(com)
-	return
+      com = "cp %s %s" %(start,outp)
+      print "No flexible residues for %s, skipping..." % start
+      run(com)
+      return
 
     rest = []
     for r in restfiles: rest += ['--rest',r]
@@ -197,7 +197,6 @@ if __name__ == "__main__":
   noflex = []
   interface_cutoff = 3.0
   otf = True
-  topfiles = []
   exists = False
   while 1:
     anr += 1
@@ -246,40 +245,40 @@ if __name__ == "__main__":
 
     if arg == "-np" or arg == "--np":
       try:
-	np = int(nextarg)
-	if np <= 0: raise ValueError
+        np = int(nextarg)
+        if np <= 0: raise ValueError
       except ValueError:
-	raise ValueError("Invalid number of processors: %s" % nextarg)
+        raise ValueError("Invalid number of processors: %s" % nextarg)
       sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
       anr -= 1
       continue
 
     if arg == "-jobsize" or arg == "--jobsize":
       try:
-	jobsize = int(nextarg)
-	if jobsize <= 0: raise ValueError
+        jobsize = int(nextarg)
+        if jobsize <= 0: raise ValueError
       except ValueError:
-	raise ValueError("Invalid jobsize: %s" % nextarg)
+        raise ValueError("Invalid jobsize: %s" % nextarg)
       sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
       anr -= 1
       continue
 
     if arg == "--noflex":
       try:
-	noflex.append(int(nextarg))
-	if noflex[-1] <= 0 or noflex[-1] > 2: raise ValueError
+	      noflex.append(int(nextarg))
+	      if noflex[-1] <= 0 or noflex[-1] > 2: raise ValueError
       except ValueError:
-	raise ValueError("Invalid selection for ligand without flexibility: %s" % nextarg)
+	      raise ValueError("Invalid selection for ligand without flexibility: %s" % nextarg)
       sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
       anr -= 1
       continue
 
     if arg == "-chunks" or arg == "--chunks":
       try:
-	chunks = int(nextarg)
-	if chunks <= 0: raise ValueError
+	      chunks = int(nextarg)
+	      if chunks <= 0: raise ValueError
       except ValueError:
-	raise ValueError("Invalid chunks: %s" % nextarg)
+	      raise ValueError("Invalid chunks: %s" % nextarg)
       sys.argv = sys.argv[:anr] + sys.argv[anr+2:]
       anr -= 1
       continue
@@ -304,11 +303,17 @@ if __name__ == "__main__":
   if jobsize is not None and chunks is not None:
     raise ValueError("You must specify --jobsize <value> OR --chunks <value>, not both!")
 
+  
+  topologies = []
   for f in topfiles:
-    topstream.append((f, f))
-  for f, nam in topstream:
-    parse_cns_top.parse_stream(open(f), nam)
-  topology = parse_cns_top.residues, parse_cns_top.presidues
+      try:
+          topologies.append(topology_lib.load(json.load(open(f))))
+      except:
+          print >> sys.stderr, f
+          raise
+  topology = topology_lib.merge(topologies)
+
+
   totstruc = get_struc(strucfile)
   if jobsize is not None:
     chunks = ceil(totstruc/float(jobsize))
@@ -344,12 +349,12 @@ if __name__ == "__main__":
     has_ens = None
     for nr, ensfile in ensfiles:
       if str(i+1) == nr:
-	has_ens = ensfile
+	      has_ens = ensfile
 
     if has_ens is not None:
       ensligand = open(has_ens).readlines()
       for ligandname in ensligand:
-	neighbortree.make(ligandname.replace('\n',''))
+	      neighbortree.make(ligandname.replace('\n',''))
 
     else:
       neighbortree.make(u)
@@ -448,8 +453,8 @@ if __name__ == "__main__":
     for i in range(1,int(chunks)+1):
       data = open(pat2+'-'+str(i)).readlines()
       if not len(data) or not len(data[-1]) > 6:
-	com = "cp %s-%d %s-%d" % (pat,i,pat2,i)
-	run(com)
+	      com = "cp %s-%d %s-%d" % (pat,i,pat2,i)
+	      run(com)
 
     com = "python2 %s/join.py %s %s >> %s" % (tooldir, pat2, score, output) 
     run(com)

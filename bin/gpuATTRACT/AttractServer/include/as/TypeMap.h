@@ -60,9 +60,9 @@ inline TypeMap createTypeMapFromVector(const std::vector<TypeMap::keyType>& vec)
 	return map;
 }
 
-void applyMapping(const as::TypeMap& map, unsigned numAtoms, as::TypeMap::keyType const * typesIn, as::TypeMap::keyType* typesOut);
+void applyMapping(const as::TypeMap& map, unsigned nAtoms, as::TypeMap::keyType const * typesIn, as::TypeMap::keyType* typesOut);
 
-void applyDefaultMapping(unsigned numAtoms, as::TypeMap::keyType const * typesIn, as::TypeMap::keyType* typesOut);
+void applyDefaultMapping(unsigned nAtoms, as::TypeMap::keyType const * typesIn, as::TypeMap::keyType* typesOut);
 
 
 }

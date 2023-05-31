@@ -1,0 +1,36 @@
+# Copyright 2007-2012, Sjoerd de Vries
+# This file is part of the Spyder module: "tarantula" 
+# For licensing information, see LICENSE.txt 
+
+Type World3D:ThreeDee { 
+  """Class to store 3D objects in a self-contained way
+  Contains a list of Tarantula objects 
+   and a list of the materials used by those objects
+  Every object should be Tarantula-compatible, 
+   i.e. the show() method should work on it, 
+   but this is not validated beforehand.
+  """
+  NewMaterialArray materials
+  ObjectList3D objects
+  form {
+    objects.default = []
+    materials.default = []
+  }
+}
+
+def worldshow(w,show=True):
+  """Calls show() on every material and then on every object in the World3D"""
+  for m in w.materials: m.show(show)
+  return w.objects.show(show=show)
+    
+
+Method show(World3D) worldshow
+
+
+def worldplace(w, *args, **kargs):
+  """Calls show() on every material and then place() on every object in the World3D"""
+  for m in w.materials: m.show()
+  return w.objects.place(*args, **kargs)
+    
+
+Method place(World3D) worldplace

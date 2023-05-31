@@ -32,9 +32,10 @@ public:
 	Comp5_HD (unsigned numEl) :
 	_numEl(numEl),
 	_numAlloc((_numEl/WARP_SIZE + 1)*WARP_SIZE),
-	_h_x(NULL),	_h_y(NULL),	_h_z(NULL), _h_v(NULL), _h_w(NULL),
-	_d_x(NULL),	_d_y(NULL),	_d_z(NULL), _d_v(NULL), _d_w(NULL),
+	_h_conf(NULL), _h_x(NULL),	_h_y(NULL),	_h_z(NULL), _h_v(NULL), _h_w(NULL),
+	_d_conf(NULL), _d_x(NULL),	_d_y(NULL),	_d_z(NULL), _d_v(NULL), _d_w(NULL),
 	_cpySize(_numAlloc*5*sizeof(T)),
+	_cpySize2(_numAlloc*sizeof(unsigned short)),
 	_deviceAlloc(false), _hostAlloc(false){ }
 
 	/* Destructor */
@@ -50,7 +51,9 @@ public:
 	inline unsigned size() const {
 		return _numEl;
 	}
-
+	inline unsigned short* h_conf () const {
+		return _h_conf;
+	}
 	inline T* h_x () const {
 		return _h_x;
 	}
@@ -67,6 +70,9 @@ public:
 		return _h_w;
 	}
 
+	inline unsigned short* d_conf () const {
+		return _d_conf;
+	}
 	inline T* d_x () const {
 		return _d_x;
 	}
@@ -88,6 +94,9 @@ public:
 	* S E T T E R
 	***************/
 
+	inline void set_h_conf (unsigned short *h) {
+		 _h_conf = h;
+	}
 	inline void set_h_x (T* h) {
 		 _h_x = h;
 	}
@@ -104,6 +113,9 @@ public:
 		 _h_w = h;
 	}
 
+	inline void set_d_conf (unsigned short *h) {
+		 _d_conf = h;
+	}
 	inline void set_d_x (T* h) {
 		 _d_x = h;
 	}
@@ -125,6 +137,8 @@ public:
 	 ****************************/
 	void initHost() {
 		if (!_hostAlloc && ALLOC::HostAlloc) {
+			ALLOC::malloc(_h_conf, _numAlloc*sizeof(unsigned short) );
+			memset(_h_conf, 0, _numAlloc*sizeof(unsigned short));
 			ALLOC::malloc(_h_x, _numAlloc*5*sizeof(T) );
 			memset(_h_x, 0, _numAlloc*5*sizeof(T));
 			_h_y =  _h_x + _numAlloc;
@@ -137,6 +151,8 @@ public:
 
 	void initDevice() {
 		if (!_deviceAlloc && ALLOC::DeviceAlloc) {
+			cudaVerify(cudaMalloc((void**)&_d_conf, _numAlloc*sizeof(unsigned short) ));
+			cudaVerify(cudaMemset(_d_conf, 0, _numAlloc*sizeof(unsigned short) ));
 			cudaVerify(cudaMalloc((void**)&_d_x, _numAlloc*5*sizeof(T) ));
 			cudaVerify(cudaMemset(_d_x, 0, _numAlloc*5*sizeof(T) ));
 			_d_y =  _d_x + _numAlloc;
@@ -149,6 +165,7 @@ public:
 
 	void freeDevice() {
 		if (_deviceAlloc) {
+			cudaFree(_d_conf);
 			cudaFree(_d_x);
 			_deviceAlloc = false;
 		}
@@ -156,6 +173,7 @@ public:
 
 	void freeHost() {
 		if (_hostAlloc) {
+			ALLOC::free(_h_conf);
 			ALLOC::free(_h_x);
 			_hostAlloc = false;
 		}
@@ -163,12 +181,14 @@ public:
 
 	void resetHostData() {
 		if (_hostAlloc) {
+			memset(_h_conf, 0, _numAlloc*sizeof(unsigned short));
 			memset(_h_x, 0, _numAlloc*5*sizeof(T));
 		}
 	}
 
 	void resetDeviceData(const cudaStream_t &stream = 0) {
 		if (_deviceAlloc) {
+			cudaVerify(cudaMemsetAsync(_d_conf, 0, _numAlloc*sizeof(unsigned short) , stream));
 			cudaVerify(cudaMemsetAsync(_d_x, 0, _numAlloc*5*sizeof(T) , stream));
 		}
 	}
@@ -179,10 +199,12 @@ public:
 	}
 
 	inline __host__ void cpyH2D(const cudaStream_t &stream = 0) {
+		cudaVerify(cudaMemcpyAsync(_d_conf, _h_conf, _cpySize2, cudaMemcpyHostToDevice, stream));
 		cudaVerify(cudaMemcpyAsync(_d_x, _h_x, _cpySize, cudaMemcpyHostToDevice, stream));
 	}
 
 	inline __host__ void cpyD2H(const cudaStream_t &stream = 0) {
+		cudaVerify(cudaMemcpyAsync(_h_conf, _d_conf, _cpySize2, cudaMemcpyDeviceToHost, stream));
 		cudaVerify(cudaMemcpyAsync(_h_x, _d_x, _cpySize, cudaMemcpyDeviceToHost, stream));
 	}
 
@@ -199,6 +221,7 @@ public:
 		std::cerr << "VectorArray.h:\n";
 		std::cerr << "Object " << obj << std::endl;
 		std::cerr << std::left << std::setw(5) << "num" << ": "
+						<< std::setw(colWidth) << "conf" << " "
 						<< std::setw(colWidth) << "x" << " "
 						<< std::setw(colWidth) << "y" << " "
 						<< std::setw(colWidth) << "z" << " "
@@ -207,6 +230,7 @@ public:
 		for (unsigned int i = 0; i < numEl; i++) {
 			uint idx = obj*_numEl + i;
 			std::cerr << std::left << std::setw(5) << i << ": "
+					<< std::setw(colWidth) << _h_conf[idx] << " "
 					<< std::setw(colWidth) << _h_x[idx] << " "
 					<< std::setw(colWidth) << _h_y[idx] << " "
 					<< std::setw(colWidth) << _h_z[idx] << " "
@@ -242,6 +266,7 @@ private:
 	unsigned _numEl;		/** number of elements */
 	unsigned _numAlloc;		/** number of allocated elements per component (x,y,z,w,...)*/
 
+	unsigned short *_h_conf;   /** Host data, conformers */
 	T *_h_x; 		/** Host data, x-component */
 	T *_h_y; 		/** Host data, y-component */
 	T *_h_z; 		/** Host data, z-component */
@@ -249,6 +274,7 @@ private:
 	T *_h_w; 		/** Host data, w-component */
 
 
+	unsigned short *_d_conf;   /** Device data, conformers */
 	T *_d_x; 		/** Device data, x-component */
 	T *_d_y; 		/** Device data, y-component */
 	T *_d_z; 		/** Device data, z-component */
@@ -256,6 +282,7 @@ private:
 	T *_d_w; 		/** Device data, w-component */
 
 	unsigned _cpySize;	/** size of memory transactions in bytes */
+	unsigned _cpySize2;	/** size of conf memory transactions in bytes */
 	bool _deviceAlloc;	/** memory at device/host already allocated? */
 	bool _hostAlloc;
 };

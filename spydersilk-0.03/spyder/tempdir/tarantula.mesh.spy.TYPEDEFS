@@ -1,0 +1,68 @@
+662595981
+1114445762
+ModelInstance3D
+{'deleted_members': [], '__init__': 'axis\nmaterial\nentityname\n', 'members': [('String', 'meshname', ''), ('AxisSystem', 'axis', ''), ('Material', 'material', ''), ('String', 'entityname', '')]}
+ActorInstanceAnimation
+{'deleted_members': [], 'members': [('String', 'pname', ''), ('String', 'meshname', '')]}
+Entity3DArrayArray
+[]
+ActorInstance3DArrayArray
+[]
+Model3D
+{'deleted_members': [], '__init__': 'axis\nmaterial\nentityname\n', 'members': [('String', 'meshfilename', ''), ('String', 'meshformat', ''), ('AxisSystem', 'axis', ''), ('Material', 'material', ''), ('String', 'entityname', '')]}
+ActorInstanceAnimationArrayArray
+[]
+Entity3D
+{'deleted_members': [], 'form': 'objects.type = "none"\n', 'members': [('String', 'entityname', ''), ('ObjectList', 'objects = []', '')]}
+MultiEntityInstance3DArrayArray
+[]
+MeshArrayArray
+[]
+Entity3DArray
+[]
+ActorClass3DArrayArray
+[]
+Mesh
+{'deleted_members': [], 'form': 'animations.length = 5\n', 'members': [('String', 'pname', ''), ('String', 'filename', ''), ('String', 'format', ''), ('StringArray', 'animations = []', '')]}
+Actor3DArrayArray
+[]
+ActorInstance3D
+{'form': 'animations.length = 5\n', 'deleted_members': [], '__init__': 'axis\nmaterial\nentityname\n', 'members': [('String', 'meshname', ''), ('ActorInstanceAnimationArray', 'animations = []', ''), ('AxisSystem', 'axis', ''), ('Material', 'material', ''), ('String', 'entityname', '')]}
+Actor3D
+{'form': 'animations.length = 5\n', 'deleted_members': [], '__init__': 'axis\nmaterial\nentityname\n', 'members': [('String', 'meshfilename', ''), ('String', 'meshformat', ''), ('MeshArray', 'animations = []', ''), ('AxisSystem', 'axis', ''), ('Material', 'material', ''), ('String', 'entityname', '')]}
+ActorInstanceAnimationArray
+[]
+MultiEntityInstance3D
+{'validate': 'assert len(entitynames) == len(instances)\n', 'deleted_members': [], 'form': 'object.default = []\ninstances.default = []\ninstances.eledefault = AxisSystem()\n', 'members': [('ObjectList3D', 'object', ''), ('AxisSystemArray', 'instances', ''), ('StringArray', 'entitynames', '')]}
+DataBlock3DArrayArray
+[]
+MultiEntityInstance3DArray
+[]
+DataBlock3D
+{'validate': 'assert len(object) == 1\n', 'deleted_members': [], '__init__': 'pname\n', 'members': [('ObjectList', 'object', ''), ('String', 'pname', '')]}
+Model3DArray
+[]
+Actor3DArray
+[]
+EntityClass3DArray
+[]
+ModelInstance3DArray
+[]
+ActorClass3D
+{'form': 'animations.length = 5\n', 'deleted_members': [], '__init__': 'axis\nmaterial\nactorclassname\n', 'members': [('String', 'meshfilename', ''), ('String', 'meshformat', ''), ('MeshArray', 'animations = []', ''), ('AxisSystem', 'axis', ''), ('Material', 'material', ''), ('String', 'actorclassname', '')]}
+Model3DArrayArray
+[]
+ActorClass3DArray
+[]
+DataBlock3DArray
+[]
+ActorInstance3DArray
+[]
+EntityClass3D
+{'form': 'objects.type = "none"\n', 'deleted_members': [], '__init__': 'axis\nmaterial\n', 'members': [('String', 'entityclassname', ''), ('ObjectList', 'objects = []', ''), ('AxisSystem', 'axis', ''), ('Material', 'material', '')]}
+ModelInstance3DArrayArray
+[]
+EntityClass3DArrayArray
+[]
+MeshArray
+[]

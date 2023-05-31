@@ -1,0 +1,89 @@
+# Copyright 2007-2009, Sjoerd de Vries
+# This file is part of the Spyder module: "models3d" 
+# For licensing information, see LICENSE.txt 
+
+Type Tube3D:ThreeDee {
+  """3D object class for a hollow tube
+   The tube is oriented along the X axis
+  """
+  Float innersize
+  Float outersize
+  Integer radialsegments
+  Float tlength
+  Integer lengthsegments = 1
+  Material material = "defaultmaterial"
+  AxisSystem axis = AxisSystem()
+  validate {
+    assert(innersize > 0)
+    assert(innersize < outersize)
+    assert radialsegments >= 3
+  }
+  form {
+    self.matrix = "axis"
+    self.matrixmode = "mono"
+    innersize.default = 0.5
+    innersize.range = 1
+    outersize.default = 1
+    outersize.range = 1
+    radialsegments.tooltip = "The slices of the circle that forms the tube"
+    radialsegments.default = 8
+    radialsegments.min = 3
+    radialsegments.max = 100
+    tlength.tooltip = "The tube's length (X axis)"
+    tlength.default = 5    
+    tlength.min = 0.01
+    tlength.max = 100
+    lengthsegments.default = 1
+    lengthsegments.tooltip = "The number of pieces the tube is cut into"
+    lengthsegments.min = 1
+    lengthsegments.max = 100
+  }
+}
+
+Define ObjectGroup3D(Tube3D s) {
+  ret = []
+  prevplane = []
+  l = float(s.tlength)/s.lengthsegments
+  ori = -0.5*(s.lengthsegments-1)*l
+  
+  ang = float(1)/s.radialsegments * 2 * math.pi
+  y = -math.sin(ang)
+  z = math.cos(ang)
+  
+  points = []
+  points.append(Coordinate(0.5*l, 0,s.innersize))    
+  points.append(Coordinate(0.5*l, 0,s.outersize))
+  points.append(Coordinate(-0.5*l, 0,s.innersize))    
+  points.append(Coordinate(-0.5*l, 0,s.outersize))
+  points.append(Coordinate(0.5*l, y*s.innersize,z*s.innersize))    
+  points.append(Coordinate(0.5*l, y*s.outersize,z*s.outersize))
+  points.append(Coordinate(-0.5*l, y*s.innersize,z*s.innersize))    
+  points.append(Coordinate(-0.5*l, y*s.outersize,z*s.outersize))
+  faces = [Face3D(vertices=(0,1,3,2),normal=(0,0,-1)), 
+              Face3D(vertices=(5,4,6,7),normal=(0,z,-y)),
+              Face3D(vertices=(1,0,4,5),normal=(1,0,0)),
+              Face3D(vertices=(2,3,7,6),normal=(-1,0,0)),
+              Face3D(vertices=(3,1,5,7),normal=(0,-y,-z)),
+              Face3D(vertices=(0,2,6,4),normal=(0,y,z))]
+
+  o = Object3D(material=s.material,faces=faces,vertices=points)
+  ang = float(1)/s.radialsegments*360
+  matrices = [AxisSystem()]
+  if s.lengthsegments == 1: matrices[-1].origin.x = ori
+  for n in range(1,s.radialsegments): 
+    a = AxisSystem(matrices[-1])
+    a.rotateX(ang)
+    matrices.append(a)
+  mi = MultiInstance3D(o,matrices)
+  if s.lengthsegments == 1: 
+    ret = ObjectGroup3D(axis=s.axis,group=[mi])
+  else:
+    matrices = [AxisSystem(origin=(ori,0,0))]
+    for n in range(1,s.lengthsegments): 
+      a = AxisSystem(matrices[-1])
+      a.origin += l*a.x
+      matrices.append(a)
+    ret = ObjectGroup3D(axis=s.axis,group=[MultiInstance3D(mi,matrices)])
+  return ret
+}
+

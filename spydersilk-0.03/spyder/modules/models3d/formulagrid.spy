@@ -1,0 +1,119 @@
+# Copyright 2007-2009, Sjoerd de Vries
+# This file is part of the Spyder module: "models3d" 
+# For licensing information, see LICENSE.txt 
+
+Type FormulaGrid2D:ThreeDee {
+  """
+  Parametric object based on functions of U and V
+  Inspired by the Parametric Object plugin by Ed Mackey, http://www.blinken.com/blender-plugins.php
+  """
+  String xformula
+  String yformula
+  String zformula
+  Float umin
+  Float umax
+  Integer usteps
+  Float vmin
+  Float vmax
+  Integer vsteps
+  Bool uwrap = True
+  Bool vwrap = True
+  validate {
+    assert umin < umax
+    assert usteps >= 2
+    assert vmin < vmax
+    assert vsteps >= 2   
+    f = formula.formula(xformula,["u","v"]) 
+    assert f != None
+    assert f(0,0) != None
+    f = formula.formula(yformula,["u","v"]) 
+    assert f != None
+    assert f(0,0) != None
+    f = formula.formula(zformula,["u","v"]) 
+    assert f != None
+    assert f(0,0) != None
+  }
+  form {
+    xformula.default = "sin(2*pi*u)*(2+(0.5*sin(2*pi*v)))"
+    xformula.length = 100
+    yformula.default = "cos(2*pi*u)*(2+(0.5*sin(2*pi*v)))"
+    yformula.length = 100    
+    zformula.default = "cos(2*pi*v)*0.5"
+    zformula.length = 100
+    umin.type = "number"
+    umin.default = 0
+    umin.min = -1000
+    umin.max = 1000
+    umax.type = "number"
+    umax.default = 1
+    umax.min = -1000
+    umax.max = 1000    
+    usteps.default = 64
+    usteps.min = 2
+    usteps.max = 10000
+    vmin.type = "number"
+    vmin.default = 0
+    vmin.min = -1000
+    vmin.max = 1000
+    vmax.type = "number"
+    vmax.default = 1
+    vmax.min = -1000
+    vmax.max = 1000  
+    vsteps.default = 32  
+    vsteps.min = 2
+    vsteps.max = 10000    
+  }
+}
+
+Define CoordinateGrid2D(FormulaGrid2D p) {
+  vertices = []
+  func1 = formula.formula(p.xformula,["u","v"])
+  func2 = formula.formula(p.yformula,["u","v"])
+  func3 = formula.formula(p.zformula,["u","v"])
+  for u in range(p.usteps):
+    curru = p.umin + float(u)/(p.usteps-1) * (p.umax - p.umin)
+    for v in range(p.vsteps):
+      currv = p.vmin + float(v)/(p.vsteps-1) * (p.vmax - p.vmin)
+      currvertex = [func1(curru,currv),func2(curru,currv), func3(curru,currv)]
+      vertices.append(currvertex)
+  return CoordinateGrid2D(vertices=vertices,x=p.usteps,y=p.vsteps,xwrap=p.uwrap,ywrap=p.vwrap)
+}
+
+Type CoordinateGrid2D:ThreeDee {
+  """
+  A 2D grid of 3D coordinates
+  """
+  CoordinateArray vertices
+  Integer x
+  Integer y
+  Bool xwrap = False
+  Bool ywrap = False
+  Material material = "defaultmaterial"
+  AxisSystem axis = AxisSystem()
+  validate {
+    assert x >= 2
+    assert y >= 2
+    assert len(vertices) == x * y
+  }
+}
+
+Define Object3D(CoordinateGrid2D g) {
+  faces = []
+  for currx in range(g.x):
+    nextx = currx + 1
+    if nextx == g.x: 
+      if g.xwrap == False: continue
+      nextx = 0    
+    for curry in range(g.y):
+      nexty = curry + 1
+      if nexty == g.y: 
+        if g.ywrap == False: continue
+        nexty = 0    
+      v1 = g.y * currx + curry
+      v2 = g.y * currx + nexty      
+      v3 = g.y * nextx + nexty
+      v4 = g.y * nextx + curry      
+      currface = [v1,v2,v3,v4]
+      faces.append(currface)
+  return Object3D(vertices=g.vertices,faces=faces,axis=g.axis,material=g.material)
+ }

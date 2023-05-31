@@ -189,6 +189,7 @@ def load_nalib(libname):
         #lib.base[nuc]["coor"] = np.array([(float(l[30:38]),float(l[38:46]),float(l[46:54])) for l in open(base) if l.startswith("ATOM")])
         lib.base[nuc]["coor"] = np.load(lib.dir + "/base%s.npy" % nuc)[None]
         baseatoms = [l[12:16].strip() for l in open(lib.dir + "/base%s.pdb" % nuc) if l.startswith("ATOM")]
+        lib.base[nuc]["all_atoms"] = baseatoms
         lib.base[nuc]["atoms"] = baseatoms
         lib.base[nuc]["all_atoms"] = baseatoms
         lib.base[nuc]["fit_atoms"] = baseatoms

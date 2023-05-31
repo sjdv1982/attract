@@ -412,9 +412,6 @@ if args.nalib:
     if args.dna:
         libname = "dnalib"
 
-if args.heavy and (args.autorefe or args.refe):
-    raise ValueError("--(auto)refe and --heavy are mutually incompatible")
-
 if args.autorefe and args.refe:
     raise ValueError("--autorefe and --refe are mutually incompatible")
 if args.autorefe:
@@ -487,8 +484,7 @@ def run(pdbfile):
     if args.refe:
         refe = read_pdb(open(args.refe), args.refe, add_termini=args.termini)
         patch_pdb(refe, patches)
-        if not args.heavy:
-            update_patches(refe, top_patches)
+        update_patches(refe, top_patches)
         set_reference(pdb, refe)
     if args.nalib:
         pdbcomplete.apply_nalib(pdb, nalib, args.manual, args.heavy)
@@ -497,7 +493,7 @@ def run(pdbfile):
         pqrlines = run_pdb2pqr(pdblines)
         pqr = read_pdb(pqrlines, "<PDB2PQR output from %s>" % pdbfile)
         pdbcomplete.pdbcomplete(pdb, pqr)
-        if not args.heavy and not args.refe:
+        if not args.refe:
             update_patches(pdb, top_patches)
 
     if args.refe:

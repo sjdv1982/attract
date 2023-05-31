@@ -6,7 +6,8 @@ usage: python lrmsd.py <DAT file> \
 
 --allatoms: use all atoms rather than backbone atoms
 --ca: use CA atoms rather than backbone atoms
---trace: use CA and P atoms rather than backbone atoms (nucleic acids)
+--trace: use CA and P atoms rather than backbone atoms
+--phsug: use all atoms from phosphate group and sugar (nucl acids)
 --receptor, --imodes, --modes, --name, --ens, --output: ...
 """
 import sys
@@ -52,6 +53,12 @@ while 1:
     anr -= 1
     continue
 
+  if arg == "--phsug":
+    sys.argv = sys.argv[:anr] + sys.argv[anr+1:]
+    atomnames = ("P","O1P","O2P","O5'","C5'","C4'","O4'","C1'", "C2'","O2'","C3'", "O3'","GP1", "GS1", "GS2")
+    anr -= 1
+    continue
+    
   if anr <= len(sys.argv)-3 and arg == "--ens":
     ensfiles.append((sys.argv[anr+1],sys.argv[anr+2]))
     sys.argv = sys.argv[:anr] + sys.argv[anr+3:]

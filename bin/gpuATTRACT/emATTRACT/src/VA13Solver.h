@@ -68,6 +68,9 @@ public:
 
 	static void setOptions(Options opt) {settings = opt;}
 
+	void set_vmax(unsigned int vmax) {
+		settings.maxFunEval = vmax;
+	};
 
 	class FortranSmuggler {
 	public:

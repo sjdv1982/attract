@@ -1,0 +1,6 @@
+Type Quaternion {
+  Float w
+  Float x
+  Float y
+  Float z
+}

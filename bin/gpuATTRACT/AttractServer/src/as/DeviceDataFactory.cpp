@@ -61,42 +61,44 @@ as::cudaProteinDesc as::DeviceDataFactory::initDeviceProtein(const Protein* prot
 	CUDA_CHECK(cudaSetDevice(deviceId));
 
 	deviceProteinDesc deviceDesc;
-	unsigned numAtoms = protein->numAtoms();
+	unsigned ntotAtoms = protein->ntotAtoms();
+	unsigned nAtoms = protein->nAtoms();
 
 	float *d_xPos;
-	CUDA_CHECK(cudaMalloc((void**) &d_xPos, numAtoms * sizeof(float)));
-	CUDA_CHECK(cudaMemcpy(d_xPos, protein->xPos(), numAtoms * sizeof(float), cudaMemcpyHostToDevice));
+	CUDA_CHECK(cudaMalloc((void**) &d_xPos, ntotAtoms * sizeof(float)));
+	CUDA_CHECK(cudaMemcpy(d_xPos, protein->xPos(0), ntotAtoms * sizeof(float), cudaMemcpyHostToDevice));
 	float *d_yPos;
-	CUDA_CHECK(cudaMalloc((void**) &d_yPos, numAtoms * sizeof(float)));
-	CUDA_CHECK(cudaMemcpy(d_yPos, protein->yPos(), numAtoms * sizeof(float), cudaMemcpyHostToDevice));
+	CUDA_CHECK(cudaMalloc((void**) &d_yPos, ntotAtoms * sizeof(float)));
+	CUDA_CHECK(cudaMemcpy(d_yPos, protein->yPos(0), ntotAtoms * sizeof(float), cudaMemcpyHostToDevice));
 	float *d_zPos;
-	CUDA_CHECK(cudaMalloc((void**) &d_zPos, numAtoms * sizeof(float)));
-	CUDA_CHECK(cudaMemcpy(d_zPos, protein->zPos(), numAtoms * sizeof(float), cudaMemcpyHostToDevice));
+	CUDA_CHECK(cudaMalloc((void**) &d_zPos, ntotAtoms * sizeof(float)));
+	CUDA_CHECK(cudaMemcpy(d_zPos, protein->zPos(0), ntotAtoms * sizeof(float), cudaMemcpyHostToDevice));
 
 	unsigned* d_type;
-	CUDA_CHECK(cudaMalloc((void**) &d_type, numAtoms * sizeof(unsigned)));
-	CUDA_CHECK(cudaMemcpy(d_type, protein->type(), numAtoms * sizeof(unsigned), cudaMemcpyHostToDevice));
+	CUDA_CHECK(cudaMalloc((void**) &d_type, nAtoms * sizeof(unsigned)));
+	CUDA_CHECK(cudaMemcpy(d_type, protein->type(), nAtoms * sizeof(unsigned), cudaMemcpyHostToDevice));
 	unsigned* d_mappedType;
-	CUDA_CHECK(cudaMalloc((void**) &d_mappedType, numAtoms * sizeof(unsigned)));
-	CUDA_CHECK(cudaMemcpy(d_mappedType, protein->mappedType(), numAtoms * sizeof(unsigned), cudaMemcpyHostToDevice));
+	CUDA_CHECK(cudaMalloc((void**) &d_mappedType, nAtoms * sizeof(unsigned)));
+	CUDA_CHECK(cudaMemcpy(d_mappedType, protein->mappedType(), nAtoms * sizeof(unsigned), cudaMemcpyHostToDevice));
 	float* d_charge;
-	CUDA_CHECK(cudaMalloc((void**) &d_charge, numAtoms * sizeof(float)));
-	CUDA_CHECK(cudaMemcpy(d_charge, protein->charge(), numAtoms * sizeof(float), cudaMemcpyHostToDevice));
+	CUDA_CHECK(cudaMalloc((void**) &d_charge, nAtoms * sizeof(float)));
+	CUDA_CHECK(cudaMemcpy(d_charge, protein->charge(), nAtoms * sizeof(float), cudaMemcpyHostToDevice));
 
 	unsigned numModes = protein->numModes();
 	float* d_xModes = NULL;
 	float* d_yModes = NULL;
 	float* d_zModes = NULL;
 	if (numModes != 0) {
-		CUDA_CHECK(cudaMalloc((void**) d_xModes, numAtoms * numModes * sizeof(float)));
-		CUDA_CHECK(cudaMemcpy(d_xModes, protein->xModes(), numAtoms * numModes * sizeof(float), cudaMemcpyHostToDevice));
-		CUDA_CHECK(cudaMalloc((void**) d_yModes, numAtoms * numModes * sizeof(float)));
-		CUDA_CHECK(cudaMemcpy(d_yModes, protein->yModes(), numAtoms * numModes * sizeof(float), cudaMemcpyHostToDevice));
-		CUDA_CHECK(cudaMalloc((void**) d_zModes, numAtoms * numModes * sizeof(float)));
-		CUDA_CHECK(cudaMemcpy(d_zModes, protein->zModes(), numAtoms * numModes * sizeof(float), cudaMemcpyHostToDevice));
+		CUDA_CHECK(cudaMalloc((void**) d_xModes, nAtoms * numModes * sizeof(float)));
+		CUDA_CHECK(cudaMemcpy(d_xModes, protein->xModes(), nAtoms * numModes * sizeof(float), cudaMemcpyHostToDevice));
+		CUDA_CHECK(cudaMalloc((void**) d_yModes, nAtoms * numModes * sizeof(float)));
+		CUDA_CHECK(cudaMemcpy(d_yModes, protein->yModes(), nAtoms * numModes * sizeof(float), cudaMemcpyHostToDevice));
+		CUDA_CHECK(cudaMalloc((void**) d_zModes, nAtoms * numModes * sizeof(float)));
+		CUDA_CHECK(cudaMemcpy(d_zModes, protein->zModes(), nAtoms * numModes * sizeof(float), cudaMemcpyHostToDevice));
 	}
 
-	deviceDesc.numAtoms = numAtoms;
+	deviceDesc.ntotAtoms = ntotAtoms;
+	deviceDesc.nAtoms = nAtoms;
 	deviceDesc.xPos = d_xPos;
 	deviceDesc.yPos = d_yPos;
 	deviceDesc.zPos = d_zPos;

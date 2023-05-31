@@ -241,7 +241,7 @@ void as::GPUWorker::run () {
 			/* Device: Wait for completion of copyH2D of DOFs to complete */
 			cudaVerify(cudaStreamWaitEvent(streams[2], events[0], 0));
 
-			const unsigned numEl = it->size()*LigMngt.get(stageId)->numAtoms();
+			const unsigned numEl = it->size()*LigMngt.get(stageId)->nAtoms();
 //			std::cout << "GPUWorker.cpp: " << "numEl " << numEl << " _atomBufferSize " << _atomBufferSize << std::endl;
 			assert(numEl <= _atomBufferSize);
 
@@ -319,7 +319,7 @@ void as::GPUWorker::run () {
 			const static unsigned stageId = 2;
 			const WorkerItem* it = stagesMngt.get(stageId);
 
-			const unsigned numAtoms = LigMngt.get(stageId)->numAtoms();
+			const unsigned nAtoms = LigMngt.get(stageId)->nAtoms();
 //			std::cout << "Stage " << stageId << " processing" << std::endl;
 //			std::cout << "NumEl2Process " << it->size() << std::endl;
 
@@ -331,7 +331,7 @@ void as::GPUWorker::run () {
 //			TF.d_partForce2Grad(it->devLocLigId(), it->size(), d_potLig[pipeIdx[0]], hd_res[pipeIdx[0]], streams[3]);
 
 			/* new version */
-			TF.d_partForce2GradAll(it->devLocLigId(), it->size(), numAtoms, d_potLig[pipeIdx[0]], hd_res[pipeIdx[0]], streams[3]);
+			TF.d_partForce2GradAll(it->devLocLigId(), it->size(), nAtoms, d_potLig[pipeIdx[0]], hd_res[pipeIdx[0]], streams[3]);
 
 			/* Device: Signal event when reduction has completed */
 			cudaVerify(cudaEventRecord(events[5+pipeIdx[0]], streams[3]));
@@ -508,7 +508,7 @@ void as::GPUWorker::run () {
 		double tDOF2Coord, tPotForce_m, tPotForce_bi, tNL, t_h_Force2Grad, t_d_Force2Grad, tCpyH2D, tCpyD2H, t5CompD2H, t3CompH2D;
 		tDOF2Coord = tPotForce_m = tPotForce_bi = tNL = t_h_Force2Grad  = t_d_Force2Grad = tCpyH2D = tCpyD2H = t5CompD2H = t3CompH2D = 0.0;
 
-		unsigned atomBufferSize = chunk * lig->numAtoms();
+		unsigned atomBufferSize = chunk * lig->ntotAtoms();
 		/* Initialize Input/Output Buffers */
 		Comp1_HD<DOF, DEVONLY> d_dof(chunk);
 		d_dof.initDevice();
@@ -562,7 +562,7 @@ void as::GPUWorker::run () {
 			if (true)
 			{
 
-				const unsigned numEl = chunkSize*lig->numAtoms();
+				const unsigned numEl = chunkSize*lig->nAtoms();
 				assert(numEl <= atomBufferSize);
 
 				/* Perform cuda kernel calls */
@@ -610,7 +610,7 @@ void as::GPUWorker::run () {
 				/* old version */
 //				TF.d_partForce2Grad(item->devLocLigId(), chunkSize, &d_potLig, &hd_res);
 				/* new version */
-				TF.d_partForce2GradAll(item->devLocLigId(), chunkSize, lig->numAtoms(), &d_potLig, &hd_res);
+				TF.d_partForce2GradAll(item->devLocLigId(), chunkSize, lig->nAtoms(), &d_potLig, &hd_res);
 				t_d_Force2Grad += cudaGetTimer(start, stop);
 			}
 

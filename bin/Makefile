@@ -71,7 +71,10 @@ all: attract gpuATTRACT
 gpuATTRACT: em mc sc gpuATTRACTcheck
 
 clean: clean_gpu clean_attract
-	
+
+clean_check:
+	@cd $(GPU_DIR)/gpuATTRACTcheck/bin && $(MAKE) clean
+
 clean_as:
 	@cd $(GPU_DIR)/AttractServer/lib && $(MAKE) clean
 	
@@ -87,10 +90,13 @@ clean_sc:
 clean_attract:
 	@cd $(ATTRACTDIR) && rm -f *.o
 
-clean_gpu: clean_as clean_em clean_mc clean_sc
+clean_gpu: clean_check clean_as clean_em clean_mc clean_sc
  
-cleanall: cleanall_as cleanall_em cleanall_mc cleanall_sc cleanall_attract
-	
+cleanall: cleanall_check cleanall_as cleanall_em cleanall_mc cleanall_sc cleanall_attract
+
+cleanall_check: clean_check
+	@rm -f $(BINDIR)/gpuATTRACTcheck
+
 cleanall_as:
 	@cd $(GPU_DIR)/AttractServer/lib && make cleanall
 

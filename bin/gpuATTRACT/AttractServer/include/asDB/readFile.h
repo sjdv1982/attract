@@ -49,14 +49,6 @@ void readProteinFromPDB(as::Protein*, std::string filename);
  */
 unsigned readProteinSizeFromPDB(std::string filename);
 
-/*
- ** @brief: deprecated
- ** Reads binary file according to ProteinDesc.
- ** Memory management needs to handled outside
- ** (e.g. by using a shared_ptr or manual deletion).
- */
-as::Protein* createProteinFromDumpFile(std::string filename);
-
 
 /*
  ** @brief: Creates GridUnion from ATTRACT grid file (original
@@ -98,6 +90,7 @@ void readParamTableFromFile(as::AttrParamTable* table, std::string filename);
  ** ToDo: Read normal modes
  */
 void readDOFFromFile(std::string filename, std::vector<std::vector<as::DOF>>& DOF_molecules);
+void readDOFFromFile(std::string filename, std::vector<std::vector<as::DOF>>& DOF_molecules, const std::vector<bool> &has_ensemble);
 
 /*
  ** @brief: reads the header of a (ATTRACT-) .dat containing DOFs.

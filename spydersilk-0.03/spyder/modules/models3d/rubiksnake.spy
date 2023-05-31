@@ -1,0 +1,173 @@
+# Copyright 2007-2009, Sjoerd de Vries
+# This file is part of the Spyder module: "models3d" 
+# For licensing information, see LICENSE.txt 
+
+#turn: 1 = right, 3 = left 
+
+#direction
+#1 = x+
+#2 = x-
+#3 = y+
+#4 = y-
+#5 = z+
+#6 = z-
+
+Type RubikSnake:ThreeDee {
+  """Representation of Rubik's Snake as an array of turns
+    where 0 means no turn, 
+     1 a 45 degree right turn, 
+     2 a 90 degree turn 
+     and 3 a 45 degree left turn
+    There is always one more segment than there is turns
+    Unlike the traditional Rubik's Snake (23 turns)
+     the snake can have any length
+    Upon construction, the snake is validated for clashes
+  """
+  IntegerArray turns = (0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)
+  Float size #the size of each segment
+  AxisSystem axis = AxisSystem()
+  form {
+    self.matrix = "axis"
+    size.default = 1
+    size.range = 1
+    turns[None].min = -1
+    turns[None].max = 4
+    turns[None].default = 0
+  }  
+  validate {
+    for t in turns:
+      assert t in range(0,4)
+    dir1,dir2,dir3 = 1,3,5
+    posx,posy,posz = 0,0,0
+    positions = {}
+    positions[(posx,posy,posz)] = (dir1,dir2)
+    for t in turns:
+      posx,posy,posz = rubiksnakecode.move(posx,posy,posz,dir1)
+      dir1,dir2,dir3 = rubiksnakecode.turn(dir1,dir2,dir3,t)
+      if (posx,posy,posz) in positions:
+        opposite = rubiksnakecode.get_opposite(positions[(posx,posy,posz)])
+        if dir1 != opposite[0] or dir2 != opposite[1]: 
+          raise ValidationError("Clash detected")
+      positions[(posx,posy,posz)] = (dir1,dir2)
+  }
+  @staticmethod
+  def blenderevent(self,blenderdata,currobj,currobjtype,currblenderdata,signalhead,signal,event=None,eventval=None,handles=None):
+    if (signalhead, signal) == ("turns", "value-change"):
+      v = currblenderdata["buttons"]["value"]
+      if v.val == 4: v.val = 0
+      if v.val == -1: v.val = 3      
+    return self.blendereventpass(self,blenderdata,currobj,currobjtype,currblenderdata,signalhead,signal,event,eventval,handles)
+}
+
+Type RubikSnakeCode:ThreeDee {
+  """
+   Representation of Rubik's Snake as code string
+   during object construction, the string is not validated!
+  """
+  String code
+  Float size
+  AxisSystem axis = AxisSystem()
+  form {
+    self.matrix = "axis"
+    code.default = ""
+    code.length = 100
+    size.default = 1
+    size.range = 1
+  }    
+}
+
+Define RubikSnake(RubikSnakeCode c) {
+  turns = [0,] * 23
+
+  k = [kk for kk in c.code.strip().split("-") if len(kk) > 0]
+  for t in k:
+    nr = 2*int(t[:-2])-2
+    if t[-2] == 'R':       
+       turns[nr]=int(t[-1])
+    else:
+       turns[nr-1]=4-int(t[-1])
+
+  r = RubikSnake (
+    turns = turns,
+    size = c.size,
+    axis = c.axis
+  )
+  return r
+}
+
+
+Define RubikSnakeCode(RubikSnake r) {
+  l = len(r.turns)
+  if l < 23: return None
+  if l > 23: l = 23
+  turns = [0,] * 23
+  
+  code = ""
+  for nr in range(l):
+    lr, ori = "R", r.turns[nr]
+    t = (nr+2)/2
+    if ori == 0: continue
+    if nr % 2: 
+      lr,ori = "L", 4 - ori
+      t += 1
+    t = str(t)+ lr + str(ori)
+    code += t + "-"
+  code = code[:-1]
+    
+  c = RubikSnakeCode (
+    code = code,
+    size = r.size,
+    axis = r.axis
+  )
+  return c
+}
+
+Define Object3D(RubikSnake r) {
+  dir1,dir2,dir3 = 1,3,6
+  posx,posy,posz = 0,0,0
+  p1 = Coordinate(0,0,0)
+  p2 = Coordinate(rubiksnakecode.move(p1.x,p1.y,p1.z,dir3))
+  p3 = Coordinate(rubiksnakecode.move(p1.x,p1.y,p1.z,dir1))
+  p4 = Coordinate(rubiksnakecode.move(p3.x,p3.y,p3.z,dir3))
+  i1,i2,i3,i4 = 0,1,2,3
+  vertices = [p1,p2,p3,p4]
+  if Spyder.tarantula.get_material("rubiksnake_white") == None:
+     NewMaterial("rubiksnake_white", color=(255,255,255)).show()
+  if Spyder.tarantula.get_material("rubiksnake_black") == None:
+     NewMaterial("rubiksnake_black", color=(76,38,0)).show()
+  materials = ("rubiksnake_black", "rubiksnake_white")
+  currmaterial = 0
+  faces = [Face3D(material=materials[currmaterial],vertices=(i1,i2,i4,i3)),]
+  for t in r.turns:
+    p5 = Coordinate(rubiksnakecode.move(p3.x,p3.y,p3.z,dir2))
+    p6 = Coordinate(rubiksnakecode.move(p4.x,p4.y,p4.z,dir2))
+    i5, i6 = len(vertices), len(vertices) + 1
+    vertices += (p5,p6)
+    faces.append(Face3D(material=materials[currmaterial],vertices=(i1,i5,i6,i2)))
+    faces.append(Face3D(material=materials[currmaterial],vertices=(i1,i3,i5)))
+    faces.append(Face3D(material=materials[currmaterial],vertices=(i2,i6,i4)))
+    p1,p2,p3,p4 = p4,p3,p6,p5
+    i1,i2,i3,i4 = i4,i3,i6,i5
+    for tt in range(t): 
+      p1,p2,p4,p3 = p2,p4,p3,p1
+      i1,i2,i4,i3 = i2,i4,i3,i1
+    posx,posy,posz = rubiksnakecode.move(posx,posy,posz,dir1)
+    dir1,dir2,dir3 = rubiksnakecode.turn(dir1,dir2,dir3,t)
+
+    currmaterial = 1 - currmaterial
+  p5 = Coordinate(rubiksnakecode.move(p3.x,p3.y,p3.z,dir2))
+  p6 = Coordinate(rubiksnakecodeg.move(p4.x,p4.y,p4.z,dir2))
+  i5, i6 = len(vertices), len(vertices) + 1
+  vertices += (p5,p6)
+  faces.append(Face3D(material=materials[currmaterial],vertices=(i1,i5,i6,i2)))
+  faces.append(Face3D(material=materials[currmaterial],vertices=(i1,i3,i5)))
+  faces.append(Face3D(material=materials[currmaterial],vertices=(i2,i6,i4)))
+  faces.append(Face3D(material=materials[currmaterial],vertices=(i3,i4,i6,i5)))
+  for v in vertices: 
+    v.x *= r.size
+    v.y *= r.size
+    v.z *= r.size
+
+  o = Object3D(vertices=vertices,faces=faces,material="rubiksnake_white",axis=r.axis)
+  return o
+}

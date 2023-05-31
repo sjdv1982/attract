@@ -59,24 +59,28 @@ public:
 	/***************
 	* G E T T E R
 	***************/
-	unsigned numAtoms() const{
-		return _numAtoms;
+	unsigned nAtoms() const{
+		return _nAtoms;
+	}
+
+	unsigned ntotAtoms() const{
+		return _ntotAtoms;
 	}
 
 	unsigned numModes() const{
 		return _numModes;
 	}
 
-	float* xPos() const{
-		return _pos;
+	float* xPos(ushort conf) const{
+		return _pos + conf * _nAtoms;
 	}
 
-	float* yPos() const{
-		return _pos + _numAtoms;
+	float* yPos(ushort conf) const{
+		return _pos + _ntotAtoms + conf * _nAtoms;
 	}
 
-	float* zPos() const{
-		return _pos + 2*_numAtoms;
+	float* zPos(ushort conf) const{
+		return _pos + 2*_ntotAtoms + conf * _nAtoms;
 	}
 
 	float* charge() const{
@@ -100,11 +104,11 @@ public:
 	}
 
 	float* yModes() const{
-		return _modes + _numModes*_numAtoms;
+		return _modes + _numModes*_nAtoms;
 	}
 
 	float* zModes() const{
-		return _modes + 2*_numModes*_numAtoms;
+		return _modes + 2*_numModes*_nAtoms;
 	}
 
 	std::string tag() const{
@@ -116,7 +120,7 @@ public:
 	}
 
 	/*
-	 ** @brief: initializes and returns pointers, if numAtoms and/or numModes
+	 ** @brief: initializes and returns pointers, if nAtoms and/or numModes
 	 ** is not set, the methods fail
 	 */
 	float* getOrCreatePosPtr();
@@ -135,10 +139,15 @@ public:
 		_tag = tag;
 	}
 
-	void setNumAtoms(unsigned numAtoms) {
-		_numAtoms = numAtoms;
-		_mappedTypes.resize(_numAtoms);
+	void setnAtoms(unsigned nAtoms) {
+		_nAtoms = nAtoms;
+		_mappedTypes.resize(_nAtoms);
 	}
+
+	void set_ntotAtoms(unsigned ntotAtoms) {
+		_ntotAtoms = ntotAtoms;
+	}
+
 
 	void setNumModes(unsigned numModes) {
 		_numModes = numModes;
@@ -183,7 +192,8 @@ protected:
 	 ****************************/
 
 	std::string _tag;	/** identifier: filename (default) */
-	unsigned _numAtoms; /** number of atoms/particles */
+	unsigned _nAtoms; // number of atoms of a single molecular conformer
+	unsigned _ntotAtoms; // total number of atoms of the protein (all conformers)
 
 
 	asUtils::Vec3f _pivot;	/** rotation pivot */

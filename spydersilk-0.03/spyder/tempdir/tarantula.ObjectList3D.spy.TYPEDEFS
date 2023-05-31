@@ -1,0 +1,20 @@
+662595981
+3704624279
+ObjectGroup3DArray
+[]
+MultiInstance3DArray
+[]
+MultiInstance3D
+{'deleted_members': [], 'form': 'object.default = []\ninstances.default = []\ninstances.eledefault = AxisSystem()\n', 'members': [('ObjectList3D', 'object', ''), ('AxisSystemArray', 'instances', '')]}
+ObjectList3D
+{'validate': 'for onr,o in enumerate(self):\n  while 1:\n    typ = type(o)\n    if o.typename() == None:\n      typ = o._typev\n    if not typ.typename().endswith("Array"): break\n    if len(o) == 0: break\n    o = o[0]\n  if not isinstance(o, ThreeDee): raise ValidationError\n', 'deleted_members': [], 'members': []}
+ObjectList3DArrayArray
+[]
+ObjectGroup3D
+{'deleted_members': [], 'form': 'group.default = []\n', 'members': [('ObjectList3D', 'group', ''), ('AxisSystem', 'axis = AxisSystem()', '')]}
+ObjectList3DArray
+[]
+ObjectGroup3DArrayArray
+[]
+MultiInstance3DArrayArray
+[]

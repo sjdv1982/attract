@@ -55,6 +55,8 @@ public:
 	 */
 	void init(extServer& server, std::string const& solverName, std::vector<extDOF>& dofs);
 
+	void set_vmax(unsigned int vmax);
+
 	void run();
 
 	std::vector<extDOF> getResultStates();

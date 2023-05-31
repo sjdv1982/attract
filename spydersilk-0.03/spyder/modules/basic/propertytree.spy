@@ -1,0 +1,12 @@
+Type Property {
+  String pname
+  ObjectList pvalue[1]
+  validate {
+    assert value[0].typename() == "String" or value[0].typename() == "PropertyTree"
+  }
+}
+
+Type PropertyTree {
+  PropertyArray properties
+}
+

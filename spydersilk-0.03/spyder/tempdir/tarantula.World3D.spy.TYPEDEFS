@@ -1,0 +1,8 @@
+662595981
+495342141
+World3DArray
+[]
+World3DArrayArray
+[]
+World3D
+{'deleted_members': [], 'form': 'objects.default = []\nmaterials.default = []\n', 'members': [('NewMaterialArray', 'materials', ''), ('ObjectList3D', 'objects', '')]}

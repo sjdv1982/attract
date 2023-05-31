@@ -1,0 +1,7 @@
+#degenerate models (that can be constructed from a single string) must explicitly inherit from this
+
+Type Degenerate {
+  """
+  Base class for degenerate models
+  """
+}

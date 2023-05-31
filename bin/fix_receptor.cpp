@@ -6,6 +6,7 @@
 #include "max.h"
 #include <cmath>
 #include <cstdio>
+#include <cstdlib>
 
 const double pi = 4.0f * atan(1.0f);
 

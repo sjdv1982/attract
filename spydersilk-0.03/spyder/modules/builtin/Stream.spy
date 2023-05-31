@@ -1,0 +1,83 @@
+# Copyright 2007, Sjoerd de Vries
+# This file is part of the Spyder module: "builtin" 
+# For licensing information, see LICENSE.txt 
+
+Type Stream:Degenerate {
+  """Class representing the input/output of a UNIX pipe
+   "out" contains the data received from stdout / sent to stdin
+   "err" contains the data received from stderr
+  If "err" is empty, only "out" is printed by a "print" statement
+  """
+  *Data out
+  *Data err
+  validate {
+    if out is not None and len(out) == 0: self.out = None
+    if err is not None and len(err) == 0: self.err = None
+  }
+  def pipe(self, cmd):
+    """Opens a pipe to system command cmd
+    self.out is sent to the pipe's stdin
+    Returns a Stream containing 
+       the pipe's stdout in out 
+       and self.err + the pipe's stderr in err
+    """
+    err = self.err
+    if self.out is None: 
+      s = Stream(*pipe(cmd))
+    else:
+      s = Stream(*pipe(cmd, self.out.data()))
+    serr = s.err
+    if err is None:
+      cerr = None
+      if serr is not None: cerr = serr.data()
+    else:
+      cerr = err.data()    
+      if serr is not None: cerr += serr.data()
+    return Stream(s.out, cerr)
+  def __or__(self, cmd):
+    """Pipe operator | ; equivalent to self.pipe(...)"""
+    return self.pipe(cmd)
+  def join(self):
+    """Adds self.err to self.out"""
+    ret = Stream(self)
+    if ret.err is not None:
+      if ret.out is None: ret.out = ret.err
+      else: ret.out = Data(ret.out.data() + ret.err.data())
+      ret.err = None
+    return ret
+  def swap(self):
+    """Swaps self.out and self.err"""
+    return Stream(self.err, self.out)
+  def chomp(self):
+    """Removes trailing EOL of self.out and self.err"""
+    if self.out != None and self.out.data().endswith('\n'):
+      self.out = Data(self.out.data()[:-len('\n')])
+    if self.err != None and self.err.data().endswith('\n'):
+      self.err = Data(self.err.data()[:-len('\n')])     
+    return self
+  def lines(self):
+    """Splits self.out into lines"""
+    if self.out == None: return []
+    d = self.out.data()
+    if d.endswith('\n'): d = d[:-len('\n')]
+    return d.split('\n')
+  def textdata(self):
+    """Returns self.out.textdata()"""
+    if self.out == None: return ""
+    return self.out.textdata()
+  def data(self):
+    """Returns self.out.data()"""
+    if self.out == None: return ""
+    return self.out.data()    
+  def text(self): 
+    """Returns self.out.textdata()"""
+    return self.textdata()
+  def __str__(self):
+    """if self.err is None, this is equivalent to str(self.out)"""
+    if self.out is None and self.err is None: return ""
+    if self.err is None: 
+      return self.out.textdata()
+    if self.out is None:
+      return "Stream (\n  err = '%s',\n)" % (self.err.textdata())
+    return "Stream (\n  out = '%s',\n  err = '%s',\n)" % (self.out.textdata(), self.err.textdata())
+}

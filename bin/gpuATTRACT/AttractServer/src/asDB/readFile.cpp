@@ -74,6 +74,8 @@ as::Protein* asDB::createProteinFromPDB(std::string filename) {
 void asDB::readProteinFromPDB(as::Protein* prot, std::string filename) {
 	using namespace std;
 
+	unsigned int protsize = readProteinSizeFromPDB(filename);
+
 	ifstream file(filename);
 	string line;
 
@@ -82,12 +84,12 @@ void asDB::readProteinFromPDB(as::Protein* prot, std::string filename) {
 	vector<float> posZ;
 	vector<unsigned> types;
 	vector<float> charges;
-
+	
 	if (file.is_open()) {
 		getline(file, line);
 		while (!file.eof()) {
 
-			if (line.empty()) {
+			if (line.compare(0, 4, "ATOM") != 0) {
 				getline(file, line);
 				continue;
 			}
@@ -115,9 +117,10 @@ void asDB::readProteinFromPDB(as::Protein* prot, std::string filename) {
 			posX.push_back(x);
 			posY.push_back(y);
 			posZ.push_back(z);
-			types.push_back(type);
-			charges.push_back(charge);
-
+			if (types.size() < protsize) {
+				charges.push_back(charge);
+				types.push_back(type);
+			}
 			getline(file, line);
 
 		}
@@ -125,13 +128,18 @@ void asDB::readProteinFromPDB(as::Protein* prot, std::string filename) {
 		cerr << "Failed to open file " << filename << endl;
 		exit(EXIT_FAILURE);
 	}
+	file.close();
+
+
+	prot->setnAtoms(protsize);
+	prot->set_ntotAtoms(posX.size()); // set the total number of atoms
 
 	/* concatenate pos-vectors */
 	posX.insert(posX.end(), posY.begin(), posY.end());
 	posX.insert(posX.end(), posZ.begin(), posZ.end());
 
 	/* copy values to protein buffers */
-	prot->setNumAtoms(types.size()); // set the number of atoms
+
 	float* protbufPos = prot->getOrCreatePosPtr();
 	std::copy(posX.begin(), posX.end(), protbufPos);
 	unsigned* protbufType = prot->getOrCreateTypePtr();
@@ -142,7 +150,6 @@ void asDB::readProteinFromPDB(as::Protein* prot, std::string filename) {
 	/* set tag */
 	prot->setTag(filename);
 
-	file.close();
 }
 
 unsigned asDB::readProteinSizeFromPDB(std::string filename) {
@@ -160,21 +167,14 @@ unsigned asDB::readProteinSizeFromPDB(std::string filename) {
 			/* split line to vector of strings */
 			vector<string> tokens = line2Strings(line);
 
-			if (!(tokens.size() == 12 || tokens.size() == 13)
-					&& !line.empty()) { // 12: old reduced format, 13: new reduced format
-				errorPDBFormat(filename);
-				cerr << "Expected 12 or 13 columns." << endl;
-				exit(EXIT_FAILURE);
-			}
-			/* empty lines are acceptable, e.g. at the end */
-			if (line.compare(0, 4, "ATOM") != 0 && !line.empty()) { // does not match (0==equal)
-				errorPDBFormat(filename);
-				cerr << "Expected 'ATOM' to be in the first column." << endl;
-				exit(EXIT_FAILURE);
-			}
 
 			if (line.compare(0, 4, "ATOM") == 0) {
 				++count;
+			}
+			else {
+				if (line.compare(0, 6, "ENDMDL") == 0) {
+					break;
+				}
 			}
 
 			getline(file, line);
@@ -186,74 +186,6 @@ unsigned asDB::readProteinSizeFromPDB(std::string filename) {
 	file.close();
 
 	return count;
-}
-
-as::Protein* asDB::createProteinFromDumpFile(std::string filename) {
-	using namespace std;
-
-//	string path = "../data/";
-//	string path = "/home/uwe/nsight/cuda-workspace/AttractServer/data/";
-//	string filename = path + name;
-//	cout << filename << endl;
-//	string filename = name;
-
-	ifstream file(filename.c_str(), ios::in | ios::binary);
-	if(!file.is_open()) {
-		cerr << "Error: Failed to open file " << filename << endl;
-		exit(EXIT_FAILURE);
-	}
-
-	ProteinDesc desc;
-
-	if (!file.read((char*) &desc.numAtoms, sizeof(unsigned))) {
-		cerr << "Error read: numAtoms" << endl;
-		exit(EXIT_FAILURE);
-	}
-
-	float *pos = new float[3 * desc.numAtoms];
-	unsigned *type = new unsigned[desc.numAtoms];
-	float *charge = new float[desc.numAtoms];
-
-	if (!file.read((char*) pos, 3 * desc.numAtoms * sizeof(float))) {
-		cerr << "Error read: pos" << endl;
-		exit(EXIT_FAILURE);
-	}
-	desc.pos = pos;
-
-	if (!file.read((char*) type, desc.numAtoms * sizeof(unsigned))) {
-		cerr << "Error read: type" << endl;
-		exit(EXIT_FAILURE);
-	}
-	desc.type = type;
-
-	if (!file.read((char*) charge, desc.numAtoms * sizeof(float))) {
-		cerr << "Error read: charge" << endl;
-		exit(EXIT_FAILURE);
-	}
-	desc.charge = charge;
-
-	if (!file.read((char*) &desc.numModes, sizeof(unsigned))) {
-		cerr << "Error read: numModes" << endl;
-		exit(EXIT_FAILURE);
-	}
-	if (desc.numModes > 0) {
-		float *modes = new float[3 * desc.numAtoms * desc.numModes];
-		if (!file.read((char*) modes,
-				3 * desc.numAtoms * desc.numModes * sizeof(float))) {
-			cerr << "Error read: modes" << endl;
-			exit(EXIT_FAILURE);
-		}
-		desc.modes = modes;
-	} else {
-		desc.modes = nullptr;
-	}
-
-	file.close();
-
-	as::Protein* protein = new as::Protein(desc);
-	protein->setTag(filename);
-
-	return protein;
 }
 
 as::GridUnion* asDB::createGridFromGridFile(std::string filename) {
@@ -664,7 +596,7 @@ void asDB::readParamTableFromFile(as::AttrParamTable* table, std::string filenam
 
 }
 
-void asDB::readDOFFromFile(std::string filename, std::vector<std::vector<as::DOF>>& DOF_molecules ) {
+void asDB::readDOFFromFile(std::string filename, std::vector<std::vector<as::DOF>>& DOF_molecules, const std::vector<bool> &has_ensemble) {
 	using namespace std;
 	using namespace as;
 
@@ -694,8 +626,30 @@ void asDB::readDOFFromFile(std::string filename, std::vector<std::vector<as::DOF
 				DOF dof ;
 				{
 					stringstream stream(line);
-					stream >> dof.ang.x >> dof.ang.y >> dof.ang.z
-						>> dof.pos.x >> dof.pos.y >> dof.pos.z;
+					float fields[7];
+					int f = 0;
+					while (stream >> fields[f]) {
+						f++;
+						if (f == 7) break;
+					}
+					dof.conf = 0;
+					int fpos = 0;
+					if (i < has_ensemble.size() && has_ensemble[i]) {
+						dof.conf = fields[0] - 1;
+						fpos = 1;
+					}
+					if (f - fpos != 6) {
+						cerr << "The DOF definition is incorrect at #" << i_molecules + 1 << "." << endl;
+								exit(EXIT_FAILURE);
+					}
+					else {						
+						dof.ang.x = fields[fpos];
+						dof.ang.y = fields[fpos+1];
+						dof.ang.z = fields[fpos+2];
+						dof.pos.x = fields[fpos+3];
+						dof.pos.y = fields[fpos+4];
+						dof.pos.z = fields[fpos+5];
+					}
 				}
 				vec.push_back(dof);
 
@@ -719,7 +673,12 @@ void asDB::readDOFFromFile(std::string filename, std::vector<std::vector<as::DOF
 	file.close();
 
 }
-
+void asDB::readDOFFromFile(std::string filename, std::vector<std::vector<as::DOF>>& DOF_molecules){
+	std::vector<bool> has_ensemble;
+	readDOFFromFile(
+		filename, DOF_molecules, has_ensemble
+	);
+}
 void asDB::readDOFHeader(std::string filename, std::vector<asUtils::Vec3f>& pivots,
 		bool& auto_pivot, bool& centered_receptor, bool& centered_ligands) {
 	using namespace std;

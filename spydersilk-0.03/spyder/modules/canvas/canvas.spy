@@ -1,0 +1,27 @@
+Type Box2D {
+  Integer x
+  Integer y
+  Integer sizex
+  Integer sizey
+  Enum mode("pixels","standard","aspect") = "pixels"
+}
+
+Type Image {
+  String image
+  String identifier
+  Box2D box  
+  Bool transparency = False
+}
+
+Type MouseArea {
+  String identifier
+  Box2D box
+}
+
+Type Icon:Image {}
+
+Define ObjectList(Icon i) {
+  im = Image(i)
+  ar = MouseArea(i.identifier,i.box)
+  return [im, ar]
+}

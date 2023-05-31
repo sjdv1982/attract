@@ -63,6 +63,8 @@ public:
 	SolverBase() : coro(nullptr){}
 	virtual ~SolverBase() { delete coro;}
 
+	virtual void set_vmax(unsigned int vmax) {};
+
 	/* make object not copyable, but movealble only */
 	SolverBase(const SolverBase& ) = delete;
 	SolverBase& operator= (const SolverBase& ) = delete;
@@ -83,9 +85,10 @@ public:
 	}
 
 	bool converged() {return !*coro;}
-	void setState(const Vector& value) { state = value;}
-	void setState(const extDOF& value) { state = extDOF2Vector(value);}
-	Vector getState() {return state;}
+	void setVecState(const Vector& value) { state = value;}
+	void setDOFState(const extDOF& value) { state = extDOF2Vector(value); conf = value.conf;}
+	Vector getVecState() {return state;}
+	extDOF getDOFState() {return buildextDOF(state, conf);}
 
 	void setObjective(const ObjGrad& value) { objective = value; }
 	void setObjective(const extEnGrad& value) {	objective = extEnGrad2ObjGrad(value); }
@@ -111,6 +114,7 @@ protected:
 
 
 	Vector state; // dof
+	unsigned short conf; // conformer index
 	ObjGrad objective; // energy
 
 	coro_t_pull *coro;

@@ -1,0 +1,105 @@
+# Copyright 2008, 2009 Sjoerd de Vries
+# This file is part of the Spyder module: "atom" 
+# For licensing information, see LICENSE.txt 
+
+
+Type LabeledRange:Range {
+  """
+  Data model to specify protein residue ranges, consisting of start, end and chain
+  """
+  Enum chain("All", "A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z")
+  form {
+    chain.name = "Chain"
+  }
+}
+
+Type BasePlanarSpecification {
+  """
+  TODO documentation
+  """
+  Range a
+  Range b
+}
+
+Type AngleErr {
+  """
+  Data model to describe angles and their errors
+  TODO: angle in radians, degrees? 
+  """
+  Float angle
+  Float error
+  validate {
+    assert error >= 0
+  }
+}
+
+Type BasePair {
+  """
+  Data model to describe a DNA/RNA base pair
+  """
+  Integer a
+  Integer b 
+}
+
+Type SurfaceAccessibility {
+  """
+  Data model to describe a residue's surface accessibility,
+  such as returned by NACCESS 
+  absolute values are in square Angstrom 
+  relative values are as percentage of accessibility in a dipeptide
+  relative percentages can be more than 100 %
+  """
+  Integer residue
+  *Float absolute
+  *Float relative
+  *Float absolute_sidechain
+  *Float relative_sidechain
+  *Float absolute_mainchain
+  *Float relative_mainchain
+  validate {
+    assert absolute == None or absolute >= 0
+    assert absolute_sidechain == None or absolute_sidechain >= 0
+    assert absolute_mainchain == None or absolute_mainchain >= 0
+  }
+}
+
+Type InterResidueDistance {
+  """
+  The shortest heavy-atom distance (in Angstroms)
+  between two residues
+  Can be used for non-residues (nucleic acid basepairs) as well
+  """
+  Integer residue1
+  Integer residue2
+  Float distance
+}
+
+Type RasmolSelection:Data {
+  """
+  Data in Rasmol script language syntax
+  used to specify red and green selections
+  """
+}
+
+Define InterResidueDistanceArray(Data_PDB p) {
+  """
+  Computes all intra-protein inter-residue distances
+   using the bundled C program resdist
+  Can be used for clustering residues
+  Can be used for non-protein molecules (DNA, RNA) as well
+  """
+  tempfile = p.totempfile()
+  tempnam = tempfile.name
+  
+  s = Stream() | "$RESDIST/resdist %s" % tempnam
+  if s.err is not None: raise Exception(s.err)
+  ret = []
+  for l in s.lines(): 
+    ll = l.split()
+    try:
+      ret.append((int(ll[0]), int(ll[1]), float(ll[2])))
+    except:
+      continue      
+  tempfile.delete()
+  return InterResidueDistanceArray.fromlist(ret)
+}

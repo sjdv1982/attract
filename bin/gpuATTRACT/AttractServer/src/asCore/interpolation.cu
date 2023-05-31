@@ -112,9 +112,9 @@ __global__ void asCore::d_InnerPotForce(
 
 	/* calculate element index that is to be processed */
 	const unsigned idx = blockDim.x * blockIdx.x + threadIdx.x;
-	const unsigned numAtoms = c_Proteins[protId].numAtoms;
-	if (idx < numAtoms*numDOFs) {
-		unsigned type = c_Proteins[protId].mappedType[idx % numAtoms];
+	const unsigned nAtoms = c_Proteins[protId].nAtoms;
+	if (idx < nAtoms*numDOFs) {
+		unsigned type = c_Proteins[protId].mappedType[idx % nAtoms];
 		float4 V_el = {0};
 		float4 V_VdW = {0};
 		if (type != 0) {
@@ -141,7 +141,7 @@ __global__ void asCore::d_InnerPotForce(
 					V_VdW = Intrpl3D(c_Grids[gridId].inner, type, x, y, z); /** Interpolated value */
 				}
 
-				float charge = c_Proteins[protId].charge[idx % numAtoms];
+				float charge = c_Proteins[protId].charge[idx % nAtoms];
 				if (fabs(charge) > 0.001f) {
 
 					switch (T) {
@@ -177,9 +177,9 @@ __global__ void asCore::d_OuterPotForce(
 	using namespace asUtils;
 
 	const unsigned idx = blockDim.x * blockIdx.x + threadIdx.x;
-	const unsigned numAtoms = c_Proteins[protId].numAtoms;
-	if (idx < numAtoms*numDOFs) {
-		unsigned type = c_Proteins[protId].mappedType[idx % numAtoms];
+	const unsigned nAtoms = c_Proteins[protId].nAtoms;
+	if (idx < nAtoms*numDOFs) {
+		unsigned type = c_Proteins[protId].mappedType[idx % nAtoms];
 		if (type != 0) {
 
 			float x = data_in_x[idx];
@@ -230,7 +230,7 @@ __global__ void asCore::d_OuterPotForce(
 					V_VdW = Intrpl3D(c_Grids[gridId].outer, type, x, y, z); /** Interpolated value */
 				}
 
-				float charge = c_Proteins[protId].charge[idx % numAtoms];
+				float charge = c_Proteins[protId].charge[idx % nAtoms];
 				float4 V_el = {0};
 				if (fabs(charge) > 0.001f) {
 
@@ -266,9 +266,9 @@ void asCore::h_PotForce(const as::IntrplGrid* innerGrid,
 	/* for operator overloading of *,+,-,/ for cuda types (float4) */
 	using namespace asUtils;
 
-	const unsigned numAtoms = prot->numAtoms();
+	const unsigned nAtoms = prot->nAtoms();
 	/* loop over all elements in LigPos/output */
-	for (unsigned i = 0; i < numAtoms; ++i) {
+	for (unsigned i = 0; i < nAtoms; ++i) {
 		const unsigned type = prot->mappedType()[i];
 		if (type == 0)
 			continue;

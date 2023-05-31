@@ -1,0 +1,44 @@
+662595981
+392277803
+Pyramid
+{'deleted_members': [], 'members': [('Float', 'plength', ''), ('Float', 'width', ''), ('Float', 'height', ''), ('AxisSystem', 'axis', ''), ('Material', 'material = "defaultmaterial"', '')]}
+House3DFloorArray
+[]
+House3DWallArrayArray
+[]
+House3DArrayArray
+[]
+House3DWallArray
+[]
+House3DWallWindowArray
+[]
+PyramidArray
+[]
+House3DGroundFloorArrayArray
+[]
+House3DFloorArrayArray
+[]
+House3DGroundFloorArray
+[]
+PyramidArrayArray
+[]
+House3DWallWindowArrayArray
+[]
+House3DDoorArrayArray
+[]
+House3DArray
+[]
+House3DWall
+{'validate': 'for w in windows:\n  assert w.verticalposition + w.height <= height \nposwidth = list(windows)\nposwidth += list(doors)\nposwidth.sort(lambda a,b: cmp(a.position, b.position))\nfor n in range(len(poswidth)):\n  if n < len(poswidth) - 1: nextpos = poswidth[n+1].position\n  else: nextpos = width\n  assert poswidth[n].position + poswidth[n].width <= nextpos\n', 'deleted_members': [], 'form': 'self.matrix = "axis"\nwidth.default = 10\nwidth.min = 0\nwidth.max = 100\nthickness.default = 2\nthickness.min = 0\nthickness.max = 100          \nheight.default = 5\nheight.min = 0\nheight.max = 100\n', 'members': [('Integer', 'width', ''), ('Integer', 'height', ''), ('Integer', 'thickness', ''), ('House3DDoorArray', 'doors = []', ''), ('House3DWallWindowArray', 'windows = []', ''), ('AxisSystem', 'axis = AxisSystem()', ''), ('Material', 'material = "defaultmaterial"', '')]}
+House3DFloor
+{'deleted_members': [], 'members': [('House3DWallWindowArray', 'northwindows = []', ''), ('House3DWallWindowArray', 'eastwindows = []', ''), ('House3DWallWindowArray', 'southwindows = []', ''), ('House3DWallWindowArray', 'westwindows = []', '')]}
+House3DDoorArray
+[]
+House3DGroundFloor
+{'deleted_members': [], 'members': [('House3DDoorArray', 'northdoors = []', ''), ('House3DWallWindowArray', 'northwindows = []', ''), ('House3DDoorArray', 'eastdoors = []', ''), ('House3DWallWindowArray', 'eastwindows = []', ''), ('House3DDoorArray', 'southdoors = []', ''), ('House3DWallWindowArray', 'southwindows = []', ''), ('House3DDoorArray', 'westdoors = []', ''), ('House3DWallWindowArray', 'westwindows = []', '')]}
+House3DDoor
+{'validate': 'assert position >= 0\nassert width > 0\nassert height > 0\n', 'deleted_members': [], 'form': 'position.default = 2\nposition.min = 0\nposition.max = 100\nwidth.default = 2\nwidth.min = 0\nwidth.max = 100\nheight.default = 2\nheight.min = 0\nheight.max = 100    \n', 'members': [('Integer', 'position', ''), ('Integer', 'width', ''), ('Integer', 'height', '')]}
+House3DWallWindow
+{'validate': 'assert position >= 0\nassert width > 0\nassert height > 0\nassert verticalposition > 0\n', 'deleted_members': [], 'form': 'position.default = 2\nposition.min = 0\nposition.max = 100\nwidth.default = 2\nwidth.min = 0\nwidth.max = 100\nheight.default = 2\nheight.min = 0\nheight.max = 100    \nverticalposition.default = 2\nverticalposition.min = 0\nverticalposition.max = 100  \n', 'members': [('Integer', 'position', ''), ('Integer', 'width', ''), ('Integer', 'height', ''), ('Integer', 'verticalposition', '')]}
+House3D
+{'validate': 'assert width > 2 * thickness\n', 'deleted_members': [], 'form': 'self.matrix = "axis"\nwidth.default = 10\nwidth.min = 0\nwidth.max = 100\nthickness.default = 2\nthickness.min = 0\nthickness.max = 100          \nheight.default = 5\nheight.min = 0\nheight.max = 100\nfloors[None].default = House3DFloor()\nfloorthickness.default = 1\nfloorthickness.min = 0\nfloorthickness.max = 10\nroofheight.default = 5\nroofheight.min = 0\nroofheight.max = 10    \nroofmargin.default = 1\nroofmargin.min = 0\nroofmargin.max = 5            \n', 'members': [('House3DGroundFloor', 'groundfloor = House3DGroundFloor()', ''), ('House3DFloorArray', 'floors = []', ''), ('Integer', 'width', ''), ('Integer', 'height', ''), ('Integer', 'thickness', ''), ('AxisSystem', 'axis = AxisSystem()', ''), ('Integer', 'floorthickness = 1', ''), ('Integer', 'roofheight = 5', ''), ('Integer', 'roofmargin = 1', ''), ('Material', 'wallmaterial = "brick"', ''), ('Material', 'floormaterial = "white marble"', ''), ('Material', 'roofmaterial = "black limestone"', '')]}

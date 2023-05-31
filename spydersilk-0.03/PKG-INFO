@@ -1,0 +1,21 @@
+Metadata-Version: 1.1
+Name: spydersilk
+Version: 0.03
+Summary: Framework and universal editor to define, validate, convert and edit parametric data
+Home-page: http://www.spyderware.nl/
+Author: Sjoerd de Vries
+Author-email: sjdv1982@gmail.com
+License: UNKNOWN
+Description: Spydersilk is a Python framework for parametric data modelling. Spyder models are well-defined hierarchical data structures that can be easily constructed and manipulated in code. Spyder supports powerful data validation and conversion that can be controlled with simple Python rules. Silk is a universal editor for Spyder models, with Qt, HTML and IPython integration.
+        
+Platform: UNKNOWN
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Programming Language :: Python
+Classifier: Development Status :: 3 - Alpha
+Classifier: Operating System :: OS Independent
+Classifier: Topic :: Software Development :: Code Generators
+Classifier: Topic :: Scientific/Engineering :: Visualization
+Classifier: Topic :: Internet :: WWW/HTTP
+Classifier: Topic :: Software Development :: User Interfaces
+Classifier: Topic :: Software Development :: Testing
+Classifier: Topic :: Software Development :: Widget Sets

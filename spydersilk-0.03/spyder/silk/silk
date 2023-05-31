@@ -1,0 +1,1010 @@
+#!/usr/bin/python
+
+"""SILK: General-purpose structured data editor
+Requires PyQt/PySide
+Alpha!
+"""
+
+from __future__ import print_function
+
+import sys, os, traceback, json, copy
+from pprint import pprint
+python3 = (sys.version_info[0] == 3)
+
+debug = False
+
+initdir = os.getcwd()
+currentdir = initdir
+
+def save_object(obj):
+  if obj is None: return
+  outputdir = os.path.abspath(os.path.split(outputfile)[0])
+  if outputdir == currentdir:
+    make_relpath(outputdir, obj)  
+  else:      
+    make_abspath(obj)  
+    os.chdir(outputdir)
+  if is_json_output:    
+    outputf = open(outputfile, "w") 
+    if is_json_schema:
+      content = obj
+    elif args.full_output:
+      content = obj.dict()
+    json.dump(content,outputf,sort_keys=True,indent=4)
+    outputf.close()
+  else:   
+    obj.tofile(outputfile)
+  os.chdir(currentdir)  
+  p = outputdir + os.sep + os.path.split(outputfile)[1]
+  pp = os.path.relpath(outputfile, initdir)
+  if not pp.startswith(".."): p = pp
+  print("Object saved as '%s'" % p)
+
+if python3:
+  import http.server
+  server_class = http.server.HTTPServer
+  requesthandler_baseclass = http.server.BaseHTTPRequestHandler
+else:
+  import BaseHTTPServer
+  server_class = BaseHTTPServer.HTTPServer
+  requesthandler_baseclass = BaseHTTPServer.BaseHTTPRequestHandler
+
+  
+htmldelta = None  
+class requesthandler_class(requesthandler_baseclass):
+  def do_POST(self):
+    global htmldelta
+    htmldelta = None
+    
+  # Parse the form data posted
+    webform = cgi.FieldStorage(
+     fp=self.rfile, 
+     headers=self.headers,
+     environ={'REQUEST_METHOD':'POST',
+              'CONTENT_TYPE':self.headers['Content-Type']},
+    )
+    try:
+      assert not is_json_schema #TODO
+
+      #0. clear the existing values
+      con._clear()
+      m._clear()
+      
+      #1. building the object      
+      webdict = spyder.formtools.cgi.dict_from_fieldstorage(webform)
+      if webserver_pre is not None:
+        form2 = copy.deepcopy(form)
+        newform = webserver_pre(webdict, form2, spydertype)
+        if newform is not None: form2 = newform
+      else:
+        form2 = form
+      
+      resourceobj = None  
+      resourcefilevar = getattr(form, "resourcefilevar", None)
+      if resourcefilevar is not None and resourcefilevar in webdict:
+        tmpf = "/tmp/" + webdict[resourcefilevar]
+        resourceobj = spydertype.fromfile(tmpf)
+      value, status, delta = spyder.formtools.cgi.cgi(webdict, form2, resourceobj, spydertype=spydertype)      
+      print(status)
+      if value is not None:
+        m._set(value)
+      htmldelta = delta  
+           
+      #2. processing the object
+      #TODO: allow web server logic (for ATTRACT: embed, deploy, archive, generate)
+    except:
+      traceback.print_exc()    
+    
+    
+import spyder.formtools    
+from spyder.formtools import make_abspath, make_relpath
+
+def report(*args, **kwargs):
+  if not debug: return
+  print(*args, **kwargs)
+
+def report_error(err=None,argparser=None,message="ERROR"):
+  if argparser is not None: 
+    argparser.print_usage()  
+    print()    
+  if debug and err is not None:
+    if message == "ERROR": message = ""
+    message += str(err)
+    err = None    
+  if err is None and sys.exc_info() != (None,None,None): 
+    err = traceback.format_exc()
+  if err is not None: 
+    if len(str(err)) < 60:
+      print(message + ":", err)
+    else:  
+      print(message + ":")
+      print(err)
+  else:
+    print(message)
+  if sys.platform == "win32":
+    time.sleep(30) 
+  sys.exit()      
+
+def exists(path):
+  #for now, just report spyder.loader.file_exists (os.path.exists)
+  # later, add some more fancy stuff (database / HTTP access)
+  return spyder.loader.file_exists(path)
+
+def access(path, flags):
+  #for now, just report spyder.loader.file_access (os.access)
+  # later, add some more fancy stuff (database / HTTP access)
+  return spyder.loader.file_access(path, flags)
+
+def load(path):
+  #for now, just report spyder.loader.file_load (open())
+  # later, add some more fancy stuff (database / HTTP access)
+  return spyder.loader.file_load(path).read()
+  
+def write_check(path):
+  #for now, just local files
+  # later, add some more fancy stuff (database / HTTP access)
+  if exists(path):
+    return spyder.loader.file_access(path, os.W_OK)
+  try:
+    f = open(path, "ab")
+    f.close()
+    os.remove(path)
+    return True
+  except:
+    return False
+
+    
+def apply_delta_(delta, controller,mode="json"):
+  if delta is None: return
+  try:
+    spyder.formtools.apply_delta(delta, controller,mode=mode)
+  except:
+    report_error("Could not apply form delta")
+    
+has_argparse = False
+try:
+  import argparse  
+  has_argparse = True  
+except ImportError:
+  import optparse  #Python 2.6
+
+try:
+  import spyder, Spyder
+  import spyder.loader
+except ImportError:
+  report_error("Cannot locate Spyder")
+
+if has_argparse: 
+  from argparse import RawTextHelpFormatter
+  argparser = argparse.ArgumentParser(prog="silk",description=__doc__)
+  add_argument = argparser.add_argument
+  
+  argparser.add_argument(
+   'arg1', help='Spyder type, Spyder .web file or JSON file to edit', nargs='?'
+  )
+  argparser.add_argument(
+   'arg2', help='Spyder type, Spyder .web file or JSON file to edit', nargs='?'
+  )  
+else: #fall-back for Python 2.6
+  argparser = optparse.OptionParser()
+  add_argument = argparser.add_option
+ 
+add_argument(
+  '-t', '--type', '-c', '--class', '--spydertype',
+  metavar="spydertype", dest="spydertype", 
+  help='Spyder type to edit'
+)
+add_argument(
+  '-f', '--file', '--spyderfile',
+  metavar="spyderfile", dest="spyderfile", 
+  help='Spyder .web file or JSON file to edit'
+)
+
+add_argument(
+  '--fastparse',
+  dest = "parsingmethod",
+  action = "store_const",
+  const = "fastparse",
+  help='Parse Spyder file with fast parsing enabled',
+)
+
+add_argument(
+  '--altparse',
+  dest = "parsingmethod",
+  action = "store_const",
+  const = "altparse",
+  help='Parse Spyder file with alternative parsing method (Spyder.File)',
+)
+
+
+add_argument(
+  '-m', '-L', '--module', '--modules', 
+  metavar="module",dest="modules",
+  action = "append",
+  help='A Spyder or Python module to import',
+) 
+
+add_argument(
+  '-I','-i', '--include',
+  metavar="include",dest="includes",
+  action = "append",
+  help='A directory to add to sys.path before import',
+) 
+
+add_argument(
+  '-o', '--output',
+  metavar="output",dest="output",
+  help='Explicitly define the output file. If not defined, it is equal to the input file. If no input file has been defined, it is equal to the default outputfile',
+) 
+
+add_argument(
+  '--default-output',
+  dest="default_output", default="silk.web",
+  help='If no input file has been defined, this will be the output file',
+) 
+
+add_argument(
+  '--delta',
+  help='Read input from a delta file that contains the changes to the form',
+) 
+
+add_argument(
+  '-s', '--schema',
+  metavar="schema",dest="schema",
+  help='Instead of a Spyder type, use a schema in direct dict (JSON) format',
+) 
+
+add_argument(
+  '--nogui',
+  help='''
+  Do not create a GUI; after all non-GUI tasks (load, convert, ...), save the object and exit 
+  ''',
+  dest="nogui",
+  action="store_true"
+) 
+
+add_argument (
+  '--gui',
+  default='qt',
+  choices=['qt','html'],
+  help='Specify the form GUI: qt or html',
+)
+
+add_argument(
+  '--form',
+  help='''Form configuration: specify a module to import, and a form-configuring function.
+  The function will be called with SpyderType._form(), and is expected to manipulate the form.
+  Additional argument:
+    spyderobj: the initial Spyder object (can be None).
+  If the function returns a value, the form will be replaced by that value.
+  Note: "Save" and "Form delta" buttons will still be automatically added to the form, unless you specify the --logic argument''',
+  dest="form_config",
+  nargs=2,
+) 
+
+add_argument(
+  '--view',
+  help='''View generator: specify a module to import, and a view-generating function.
+  The function will be called with SpyderType._form() as first argument.
+  Qt view generators receive as additional arguments: 
+    spydertype: the SpyderType 
+    loader: a QUiLoader instance.
+   The generator must return either a spyder.qtform.qtview instance, or Qt Ui XML code.
+   HTML view generators receive as additional arguments: 
+     cgi: the web server's CGI URL
+     spyderobj: the initial Spyder object (can be None).
+   The generator must return HTML code.
+  ''',
+  dest="view",
+  nargs=2,
+) 
+
+add_argument(
+  '--markup',
+  help='''Instead of output of a view generator, use this view markup file instead.
+  For a Qt GUI, the file must contain Qt Ui XML code.
+  For a HTML GUI, the file must contain HTML code.
+  ''',
+  dest="markup",
+) 
+
+add_argument(
+  '--dump',
+  help='''After running the view generator, write the generated view markup, and exit.
+  For a Qt GUI, Qt Ui XML is generated.
+  For a HTML GUI, HTML is generated.
+  The generated markup is printed to screen, unless --output is specified.
+  ''',
+  dest="dump",
+  action="store_true"
+) 
+
+add_argument(
+  '--guisave',
+  help='''After setting up the model, view and controller, save the object and exit.
+  ''',
+  dest="guisave",
+  action="store_true"
+) 
+
+add_argument(
+  '--guisavedelta',
+  help='''After setting up the model, view and controller, save the form delta and exit.
+  ''',
+  dest="guisavedelta",
+  action="store_true"
+) 
+
+add_argument(
+  '--logic',
+  help='''MVC logic: specify a module to import, and a logic function.
+  The function will be called with the model, the view, the controller, and the silk module.
+    The function may register callbacks to the view buttons, and manipulate model and/or controller.
+  Note: Unless you specify MVC logic, "Save" and "Form delta" buttons (and their logic) will be automatically added''',
+  dest="mvc_logic",
+  nargs=2,
+) 
+
+add_argument(
+  '--webdir',
+  help='''For HTML GUIs, specify the directory where CSS and JS resources are located.
+  By default, the styling from the spyder.stalkwalk.webdemo directory is used''',  
+) 
+
+add_argument(
+  '--port',
+  help='''For HTML GUIs, specify which network port will be used by the web server.
+  By default, port 7455 (S-I-L-K) is used''',
+  type=int,
+  default=7455,
+) 
+
+add_argument(
+  '--webserver-pre',
+  help='''Web server preprocessing logic: For HTML GUIs, specify a module to import, and a logic function.
+  The function will be called with the CGI dict (in plain Python format), the form, and the Spyder type.
+    The function may manipulate the CGI dict, so that parsing by spyder.formtools.cgi will construct a valid object. 
+    Also, if the function returns a value, the form will be replaced by that value.''',
+  dest="webserver_pre",
+  nargs=2,
+) 
+
+add_argument(
+  '--webserver-post',
+  help='''Web server postprocessing logic: For HTML GUIs, specify a module to import, and a logic function
+  The function will be called with:
+    1. The uploaded Spyder object.
+    2. The model instance.
+    3. The QWebView instance.
+    4. The controller instance.
+    5. The RequestHandler instance
+''',
+  dest="webserver_post",
+  nargs=2,
+) 
+
+add_argument('--debug', action="store_true")
+add_argument('--convert',help="Convert loaded file to spydertype using the conversion engine", action="store_true")
+add_argument('--parse', help="Convert loaded file to spydertype using a direct dict (JSON) parse", action="store_true")
+add_argument('--full-output', help="When saving as JSON, save all values, not just the non-default ones", action="store_true")
+add_argument('--pyqt', help="Prefer the use of PyQt over PySide", action="store_true")
+
+add_argument(
+  '--no-ipython',
+  help='''
+  Do not create an IPython shell
+  ''',
+  dest="no_ipython",
+  action="store_true"
+) 
+
+
+if has_argparse:
+  args, remainder = argparser.parse_known_args()
+  for anr, a in enumerate(remainder):
+    if args.arg1 is None: args.arg1 = a
+    elif args.arg2 is None: args.arg2 = a
+    else:
+      for arg in args.arg1, args.arg2:
+        if arg.startswith("--"):
+          report_error("Unknown option %s" % arg, argparser)      
+      report_error("Too many arguments: %s" % " ".join(remainder[anr:]), argparser)
+else:
+  args, positional_args = argparser.parse_args()
+  args.arg1 = None
+  args.arg2 = None
+  if positional_args:
+    if len(positional_args) > 0: args.arg1 = positional_args[0]
+    if len(positional_args) > 1: args.arg2 = positional_args[1]
+
+visual = True
+if args.nogui or args.dump: visual = False
+
+if visual:
+  try:
+    import spyder.qtform.anyQt
+  except ImportError:
+    report_error("Silk requires PySide or PyQt")
+
+  from spyder.qtform.anyQt.QtCore import QBuffer, QObject, QUrl
+  from spyder.qtform.anyQt.QtGui import QApplication
+  from spyder.qtform.anyQt.QtUiTools import QUiLoader
+  from spyder.qtform.anyQt.QtWebKit import QWebView
+
+  from spyder.qtform import qtview
+
+import spyder.qtform  
+from spyder.formtools import model, controller, generate_typetree
+from spyder.formtools.deunicode import deunicode
+
+if args.parse and args.convert:
+  report_error("You can't define both --parse and --convert", argparser)
+
+if args.markup:  
+  if not exists(args.markup):
+    report_error("Markup file does not exist: '%s'" % args.markup)
+  if args.form_config:
+    report_error("You can't define both --markup and --form", argparser)
+  if args.view:
+    report_error("You can't define both --markup and --view", argparser)
+  if args.dump:
+    report_error("You can't define both --markup and --dump", argparser)
+
+if args.nogui:
+  if args.dump:
+    report_error("You can't define both --nogui and --dump", argparser)
+  if args.guisave:
+    report_error("You can't define both --nogui and --guisave", argparser)
+  if args.guisavedelta:
+    report_error("You can't define both --nogui and --guisavedelta", argparser)
+  if args.delta:
+    report_error("You can't define both --nogui and --delta; use --guisave instead of --nogui", argparser)
+    
+if args.debug: debug = True
+
+is_json_input = False
+is_json_output = False
+is_json_schema = False
+uri_input = False
+uri_output = False
+
+if has_argparse:
+  for arg in args.arg1, args.arg2:
+    if arg is not None and arg.startswith("--"):
+      report_error("Unknown option %s" % arg, argparser)
+if args.schema:
+  is_json_schema = True
+  if args.spydertype is not None: 
+    report_error("Duplicate definition: schema and Spyder type", argparser)
+  args.spydertype = args.schema
+if args.delta is not None:
+  if args.spyderfile is not None and args.output is not None: 
+    c = (args.delta, args.spyderfile, args.output)
+    report_error("Duplicate definition: delta, input file and output file: '%s', '%s', '%s'" % c)
+  if args.spyderfile is not None:
+    args.output = args.spyderfile
+  args.spyderfile = args.delta
+  
+if args.spyderfile is None and args.spydertype is None and args.arg2 is not None:
+  a = args.arg2
+  if exists(a):
+    args.spyderfile = a
+  else:
+    if spyder.validvar(a):
+      args.spydertype = a
+    else:
+      args.spyderfile = a
+  args.arg2 = None
+  
+if args.spyderfile is not None and args.spydertype is not None:
+  if args.arg1 is not None: report_error("Duplicate definition of Spyder file/type", argparser)
+elif args.spyderfile is not None:
+  if args.arg2 is not None: report_error("Duplicate definition of Spyder file", argparser)
+  args.spydertype = args.arg1
+elif args.spydertype is not None:  
+  if args.arg2 is not None: report_error("Duplicate definition of Spyder type", argparser)
+  args.spyderfile = args.arg1
+else: #both are None
+  a = args.arg1
+  if a is not None and exists(a):
+    args.spyderfile = a
+  else:
+    args.spydertype = a
+
+null_edit = False    
+if args.spyderfile is None and args.spydertype is None:  
+  if (not args.markup) or args.delta or args.mvc_logic or args.webserver_pre or args.webserver_post:
+    report_error("You must define a Spyder type and/or a Spyder file for editing", argparser)
+  else:
+    null_edit = True
+spydertypename = args.spydertype
+if not null_edit and spydertypename is None and (args.spyderfile is None or not exists(args.spyderfile)):
+  report_error("Can't tell what Spyder type you want to edit: no type specified, and '%s' does not yet exist" % args.spyderfile, argparser)
+
+if args.guisave or args.guisavedelta:
+  if args.gui == "html":
+    report_error("HTML GUI is incompatible with --guisave or --guisavedelta", argparser)
+  
+if args.dump:
+  if args.mvc_logic:
+    report_error("You can't define both --dump and --logic", argparser)
+  if args.webserver_pre:
+    report_error("You can't define both --dump and --webserver-pre", argparser)
+  if args.webserver_post:
+    report_error("You can't define both --dump and --webserver-post", argparser)
+  dump_outputfile = False  
+  
+assert not uri_input #TODO
+if is_json_schema:
+  inputfile = os.path.splitext(args.default_output)[0] + ".json"
+else:  
+  inputfile = args.default_output
+outputfile = inputfile  
+
+input_defined = False  
+if args.spyderfile is not None: 
+  inputfile = args.spyderfile  
+  input_defined = True
+if inputfile.endswith(".json"): is_json_input = True
+if args.delta is not None and not is_json_input:
+  report_error("If you specify a form delta, it must be in JSON format: '%s'" % inputfile, argparser)
+
+if not is_json_schema and input_defined and args.spydertype is None and is_json_input: 
+  report_error("You must define a Spyder type or a JSON schema to edit '%s'" % inputfile, argparser)
+
+if not args.delta:
+  outputfile = inputfile
+
+if args.output is not None: 
+  outputfile = args.output
+  dump_outputfile = True
+if outputfile.endswith(".json"): is_json_output = True
+
+if is_json_schema:
+  if not is_json_input: 
+    report_error("Input file name '%s' does not end with '.json'" % inputfile, argparser)
+  if not is_json_output: 
+    report_error("Output file name '%s' does not end with '.json'" % outputfile, argparser)
+  if args.parse or args.convert:
+    report_error("--parse and --convert are incompatible with a JSON schema", argparser)
+
+if not write_check(outputfile):
+  if is_json_output:
+    report_error("Cannot write to JSON file '%s'" % outputfile)
+  else:
+    report_error("Cannot write to Spyder file '%s'" % outputfile)
+
+def import_from(param, paramname):
+  if param is None: return None
+  modname, funcname = param  
+  if modname.endswith(".py"): modname = modname[:-3]
+  try:
+    mod = __import__(modname, fromlist=[funcname])
+    if not hasattr(mod, funcname): raise ImportError
+    func = getattr(mod, funcname)
+  except ImportError:
+    report_error("Cannot import '%s' from %s '%s'" % (funcname, paramname, modname))
+  return func
+  
+def flatten(l):
+  if l is None: return None
+  if isinstance(l, str): return [l]
+  assert isinstance(l, list)
+  ret = []
+  for ll in l: 
+    ret += flatten(ll)
+  return ret
+
+report("Loading Python modules...")    
+args.includes = flatten(args.includes)  
+if args.includes:
+  for include in reversed(args.includes):
+    if not os.path.isdir(include):
+      report_error("No such directory: '%s'" % include)
+    sys.path.insert(0, include)
+
+args.modules = flatten(args.modules)      
+if args.modules:      
+  try:
+    for module in args.modules:
+      __import__(module)
+  except ImportError:
+    report_error("Cannot import module '%s'" % module)
+  except:
+    report_error(message="Error while importing module '%s'" % module)
+   
+if spydertypename is not None and not is_json_schema:    
+  try:
+    spydertype = getattr(Spyder, spydertypename)
+  except:
+    report_error("Cannot import Spyder type '%s'" % spydertypename)
+elif is_json_schema:
+  assert spydertypename is not None
+  schemafile = spydertypename
+  spydertypename = None
+  if not schemafile.endswith(".json"):
+    report_error("Schema file name '%s' does not end with '.json'" % schemafile, argparser)
+  try:
+    schematext = load(schemafile)
+  except:
+    report_error("Error while loading schema file '%s'" % schemafile)
+  try:  
+    schema = json.loads(schematext,encoding=None)
+    schema = deunicode(schema)
+  except:
+    report_error("Error while parsing schema file '%s', it doesn't seem to be a JSON file" % schemafile, )
+
+if args.spyderfile is not None and inputfile != outputfile and not exists(inputfile):
+  report_error("Input file '%s' does not exist" % inputfile)
+  
+report("Loading input file...")  
+spyderobj = None    
+data = None
+spyderfiletypename = spydertypename
+assert not uri_input #TODO
+inputfile = os.path.abspath(inputfile)
+inputdir = os.path.split(inputfile)[0]
+currentdir = inputdir
+outputfile = os.path.abspath(outputfile)
+os.chdir(inputdir)
+rel_outputfile = os.path.relpath(outputfile)
+if not rel_outputfile.startswith(".."): outputfile = rel_outputfile
+
+if args.spyderfile is not None and exists(inputfile):    
+  if is_json_input:
+    try:
+      inputfiletext = load(inputfile)
+    except:
+      report_error("Error while loading file '%s'" % inputfile)
+    try:  
+      data = json.loads(str(inputfiletext))      
+    except:
+      report_error("Error while parsing file '%s', it doesn't seem to be a JSON file" % inputfile)    
+  else:  
+    try:
+      spyderfiletext = load(inputfile)
+    except:
+      report_error("Error while loading file '%s'" % inputfile)
+    try:  
+      if args.parsingmethod == "altparse":
+        spyderfiletypename = spydertypename
+        if spyderfiletypename is None:
+          spyderfiletypename = spyderfiletext.splitlines()[0].split()[0]
+        try:
+          spyderfiletype = getattr(Spyder, spyderfiletypename)
+        except:
+          report_error("Cannot import Spyder type '%s'" % spyderfiletypename)  
+        data0 = Spyder.File(inputfile, spyderfiletype).data()
+        data = data0.dict()
+      elif args.parsingmethod == "fastparse":
+        spyderfiletypename, data = spyder.core.fastparse(spyderfiletext)
+      else:    
+        spyderfiletypename, data = spyder.core.parse(spyderfiletext)    
+    except:
+      if args.debug: raise
+      report_error("Error while parsing file '%s', it doesn't seem to be a Spyder .web file" % inputfile)
+      
+report("Importing config code")     
+form_config = import_from(args.form_config, 'form configurator')
+viewgen = import_from(args.view, 'view generator')
+mvc_logic = import_from(args.mvc_logic, 'MVC logic')
+webserver_pre = import_from(args.webserver_pre, 'web server preprocessing logic')
+webserver_post = import_from(args.webserver_post, 'web server postprocessing logic')
+
+os.chdir(currentdir)
+if spydertypename is not None and spyderfiletypename != spydertypename:
+  try:
+    spydertype = getattr(Spyder, spydertypename)
+  except:
+    report_error("Cannot import Spyder type '%s'" % spydertypename)  
+  if not args.nogui: form = spydertype._form()
+  if args.parse:
+    try:
+      spyderobj = spydertype.fromdict(data)
+    except:
+      report_error()
+  elif args.convert:
+    try:
+      spyderfiletype = getattr(Spyder, spyderfiletypename)
+    except:
+      report_error("Cannot import Spyder type '%s'" % spyderfiletypename)
+    try:
+      spyderobj = spyderfiletype.fromdict(data)
+      spyderobj = spyderobj.convert(spydertype)
+    except:
+      report_error()
+  else:
+    report_error("Type mismatch: Spyder file has format '%s', requested format '%s'; specify --convert if you want to try a conversion" % (spyderfiletypename, spydertypename))
+elif is_json_schema:
+  try:
+    spydertype = generate_typetree(schema)
+  except:
+    report_error("Invalid schema '%s'" % schemafile)
+  if data is not None: 
+    spyderobj = data  
+  if not args.nogui:  form = spyder.core.spyderform(spydertype)  
+elif null_edit:
+  spydertype = None
+else:
+  try:
+    spydertype = getattr(Spyder, spyderfiletypename)
+  except:
+    report_error("Cannot import Spyder type '%s'" % spyderfiletypename)
+  if data is not None:
+    if args.delta:
+      spyderobj = deunicode(data)
+    else:
+      try:
+        spyderobj = spydertype.fromdict(data)
+      except:
+        report_error()
+  if not args.nogui: form = spydertype._form() 
+
+if args.nogui: 
+  save_object(spyderobj)
+  sys.exit()
+
+if form_config is not None:
+  try:
+    newform = form_config(form, spyderobj)
+    if newform is not None: form = newform
+  except:
+    report_error()
+if mvc_logic is None and not null_edit:  
+  form.add_button("Save form delta", "after")  
+  form.add_button("Save", "after")
+
+if not null_edit and not args.nogui:
+  #construct model, controller
+  m = model(spydertype)
+  con = controller(form, m)
+
+  #initialize model 
+  if spyderobj is not None and args.delta is None:
+    m._set(spyderobj)
+    
+if visual:    
+  app = QApplication([sys.argv[0]])  
+if args.gui == "qt":  
+  
+  report("Generating Qt GUI...")  
+  assert viewgen is None #TODO! Also, may return XML or qtview; in latter case, check that --dump is False!
+  #build view
+  if args.markup:
+    xml = load(args.markup)
+  elif is_json_schema:
+    xml = spyder.qtform.xml(form=form)
+  else:
+    xml = spyder.qtform.xml(spydertype, form=form)
+  
+  if args.dump:
+    f = sys.stdout
+    if dump_outputfile:
+      os.chdir(inputdir)
+      f = open(outputfile, "w")
+    f.write(xml)
+    sys.exit()
+    
+  loader = QUiLoader()
+  buf = QBuffer()
+  buf.open(QBuffer.ReadWrite)
+  buf.write(xml)
+  buf.close()
+  ui = loader.load(buf)
+  if not null_edit:
+    v = qtview.qtview(form)
+    v._wrap(ui)
+
+    report("Syncing Qt GUI...")  
+    #bind view to controller
+    con._bind_view(v)
+    #listen for model updates
+    con._listen()
+    #synchronize
+    if args.delta is not None:
+      apply_delta_(spyderobj, con)
+      apply_delta_(spyderobj, con) #2x, to override model feedback
+    else:  
+      con._sync_to_view()  
+      con._sync_from_view() 
+elif args.gui == "html":      
+  report("Generating HTML GUI...")  
+  import threading, cgi
+  from spyder.stalkwalk.htmlform import htmlform
+  import spyder.stalkwalk.webdemo
+  webdir = args.webdir
+  port = args.port  
+  if webdir is None: webdir = os.path.split(spyder.stalkwalk.webdemo.__file__)[0]
+  cgilink = "http://localhost:%d/" % port  
+  if args.markup:
+    html = load(args.markup)
+  else:
+    if viewgen is None: 
+      html = htmlform(form=form, cgi=cgilink, obj=spyderobj)
+      html = "\n".join((spyder.stalkwalk.webdemo.header, html, spyder.stalkwalk.webdemo.footer))
+    else:
+      html = viewgen(form=form, cgi=cgilink, spyderobj=spyderobj)
+      if not (isinstance(html, str) or (spyder.python3 and isinstance(html, bytes))):
+        report_error("Generated HTML must be string, not '%s'" % type(html))
+  
+  if args.dump:
+    f = sys.stdout
+    if dump_outputfile:
+      os.chdir(inputdir)
+      f = open(outputfile, "w")
+    f.write(html)
+    sys.exit()
+  
+  if len(webdir): os.chdir(webdir)
+  httpd = server_class(("localhost", port), requesthandler_class)  
+  thread = threading.Thread(target=httpd.serve_forever)
+  thread.daemon = True
+  thread.start()    
+  htmlfile = "./index.html"
+  ui = QWebView()
+  ui.setContent(html,baseUrl = QUrl.fromLocalFile(os.path.abspath(htmlfile)))
+else:
+  report_error("Unknown GUI: '%s'" % args.gui)
+####################################################################
+
+old_status = None
+def viewupdate(*args):  
+  global old_status
+  status = m._status(con)
+  if status == old_status: return
+  print(status)
+  if mvc_logic is None:
+    if status.splitlines()[0].rstrip().endswith("OK"):
+      v.buttons[-2].widget.setEnabled(True)
+    else:
+      v.buttons[-2].widget.setEnabled(False)
+  old_status = status
+
+def _status(model=None,controller=None):
+  if model is None: 
+    model = m
+    controller = con
+  print(model._status(controller))
+  
+####################################################################    
+  
+def save(model):
+  #TODO: some other reporting than hard-coded print
+  m = model._get()
+  if m is None:
+    print("Cannot save model, not yet valid")
+    return True
+  assert not uri_output #TODO
+  outputdir = os.path.abspath(os.path.split(outputfile)[0])
+  if outputdir == currentdir:
+    make_relpath(outputdir, m)  
+  else:      
+    make_abspath(m)  
+    os.chdir(outputdir)
+  if is_json_output:    
+    outputf = open(outputfile, "w") 
+    if is_json_schema:
+      content = m
+    elif args.full_output:
+      content = m.dict()
+    else:
+      content = model._dif()
+    json.dump(content,outputf,sort_keys=True,indent=4)
+    outputf.close()
+  else:   
+    m.tofile(outputfile)
+  os.chdir(currentdir)  
+  p = outputdir + os.sep + os.path.split(outputfile)[1]
+  pp = os.path.relpath(outputfile, initdir)
+  if not pp.startswith(".."): p = pp
+  print("Model saved as '%s'" % p)
+  return False
+
+def save_delta(controller):  
+  assert not uri_output #TODO
+  body, ext = os.path.splitext(outputfile)
+  if ext == ".json" and body.endswith("-delta"): body = body[:-len("-delta")]
+  deltafile = body + "-delta.json"  
+  deltafile2 = os.path.abspath(deltafile)
+  if htmldelta is not None:
+    delta = htmldelta
+  else:  
+    delta = controller._truedif()
+  outputdir = os.path.abspath(os.path.split(outputfile)[0])
+  if outputdir == currentdir:
+    if delta is not None: make_relpath(outputdir, delta)  
+  else:      
+    if delta is not None: make_abspath(delta)  
+    os.chdir(outputdir)  
+  deltaf = open(deltafile2, "w") 
+  json.dump(delta,deltaf,sort_keys=True,indent=4)
+  deltaf.close()  
+  os.chdir(currentdir)  
+  p = outputdir + os.sep + os.path.split(deltafile)[1]
+  pp = os.path.relpath(deltafile, initdir)
+  if not pp.startswith(".."): p = pp  
+  print("Form delta saved as '%s'" % p)
+  
+from functools import partial
+
+if args.guisave or args.guisavedelta:
+  if args.guisave:
+    error = save(m)
+    if error: print(_status())
+  elif args.guisavedelta:
+    save_delta(con)
+  sys.exit()  
+
+if args.gui == "qt" and not null_edit:  
+  if mvc_logic is None:
+    v.buttons[0].listen(partial(save, m))
+    v.buttons[1].listen(partial(save_delta, con))
+
+    #register view listener 
+    # (note the order, after the view binding! The viewupdate will now be invoked last)
+    v.listen(viewupdate)
+    viewupdate()
+  else:
+    mvc_logic(m, v, con, sys.modules[__name__])
+
+if not null_edit and not args.no_ipython:    
+  #import IPython
+  report("Launching IPython...")  
+  try:
+    from IPython.qt.console.rich_ipython_widget import RichIPythonWidget
+    from IPython.qt.inprocess import QtInProcessKernelManager
+
+    kernel_manager = QtInProcessKernelManager()
+    kernel_manager.start_kernel()
+    kernel = kernel_manager.kernel
+    kernel.gui = 'qt4'
+    def save_(): 
+      save(m)
+    save_delta_ = partial(save_delta, con)
+    kernel.shell.push({'self': m, 'Spyder':Spyder, "controller": con, "status": _status, "save" : save_, "save_delta": save_delta_})
+
+    kernel_client = kernel_manager.client()
+    kernel_client.start_channels()
+
+    def stop():
+      kernel_client.stop_channels()
+      kernel_manager.shutdown_kernel()
+      app.exit()
+
+    control = RichIPythonWidget()
+    control.kernel_manager = kernel_manager
+    control.kernel_client = kernel_client
+    control.exit_requested.connect(stop)
+    control.show()
+  except ImportError:
+    print("IPython was not found")
+    if debug: 
+      traceback.print_exc()
+  
+#fire up application
+ui.show()
+app.exec_()
+
+# TODO-list:
+
+#short term: 
+# TODO: _tmpresource support (make it proper in stalkwalk as well)
+
+#medium term:
+#TODO: formless mode: just a model, controller and IPython shell
+#TODO: stalkwalk view generator for Qt; old qtform => qt-legacy
+#TODO: GTK support (gtk-legacy)
+#TODO: hotkeys to show/hide form/IPython shell
+#TODO: IPython commands for load, save, changing inputfile, etc.
+#TODO: save/load from/to MongoDB (easy!) => silklib that saves/loads to a data structure, not a file
+#
+#long term
+#TODO: tree form, providing a tree-like rendering of the model
+#        convert model.status result to status tree, show status tree inside the tree form
+#        mouseover mechanism: highlight edit form element <=> tree form element
+
+#Spyder:
+#TODO: conversion engine, add hooks for a visualizer (conversion path, result for each converter)
+#TODO: stalkwalk generator, add hooks for a visualizer
+#TODO: model._listen in array, send "delete element" / "insert element" signals (also check dynamicarray)
+#TODO: dynamicarray for objectlist

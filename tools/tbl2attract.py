@@ -24,14 +24,14 @@ parser.add_argument("--mode", type = str, choices = ["harmonic", "haddock", "pos
                     help="""Specifies how the restraints in the .tbl are interpreted. The following modes are possible
                     harmonic: Defines harmonic distance restraints between two atomic selections. Format: <selection 1> <selection 2> <distance> <dminus> <dplus>
                     haddock: Same as harmonic, but enables soft-square potential and restraint cross-validation
+                    step: Same as harmonic, but defines a step potential between distance-dminus and distance+dplus
+                    bump: Same as harmonic, but defines double quadratic potential between r1, r2, r3, r4
                     position: Defines an harmonic distance restraint for each atom in a selection to a reference point in space. 
                       Format: <selection> <distance> <dminus> <dplus> <type> <x> <y> <z>                   
                       <type> can be: x, y, z, xy, xz, yz or xyz
                        The type determines which coordinate(s) of the atom are used to compute <distance>
                         e.g. "x" defines a planar region, "xy" a cylindrical region and "xyz" a spherical region                       
                       <x> <y> <z>: defines the reference point
-                    step: Format same as harmonic, defines a step potential between distance-dminus and distance+dplus
-                    bump: defines double quadratic potential between r1, r2, r3, r4
                     """)
 parser.add_argument("--softsquare", type=float, default=2.0,
                     help="HADDOCK-mode softsquare limit, indicating the maximum distance violation after which the restraint potential becomes linear")
@@ -40,14 +40,22 @@ parser.add_argument("--chance_removal", type=float, default=0.5,
 
 args = parser.parse_args()
 assert len(args.pdbs) == len(args.mappings), (len(args.pdbs), len(args.mappings))
-tbldata = open(args.tblfile).read()
+tbldata = open(args.tblfile).read().lower()
 
 try:
-  import grako
+  import lark
 except ImportError:
-  raise ImportError("Parsing CNS files requires the Grako library")  
+  raise ImportError("Parsing CNS .tbl files requires the Lark (lark-parser) library")  
 
-from tbl_grammar import tbl_grammarParser as Parser
+
+from lark import Lark
+import os
+currdir = os.path.dirname(__file__) 
+parser = Lark(
+  open(os.path.abspath(currdir) + "/tbl_grammar.ebnf").read(), 
+  parser="earley", start="assign_statements"
+)
+
 from rmsdlib import read_pdb
 
 pdbs = []
@@ -64,107 +72,28 @@ for m in args.mappings:
     resmap[ll[0]] = int(ll[1])
   resmaps.append(resmap)
 
-class ATTRACTSemantics(object):
-
-    def assign_statement_2_cross(self, ast):    
-        raise NotImplementedError
-        
-    def assign_statement_4(self, ast):    
-        raise NotImplementedError
-
-    def assign_statement_4_cross(self, ast):    
-        raise NotImplementedError
-
-    def assign_statement_6(self, ast):    
-        raise NotImplementedError
-
-    def assign_statement_6_cross(self, ast):    
-        raise NotImplementedError
-
-    def assign_statement_pcs(self, ast):    
-        raise NotImplementedError
-
-    def assign_statement_pcs_cross(self, ast):    
-        raise NotImplementedError
-
-    def byres(self, ast):
-        raise NotImplementedError
-
-    def bygroup(self, ast):
-        raise NotImplementedError
-
-    def bondedto(self, ast):
-        raise NotImplementedError
-
-    def around(self, ast):
-        raise NotImplementedError
-
-    def saround(self, ast):
-        raise NotImplementedError
-
-    def chemical(self, ast):
-        raise NotImplementedError
-      
-    def atom(self, ast):
-        raise NotImplementedError
-      
-    def attribute(self, ast):
-        raise NotImplementedError
-
-    def fbox(self, ast):
-        raise NotImplementedError
-
-    def sfbox(self, ast):
-        raise NotImplementedError
-      
-    def point(self, ast):
-        raise NotImplementedError
-      
-    def RECALL_STORE(self, ast):
-        raise NotImplementedError
-
-    def known(self, ast):
-        raise NotImplementedError
-      
-    def hydrogen(self, ast):
-        raise NotImplementedError
-      
-    def all_(self, ast):
-        raise NotImplementedError
-
-    def previous(self, ast):
-        raise NotImplementedError
-
-    def tag(self, ast):
-        raise NotImplementedError
-
-    def none(self, ast):
-        raise NotImplementedError
-      
-    def id(self, ast):
-        raise NotImplementedError
-      
-    def _default(self, ast):
-        return ast
-
 import numpy
 pdblen = [len(list(p.atoms())) for p in pdbs]
 pdbcumlen = [0]
 for plen in pdblen:
   pdbcumlen.append(plen + pdbcumlen[-1])  
 mask0 = numpy.zeros(pdbcumlen[-1], dtype="bool")
+mask1 = numpy.ones(pdbcumlen[-1], dtype="bool")
 
-def select_segid(segid):
+def select_segid(token):
+  segid = token.value
+  #print("SEGID", segid)
   m = mask0.copy()
   segid = segid.strip()
   assert len(segid) == 1 #TODO: support for body >26
-  body = ord(segid) - ord('A') + 1
+  body = ord(segid) - ord('a') + 1
   assert body <= len(pdbs), (body, len(pdbs))
   m[pdbcumlen[body-1]:pdbcumlen[body]] = 1
-  #print "SEGID", segid, sum(m)
   return m
    
-def select_resid(resid):
+def select_resid(token):
+  resid = token.value
+  #print("RESID", resid)
   m = mask0.copy()
   count = 0
   resid = resid.strip()
@@ -177,10 +106,11 @@ def select_resid(resid):
       if a.resnr == resnr: 
         m[count] = 1
       count += 1 
-  #print "RESID", resid, sum(m)    
   return m
 
-def select_resname(resname):
+def select_resname(token):
+  resname = token.value
+  #print("RESNAME", resname)
   m = mask0.copy()
   count = 0
   resname = resname.strip()
@@ -191,10 +121,12 @@ def select_resname(resname):
       count += 1 
   return m
 
-def select_name(name):
+def select_name(token):
+  name = token.value
+  #print("NAME", name)
   m = mask0.copy()
   count = 0
-  name = name.strip()
+  name = name.strip().upper()
   for p in pdbs:
     for a in p.atoms():
       if a.name == name:
@@ -202,45 +134,64 @@ def select_name(name):
       count += 1 
   return m
 
-def evaluate_term(aa):
-  term = None
-  if "factor" in aa and aa["factor"] is not None:
-    term = evaluate_term(aa["factor"])
-  elif "term" in aa and aa["term"] is not None:
-    term = evaluate_term(aa["term"])
-    
-  if term is not None:  
-    if "or_" in aa and aa["or_"] is not None:
-      aaa = aa["or_"]
-      if not isinstance(aaa, list): 
-        aaa = [aaa]
-      for aa2 in aaa:
-        term2 = evaluate_term(aa2)
-        term = term | term2          
-        #print "OR", sum(term)      
-    if "and_" in aa and aa["and_"] is not None:      
-      aaa = aa["and_"]
-      if not isinstance(aaa, list): 
-        aaa = [aaa]
-      for aa2 in aaa:
-        term2 = evaluate_term(aa2)
-        term = term & term2          
-        #print "AND", sum(term)      
-    return term
-  elif "not_" in aa and aa["not_"] is not None:
-    term = evaluate_term(aa["not_"])
-    return ~term
-  elif "segid" in aa and aa["segid"] is not None:
-    return select_segid(aa["segid"])
-  elif "resid" in aa and aa["resid"] is not None:
-    return select_resid(aa["resid"])
-  elif "resname" in aa and aa["resname"] is not None:
-    return select_resname(aa["resname"])
-  elif "name" in aa and aa["name"] is not None:
-    return select_name(aa["name"])
+def evaluate_factor(node):
+  assert node.data == "factor", node.data
+  assert len(node.children) == 1, node
+  subnode = node.children[0]
+  assert len(subnode.children) > 0, node
+  child = subnode.children[0]
+  type = subnode.data
+  if type == "not":
+    mask = evaluate_atom_selection(child)
+    result = ~mask
+  elif type == "segid":
+    result = select_segid(child)
+  elif type == "resid":
+    result = select_resid(child)
+  elif type == "resname":
+    result = select_resname(child)
+  elif type == "name":
+    result = select_name(child)
   else:
-    raise Exception(aa)
+    raise Exception("Selection operator {} is not supported".format(type))
+  #print("FACTOR", type, result.sum())
+  return result
 
+def evaluate_term(node):
+  assert node.data == "term", node.data
+  mask = mask1.copy()
+  for child in node.children:
+    type = child.data
+    if type == "atom_selection":
+      childmask = evaluate_atom_selection(child)
+    elif type == "factor":
+      childmask = evaluate_factor(child)
+    else:
+      raise TypeError(type)
+    mask &= childmask
+  return mask
+
+def evaluate_atom_selection(node):
+  assert node.data == "atom_selection", node.data
+  mask = mask0.copy()
+  for child in node.children:
+    assert child.data == "term", child.data
+    childmask = evaluate_term(child)
+    mask |= childmask
+  return mask
+
+
+def evaluate_top_atom_selection(node):
+  mask = evaluate_atom_selection(node)
+  maskhash = hash(buffer(mask))
+  #print "TERM", sum(mask)
+  try:
+    maskindex = maskhashes.index(maskhash)
+  except ValueError:
+    maskhashes.append(maskhash)
+    masks.append(mask)
+    maskindex = len(masks) - 1
+  return maskindex
 
 #Restraint data
 class Restraint(object):
@@ -251,44 +202,40 @@ restraints = []
 masks = []
 maskhashes = []
 
-parser = Parser(semantics=ATTRACTSemantics())
-ast = parser.parse(tbldata, rule_name = "assign_statements")
-assert isinstance(ast, list), type(ast)
-if not len(ast):
-  raise ValueError("Cannot parse TBL file")
-for a in ast:
-  assert isinstance(a, dict) and "assign" in a
-  assign = a["assign"]
+tree = parser.parse(tbldata)
+assert tree.data == "assign_statements"
+#print(tree.pretty()); sys.exit()
+
+form = "assign_statement_2"
+if args.mode == "position":
+  form = "assign_statement_positional"
+for node in tree.children:
+  if node.data != form:
+    raise Exception("Restraints of the form '{}' are not supported".format(node.data))
+  if form == "assign_statement_2":
+    sele1, sele2, distance, dminus, dplus = node.children
+  elif form == "assign_statement_positional":
+    sele, distance, dminus, dplus, xyz, vector = node.children
+  else:
+    raise Exception
+  
   rest = Restraint()
-  rest.distance = float(a["distance"])
-  rest.dminus = float(a["dminus"])
-  rest.dplus = float(a["dplus"])
+  rest.distance = float(distance.value)
+  rest.dminus = float(dminus.value)
+  rest.dplus = float(dplus.value)
   
-  def evaluate_assign(assi):
-    mask = evaluate_term(assi)
-    maskhash = hash(mask.tostring())
-    #print "TERM", sum(mask)
-    try:
-      maskindex = maskhashes.index(maskhash)
-    except ValueError:
-      maskhashes.append(maskhash)
-      masks.append(mask)
-      maskindex = len(masks) - 1
-    return maskindex
   if args.mode == "position":
-    rest.xyz = a["xyz"]
-    rest.typ = a["type"][0]
-    maskindex = evaluate_assign(assign)
+    rest.typ = float(xyz.data)
+    rest.vector = parse_vector(vector)
+    maskindex = evaluate_top_atom_selection(sele)
     rest.maskindices.append(maskindex)
-  else: #"harmonic", "haddock"
-    assert len(assign) == 2  
-    for aa in assign:
-      assert isinstance(aa, dict), "Malformed assign statement"
-      maskindex = evaluate_assign(aa) 
-      #print aa, maskindex
-      rest.maskindices.append(maskindex)
+  else: #"harmonic", "haddock", "bump", "step"
+    maskindex1 = evaluate_top_atom_selection(sele1)
+    rest.maskindices.append(maskindex1)
+    maskindex2 = evaluate_top_atom_selection(sele2)
+    rest.maskindices.append(maskindex2)      
   restraints.append(rest)
-  
+
 for mnr, m in enumerate(masks):
   if not sum(m):
     raise ValueError("No atoms found for restraint %d" %mnr)
@@ -302,10 +249,10 @@ for rest in restraints:
   mindist = rest.distance - rest.dminus
   maxdist = rest.distance + rest.dplus
   if args.mode == "position":
-    x, y, z = rest.xyz.x, rest.xyz.y, rest.xyz.z
+    x, y, z = rest.vector.x, rest.vector.y, rest.vector.z
     r = "selection%d 7 %s %s %s %s %s %s %s" % (rest.maskindices[0]+1, mindist, maxdist, args.k, rest.typ, x, y, z)
     print r
-  else: # "harmonic", "haddock", "step"
+  else: # "harmonic", "haddock", "step", "bump"
     r = "selection%d selection%d" % (rest.maskindices[0]+1, rest.maskindices[1]+1)  
     if args.mode == "haddock": 
       if mindist > 0:
@@ -313,11 +260,11 @@ for rest in restraints:
       print r + " 2 %s %s %s %s" % (maxdist, args.k, args.softsquare, args.chance_removal)
     elif args.mode== "step":
       if mindist < 0 or maxdist < 0:
-	raise Exception("Step potential restraints with limits < 0 are not supported")
+        raise Exception("Step potential restraints with limits < 0 are not supported")
       print r + " 6 %s %s %s" % (maxdist, args.k, mindist)
     elif args.mode=="bump":
       if mindist < 0 or maxdist < 0:
-	raise Exception("Bump potential restraints with limits < 0 are not supported")
+        raise Exception("Bump potential restraints with limits < 0 are not supported")
       print r + " 8 %s %s %s %s" % (mindist, rest.distance, rest.dplus, args.k)
     else: #harmonic
       if mindist == maxdist:
