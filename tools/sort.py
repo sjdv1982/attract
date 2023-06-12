@@ -19,21 +19,21 @@ for l1,l2 in structures:
         e = float(ee)
       energies.append(e)
 assert len(energies) == len(structures)
-strucs = zip(range(1,len(structures)+1), energies, structures)
+strucs = list(zip(range(1,len(structures)+1), energies, structures))
 
 strucs.sort(key=lambda v:v[1])
 if rev: strucs.reverse()
-for h in header: print h
+for h in header: print(h)
 stnr = 0
 for st in strucs:
   r,e,s = st
   stnr += 1
   l1,l2 = s
   try:  
-    print "#"+str(stnr)
-    print "## "+str(r) + " => sort"
-    for l in l1: print l
-    for l in l2: print l
+    print("#"+str(stnr))
+    print("## "+str(r) + " => sort")
+    for l in l1: print(l)
+    for l in l2: print(l)
   except IOError:  
     sys.exit()
 

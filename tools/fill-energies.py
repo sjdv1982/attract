@@ -3,14 +3,14 @@ from _read_struc import read_struc
 header,structures = read_struc(sys.argv[1])
 ene = open(sys.argv[2])
 
-for h in header: print h
+for h in header: print(h)
 stnr = 0
 get_next = True
 for s in structures:
   while 1:
     if get_next:
       try:
-        ll = ene.next()
+        ll = next(ene)
       except StopIteration:
         raise AssertionError("More structures than energies: %d" % stnr)
     p = ll.find("Energy:")
@@ -18,9 +18,9 @@ for s in structures:
       energy = float(ll[p+len("Energy:"):])
       energy2 = ""
       try:
-	ll = ene.next()
+	      ll = next(ene)
       except StopIteration:
-	pass
+	      pass
       else:
         if ll.find("Energy:") > -1:
           get_next = False
@@ -30,7 +30,7 @@ for s in structures:
   
   stnr += 1
   l1,l2 = s
-  print "#"+str(stnr)
+  print("#"+str(stnr))
   found = False
   
   for lnr,l in enumerate(l1): 
@@ -42,12 +42,12 @@ for s in structures:
       break    
   if not found: 
     l1.append("## Energy: " + str(energy))
-  for l in l1: print l
-  for l in l2: print l
+  for l in l1: print(l)
+  for l in l2: print(l)
 
 while 1:  
   try:
-    ene.next()
+    next(ene)
   except StopIteration:
     break
   p = ll.find("Energy:")

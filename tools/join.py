@@ -2,12 +2,12 @@ import sys, glob
 from _read_struc import read_struc
 
 if len(sys.argv) < 2 or len(sys.argv) > 3:
-  print >> sys.stderr, "Usage: join.py <file pattern> [--score]"
+  print("Usage: join.py <file pattern> [--score]", file=sys.stderr)
   sys.exit()
 score = False
 if len(sys.argv) == 3:
   if sys.argv[2] != "--score":
-    print >> sys.stderr, "Usage: join.py <file pattern> [--score]"
+    print("Usage: join.py <file pattern> [--score]", file=sys.stderr)
     sys.exit()
   score = True
 
@@ -19,7 +19,7 @@ while 1:
   nrsplit += 1
 
 if nrsplit == 0: 
-  print >> sys.stderr, "Pattern not found"
+  print("Pattern not found", file=sys.stderr)
   sys.exit()
 
 if score:
@@ -27,7 +27,7 @@ if score:
     fnam = "%s-%d" % (sys.argv[1], n+1)
     for l in open(fnam).readlines(): 
       assert not l.startswith("#") #must be .score file, not .dat file!!
-      print l,
+      print(l, end=' ')
   sys.exit()
 
 allstructures = {}
@@ -38,13 +38,13 @@ for n in range(nrsplit):
   header0,structures = read_struc(fnam)
   if n == 0: 
     for h in header0:
-      print h
+      print(h)
   currstruc = None
   currstruc_false = False
   for s in structures:
     stnr += 1
     l1,l2 = s
-    print "#"+str(stnr)
+    print("#"+str(stnr))
     skipline = -1
     for lnr, l in enumerate(l1): 
       if l.startswith("### SPLIT "): 
@@ -57,22 +57,22 @@ for n in range(nrsplit):
         break
 
     if currstruc is None:
-      print >> sys.stderr, "Structure has no SPLIT number"
-      print >> sys.stderr, fnam
-      print >> sys.stderr, "#"+str(stnr)
-      for l in l1: print >>sys.stderr, l  
-      for l in l2: print >>sys.stderr, l
+      print("Structure has no SPLIT number", file=sys.stderr)
+      print(fnam, file=sys.stderr)
+      print("#"+str(stnr), file=sys.stderr)
+      for l in l1: print(l, file=sys.stderr)  
+      for l in l2: print(l, file=sys.stderr)
       sys.exit()
     if currstruc_false or currstruc != stnr:
-      print >> sys.stderr, "Invalid SPLIT number:", currstruc
-      print >> sys.stderr, fnam
-      print >> sys.stderr, "#"+str(stnr)
-      for l in l1: print >>sys.stderr, l  
-      for l in l2: print >>sys.stderr, l
+      print("Invalid SPLIT number:", currstruc, file=sys.stderr)
+      print(fnam, file=sys.stderr)
+      print("#"+str(stnr), file=sys.stderr)
+      for l in l1: print(l, file=sys.stderr)  
+      for l in l2: print(l, file=sys.stderr)
       sys.exit()
         
     for lnr, l in enumerate(l1): 
       if lnr == skipline: continue
-      print l
-    for l in l2: print l
+      print(l)
+    for l in l2: print(l)
     
