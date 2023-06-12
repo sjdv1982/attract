@@ -36,7 +36,7 @@ def finished(f, nstruc):
 
 processes = []
 def run(command, thread=False):
-  print command
+  print(command)
   def func():
     p = subprocess.Popen([command], shell=True)
     processes.append(p)
@@ -143,7 +143,7 @@ while 1:
   break
 
 try:
-  com = "python2 %s/split.py %s %s %d" % (tooldir, strucfile, pat, chunks); run(com)
+  com = "python %s/split.py %s %s %d" % (tooldir, strucfile, pat, chunks); run(com)
   done = 0
   current = 1
   processes = []
@@ -152,9 +152,9 @@ try:
       v = queue[vnr]
       if v is None: continue
       if finished(v, nstrucs[vnr]):
-	done += 1
-	if done == chunks: break
-	queue[vnr] = None
+        done += 1
+        if done == chunks: break
+        queue[vnr] = None
     if done == chunks: break
 
     free = [n for n,v in enumerate(queue) if v is None]
@@ -176,17 +176,17 @@ try:
     current += 1
 
   o = open(output, "w")
-  print >> o, "## Command line arguments: " + " ".join([attract,strucfile]+args)
+  print("## Command line arguments: " + " ".join([attract,strucfile]+args), file=o)
   o.close()
   score = ""
   if scoremode:
     score = "--score"
-  com = "python2 %s/join.py %s %s >> %s" % (tooldir, pat2, score, output) 
+  com = "python %s/join.py %s %s >> %s" % (tooldir, pat2, score, output) 
   run(com)
 finally:
   for p in processes:
     if p.returncode is None: #process is still running
-      print "KILL"
+      print("KILL")
       p.kill()
   com = "rm %s-*" % pat; run(com)
   com = "rm %s-*" % pat2; run(com)
