@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 """
 Converts a PDB into a modified PDB format, where the atom type for each atom is indicated
 This reduced PDB is what is understood by ATTRACT.

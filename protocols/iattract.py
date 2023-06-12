@@ -426,7 +426,7 @@ if __name__ == "__main__":
     break
 
   try:
-    com = "python2 %s/split.py %s %s %d" % (tooldir, strucfile, pat, chunks); run(com)
+    com = "python %s/split.py %s %s %d" % (tooldir, strucfile, pat, chunks); run(com)
     runs = [(i,attract,pat,pat2,args,name,ligandrange,ligandatoms,coor[i-1],otf,noflex,interface_cutoff) for i in range(1,int(chunks)+1)]
     p = Pool(np)
     try:
@@ -456,7 +456,7 @@ if __name__ == "__main__":
 	      com = "cp %s-%d %s-%d" % (pat,i,pat2,i)
 	      run(com)
 
-    com = "python2 %s/join.py %s %s >> %s" % (tooldir, pat2, score, output) 
+    com = "python %s/join.py %s %s >> %s" % (tooldir, pat2, score, output) 
     run(com)
   finally:
     com = "rm %s-*" % pat; run(com)
