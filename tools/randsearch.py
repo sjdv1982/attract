@@ -10,16 +10,12 @@ In case of 1 or >2 bodies:
   The (remaining) positions are regularized, enforcing constant relative distances towards each other 
    (unless the --fast option was specified)  
 """
-from __future__ import print_function
+
 
 radius = 35.0
 
 import sys
-try:
-  import psyco
-  psyco.full()
-except:
-  pass  
+import traceback
 
 fast = False
 fix_receptor = False
@@ -52,9 +48,10 @@ try:
   assert structures > 0, structures
   seed = 1
   if len(sys.argv) > 3: seed = int(sys.argv[3])
-except:
+except Exception:
+  traceback.print_exc()
   print("syntax: python randsearch.py <bodies> <structures> [seed] [--fast] [--fix-receptor] [--radius <radius>]" , file=sys.stderr)
-  raise
+  exit(1)
 
 import random
 if seed != -1:
@@ -89,6 +86,7 @@ for n in range(structures):
     x,y,z = p[1]
     p[2] = (-x,-y,-z)
   else:
+    assert len(p) == bodies
     first = 0
     if fix_receptor: 
       p[0] = (0,0,0)
@@ -97,23 +95,24 @@ for n in range(structures):
       delta = 0
       newp = []
       for i in range(first,bodies):
-	x,y,z = p[i]
-	xold,yold,zold = x,y,z
-	for j in range(first,bodies):
+        x,y,z = p[i]
+        xold,yold,zold = x,y,z
+        for j in range(first,bodies):
           if i==j: continue
           xx,yy,zz = p[j]
-	  dx,dy,dz = xold-xx,yold-yy,zold-zz
-	  dsq = dx*dx+dy*dy+dz*dz
-	  dsq2 = radius/dsq
-	  x += dx * dsq2
-	  y += dy * dsq2
-	  z += dz * dsq2
-	  dx,dy,dz = x-xx,y-yy,z-zz
-	x,y,z = adjust(x,y,z)
-	if not fast:
+          dx,dy,dz = xold-xx,yold-yy,zold-zz
+          dsq = dx*dx+dy*dy+dz*dz
+          dsq2 = radius/dsq
+          x += dx * dsq2
+          y += dy * dsq2
+          z += dz * dsq2
+          dx,dy,dz = x-xx,y-yy,z-zz
+        x,y,z = adjust(x,y,z)
+        if not fast:
           dd = x-xold,y-yold,z-zold
-	  delta+=dd[0]*dd[0]+dd[1]*dd[1]+dd[2]*dd[2]
-	newp.append((x,y,z))
+        delta+=dd[0]*dd[0]+dd[1]*dd[1]+dd[2]*dd[2]
+        newp.append((x,y,z))
+      assert len(newp) == len(p[first:])
       p[first:] = newp
       #print delta
       if fast or delta < 0.001*bodies: break
