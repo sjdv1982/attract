@@ -10,7 +10,7 @@ In case of 1 or >2 bodies:
   The (remaining) positions are regularized, enforcing constant relative distances towards each other 
    (unless the --fast option was specified)  
 """
-
+from __future__ import print_function
 
 radius = 35.0
 
