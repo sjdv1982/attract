@@ -1,0 +1,3 @@
+shim: $ATTRACTDIR/../allatom/aareduce.py
+environment:
+  docker_image: rpbs/attract
