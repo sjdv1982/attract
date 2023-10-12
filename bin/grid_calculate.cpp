@@ -152,9 +152,9 @@ void calculate_line(
   inc(disjz, nratoms,  2, 0.5*gridspacing);
 
   bool inner_z = 1;    
-  if (z < 0 || z >= gridz) inner_z = 0;
+  if (z < 0 || z >= gridz) inner_z = 0;  
   bool junction_z = 1;
-  if (z < 0 || z >= gridz-1) junction_z = 0;
+  if (z < 0 || z >= gridz) junction_z = 0;
 
   Coor *diszy = new Coor[nratoms];
   Coor *diszyx = new Coor[nratoms];
@@ -180,7 +180,7 @@ void calculate_line(
     inner_zy = inner_z;    
     if (y < 0 || y >= gridy) inner_zy = 0;
     junction_zy = junction_z;
-    if (y < 0 || y >= gridy-1) junction_zy = 0;
+    if (y < 0 || y >= gridy) junction_zy = 0;
 
     memcpy(diszyx, diszy, nratoms*sizeof(Coor));    
     memcpy(disjzyx, disjzy, nratoms*sizeof(Coor));    
@@ -188,7 +188,7 @@ void calculate_line(
       inner_zyx = inner_zy;    
       if (x < 0 || x >= gridx) inner_zyx = 0;
       junction_zyx = junction_zy;
-      if (x < 0 || x >= gridx-1) junction_zyx = 0;
+      if (x < 0 || x >= gridx) junction_zyx = 0;
       if (inner_zyx) { 
         int index = x + gridx * y;
         Voxel &v = cinnergrid[index];
@@ -208,13 +208,7 @@ void calculate_line(
           );
         }    
       }
-      if (!(x % 2) && !(y % 2) && !(z % 2) &&
-       (
-        ((x <= 0) || (x >= outerminx)) ||
-        ((y <= 0) || (y >= outerminy)) ||
-        ((z <= 0) || (z >= outerminz)) 
-       )
-      )
+      if (!(x % 2) && !(y % 2) && !(z % 2))
       {
         int xx = (x + gridextension)/2;
         int yy = (y + gridextension)/2;   
@@ -555,8 +549,7 @@ void Grid::calculate_std(
     dis[n][1] = -(x[n][1]-ori[1]);
     dis[n][2] = -(x[n][2]-ori[2]);
   }          
-  
-  
+
   //Main loop
   int potcount = 0;
   #pragma omp parallel for private(cinnergrid,cbiggrid) schedule(dynamic,1) 
