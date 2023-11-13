@@ -15,6 +15,7 @@ def run_pdb2pqr(pdblines):
   Runs PDB2PQR on the input
   """
   import pdb2pqr
+  old_pdb2pqr = (pdb2pqr.__version__[:1] == "2")
   oldsyspath = sys.path
   pqrhandle, pqrfile = tempfile.mkstemp()
   tmphandle, tmpfile = tempfile.mkstemp()
@@ -25,14 +26,20 @@ def run_pdb2pqr(pdblines):
   tmpf.close()
 
   try:
-    args = [pdb2pqr.__file__, "--ff=charmm", tmpfile, pqrfile]
-    #if pdb2pqr.PACKAGE_PATH != "":
-    #  sys.path.extend(pdb2pqr.PACKAGE_PATH.split(":"))
-    oldstdout = sys.stdout
-    sys.stdout = sys.stderr
     oldargv = list(sys.argv)
-    sys.argv[:] = args
-    pdb2pqr.mainCommand(args)
+    oldstdout = sys.stdout
+    sys.stdout = sys.stderr      
+    if old_pdb2pqr: 
+      args = [pdb2pqr.__file__, "--ff=charmm", tmpfile, pqrfile]
+      #if pdb2pqr.PACKAGE_PATH != "":
+      #  sys.path.extend(pdb2pqr.PACKAGE_PATH.split(":"))
+      sys.argv[:] = args
+      pdb2pqr.mainCommand(args)
+    else:
+      from pdb2pqr.main import main_driver, build_main_parser
+      args = ["--ff=CHARMM", tmpfile, pqrfile]
+      pdb2pqr_args = build_main_parser().parse_args(args)
+      main_driver(pdb2pqr_args)
     sys.argv[:] = oldargv
     sys.stdout = oldstdout
     pqr = os.fdopen(pqrhandle)
@@ -270,7 +277,6 @@ def rank_library(res, libcoor, fit_atoms, rmsd_atoms, all_atoms):
     rank nucleotides in library by best-fitting to our target residue
     '''
     import rmsdlib
-    from scipy.spatial.distance import cdist
     #select atoms in the order of the library atoms
     coor_atoms = [a for a in all_atoms if a in res.coords and a in fit_atoms]
     coor = np.array([res.coords[a] for a in all_atoms if a in res.coords and a in fit_atoms])
