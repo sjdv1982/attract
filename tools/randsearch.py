@@ -110,7 +110,7 @@ for n in range(structures):
         x,y,z = adjust(x,y,z)
         if not fast:
           dd = x-xold,y-yold,z-zold
-        delta+=dd[0]*dd[0]+dd[1]*dd[1]+dd[2]*dd[2]
+          delta+=dd[0]*dd[0]+dd[1]*dd[1]+dd[2]*dd[2]
         newp.append((x,y,z))
       assert len(newp) == len(p[first:])
       p[first:] = newp
