@@ -103,6 +103,7 @@ a.add_argument("--allatoms", action="store_true")
 a.add_argument("--ca", action="store_true")
 a.add_argument("--p", action="store_true")
 a.add_argument("--rmsd", action="store_true")
+a.add_argument("--nofit", action="store_true", help="Calculate RMSD without fitting")
 a.add_argument("--iterative", action="store_true")
 a.add_argument("--iterative_cycles",type=int,default=5)
 a.add_argument("--iterative_cutoff",type=float,default=2)
@@ -137,16 +138,20 @@ else:
 assert len(atoms1_fit) and len(atoms1_fit) == len(atoms2_fit), (len(atoms1_fit), len(atoms2_fit))
 
 
-if args.iterative:
-    #perform a Pymol-style iterative fit
-    rotmat, offset, rmsd = cyclesfit(atoms1_fit,atoms2_fit, args.iterative_cycles, args.iterative_cutoff)
+if args.nofit:
+    d = atoms1_fit - atoms2_fit
+    rmsd = numpy.sqrt((d * d).sum() / len(d))
 else:
-    #perform a direct fit
-    rotmat, offset, rmsd = rmsdlib.fit(atoms1_fit,atoms2_fit)
+    if args.iterative:
+        #perform a Pymol-style iterative fit
+        rotmat, offset, rmsd = cyclesfit(atoms1_fit,atoms2_fit, args.iterative_cycles, args.iterative_cutoff)
+    else:
+        #perform a direct fit
+        rotmat, offset, rmsd = rmsdlib.fit(atoms1_fit,atoms2_fit)
 
 pivot = numpy.sum(atoms2_fit,axis=0) / float(len(atoms2_fit))
-fitted_atoms = apply_matrix(atoms2, pivot, rotmat, offset)
-if args.rmsd:
+if args.rmsd or args.nofit:
     print("%.3f" % rmsd, file=sys.stderr)
 else:
+    fitted_atoms = apply_matrix(atoms2, pivot, rotmat, offset)
     write_pdb(lines2, fitted_atoms, extralines2)
