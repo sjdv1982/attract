@@ -5,6 +5,7 @@ fastcluster script
 copyright 2016-2017 Sjoerd de Vries, Isaure Chauvot de Beauchene
 """
 
+from __future__ import print_function
 import numpy as np
 import sys, argparse
 

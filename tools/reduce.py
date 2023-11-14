@@ -10,6 +10,7 @@ codes can be  automatically interpreted as DNA or RNA with the --dna and --rna o
 Author: Sjoerd de Vries, Technische Universitaet Muenchen
 """
 
+from __future__ import print_function
 import sys, os
 
 has_argparse = False

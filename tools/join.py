@@ -1,3 +1,4 @@
+from __future__ import print_function
 import sys, glob
 from _read_struc import read_struc
 
