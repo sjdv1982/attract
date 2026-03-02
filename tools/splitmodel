@@ -17,11 +17,11 @@ for l in open(f):
     target = template+"-"+str(count)+".pdb"
     print(target)
     ff = open(target, "w")
-    for h in header: print >> ff, h
+    for h in header: print(h, file=ff)
     continue
   if l.startswith("ENDMDL"): continue
   if count == 0: header.append(l)
-  else: print >> ff, l
+  else: print(l, file=ff)
 
 if size is not None and count != size:
   raise Exception("ERROR in splitmodel: model count should be %d, is %d" % (size, count))

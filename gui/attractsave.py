@@ -1,4 +1,5 @@
 import os
+import spyder  # registers `Spyder` module alias
 import Spyder
 
 from spyder.formtools import make_relpath, check_embedded

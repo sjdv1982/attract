@@ -434,12 +434,28 @@ def compile_obj(code, name, sourcefile, bytecode, recompile):
       magic = bytecode[:4]
       assert magic == imp.get_magic()  
       if recompile is not False:
-        timestamp = struct.unpack("<l",bytecode[4:8])[0]
-        lastmodified = os.stat(sourcefile)[9]
-        assert (timestamp >= lastmodified), (timestamp, lastmodified)
-      header = 8  
+        lastmodified = os.stat(sourcefile).st_mtime
+        pyver = sys.version_info[:2]
+        if pyver >= (3, 7):
+          # PEP 552: 4 bytes magic, 4 bytes bitfield, 8 bytes timestamp/hash
+          flags = struct.unpack("<L", bytecode[4:8])[0]
+          # timestamp-based pyc => flags == 0
+          if flags == 0:
+            timestamp = struct.unpack("<L", bytecode[8:12])[0]
+            assert (timestamp >= lastmodified), (timestamp, lastmodified)
+        elif pyver >= (3, 3):
+          # 4 bytes magic, 4 bytes timestamp, 4 bytes source size
+          timestamp = struct.unpack("<L", bytecode[4:8])[0]
+          assert (timestamp >= lastmodified), (timestamp, lastmodified)
+        else:
+          timestamp = struct.unpack("<L", bytecode[4:8])[0]
+          assert (timestamp >= lastmodified), (timestamp, lastmodified)
+
+      header = 8
       pyver = sys.version_info[:2]
-      if pyver[0] == 3 and pyver[1] >= 3: #python >= 3.3
+      if pyver >= (3, 7):
+        header = 16
+      elif pyver >= (3, 3):
         header = 12
       obj = marshal.loads(bytecode[header:])
       bytecode_ok = True

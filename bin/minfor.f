@@ -41,9 +41,11 @@ c     Local variables
       integer i,ii,iii,n,j,jj,k,kk,ir,isfv,itr,nfun,np     
       integer itra, ieig, iindex, iori, fixre, iscore,ivmax
       integer ju,ju0,jl,jb,nmodes, jn,jn0, nimodes
-      integer iab
+      integer iab, req_id, trace_status
       real*8 c,acc,dff,dgb,enlig,f,fa,fmin,gl1,gl2,gmin,dga,xnull,w
       real*8 fb,dnorm,neomorph
+      logical trace_requests
+      character*16 trace_env
       
       real*8 h,g,ga,gb,xaa,xbb,d,delta,step,stepbd,steplb,stmin
       dimension h(maxdof*maxdof)
@@ -60,6 +62,18 @@ c     Local variables
 
       xnull=0.0d0
       dga=xnull
+      req_id = 0
+      trace_requests = .false.
+      trace_env = ' '
+      call get_environment_variable('ATTRACT_MINFOR_TRACE',
+     1 trace_env, status=trace_status)
+      if (trace_status.eq.0) then
+       if (trace_env(1:1).eq.'1'.or.trace_env(1:1).eq.'y'.or.
+     1  trace_env(1:1).eq.'Y'.or.trace_env(1:1).eq.'t'.or.
+     2  trace_env(1:1).eq.'T') then
+        trace_requests = .true.
+       endif
+      endif
 
 
 
@@ -127,11 +141,25 @@ c     set the hessian to a diagonal matrix
       enddo
 c     set some variables for the first iteration
       dff=xnull
+      if (trace_requests) then
+       req_id = req_id + 1
+       write(ERROR_UNIT,*) 'MINFOR_REQUEST PRE', req_id, 'INIT',
+     1  itr, nfun, ivmax, jn, iscore, fixre
+       do i=1,nlig
+        write(ERROR_UNIT,*) 'MINFOR_STATE', req_id, i, ens(i),
+     1   phi(i), ssi(i), rot(i), xa(i), ya(i), za(i), morph(i)
+       enddo
+      endif
       call energy(cartstatehandle,ministatehandle,
      1 iab,iori,itra,ieig,iindex,fixre,
      2 ens,phi,ssi,rot,xa,ya,za,morph,dlig,
      3 locrests, has_locrests,seed,
      4 gesa,energies,delta,deltamorph)
+      if (trace_requests) then
+       write(ERROR_UNIT,*) 'MINFOR_REQUEST POST', req_id, 'INIT',
+     1  gesa, energies(1), energies(2), energies(3),
+     2  energies(4), energies(5), energies(6)
+      endif
       do i=jn0+1,jn
        delta(i) = deltamorph(i-jn0)
       enddo     
@@ -351,11 +379,26 @@ c       write(*,*)'new ii,c,xa ya za',i,ii,c,xa(i),ya(i),za(i),d(ii+1)
 c      write (*,*),'lig',i,phi(i),ssi(i),rot(i),xa(i),ya(i),za(i)
       enddo
 c      write(ERROR_UNIT,*) "Call other energy"
+      if (trace_requests) then
+       req_id = req_id + 1
+       write(ERROR_UNIT,*) 'MINFOR_REQUEST PRE', req_id, 'LINE',
+     1  itr, nfun, ivmax, c, stmin, step, steplb, stepbd,
+     2  dga, fa
+       do i=1,nlig
+        write(ERROR_UNIT,*) 'MINFOR_STATE', req_id, i, ens(i),
+     1   phi(i), ssi(i), rot(i), xa(i), ya(i), za(i), morph(i)
+       enddo
+      endif
       call energy(cartstatehandle,ministatehandle,
      1 iab,iori,itra,ieig,iindex,fixre,
      2 ens,phi,ssi,rot,xa,ya,za,morph,dlig,
      3 locrests, has_locrests, seed,
      4 fb,energies,delta,deltamorph)
+      if (trace_requests) then
+       write(ERROR_UNIT,*) 'MINFOR_REQUEST POST', req_id, 'LINE',
+     1  fb, energies(1), energies(2), energies(3),
+     2  energies(4), energies(5), energies(6)
+      endif
       do i=jn0+1,jn
        delta(i) = deltamorph(i-ju0)
       enddo     
@@ -496,11 +539,25 @@ c     at this stage the whole calculation is complete
       nfun=nfun+1
       endif
       
+      if (trace_requests) then
+       req_id = req_id + 1
+       write(ERROR_UNIT,*) 'MINFOR_REQUEST PRE', req_id, 'FINAL',
+     1  itr, nfun, ivmax, jn, iscore
+       do i=1,nlig
+        write(ERROR_UNIT,*) 'MINFOR_STATE', req_id, i, ens(i),
+     1   phi(i), ssi(i), rot(i), xa(i), ya(i), za(i), morph(i)
+       enddo
+      endif
       call energy(cartstatehandle,ministatehandle,
      1 iab,iori,itra,ieig,iindex,fixre,
      2 ens,phi,ssi,rot,xa,ya,za,morph,dlig,
      3 locrests, has_locrests, seed,
      4 gesa,energies,delta,deltamorph)
+      if (trace_requests) then
+       write(ERROR_UNIT,*) 'MINFOR_REQUEST POST', req_id, 'FINAL',
+     1  gesa, energies(1), energies(2), energies(3),
+     2  energies(4), energies(5), energies(6)
+      endif
       do i=jn0+1,jn
        delta(i) = deltamorph(i-jn0)
       enddo     
